@@ -3,13 +3,13 @@ FROM node:12.19.0-alpine
 ARG UID=1001
 ARG GID=1001
 
-RUN addgroup -S sync -g $GID && adduser -D -S sync -G sync -u $UID
+RUN addgroup -S syncingserver -g $GID && adduser -D -S syncingserver -G syncingserver -u $UID
 
 WORKDIR /var/www
 
 RUN chown -R $UID:$GID .
 
-USER sync
+USER syncingserver
 
 COPY --chown=$UID:$GID package.json yarn.lock /var/www/
 
