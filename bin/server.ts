@@ -4,13 +4,13 @@ import '../src/Controller/RevisionsController'
 
 import * as bodyParser from 'body-parser'
 import * as prettyjson from 'prettyjson'
+import * as expressWinston from 'express-winston'
+import * as winston from 'winston'
 
 import { InversifyExpressServer, getRouteInfo } from 'inversify-express-utils'
 import { ContainerConfigLoader } from '../src/Bootstrap/Container'
-import { config } from 'dotenv'
-
-
-config()
+import TYPES from '../src/Bootstrap/Types'
+import { Env } from '../src/Bootstrap/Env'
 
 const container = ContainerConfigLoader.Load()
 
@@ -21,6 +21,15 @@ server.setConfig((app) => {
     extended: true,
   }))
   app.use(bodyParser.json())
+
+  app.use(expressWinston.logger({
+    transports: [
+        new winston.transports.Console({
+            format: winston.format.json(),
+        }),
+    ],
+    ignoreRoute: function (req, _res) { return ['/healthcheck', '/favicon.ico'].indexOf(req.path.replace(/\/$/, '')) >= 0 },
+}))
 })
 
 const serverInstance = server.build()
@@ -29,6 +38,11 @@ const routeInfo = getRouteInfo(container)
 
 console.log(prettyjson.render({ routes: routeInfo }))
 
-serverInstance.listen(process.env.PORT)
+const env: Env = container.get(TYPES.Env)
 
-console.log(`Server started on port ${process.env.PORT}`)
+serverInstance.listen(env.get('PORT'))
+
+const loggerFactory: () => winston.Logger = container.get(TYPES.LoggerFactory)
+const logger = loggerFactory()
+
+logger.info(`Server started on port ${process.env.PORT}`)
