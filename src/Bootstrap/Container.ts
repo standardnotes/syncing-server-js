@@ -1,7 +1,7 @@
 import * as winston from 'winston'
 import { Container, interfaces } from 'inversify'
 import { InMemoryRevisionRepository } from '../Infra/InMemory/InMemoryRevisionRepository'
-import { Env } from './env'
+import { Env } from './Env'
 import TYPES from './Types'
 
 export class ContainerConfigLoader {
