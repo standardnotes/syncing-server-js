@@ -10,7 +10,7 @@ import * as winston from 'winston'
 import { InversifyExpressServer, getRouteInfo } from 'inversify-express-utils'
 import { ContainerConfigLoader } from '../src/Bootstrap/Container'
 import TYPES from '../src/Bootstrap/Types'
-import { Env } from '../src/Bootstrap/env'
+import { Env } from '../src/Bootstrap/Env'
 
 const container = ContainerConfigLoader.Load()
 
