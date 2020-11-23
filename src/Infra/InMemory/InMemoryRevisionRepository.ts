@@ -1,10 +1,19 @@
-import { injectable } from 'inversify'
+import { inject, injectable } from 'inversify'
+import * as winston from 'winston'
+import TYPES from '../../Bootstrap/Types'
 
 import { Revision } from '../../Domain/Revision/Revision'
 import { RevisionRepositoryInterface } from '../../Domain/Revision/RevisionRepositoryInterface'
 
 @injectable()
 export class InMemoryRevisionRepository implements RevisionRepositoryInterface {
+  private logger: winston.Logger
+
+  constructor(
+    @inject(TYPES.LoggerFactory) loggerFactory: () => winston.Logger,
+  ) {
+    this.logger = loggerFactory()
+  }
   private revisions: Array<Revision> = [
     {
       uuid: '123',
@@ -33,6 +42,8 @@ export class InMemoryRevisionRepository implements RevisionRepositoryInterface {
   ]
 
   async findByItemId(itemId: string): Promise<Array<Revision>> {
+    this.logger.info(`Searching for revisions on item ${itemId}`)
+
     return this.revisions.filter(revision => revision.itemUuid == itemId)
   }
 
