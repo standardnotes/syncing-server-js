@@ -1,6 +1,6 @@
 {
   "name": "syncing-server-js",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "engines": {
     "node": ">=12.0.0 <14.0.0"
   },
