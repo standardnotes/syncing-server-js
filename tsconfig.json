@@ -17,10 +17,16 @@
     "removeComments": false,
     "skipLibCheck": false,
     "types": [
-      "node"
+      "node",
+      "jest"
+    ],
+    "typeRoots": [
+      "node_modules/@types",
+      "typings"
     ],
     "lib": [
-      "es6"
+      "es6",
+      "es7"
     ],
   },
   "include": [
