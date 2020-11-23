@@ -1,7 +1,7 @@
 import * as express from 'express'
 import { BaseHttpController, controller, httpGet, results } from 'inversify-express-utils'
 import { RevisionRepositoryInterface } from '../Domain/Revision/RevisionRepositoryInterface'
-import TYPES from '../Bootstrap/types'
+import TYPES from '../Bootstrap/Types'
 import { inject } from 'inversify'
 
 @controller('/items/:item_id/revisions')
