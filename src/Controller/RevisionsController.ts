@@ -4,7 +4,7 @@ import { RevisionRepositoryInterface } from '../Domain/Revision/RevisionReposito
 import TYPES from '../Bootstrap/Types'
 import { inject } from 'inversify'
 
-@controller('/items/:item_id/revisions')
+@controller('/items/:item_id/revisions', TYPES.AuthMiddleware)
 export class RevisionsController extends BaseHttpController {
     constructor(
       @inject(TYPES.RevisionRepository) private revisionRepository: RevisionRepositoryInterface

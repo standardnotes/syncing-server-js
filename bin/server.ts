@@ -38,7 +38,8 @@ const routeInfo = getRouteInfo(container)
 
 console.log(prettyjson.render({ routes: routeInfo }))
 
-const env: Env = container.get(TYPES.Env)
+const env: Env = new Env()
+env.load()
 
 serverInstance.listen(env.get('PORT'))
 

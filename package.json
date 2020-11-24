@@ -26,6 +26,7 @@
     "express-winston": "^4.0.5",
     "inversify": "^5.0.1",
     "inversify-express-utils": "^6.3.2",
+    "jsonwebtoken": "^8.5.1",
     "prettyjson": "^1.2.1",
     "reflect-metadata": "^0.1.13",
     "winston": "^3.3.3"
@@ -35,6 +36,7 @@
     "@types/express": "^4.17.9",
     "@types/inversify-express-utils": "^2.0.0",
     "@types/jest": "^26.0.15",
+    "@types/jsonwebtoken": "^8.5.0",
     "@types/prettyjson": "^0.0.29",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
