@@ -6,7 +6,10 @@ export class Item {
   @PrimaryColumn()
   uuid: string
 
-  @ManyToMany(() => Revision)
+  @ManyToMany(
+    /* istanbul ignore next */
+    () => Revision
+  )
   @JoinTable({
     name: 'item_revisions',
     joinColumn: {

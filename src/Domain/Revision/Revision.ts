@@ -33,7 +33,10 @@ export class Revision {
   @Column({ name: 'updated_at' })
   updatedAt: Date
 
-  @ManyToMany(() => Item)
+  @ManyToMany(
+    /* istanbul ignore next */
+    () => Item
+  )
   @JoinTable({
     name: 'item_revisions',
     joinColumn: {
@@ -45,5 +48,5 @@ export class Revision {
         referencedColumnName: 'uuid'
     }
   })
-  items: Array<Item>
+  items: Item[]
 }

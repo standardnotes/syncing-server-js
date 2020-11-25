@@ -11,6 +11,8 @@ import { SessionService } from '../Domain/Session/SessionService'
 import { MySQLSessionRepository } from '../Infra/MySQL/MySQLSessionRepository'
 import { MySQLUserRepository } from '../Infra/MySQL/MySQLUserRepository'
 import { MySQLRevisionRepository } from '../Infra/MySQL/MySQLRevisionRepository'
+import { Item } from '../Domain/Item/Item'
+import { Revision } from '../Domain/Revision/Revision'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -28,7 +30,9 @@ export class ContainerConfigLoader {
           database: env.get('DB_DATABASE'),
           entities: [
             User,
-            Session
+            Session,
+            Item,
+            Revision
           ],
           synchronize: true,
         })
@@ -52,9 +56,9 @@ export class ContainerConfigLoader {
 
         container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
 
-        container.bind<MySQLSessionRepository>(TYPES.SessionRepository).to(MySQLSessionRepository)
-        container.bind<MySQLUserRepository>(TYPES.UserRepository).to(MySQLUserRepository)
-        container.bind<MySQLRevisionRepository>(TYPES.RevisionRepository).to(MySQLRevisionRepository)
+        container.bind<MySQLSessionRepository>(TYPES.SessionRepository).toConstantValue(connection.getCustomRepository(MySQLSessionRepository))
+        container.bind<MySQLUserRepository>(TYPES.UserRepository).toConstantValue(connection.getCustomRepository(MySQLUserRepository))
+        container.bind<MySQLRevisionRepository>(TYPES.RevisionRepository).toConstantValue(connection.getCustomRepository(MySQLRevisionRepository))
 
         container.bind<SessionService>(TYPES.SessionService).to(SessionService)
 

@@ -1,4 +1,6 @@
+import * as crypto from 'crypto'
 import { inject } from 'inversify'
+
 import TYPES from '../../Bootstrap/Types'
 import { Session } from './Session'
 import { SessionRepositoryInterface } from './SessionRepositoryInterface'
@@ -10,17 +12,23 @@ export class SessionService implements SessionServiceInterace {
   ) {
   }
 
-  async getSessionFromToken(_token: string): Promise<Session | undefined> {
-    // _version, session_id, access_token = Session.deconstruct_token(request_token)
-    // session = Session.find_by_uuid(session_id)
-    // if session && !access_token.nil?
-    //   return session if ActiveSupport::SecurityUtils.secure_compare(
-    //     session.hashed_access_token,
-    //     Session.hash_string(access_token)
-    //   )
-    // end
+  async getSessionFromToken(token: string): Promise<Session | undefined> {
+    const tokenParts = token.split(':')
+    const sessionUuid = tokenParts[1]
+    const accessToken = tokenParts[2]
+    if (!accessToken) {
+      return undefined
+    }
 
-    // const [_version, sessionId, accessToken] = token.split(':')
+    const session = await this.sessionRepository.findOneByUuid(sessionUuid)
+    if (!session) {
+      return undefined
+    }
+
+    const hashedAccessToken = crypto.createHash('sha256').update(accessToken).digest('hex')
+    if(crypto.timingSafeEqual(Buffer.from(session.hashedAccessToken), Buffer.from(hashedAccessToken))) {
+      return session
+    }
 
     return undefined
   }

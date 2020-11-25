@@ -12,19 +12,19 @@ export class MySQLRevisionRepository extends Repository<Revision> implements Rev
         'item_revisions',
         'ir',
         'ir.item_uuid = :item_uuid',
-        { itemId }
+        { item_uuid: itemId }
       )
       .getMany()
   }
 
   async findOneById(itemId: string, id: string): Promise<Revision | undefined> {
     return this.createQueryBuilder('revision')
-      .where('uuid = :uuid', { id })
+      .where('revision.uuid = :uuid', { uuid: id })
       .innerJoin(
         'item_revisions',
         'ir',
         'ir.item_uuid = :item_uuid',
-        { itemId }
+        { item_uuid: itemId }
       )
       .getOne()
   }

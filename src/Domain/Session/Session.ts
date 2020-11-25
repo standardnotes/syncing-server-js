@@ -8,6 +8,9 @@ export class Session {
   @Column({ name: 'user_uuid' })
   userUuid: string
 
+  @Column({ name: 'hashed_access_token' })
+  hashedAccessToken: string
+
   @Column({ name: 'access_expiration' })
   accessExpiration: Date
 
