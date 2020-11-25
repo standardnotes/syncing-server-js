@@ -5,7 +5,7 @@ import { SessionRepositoryInterface } from '../../Domain/Session/SessionReposito
 
 @injectable()
 export class InMemorySessionRepository implements SessionRepositoryInterface {
-  async findOneByToken(_token: string): Promise<Session | undefined> {
+  async findOneByUuid(_uuid: string): Promise<Session | undefined> {
     return undefined
   }
 }

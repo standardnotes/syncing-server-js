@@ -5,7 +5,7 @@ import { verify } from 'jsonwebtoken'
 import TYPES from '../../Bootstrap/Types'
 import { AuthenticationMethod } from '../Auth/AuthenticationMethod'
 import { Session } from '../Session/Session'
-import { SessionRepositoryInterface } from '../Session/SessionRepositoryInterface'
+import { SessionServiceInterace } from '../Session/SessionServiceInterface'
 import { UserRepositoryInterface } from '../User/UserRepositoryInterface'
 
 import { AuthenticateUserDTO } from './AuthenticateUserDTO'
@@ -17,7 +17,7 @@ export class AuthenticateUser {
     @inject(TYPES.JWT_SECRET) private jwtSecret: string,
     @inject(TYPES.LEGACY_JWT_SECRET) private legacyJwtSecret: string,
     @inject(TYPES.UserRepository) private userRepository: UserRepositoryInterface,
-    @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface,
+    @inject(TYPES.SessionService) private sessionService: SessionServiceInterace,
   ) {
   }
 
@@ -38,7 +38,7 @@ export class AuthenticateUser {
       }
     }
 
-    if(authenticationMethod.type == 'jwt' && user.supportsSessions) {
+    if(authenticationMethod.type == 'jwt' && user.supportsSessions()) {
       return {
         success: false,
         failureType: 'INVALID_AUTH'
@@ -61,14 +61,14 @@ export class AuthenticateUser {
       case 'session_token': {
         const session = <Session> authenticationMethod.session
 
-        if (session.refreshExpired) {
+        if (session.refreshExpired()) {
           return {
             success: false,
             failureType: 'INVALID_AUTH'
           }
         }
 
-        if (session.accessExpired) {
+        if (session.accessExpired()) {
           return {
             success: false,
             failureType: 'EXPIRED_TOKEN'
@@ -107,16 +107,16 @@ export class AuthenticateUser {
     if (decodedToken) {
       return {
         type: 'jwt',
-        user: await this.userRepository.findOneById(<string> decodedToken.user_uuid),
+        user: await this.userRepository.findOneByUuid(<string> decodedToken.user_uuid),
         claims: decodedToken,
       }
     }
 
-    const session = await this.sessionRepository.findOneByToken(token)
+    const session = await this.sessionService.getSessionFromToken(token)
     if (session) {
       return {
         type: 'session_token',
-        user: await this.userRepository.findOneById(session.userUuid),
+        user: await this.userRepository.findOneByUuid(session.userUuid),
         session: session,
       }
     }

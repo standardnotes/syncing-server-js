@@ -8,23 +8,22 @@ import { NextFunction, Request, Response } from 'express'
 import { User } from '../Domain/User/User'
 
 describe('AuthMiddleware', () => {
-  let loggerFactory: () => winston.Logger
+  let logger: winston.Logger
   let authenticateUser: AuthenticateUser
   let request: Request
   let response: Response
   let next: NextFunction
 
-  const createMiddleware = () => new AuthMiddleware(authenticateUser, loggerFactory)
+  const createMiddleware = () => new AuthMiddleware(authenticateUser, logger)
 
   beforeEach(() => {
     authenticateUser = {} as jest.Mocked<AuthenticateUser>
     authenticateUser.execute = jest.fn()
 
-    const logger = {} as jest.Mocked<winston.Logger>
+    logger = {} as jest.Mocked<winston.Logger>
     logger.info = jest.fn()
     logger.warn = jest.fn()
     logger.error = jest.fn()
-    loggerFactory = jest.fn().mockReturnValue(logger)
 
     request = {
       headers: {}

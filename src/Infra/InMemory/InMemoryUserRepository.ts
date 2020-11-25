@@ -5,10 +5,10 @@ import { UserRepositoryInterface } from '../../Domain/User/UserRepositoryInterfa
 
 @injectable()
 export class InMemoryUserRepository implements UserRepositoryInterface {
-  async findOneById(_id: string): Promise<User | undefined> {
-    return {
-      supportsSessions: false,
-      encryptedPassword: 'test'
-    }
+  async findOneByUuid(_uuid: string): Promise<User | undefined> {
+    const user = new User()
+    user.encryptedPassword = 'test'
+
+    return user
   }
 }
