@@ -1,5 +1,5 @@
 import { User } from './User'
 
 export interface UserRepositoryInterface {
-  findOneById(id: string): Promise<User | undefined>
+  findOneByUuid(uuid: string): Promise<User | undefined>
 }

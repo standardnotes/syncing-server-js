@@ -1,15 +1,16 @@
 import * as winston from 'winston'
-import { Container, interfaces } from 'inversify'
-import { InMemoryRevisionRepository } from '../Infra/InMemory/InMemoryRevisionRepository'
+import { Container } from 'inversify'
 import { Env } from './Env'
 import TYPES from './Types'
 import { AuthMiddleware } from '../Controller/AuthMiddleware'
 import { AuthenticateUser } from '../Domain/UseCase/AuthenticateUser'
-import { InMemorySessionRepository } from '../Infra/InMemory/InMemorySessionRepository'
-import { InMemoryUserRepository } from '../Infra/InMemory/InMemoryUserRepository'
 import { Connection, createConnection } from 'typeorm'
 import { User } from '../Domain/User/User'
 import { Session } from '../Domain/Session/Session'
+import { SessionService } from '../Domain/Session/SessionService'
+import { MySQLSessionRepository } from '../Infra/MySQL/MySQLSessionRepository'
+import { MySQLUserRepository } from '../Infra/MySQL/MySQLUserRepository'
+import { MySQLRevisionRepository } from '../Infra/MySQL/MySQLRevisionRepository'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -34,8 +35,6 @@ export class ContainerConfigLoader {
 
         container.bind<Connection>(TYPES.DBConnection).toConstantValue(connection)
 
-        container.bind<InMemoryRevisionRepository>(TYPES.RevisionRepository).to(InMemoryRevisionRepository)
-
         container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
 
         const logger = winston.createLogger({
@@ -53,8 +52,11 @@ export class ContainerConfigLoader {
 
         container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
 
-        container.bind<InMemorySessionRepository>(TYPES.SessionRepository).to(InMemorySessionRepository)
-        container.bind<InMemoryUserRepository>(TYPES.UserRepository).to(InMemoryUserRepository)
+        container.bind<MySQLSessionRepository>(TYPES.SessionRepository).to(MySQLSessionRepository)
+        container.bind<MySQLUserRepository>(TYPES.UserRepository).to(MySQLUserRepository)
+        container.bind<MySQLRevisionRepository>(TYPES.RevisionRepository).to(MySQLRevisionRepository)
+
+        container.bind<SessionService>(TYPES.SessionService).to(SessionService)
 
         container.bind(TYPES.JWT_SECRET).toConstantValue(env.get('JWT_SECRET'))
         container.bind(TYPES.LEGACY_JWT_SECRET).toConstantValue(env.get('LEGACY_JWT_SECRET'))

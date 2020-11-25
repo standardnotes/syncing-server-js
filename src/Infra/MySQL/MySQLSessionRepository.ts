@@ -7,9 +7,9 @@ import { SessionRepositoryInterface } from '../../Domain/Session/SessionReposito
 @injectable()
 @EntityRepository()
 export class MySQLSessionRepository extends Repository<Session> implements SessionRepositoryInterface {
-  async findOneByUuid(sessionUuid: string): Promise<Session | undefined> {
+  async findOneByUuid(uuid: string): Promise<Session | undefined> {
     return this.createQueryBuilder('session')
-      .where('session.uuid = :uuid', { sessionUuid })
+      .where('session.uuid = :uuid', { uuid })
       .getOne()
   }
 }
