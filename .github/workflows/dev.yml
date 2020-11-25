@@ -31,7 +31,7 @@ jobs:
         name: standardnotes/syncing-server-js
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        tags: "stable,${{ github.sha }}"
+        tags: "latest,${{ github.sha }}"
 
   deploy-web:
     needs: publish
