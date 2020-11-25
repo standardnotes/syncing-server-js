@@ -27,7 +27,7 @@
     "inversify": "^5.0.1",
     "inversify-express-utils": "^6.3.2",
     "jsonwebtoken": "^8.5.1",
-    "mysql": "^2.18.1",
+    "mysql2": "^2.2.5",
     "prettyjson": "^1.2.1",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.29",

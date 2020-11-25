@@ -4,7 +4,7 @@ import { Revision } from '../../Domain/Revision/Revision'
 import { RevisionRepositoryInterface } from '../../Domain/Revision/RevisionRepositoryInterface'
 
 @injectable()
-@EntityRepository()
+@EntityRepository(Revision)
 export class MySQLRevisionRepository extends Repository<Revision> implements RevisionRepositoryInterface {
   async findByItemId(itemId: string): Promise<Array<Revision>> {
     return this.createQueryBuilder('revision')

@@ -1,11 +1,12 @@
 import * as crypto from 'crypto'
-import { inject } from 'inversify'
+import { inject, injectable } from 'inversify'
 
 import TYPES from '../../Bootstrap/Types'
 import { Session } from './Session'
 import { SessionRepositoryInterface } from './SessionRepositoryInterface'
 import { SessionServiceInterace } from './SessionServiceInterface'
 
+@injectable()
 export class SessionService implements SessionServiceInterace {
   constructor (
     @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface

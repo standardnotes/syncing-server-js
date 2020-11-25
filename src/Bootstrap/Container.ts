@@ -34,7 +34,7 @@ export class ContainerConfigLoader {
             Item,
             Revision
           ],
-          synchronize: true,
+          synchronize: false,
         })
 
         container.bind<Connection>(TYPES.DBConnection).toConstantValue(connection)

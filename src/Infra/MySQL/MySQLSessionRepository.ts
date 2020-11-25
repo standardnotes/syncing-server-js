@@ -5,7 +5,7 @@ import { Session } from '../../Domain/Session/Session'
 import { SessionRepositoryInterface } from '../../Domain/Session/SessionRepositoryInterface'
 
 @injectable()
-@EntityRepository()
+@EntityRepository(Session)
 export class MySQLSessionRepository extends Repository<Session> implements SessionRepositoryInterface {
   async findOneByUuid(uuid: string): Promise<Session | undefined> {
     return this.createQueryBuilder('session')
