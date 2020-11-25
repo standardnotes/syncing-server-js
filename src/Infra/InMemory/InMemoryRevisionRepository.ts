@@ -7,13 +7,11 @@ import { RevisionRepositoryInterface } from '../../Domain/Revision/RevisionRepos
 
 @injectable()
 export class InMemoryRevisionRepository implements RevisionRepositoryInterface {
-  private logger: winston.Logger
-
   constructor(
-    @inject(TYPES.LoggerFactory) loggerFactory: () => winston.Logger,
+    @inject(TYPES.Logger) private logger: winston.Logger,
   ) {
-    this.logger = loggerFactory()
   }
+
   private revisions: Array<Revision> = [
     {
       uuid: '123',

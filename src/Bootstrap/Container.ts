@@ -7,33 +7,49 @@ import { AuthMiddleware } from '../Controller/AuthMiddleware'
 import { AuthenticateUser } from '../Domain/UseCase/AuthenticateUser'
 import { InMemorySessionRepository } from '../Infra/InMemory/InMemorySessionRepository'
 import { InMemoryUserRepository } from '../Infra/InMemory/InMemoryUserRepository'
+import { Connection, createConnection } from 'typeorm'
+import { User } from '../Domain/User/User'
+import { Session } from '../Domain/Session/Session'
 
 export class ContainerConfigLoader {
-    public static Load(): Container {
+    async load(): Promise<Container> {
         const env: Env = new Env()
         env.load()
 
         const container = new Container()
+
+        const connection: Connection = await createConnection({
+          type: 'mysql',
+          host: env.get('DB_HOST'),
+          port: parseInt(env.get('DB_PORT')),
+          username: env.get('DB_USERNAME'),
+          password: env.get('DB_PASSWORD'),
+          database: env.get('DB_DATABASE'),
+          entities: [
+            User,
+            Session
+          ],
+          synchronize: true,
+        })
+
+        container.bind<Connection>(TYPES.DBConnection).toConstantValue(connection)
+
         container.bind<InMemoryRevisionRepository>(TYPES.RevisionRepository).to(InMemoryRevisionRepository)
 
         container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
 
-        container.bind<interfaces.Factory<winston.Logger>>(TYPES.LoggerFactory).toFactory<winston.Logger>((_context: interfaces.Context) => {
-          return () => {
-            const logLevel = env.get('LOG_LEVEL') || 'info'
-
-            return  winston.createLogger({
-              level: logLevel,
-              format: winston.format.combine(
-                  winston.format.splat(),
-                  winston.format.json(),
-              ),
-              transports: [
-                  new winston.transports.Console({ level: logLevel }),
-              ],
-            })
-          }
+        const logger = winston.createLogger({
+          level: env.get('LOG_LEVEL') || 'info',
+          format: winston.format.combine(
+              winston.format.splat(),
+              winston.format.json(),
+          ),
+          transports: [
+              new winston.transports.Console({ level: env.get('LOG_LEVEL') || 'info' }),
+          ],
         })
+
+        container.bind<winston.Logger>(TYPES.Logger).toConstantValue(logger)
 
         container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
 

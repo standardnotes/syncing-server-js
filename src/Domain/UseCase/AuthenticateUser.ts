@@ -38,7 +38,7 @@ export class AuthenticateUser {
       }
     }
 
-    if(authenticationMethod.type == 'jwt' && user.supportsSessions) {
+    if(authenticationMethod.type == 'jwt' && user.supportsSessions()) {
       return {
         success: false,
         failureType: 'INVALID_AUTH'
@@ -61,14 +61,14 @@ export class AuthenticateUser {
       case 'session_token': {
         const session = <Session> authenticationMethod.session
 
-        if (session.refreshExpired) {
+        if (session.refreshExpired()) {
           return {
             success: false,
             failureType: 'INVALID_AUTH'
           }
         }
 
-        if (session.accessExpired) {
+        if (session.accessExpired()) {
           return {
             success: false,
             failureType: 'EXPIRED_TOKEN'
