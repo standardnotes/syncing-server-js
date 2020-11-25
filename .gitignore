@@ -5,3 +5,5 @@ dist
 # Coverage
 coverage
 junit.xml
+
+.DS_Store
