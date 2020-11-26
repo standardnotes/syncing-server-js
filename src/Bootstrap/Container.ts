@@ -35,6 +35,7 @@ export class ContainerConfigLoader {
             Revision
           ],
           synchronize: false,
+          logging: env.get('DB_DEBUG') === 'true' ? 'all' : undefined
         })
 
         container.bind<Connection>(TYPES.DBConnection).toConstantValue(connection)
