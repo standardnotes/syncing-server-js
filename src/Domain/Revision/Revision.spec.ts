@@ -13,6 +13,6 @@ describe('Revision', () => {
     revision.createdAt = new Date('2020-11-26 14:34')
     revision.updatedAt = new Date('2020-11-26 14:34')
 
-    expect(JSON.stringify(revision)).toEqual('{"uuid":"123","content_type":"Note","created_at":"2020-11-26T13:34:00.000Z","updated_at":"2020-11-26T13:34:00.000Z"}')
+    expect(JSON.stringify(revision)).toBe('{"uuid":"123","content_type":"Note","created_at":"2020-11-26T13:34:00.000Z","updated_at":"2020-11-26T13:34:00.000Z"}')
   })
 })
