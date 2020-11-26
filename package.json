@@ -18,7 +18,7 @@
     "coverage": "jest --coverage --maxWorkers=2 --no-cache spec --reporters=\"default\" \"jest-junit\"",
     "pretest": "yarn lint && yarn build",
     "test": "jest spec",
-    "start": "node-env-run dist/bin/server.js"
+    "start": "node dist/bin/server.js"
   },
   "dependencies": {
     "dotenv": "^8.2.0",
@@ -45,7 +45,6 @@
     "eslint": "^7.13.0",
     "jest": "^26.6.3",
     "jest-junit": "^12.0.0",
-    "node-env-run": "^4.0.2",
     "pre-push": "^0.1.1",
     "ts-jest": "^26.4.4",
     "typescript": "^4.0.5"
