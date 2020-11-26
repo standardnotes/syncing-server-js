@@ -13,6 +13,9 @@ describe('Revision', () => {
     revision.createdAt = new Date('2020-11-26 14:34')
     revision.updatedAt = new Date('2020-11-26 14:34')
 
-    expect(JSON.stringify(revision)).toBe('{"uuid":"123","content_type":"Note","created_at":"2020-11-26T13:34:00.000Z","updated_at":"2020-11-26T13:34:00.000Z"}')
+    const jsonRevision = JSON.stringify(revision)
+    expect(jsonRevision).not.toContain('"contentType"')
+    expect(jsonRevision).not.toContain('"content"')
+    expect(jsonRevision).toContain('"content_type"')
   })
 })
