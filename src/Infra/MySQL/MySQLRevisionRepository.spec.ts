@@ -22,6 +22,7 @@ describe('MySQLRevisionRepository', () => {
 
   it('should find revisions by item id', async () => {
     queryBuilder.innerJoinAndSelect = jest.fn().mockReturnThis()
+    queryBuilder.orderBy = jest.fn().mockReturnThis()
     queryBuilder.getMany = jest.fn().mockReturnValue([revision])
 
     const result = await repository.findByItemId('123')
@@ -32,6 +33,7 @@ describe('MySQLRevisionRepository', () => {
       'item.uuid = :item_uuid',
       { item_uuid: '123' }
     )
+    expect(queryBuilder.orderBy).toHaveBeenCalledWith('revision.created_at', 'DESC')
     expect(result).toEqual([revision])
   })
 

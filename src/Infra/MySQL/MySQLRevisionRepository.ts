@@ -14,6 +14,7 @@ export class MySQLRevisionRepository extends Repository<Revision> implements Rev
         'item.uuid = :item_uuid',
         { item_uuid: itemId }
       )
+      .orderBy('revision.created_at', 'DESC')
       .getMany()
   }
 
