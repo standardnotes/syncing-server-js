@@ -15,6 +15,10 @@ export class Env {
       this.load()
     }
 
-    return this.env[key]
+    if (!process.env[key]) {
+      throw new Error(`Environment variable ${key} not set`)
+    }
+
+    return <string> process.env[key]
   }
 }
