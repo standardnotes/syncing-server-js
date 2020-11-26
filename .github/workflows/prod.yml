@@ -25,6 +25,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - run: cp .env.sample .env
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
