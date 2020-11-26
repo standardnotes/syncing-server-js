@@ -11,9 +11,9 @@ export class MySQLRevisionRepository extends Repository<Revision> implements Rev
       .innerJoin(
         'item_revisions',
         'ir',
-        'ir.item_uuid = :item_uuid',
-        { item_uuid: itemId }
+        'ir.item_uuid = revision:item_uuid'
       )
+      .where('ir.item_uuid = :item_uuid', { item_uuid: itemId })
       .getMany()
   }
 
@@ -23,9 +23,9 @@ export class MySQLRevisionRepository extends Repository<Revision> implements Rev
       .innerJoin(
         'item_revisions',
         'ir',
-        'ir.item_uuid = :item_uuid',
-        { item_uuid: itemId }
+        'ir.item_uuid = revision:item_uuid'
       )
+      .andWhere('ir.item_uuid = :item_uuid', { item_uuid: itemId })
       .getOne()
   }
 }
