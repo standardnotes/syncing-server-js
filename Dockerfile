@@ -13,7 +13,7 @@ USER syncingserver
 
 COPY --chown=$UID:$GID package.json yarn.lock /var/www/
 
-RUN yarn install --pure-lockfile
+RUN yarn install --frozen-lockfile
 
 COPY --chown=$UID:$GID . /var/www
 
