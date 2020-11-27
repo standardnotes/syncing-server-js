@@ -1,8 +1,10 @@
+import { injectable } from 'inversify'
 import * as moment from 'moment'
 
 import { Revision } from '../Domain/Revision/Revision'
 import { ProjectorInterface } from './ProjectorInterface'
 
+@injectable()
 export class RevisionProjector implements ProjectorInterface<Revision> {
   projectSimple(revision: Revision): Record<string, unknown> {
     return {
