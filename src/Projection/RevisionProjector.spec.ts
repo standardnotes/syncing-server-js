@@ -1,3 +1,5 @@
+import * as moment from 'moment'
+
 import { Revision } from '../Domain/Revision/Revision'
 import { RevisionProjector } from './RevisionProjector'
 
@@ -12,9 +14,9 @@ describe('RevisionProjector', () => {
     revision.contentType = 'Note'
     revision.uuid = '123',
     revision.itemsKeyId = '123',
-    revision.creationDate = new Date('2020-11-26')
-    revision.createdAt = new Date('2020-11-26 14:34')
-    revision.updatedAt = new Date('2020-11-26 14:34')
+    revision.creationDate = moment.utc('2020-11-26').toDate()
+    revision.createdAt = moment.utc('2020-11-26 13:34').toDate()
+    revision.updatedAt = moment.utc('2020-11-26 13:34').toDate()
   })
 
   it('should create a simple projection of a revision', () => {
