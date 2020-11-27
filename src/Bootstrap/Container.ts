@@ -34,7 +34,10 @@ export class ContainerConfigLoader {
             Item,
             Revision
           ],
-          synchronize: false,
+          migrations: [
+            env.get('DB_MIGRATIONS_PATH')
+          ],
+          migrationsRun: true,
           logging: env.get('DB_DEBUG') === 'true' ? 'all' : undefined
         })
 
