@@ -13,6 +13,7 @@ import { MySQLUserRepository } from '../Infra/MySQL/MySQLUserRepository'
 import { MySQLRevisionRepository } from '../Infra/MySQL/MySQLRevisionRepository'
 import { Item } from '../Domain/Item/Item'
 import { Revision } from '../Domain/Revision/Revision'
+import { RevisionProjector } from '../Projection/RevisionProjector'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -68,6 +69,8 @@ export class ContainerConfigLoader {
 
         container.bind(TYPES.JWT_SECRET).toConstantValue(env.get('JWT_SECRET'))
         container.bind(TYPES.LEGACY_JWT_SECRET).toConstantValue(env.get('LEGACY_JWT_SECRET'))
+
+        container.bind<RevisionProjector>(TYPES.RevisionProjector).to(RevisionProjector)
 
         return container
     }

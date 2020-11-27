@@ -9,6 +9,7 @@ const TYPES = {
   SessionRepository: Symbol.for('SessionRepository'),
   DBConnection: Symbol.for('DBConnection'),
   SessionService: Symbol.for('SessionService'),
+  RevisionProjector: Symbol.for('RevisionProjector'),
 }
 
 export default TYPES

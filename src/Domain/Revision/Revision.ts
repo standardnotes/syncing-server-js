@@ -91,13 +91,4 @@ export class Revision {
     }
   })
   items: Item[]
-
-  toJSON(): Record<string, string> {
-    return {
-      'uuid': this.uuid,
-      'content_type': this.contentType,
-      'created_at': this.createdAt.toISOString(),
-      'updated_at': this.updatedAt.toISOString()
-    }
-  }
 }
