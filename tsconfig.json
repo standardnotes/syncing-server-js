@@ -31,7 +31,8 @@
   },
   "include": [
     "src/**/*",
-    "bin/**/*"
+    "bin/**/*",
+    "migrations/**/*"
   ],
   "exclude": [
     "node_modules",
