@@ -19,7 +19,7 @@ describe('RevisionProjector', () => {
 
   it('should create a simple projection of a revision', () => {
     const projection = createProjector().projectSimple(revision)
-    expect(projection).toBe({
+    expect(projection).toMatchObject({
       content_type: 'Note',
       created_at: '2020-11-26T13:34:00.000Z',
       updated_at: '2020-11-26T13:34:00.000Z',
@@ -29,7 +29,7 @@ describe('RevisionProjector', () => {
 
   it('should create a full projection of a revision', () => {
     const projection = createProjector().projectFull(revision)
-    expect(projection).toBe({
+    expect(projection).toMatchObject({
       auth_hash: undefined,
       content: 'test',
       content_type: 'Note',
