@@ -8,8 +8,8 @@ export class RevisionProjector implements ProjectorInterface<Revision> {
     return {
       'uuid': revision.uuid,
       'content_type': revision.contentType,
-      'created_at': revision.createdAt.toISOString(),
-      'updated_at': revision.updatedAt.toISOString()
+      'created_at': moment.utc(revision.createdAt).toISOString(),
+      'updated_at': moment.utc(revision.updatedAt).toISOString()
     }
   }
 
@@ -22,9 +22,9 @@ export class RevisionProjector implements ProjectorInterface<Revision> {
       'items_key_id': revision.itemsKeyId,
       'enc_item_key': revision.encItemKey,
       'auth_hash': revision.authHash,
-      'creation_date': moment(revision.creationDate).format('YYYY-MM-DD'),
-      'created_at': revision.createdAt.toISOString(),
-      'updated_at': revision.updatedAt.toISOString()
+      'creation_date': moment.utc(revision.creationDate).format('YYYY-MM-DD'),
+      'created_at': moment.utc(revision.createdAt).toISOString(),
+      'updated_at': moment.utc(revision.updatedAt).toISOString()
     }
   }
 }
