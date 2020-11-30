@@ -43,8 +43,6 @@ export class AuthMiddleware extends BaseMiddleware {
           }
         }
 
-        this.logger.info('Successfully authenticated user')
-
         response.locals.user = authenticateResponse.user
         response.locals.session = authenticateResponse.session
 
