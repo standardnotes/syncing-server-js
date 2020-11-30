@@ -2,6 +2,7 @@ import 'reflect-metadata'
 import '../src/Controller/HealthCheckController'
 import '../src/Controller/RevisionsController'
 
+import * as cors from 'cors'
 import * as bodyParser from 'body-parser'
 import * as prettyjson from 'prettyjson'
 import * as expressWinston from 'express-winston'
@@ -21,6 +22,7 @@ container.load().then(container => {
       extended: true,
     }))
     app.use(bodyParser.json())
+    app.use(cors())
 
     app.use(expressWinston.logger({
       transports: [
