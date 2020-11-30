@@ -10,24 +10,8 @@ export class initDatabase1606470249552 implements MigrationInterface {
         await queryRunner.query('CREATE TABLE IF NOT EXISTS `item_revisions` (`item_uuid` varchar(36) NOT NULL, `revision_uuid` varchar(36) NOT NULL, INDEX `IDX_d5d6a4987df5bd07fc8540b126` (`item_uuid`), INDEX `IDX_29954477e0d5017ec0a4e315ce` (`revision_uuid`), PRIMARY KEY (`item_uuid`, `revision_uuid`)) ENGINE=InnoDB')
     }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query('DROP INDEX `IDX_29954477e0d5017ec0a4e315ce` ON `item_revisions`')
-        await queryRunner.query('DROP INDEX `IDX_d5d6a4987df5bd07fc8540b126` ON `item_revisions`')
-        await queryRunner.query('DROP TABLE `item_revisions`')
-        await queryRunner.query('DROP INDEX `index_sessions_on_updated_at` ON `sessions`')
-        await queryRunner.query('DROP INDEX `index_sessions_on_user_uuid` ON `sessions`')
-        await queryRunner.query('DROP TABLE `sessions`')
-        await queryRunner.query('DROP INDEX `index_revisions_on_created_at` ON `revisions`')
-        await queryRunner.query('DROP INDEX `index_revisions_on_creation_date` ON `revisions`')
-        await queryRunner.query('DROP INDEX `index_revisions_on_item_uuid` ON `revisions`')
-        await queryRunner.query('DROP TABLE `revisions`')
-        await queryRunner.query('DROP INDEX `index_items_on_user_uuid_and_content_type` ON `items`')
-        await queryRunner.query('DROP INDEX `index_items_on_user_uuid_and_updated_at_and_created_at` ON `items`')
-        await queryRunner.query('DROP INDEX `index_items_on_updated_at` ON `items`')
-        await queryRunner.query('DROP INDEX `index_items_on_deleted` ON `items`')
-        await queryRunner.query('DROP INDEX `index_items_on_user_uuid` ON `items`')
-        await queryRunner.query('DROP INDEX `index_items_on_content_type` ON `items`')
-        await queryRunner.query('DROP TABLE `items`')
+    public async down(_queryRunner: QueryRunner): Promise<void> {
+      return
     }
 
 }
