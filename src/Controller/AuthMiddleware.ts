@@ -9,14 +9,11 @@ import { AuthenticateUserResponse } from '../Domain/UseCase/AuthenticateUserResp
 
 @injectable()
 export class AuthMiddleware extends BaseMiddleware {
-    private logger: winston.Logger
-
     constructor (
         @inject(TYPES.AuthenticateUser) private authenticateUser: AuthenticateUser,
-        @inject(TYPES.LoggerFactory) loggerFactory: () => winston.Logger,
+        @inject(TYPES.Logger) private logger: winston.Logger,
     ) {
       super()
-      this.logger = loggerFactory()
     }
 
     async handler (request: Request, response: Response, next: NextFunction): Promise<void> {
@@ -45,8 +42,6 @@ export class AuthMiddleware extends BaseMiddleware {
               return this.sendInvalidAuthResponse(response)
           }
         }
-
-        this.logger.info('Successfully authenticated user')
 
         response.locals.user = authenticateResponse.user
         response.locals.session = authenticateResponse.session
