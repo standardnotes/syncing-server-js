@@ -12,4 +12,17 @@ export class MySQLSessionRepository extends Repository<Session> implements Sessi
       .where('session.uuid = :uuid', { uuid })
       .getOne()
   }
+
+  async deleteAllByUserUuidExceptOne(userUuid: string, currentSessionUuid: string): Promise<void> {
+    await this.createQueryBuilder('session')
+      .delete()
+      .where(
+        'user_uuid = :user_uuid AND uuid != :current_session_uuid',
+        {
+          user_uuid: userUuid,
+          current_session_uuid: currentSessionUuid
+        }
+      )
+      .execute()
+  }
 }
