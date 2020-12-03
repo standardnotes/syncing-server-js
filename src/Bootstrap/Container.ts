@@ -4,7 +4,7 @@ import { Env } from './Env'
 import TYPES from './Types'
 import { AuthMiddleware } from '../Controller/AuthMiddleware'
 import { AuthenticateUser } from '../Domain/UseCase/AuthenticateUser'
-import { Connection, createConnection } from 'typeorm'
+import { Connection, createConnection, LoggerOptions } from 'typeorm'
 import { User } from '../Domain/User/User'
 import { Session } from '../Domain/Session/Session'
 import { SessionService } from '../Domain/Session/SessionService'
@@ -24,11 +24,24 @@ export class ContainerConfigLoader {
 
         const connection: Connection = await createConnection({
           type: 'mysql',
-          host: env.get('DB_HOST'),
-          port: parseInt(env.get('DB_PORT')),
-          username: env.get('DB_USERNAME'),
-          password: env.get('DB_PASSWORD'),
-          database: env.get('DB_DATABASE'),
+          replication: {
+            master: {
+              host: env.get('DB_HOST'),
+              port: parseInt(env.get('DB_PORT')),
+              username: env.get('DB_USERNAME'),
+              password: env.get('DB_PASSWORD'),
+              database: env.get('DB_DATABASE'),
+            },
+            slaves: [
+              {
+                host: env.get('DB_REPLICA_HOST'),
+                port: parseInt(env.get('DB_PORT')),
+                username: env.get('DB_USERNAME'),
+                password: env.get('DB_PASSWORD'),
+                database: env.get('DB_DATABASE'),
+              }
+            ]
+          },
           entities: [
             User,
             Session,
@@ -39,7 +52,7 @@ export class ContainerConfigLoader {
             env.get('DB_MIGRATIONS_PATH')
           ],
           migrationsRun: true,
-          logging: env.get('DB_DEBUG') === 'true' ? 'all' : undefined
+          logging: <LoggerOptions> env.get('DB_DEBUG_LEVEL'),
         })
 
         container.bind<Connection>(TYPES.DBConnection).toConstantValue(connection)
