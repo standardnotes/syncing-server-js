@@ -4,6 +4,7 @@ import './tracer'
 
 import '../src/Controller/HealthCheckController'
 import '../src/Controller/RevisionsController'
+import '../src/Controller/SessionsController'
 
 import * as cors from 'cors'
 import * as bodyParser from 'body-parser'
