@@ -2,16 +2,16 @@ import 'reflect-metadata'
 
 import * as express from 'express'
 
-import { SessionsController } from './SessionsController'
+import { SessionController } from './SessionController'
 import { results } from 'inversify-express-utils'
 import { SessionRepositoryInterface } from '../Domain/Session/SessionRepositoryInterface'
 
-describe('SessionsController', () => {
+describe('SessionController', () => {
     let sessionsRepository: SessionRepositoryInterface
     let request: express.Request
     let response: express.Response
 
-    const createController = () => new SessionsController(sessionsRepository)
+    const createController = () => new SessionController(sessionsRepository)
 
     beforeEach(() => {
         sessionsRepository = {} as jest.Mocked<SessionRepositoryInterface>
@@ -35,7 +35,7 @@ describe('SessionsController', () => {
             uuid: '234',
           },
         }
-        const httpResponse = await createController().deleteAllRevisions(request, response)
+        const httpResponse = await createController().deleteAllSessions(request, response)
 
         expect(httpResponse).toBeInstanceOf(results.StatusCodeResult)
     })
@@ -46,7 +46,7 @@ describe('SessionsController', () => {
           uuid: '234',
         },
       }
-      const httpResponse = <results.JsonResult> await createController().deleteAllRevisions(request, response)
+      const httpResponse = <results.JsonResult> await createController().deleteAllSessions(request, response)
 
       expect(httpResponse.json).toEqual({ error: { message: 'No session exists with the provided identifier.' } })
       expect(httpResponse.statusCode).toEqual(401)
@@ -58,7 +58,7 @@ describe('SessionsController', () => {
         uuid: '123',
       },
     }
-    const httpResponse = <results.JsonResult> await createController().deleteAllRevisions(request, response)
+    const httpResponse = <results.JsonResult> await createController().deleteAllSessions(request, response)
 
     expect(httpResponse.json).toEqual({ error: { message: 'No session exists with the provided identifier.' } })
     expect(httpResponse.statusCode).toEqual(401)

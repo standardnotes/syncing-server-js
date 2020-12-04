@@ -5,7 +5,7 @@ import TYPES from '../Bootstrap/Types'
 import { SessionRepositoryInterface } from '../Domain/Session/SessionRepositoryInterface'
 
 @controller('/session', TYPES.AuthMiddleware)
-export class SessionsController extends BaseHttpController {
+export class SessionController extends BaseHttpController {
   constructor(
     @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface,
   ) {
@@ -13,7 +13,7 @@ export class SessionsController extends BaseHttpController {
   }
 
   @httpDelete('/all')
-  public async deleteAllRevisions(_request: Request, response: Response): Promise<results.JsonResult | results.StatusCodeResult> {
+  public async deleteAllSessions(_request: Request, response: Response): Promise<results.JsonResult | results.StatusCodeResult> {
       if (!response.locals.user || !response.locals.session) {
         return this.json(
           {
