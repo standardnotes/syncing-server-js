@@ -20,6 +20,19 @@ describe('MySQLSessionRepository', () => {
     repository.createQueryBuilder = jest.fn().mockImplementation(() => queryBuilder)
   })
 
+  it('should find active sessions by user id', async () => {
+    queryBuilder.where = jest.fn().mockReturnThis()
+    queryBuilder.getMany = jest.fn().mockReturnValue([session])
+
+    const result = await repository.findActiveByUserUuid('123')
+
+    expect(queryBuilder.where).toHaveBeenCalledWith(
+      'session.refresh_expiration > :refresh_expiration AND session.user_uuid = :user_uuid',
+      { refresh_expiration: expect.any(Date), user_uuid: '123' }
+    )
+    expect(result).toEqual([session])
+  })
+
   it('should find one session by id', async () => {
     queryBuilder.where = jest.fn().mockReturnThis()
     queryBuilder.getOne = jest.fn().mockReturnValue(session)

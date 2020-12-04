@@ -44,4 +44,14 @@ describe('RevisionProjector', () => {
       uuid: '123'
     })
   })
+
+  it('should throw error on not implemetned custom projection', () => {
+    let error = null
+    try {
+      createProjector().projectCustom('test', revision)
+    } catch (e) {
+      error = e
+    }
+    expect(error.message).toEqual('not implemented')
+  })
 })
