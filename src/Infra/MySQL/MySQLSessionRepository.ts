@@ -7,6 +7,19 @@ import { SessionRepositoryInterface } from '../../Domain/Session/SessionReposito
 @injectable()
 @EntityRepository(Session)
 export class MySQLSessionRepository extends Repository<Session> implements SessionRepositoryInterface {
+  async findOneByUuidAndUserUuid(uuid: string, userUuid: string): Promise<Session | undefined> {
+    return this.createQueryBuilder('session')
+      .where('session.uuid = :uuid AND session.user_uuid = :user_uuid', { uuid, user_uuid: userUuid })
+      .getOne()
+  }
+
+  async deleteOneByUuid(uuid: string): Promise<void> {
+    await this.createQueryBuilder('session')
+      .delete()
+      .where('session.uuid = :uuid', { uuid })
+      .execute()
+  }
+
   async findOneByUuid(uuid: string): Promise<Session | undefined> {
     return this.createQueryBuilder('session')
       .where('session.uuid = :uuid', { uuid })
@@ -17,7 +30,7 @@ export class MySQLSessionRepository extends Repository<Session> implements Sessi
     await this.createQueryBuilder('session')
       .delete()
       .where(
-        'user_uuid = :user_uuid AND uuid != :current_session_uuid',
+        'session.user_uuid = :user_uuid AND session.uuid != :current_session_uuid',
         {
           user_uuid: userUuid,
           current_session_uuid: currentSessionUuid
