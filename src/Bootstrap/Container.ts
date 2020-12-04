@@ -15,6 +15,7 @@ import { Item } from '../Domain/Item/Item'
 import { Revision } from '../Domain/Revision/Revision'
 import { RevisionProjector } from '../Projection/RevisionProjector'
 import DeviceDetector = require('device-detector-js')
+import { SessionProjector } from '../Projection/SessionProjector'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -85,6 +86,7 @@ export class ContainerConfigLoader {
         container.bind(TYPES.LEGACY_JWT_SECRET).toConstantValue(env.get('LEGACY_JWT_SECRET'))
 
         container.bind<RevisionProjector>(TYPES.RevisionProjector).to(RevisionProjector)
+        container.bind<SessionProjector>(TYPES.SessionProjector).to(SessionProjector)
 
         container.bind<DeviceDetector>(TYPES.DeviceDetector).toConstantValue(new DeviceDetector())
 
