@@ -12,8 +12,40 @@ export class SessionController extends BaseHttpController {
       super()
   }
 
+  @httpDelete('/')
+  async deleteSession(request: Request, response: Response): Promise<results.JsonResult | results.StatusCodeResult> {
+    if (!request.params.uuid) {
+      return this.json({
+        error: {
+          message: 'Please provide the session identifier.'
+        }
+      }, 400)
+    }
+
+    if(request.params.uuid === response.locals.session.uuid) {
+      return this.json({
+        error: {
+          message: 'You can not delete your current session.'
+        }
+      }, 400)
+    }
+
+    const session = await this.sessionRepository.findOneByUuidAndUserUuid(request.params.uuid, response.locals.user.uuid)
+    if (!session) {
+      return this.json({
+        error: {
+          message: 'No session exists with the provided identifier.'
+        }
+      }, 400)
+    }
+
+    await this.sessionRepository.deleteOneByUuid(request.params.uuid)
+
+    return this.statusCode(204)
+  }
+
   @httpDelete('/all')
-  public async deleteAllSessions(_request: Request, response: Response): Promise<results.JsonResult | results.StatusCodeResult> {
+  async deleteAllSessions(_request: Request, response: Response): Promise<results.JsonResult | results.StatusCodeResult> {
       if (!response.locals.user || !response.locals.session) {
         return this.json(
           {
