@@ -10,6 +10,8 @@ const TYPES = {
   DBConnection: Symbol.for('DBConnection'),
   SessionService: Symbol.for('SessionService'),
   RevisionProjector: Symbol.for('RevisionProjector'),
+  SessionProjector: Symbol.for('SessionProjector'),
+  DeviceDetector: Symbol.for('DeviceDetector'),
 }
 
 export default TYPES

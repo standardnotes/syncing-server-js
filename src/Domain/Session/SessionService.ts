@@ -1,4 +1,6 @@
 import * as crypto from 'crypto'
+import * as winston from 'winston'
+import DeviceDetector = require('device-detector-js')
 import { inject, injectable } from 'inversify'
 
 import TYPES from '../../Bootstrap/Types'
@@ -9,8 +11,23 @@ import { SessionServiceInterace } from './SessionServiceInterface'
 @injectable()
 export class SessionService implements SessionServiceInterace {
   constructor (
-    @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface
+    @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface,
+    @inject(TYPES.DeviceDetector) private deviceDetector: DeviceDetector,
+    @inject(TYPES.Logger) private logger: winston.Logger
   ) {
+  }
+
+  getDeviceInfo(session: Session): string {
+    try {
+      const userAgentParsed = this.deviceDetector.parse(session.userAgent)
+
+      return `${userAgentParsed.client?.name} ${userAgentParsed.client?.version} on ${userAgentParsed.os?.name} ${userAgentParsed.os?.version}`
+    }
+    catch (error) {
+      this.logger.warning(`Could not parse session device info. User agent: ${session.userAgent}: ${error.message}`)
+
+      return session.userAgent
+    }
   }
 
   async getSessionFromToken(token: string): Promise<Session | undefined> {

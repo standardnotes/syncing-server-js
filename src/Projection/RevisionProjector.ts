@@ -29,4 +29,8 @@ export class RevisionProjector implements ProjectorInterface<Revision> {
       'updated_at': moment.utc(revision.updatedAt).toISOString()
     }
   }
+
+  projectCustom(_projectionType: string, _revision: Revision, ..._args: any[]): Record<string, unknown> {
+    throw new Error('not implemented')
+  }
 }

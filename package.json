@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "device-detector-js": "^2.2.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-winston": "^4.0.5",
