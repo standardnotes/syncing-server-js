@@ -30,6 +30,16 @@ describe('MySQLSessionRepository', () => {
     expect(result).toEqual(session)
   })
 
+  it('should find one session by id and user id', async () => {
+    queryBuilder.where = jest.fn().mockReturnThis()
+    queryBuilder.getOne = jest.fn().mockReturnValue(session)
+
+    const result = await repository.findOneByUuidAndUserUuid('123', '234')
+
+    expect(queryBuilder.where).toHaveBeenCalledWith('session.uuid = :uuid AND session.user_uuid = :user_uuid', { uuid: '123', user_uuid: '234' })
+    expect(result).toEqual(session)
+  })
+
   it('should delete all session for a user except the current one', async () => {
     queryBuilder.where = jest.fn().mockReturnThis()
     queryBuilder.delete = jest.fn().mockReturnThis()
@@ -39,12 +49,24 @@ describe('MySQLSessionRepository', () => {
 
     expect(queryBuilder.delete).toHaveBeenCalled()
     expect(queryBuilder.where).toHaveBeenCalledWith(
-      'user_uuid = :user_uuid AND uuid != :current_session_uuid',
+      'session.user_uuid = :user_uuid AND session.uuid != :current_session_uuid',
       {
         user_uuid: '123',
         current_session_uuid: '234'
       }
     )
+    expect(queryBuilder.execute).toHaveBeenCalled()
+  })
+
+  it('should delete one session by id', async () => {
+    queryBuilder.where = jest.fn().mockReturnThis()
+    queryBuilder.delete = jest.fn().mockReturnThis()
+    queryBuilder.execute = jest.fn()
+
+    await repository.deleteOneByUuid('123')
+
+    expect(queryBuilder.delete).toHaveBeenCalled()
+    expect(queryBuilder.where).toHaveBeenCalledWith('session.uuid = :uuid', { uuid: '123' })
     expect(queryBuilder.execute).toHaveBeenCalled()
   })
 })
