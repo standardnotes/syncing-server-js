@@ -7,7 +7,7 @@ import { SessionRepositoryInterface } from '../Domain/Session/SessionRepositoryI
 import { ProjectorInterface } from '../Projection/ProjectorInterface'
 import { SessionProjector } from '../Projection/SessionProjector'
 
-@controller('/sessions', TYPES.AuthMiddleware)
+@controller('/sessions', TYPES.AuthMiddleware, TYPES.SessionMiddleware)
 export class SessionsController extends BaseHttpController {
   constructor(
     @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface,

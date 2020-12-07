@@ -12,6 +12,7 @@ const TYPES = {
   RevisionProjector: Symbol.for('RevisionProjector'),
   SessionProjector: Symbol.for('SessionProjector'),
   DeviceDetector: Symbol.for('DeviceDetector'),
+  SessionMiddleware: Symbol.for('SessionMiddleware'),
 }
 
 export default TYPES
