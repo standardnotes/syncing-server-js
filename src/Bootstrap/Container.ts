@@ -16,6 +16,7 @@ import { Revision } from '../Domain/Revision/Revision'
 import { RevisionProjector } from '../Projection/RevisionProjector'
 import DeviceDetector = require('device-detector-js')
 import { SessionProjector } from '../Projection/SessionProjector'
+import { SessionMiddleware } from '../Controller/SessionMiddleware'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -60,6 +61,7 @@ export class ContainerConfigLoader {
         container.bind<Connection>(TYPES.DBConnection).toConstantValue(connection)
 
         container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
+        container.bind<SessionMiddleware>(TYPES.SessionMiddleware).to(SessionMiddleware)
 
         const logger = winston.createLogger({
           level: env.get('LOG_LEVEL') || 'info',
