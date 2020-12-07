@@ -4,7 +4,7 @@ import { BaseHttpController, controller, httpDelete, results } from 'inversify-e
 import TYPES from '../Bootstrap/Types'
 import { SessionRepositoryInterface } from '../Domain/Session/SessionRepositoryInterface'
 
-@controller('/session', TYPES.AuthMiddleware)
+@controller('/session', TYPES.AuthMiddleware, TYPES.SessionMiddleware)
 export class SessionController extends BaseHttpController {
   constructor(
     @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface,
