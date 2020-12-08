@@ -1,3 +1,5 @@
+import * as moment from 'moment'
+
 import { injectable } from 'inversify'
 import { EntityRepository, Repository } from 'typeorm'
 
@@ -7,11 +9,33 @@ import { SessionRepositoryInterface } from '../../Domain/Session/SessionReposito
 @injectable()
 @EntityRepository(Session)
 export class MySQLSessionRepository extends Repository<Session> implements SessionRepositoryInterface {
+  async updateHashedTokens(uuid: string, hashedAccessToken: string, hashedRefreshToken: string): Promise<void> {
+    await this.createQueryBuilder('session')
+      .update()
+      .set({
+        hashedAccessToken,
+        hashedRefreshToken
+      })
+      .where('session.uuid = :uuid', { uuid })
+      .execute()
+  }
+
+  async updatedTokenExpirationDates(uuid: string, accessExpiration: Date, refreshExpiration: Date): Promise<void> {
+    await this.createQueryBuilder('session')
+      .update()
+      .set({
+        accessExpiration,
+        refreshExpiration
+      })
+      .where('session.uuid = :uuid', { uuid })
+      .execute()
+  }
+
   async findActiveByUserUuid(userUuid: string): Promise<Session[]> {
     return this.createQueryBuilder('session')
       .where(
         'session.refresh_expiration > :refresh_expiration AND session.user_uuid = :user_uuid',
-        { refresh_expiration: new Date(), user_uuid: userUuid }
+        { refresh_expiration: moment.utc().toDate(), user_uuid: userUuid }
       )
       .getMany()
   }

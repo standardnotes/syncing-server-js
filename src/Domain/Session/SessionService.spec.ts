@@ -21,6 +21,7 @@ describe('SessionService', () => {
     session = {} as jest.Mocked<Session>
     session.userAgent = 'Chrome'
     session.hashedAccessToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
+    session.hashedRefreshToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
 
     deviceDetector = {} as jest.Mocked<DeviceDetector>
     deviceDetector.parse = jest.fn().mockReturnValue({
@@ -46,6 +47,12 @@ describe('SessionService', () => {
 
     logger = {} as jest.Mocked<winston.Logger>
     logger.warning = jest.fn()
+  })
+
+  it('should determine if a refresh token is valid', async () => {
+    expect(createService().isRefreshTokenValid(session, '1:2:3')).toBeTruthy()
+    expect(createService().isRefreshTokenValid(session, '1:2:4')).toBeFalsy()
+    expect(createService().isRefreshTokenValid(session, '1:2')).toBeFalsy()
   })
 
   it('should return device info based on user agent', () => {

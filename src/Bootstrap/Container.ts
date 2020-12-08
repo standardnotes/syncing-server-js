@@ -17,6 +17,7 @@ import { RevisionProjector } from '../Projection/RevisionProjector'
 import DeviceDetector = require('device-detector-js')
 import { SessionProjector } from '../Projection/SessionProjector'
 import { SessionMiddleware } from '../Controller/SessionMiddleware'
+import { RefreshSessionToken } from '../Domain/UseCase/RefreshSessionToken'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -77,6 +78,7 @@ export class ContainerConfigLoader {
         container.bind<winston.Logger>(TYPES.Logger).toConstantValue(logger)
 
         container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
+        container.bind<RefreshSessionToken>(TYPES.RefreshSessionToken).to(RefreshSessionToken)
 
         container.bind<MySQLSessionRepository>(TYPES.SessionRepository).toConstantValue(connection.getCustomRepository(MySQLSessionRepository))
         container.bind<MySQLUserRepository>(TYPES.UserRepository).toConstantValue(connection.getCustomRepository(MySQLUserRepository))
@@ -86,6 +88,8 @@ export class ContainerConfigLoader {
 
         container.bind(TYPES.JWT_SECRET).toConstantValue(env.get('JWT_SECRET'))
         container.bind(TYPES.LEGACY_JWT_SECRET).toConstantValue(env.get('LEGACY_JWT_SECRET'))
+        container.bind(TYPES.ACCESS_TOKEN_AGE).toConstantValue(env.get('ACCESS_TOKEN_AGE'))
+        container.bind(TYPES.REFRESH_TOKEN_AGE).toConstantValue(env.get('REFRESH_TOKEN_AGE'))
 
         container.bind<RevisionProjector>(TYPES.RevisionProjector).to(RevisionProjector)
         container.bind<SessionProjector>(TYPES.SessionProjector).to(SessionProjector)
