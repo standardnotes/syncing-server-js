@@ -5,6 +5,7 @@ import './tracer'
 import '../src/Controller/HealthCheckController'
 import '../src/Controller/RevisionsController'
 import '../src/Controller/SessionController'
+import '../src/Controller/SessionsController'
 
 import * as cors from 'cors'
 import * as bodyParser from 'body-parser'
@@ -26,6 +27,7 @@ container.load().then(container => {
       extended: true,
     }))
     app.use(bodyParser.json())
+    app.use(bodyParser.urlencoded({ extended: true }))
     app.use(cors())
 
     app.use(expressWinston.logger({

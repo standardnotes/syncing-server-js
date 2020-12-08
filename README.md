@@ -4,7 +4,7 @@ Standard Notes server
 ## Setting Up
 
 ```
-yarn install --frozen-lockfile
+yarn install --pure-lockfile
 ```
 
 ## Configure

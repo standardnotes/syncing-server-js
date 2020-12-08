@@ -1,4 +1,6 @@
 import * as crypto from 'crypto'
+import * as winston from 'winston'
+import DeviceDetector = require('device-detector-js')
 import { inject, injectable } from 'inversify'
 
 import TYPES from '../../Bootstrap/Types'
@@ -8,9 +10,38 @@ import { SessionServiceInterace } from './SessionServiceInterface'
 
 @injectable()
 export class SessionService implements SessionServiceInterace {
+  static readonly SESSION_TOKEN_VERSION = 1
+
   constructor (
-    @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface
+    @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface,
+    @inject(TYPES.DeviceDetector) private deviceDetector: DeviceDetector,
+    @inject(TYPES.Logger) private logger: winston.Logger
   ) {
+  }
+
+  isRefreshTokenValid(session: Session, token: string): boolean {
+    const tokenParts = token.split(':')
+    const refreshToken = tokenParts[2]
+    if (!refreshToken) {
+      return false
+    }
+
+    const hashedRefreshToken = crypto.createHash('sha256').update(refreshToken).digest('hex')
+
+    return crypto.timingSafeEqual(Buffer.from(hashedRefreshToken), Buffer.from(session.hashedRefreshToken))
+  }
+
+  getDeviceInfo(session: Session): string {
+    try {
+      const userAgentParsed = this.deviceDetector.parse(session.userAgent)
+
+      return `${userAgentParsed.client?.name} ${userAgentParsed.client?.version} on ${userAgentParsed.os?.name} ${userAgentParsed.os?.version}`
+    }
+    catch (error) {
+      this.logger.warning(`Could not parse session device info. User agent: ${session.userAgent}: ${error.message}`)
+
+      return session.userAgent
+    }
   }
 
   async getSessionFromToken(token: string): Promise<Session | undefined> {
