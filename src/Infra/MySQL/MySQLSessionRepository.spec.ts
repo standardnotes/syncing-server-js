@@ -42,7 +42,7 @@ describe('MySQLSessionRepository', () => {
       }
     )
     expect(updateQueryBuilder.where).toHaveBeenCalledWith(
-      'session.uuid = :uuid',
+      'uuid = :uuid',
       { uuid: '123' }
     )
     expect(updateQueryBuilder.execute).toHaveBeenCalled()
@@ -70,7 +70,7 @@ describe('MySQLSessionRepository', () => {
       }
     )
     expect(updateQueryBuilder.where).toHaveBeenCalledWith(
-      'session.uuid = :uuid',
+      'uuid = :uuid',
       { uuid: '123' }
     )
     expect(updateQueryBuilder.execute).toHaveBeenCalled()
