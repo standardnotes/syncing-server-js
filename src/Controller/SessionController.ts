@@ -16,7 +16,7 @@ export class SessionController extends BaseHttpController {
 
   @httpDelete('/', TYPES.AuthMiddleware, TYPES.SessionMiddleware)
   async deleteSession(request: Request, response: Response): Promise<results.JsonResult | results.StatusCodeResult> {
-    if (!request.params.uuid) {
+    if (!request.body.uuid) {
       return this.json({
         error: {
           message: 'Please provide the session identifier.'
@@ -24,7 +24,7 @@ export class SessionController extends BaseHttpController {
       }, 400)
     }
 
-    if(request.params.uuid === response.locals.session.uuid) {
+    if(request.body.uuid === response.locals.session.uuid) {
       return this.json({
         error: {
           message: 'You can not delete your current session.'
@@ -32,7 +32,7 @@ export class SessionController extends BaseHttpController {
       }, 400)
     }
 
-    const session = await this.sessionRepository.findOneByUuidAndUserUuid(request.params.uuid, response.locals.user.uuid)
+    const session = await this.sessionRepository.findOneByUuidAndUserUuid(request.body.uuid, response.locals.user.uuid)
     if (!session) {
       return this.json({
         error: {
@@ -41,7 +41,7 @@ export class SessionController extends BaseHttpController {
       }, 400)
     }
 
-    await this.sessionRepository.deleteOneByUuid(request.params.uuid)
+    await this.sessionRepository.deleteOneByUuid(request.body.uuid)
 
     return this.statusCode(204)
   }
@@ -69,7 +69,7 @@ export class SessionController extends BaseHttpController {
 
   @httpPost('/refresh')
   async refresh(request: Request, _response: Response): Promise<results.JsonResult> {
-    if (!request.params.access_token || !request.params.refresh_token) {
+    if (!request.body.access_token || !request.body.refresh_token) {
       return this.json({
         error: {
           message: 'Please provide all required parameters.',
@@ -78,8 +78,8 @@ export class SessionController extends BaseHttpController {
     }
 
     const result = await this.refreshSessionToken.execute({
-      accessToken: request.params.access_token,
-      refreshToken: request.params.refresh_token
+      accessToken: request.body.access_token,
+      refreshToken: request.body.refresh_token
     })
 
     if (!result.success) {

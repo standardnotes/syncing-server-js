@@ -29,7 +29,7 @@ describe('SessionController', () => {
         refreshSessionToken.execute = jest.fn()
 
         request = {
-          params: {},
+          body: {},
         } as jest.Mocked<express.Request>
 
         response = {
@@ -38,8 +38,8 @@ describe('SessionController', () => {
     })
 
     it('should refresh session tokens', async () => {
-      request.params.access_token = '123'
-      request.params.refresh_token = '234'
+      request.body.access_token = '123'
+      request.body.refresh_token = '234'
 
       refreshSessionToken.execute = jest.fn().mockReturnValue({
         success: true,
@@ -70,8 +70,8 @@ describe('SessionController', () => {
     })
 
     it('should return bad request upon failed tokens refreshing', async () => {
-      request.params.access_token = '123'
-      request.params.refresh_token = '234'
+      request.body.access_token = '123'
+      request.body.refresh_token = '234'
 
       refreshSessionToken.execute = jest.fn().mockReturnValue({
         success: false,
@@ -99,7 +99,7 @@ describe('SessionController', () => {
           uuid: '234',
         },
       }
-      request.params.uuid = '123'
+      request.body.uuid = '123'
 
       const httpResponse = await createController().deleteSession(request, response)
 
@@ -134,7 +134,7 @@ describe('SessionController', () => {
           uuid: '234',
         },
       }
-      request.params.uuid = '234'
+      request.body.uuid = '234'
 
       const httpResponse = <results.JsonResult> await createController().deleteSession(request, response)
 
@@ -152,7 +152,7 @@ describe('SessionController', () => {
           uuid: '234',
         },
       }
-      request.params.uuid = '123'
+      request.body.uuid = '123'
 
       sessionsRepository.findOneByUuidAndUserUuid = jest.fn().mockReturnValue(null)
 
