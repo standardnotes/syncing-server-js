@@ -1,5 +1,7 @@
 import { Column, Entity, Index, PrimaryColumn } from 'typeorm'
 
+import * as moment from 'moment'
+
 @Entity({ name: 'sessions' })
 export class Session {
   @PrimaryColumn({
@@ -70,10 +72,10 @@ export class Session {
   updatedAt: Date
 
   accessExpired(): boolean {
-    return this.accessExpiration < new Date()
+    return this.accessExpiration < moment.utc().toDate()
   }
 
   refreshExpired(): boolean {
-    return this.refreshExpiration < new Date()
+    return this.refreshExpiration < moment.utc().toDate()
   }
 }

@@ -10,11 +10,25 @@ import { SessionServiceInterace } from './SessionServiceInterface'
 
 @injectable()
 export class SessionService implements SessionServiceInterace {
+  static readonly SESSION_TOKEN_VERSION = 1
+
   constructor (
     @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface,
     @inject(TYPES.DeviceDetector) private deviceDetector: DeviceDetector,
     @inject(TYPES.Logger) private logger: winston.Logger
   ) {
+  }
+
+  isRefreshTokenValid(session: Session, token: string): boolean {
+    const tokenParts = token.split(':')
+    const refreshToken = tokenParts[2]
+    if (!refreshToken) {
+      return false
+    }
+
+    const hashedRefreshToken = crypto.createHash('sha256').update(refreshToken).digest('hex')
+
+    return crypto.timingSafeEqual(Buffer.from(hashedRefreshToken), Buffer.from(session.hashedRefreshToken))
   }
 
   getDeviceInfo(session: Session): string {

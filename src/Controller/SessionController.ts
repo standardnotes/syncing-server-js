@@ -1,18 +1,20 @@
 import { Request, Response } from 'express'
 import { inject } from 'inversify'
-import { BaseHttpController, controller, httpDelete, results } from 'inversify-express-utils'
+import { BaseHttpController, controller, httpDelete, httpPost, results } from 'inversify-express-utils'
 import TYPES from '../Bootstrap/Types'
 import { SessionRepositoryInterface } from '../Domain/Session/SessionRepositoryInterface'
+import { RefreshSessionToken } from '../Domain/UseCase/RefreshSessionToken'
 
-@controller('/session', TYPES.AuthMiddleware, TYPES.SessionMiddleware)
+@controller('/session')
 export class SessionController extends BaseHttpController {
   constructor(
     @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface,
+    @inject(TYPES.RefreshSessionToken) private refreshSessionToken: RefreshSessionToken
   ) {
       super()
   }
 
-  @httpDelete('/')
+  @httpDelete('/', TYPES.AuthMiddleware, TYPES.SessionMiddleware)
   async deleteSession(request: Request, response: Response): Promise<results.JsonResult | results.StatusCodeResult> {
     if (!request.params.uuid) {
       return this.json({
@@ -44,9 +46,9 @@ export class SessionController extends BaseHttpController {
     return this.statusCode(204)
   }
 
-  @httpDelete('/all')
+  @httpDelete('/all', TYPES.AuthMiddleware, TYPES.SessionMiddleware)
   async deleteAllSessions(_request: Request, response: Response): Promise<results.JsonResult | results.StatusCodeResult> {
-      if (!response.locals.user || !response.locals.session) {
+      if (!response.locals.user) {
         return this.json(
           {
             error: {
@@ -63,5 +65,34 @@ export class SessionController extends BaseHttpController {
       )
 
       return this.statusCode(204)
+  }
+
+  @httpPost('/refresh')
+  async refresh(request: Request, _response: Response): Promise<results.JsonResult> {
+    if (!request.params.access_token || !request.params.refresh_token) {
+      return this.json({
+        error: {
+          message: 'Please provide all required parameters.',
+        },
+      }, 400)
+    }
+
+    const result = await this.refreshSessionToken.execute({
+      accessToken: request.params.access_token,
+      refreshToken: request.params.refresh_token
+    })
+
+    if (!result.success) {
+      return this.json({
+        error: {
+          tag: result.errorTag,
+          message: result.errorMessage,
+        },
+      }, 400)
+    }
+
+    return this.json({
+      session: result.sessionPayload
+    })
   }
 }
