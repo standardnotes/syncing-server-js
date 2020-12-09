@@ -49,7 +49,7 @@ export class MySQLSessionRepository extends Repository<Session> implements Sessi
   async deleteOneByUuid(uuid: string): Promise<void> {
     await this.createQueryBuilder('session')
       .delete()
-      .where('session.uuid = :uuid', { uuid })
+      .where('uuid = :uuid', { uuid })
       .execute()
   }
 
@@ -63,7 +63,7 @@ export class MySQLSessionRepository extends Repository<Session> implements Sessi
     await this.createQueryBuilder('session')
       .delete()
       .where(
-        'session.user_uuid = :user_uuid AND session.uuid != :current_session_uuid',
+        'user_uuid = :user_uuid AND uuid != :current_session_uuid',
         {
           user_uuid: userUuid,
           current_session_uuid: currentSessionUuid
