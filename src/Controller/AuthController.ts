@@ -7,7 +7,7 @@ import { SessionServiceInterace } from '../Domain/Session/SessionServiceInterfac
 @controller('/auth')
 export class AuthController extends BaseHttpController {
   constructor(
-    @inject(TYPES.SessionRepository) private sessionService: SessionServiceInterace
+    @inject(TYPES.SessionService) private sessionService: SessionServiceInterace
   ) {
     super()
   }
