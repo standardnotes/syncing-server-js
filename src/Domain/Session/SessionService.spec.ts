@@ -17,8 +17,10 @@ describe('SessionService', () => {
   beforeEach(() => {
     sessionRepository = {} as jest.Mocked<SessionRepositoryInterface>
     sessionRepository.findOneByUuid = jest.fn()
+    sessionRepository.deleteOneByUuid = jest.fn()
 
     session = {} as jest.Mocked<Session>
+    session.uuid = '2e1e43'
     session.userAgent = 'Chrome'
     session.hashedAccessToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
     session.hashedRefreshToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
@@ -47,6 +49,34 @@ describe('SessionService', () => {
 
     logger = {} as jest.Mocked<winston.Logger>
     logger.warning = jest.fn()
+  })
+
+  it('should delete a session by token', async () => {
+    sessionRepository.findOneByUuid = jest.fn().mockImplementation((uuid) => {
+      if (uuid === '2') {
+        return session
+      }
+
+      return undefined
+    })
+
+    await createService().deleteSessionByToken('1:2:3')
+
+    expect(sessionRepository.deleteOneByUuid).toHaveBeenCalledWith('2e1e43')
+  })
+
+  it('should not delete a session by token if session is not found', async () => {
+    sessionRepository.findOneByUuid = jest.fn().mockImplementation((uuid) => {
+      if (uuid === '2') {
+        return session
+      }
+
+      return undefined
+    })
+
+    await createService().deleteSessionByToken('1:4:3')
+
+    expect(sessionRepository.deleteOneByUuid).not.toHaveBeenCalled()
   })
 
   it('should determine if a refresh token is valid', async () => {

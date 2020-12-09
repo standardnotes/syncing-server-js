@@ -6,6 +6,7 @@ import '../src/Controller/HealthCheckController'
 import '../src/Controller/RevisionsController'
 import '../src/Controller/SessionController'
 import '../src/Controller/SessionsController'
+import '../src/Controller/AuthController'
 
 import * as cors from 'cors'
 import * as bodyParser from 'body-parser'
