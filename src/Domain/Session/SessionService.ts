@@ -64,4 +64,12 @@ export class SessionService implements SessionServiceInterace {
 
     return undefined
   }
+
+  async deleteSessionByToken(token: string): Promise<void> {
+    const session = await this.getSessionFromToken(token)
+
+    if (session) {
+      await this.sessionRepository.deleteOneByUuid(session.uuid)
+    }
+  }
 }
