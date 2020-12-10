@@ -8,4 +8,5 @@ export interface SessionRepositoryInterface {
   deleteOneByUuid(uuid: string): Promise<void>
   updateHashedTokens(uuid: string, hashedAccessToken: string, hashedRefreshToken: string): Promise<void>
   updatedTokenExpirationDates(uuid: string, accessExpiration: Date, refreshExpiration: Date): Promise<void>
+  save(session: Session): Promise<void>
 }

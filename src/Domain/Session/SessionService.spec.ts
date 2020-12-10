@@ -12,7 +12,13 @@ describe('SessionService', () => {
   let deviceDetector: DeviceDetector
   let logger: winston.Logger
 
-  const createService = () => new SessionService(sessionRepository, deviceDetector, logger)
+  const createService = () => new SessionService(
+    sessionRepository,
+    deviceDetector,
+    logger,
+    123,
+    234
+  )
 
   beforeEach(() => {
     sessionRepository = {} as jest.Mocked<SessionRepositoryInterface>

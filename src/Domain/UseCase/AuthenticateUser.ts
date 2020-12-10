@@ -10,9 +10,10 @@ import { UserRepositoryInterface } from '../User/UserRepositoryInterface'
 
 import { AuthenticateUserDTO } from './AuthenticateUserDTO'
 import { AuthenticateUserResponse } from './AuthenticateUserResponse'
+import { UseCaseInterface } from './UseCaseInterface'
 
 @injectable()
-export class AuthenticateUser {
+export class AuthenticateUser implements UseCaseInterface {
   constructor(
     @inject(TYPES.JWT_SECRET) private jwtSecret: string,
     @inject(TYPES.LEGACY_JWT_SECRET) private legacyJwtSecret: string,

@@ -29,4 +29,14 @@ describe('MySQLUserRepository', () => {
     expect(queryBuilder.where).toHaveBeenCalledWith('user.uuid = :uuid', { uuid: '123' })
     expect(result).toEqual(user)
   })
+
+  it('should find one user by email', async () => {
+    queryBuilder.where = jest.fn().mockReturnThis()
+    queryBuilder.getOne = jest.fn().mockReturnValue(user)
+
+    const result = await repository.findOneByEmail('test@test.te')
+
+    expect(queryBuilder.where).toHaveBeenCalledWith('user.email = :email', { email: 'test@test.te' })
+    expect(result).toEqual(user)
+  })
 })

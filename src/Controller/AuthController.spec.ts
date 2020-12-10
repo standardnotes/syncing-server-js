@@ -5,16 +5,26 @@ import * as express from 'express'
 import { AuthController } from './AuthController'
 import { results } from 'inversify-express-utils'
 import { SessionServiceInterace } from '../Domain/Session/SessionServiceInterface'
+import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
+import { SignIn } from '../Domain/UseCase/SignIn'
 
 describe('AuthController', () => {
     let sessionService: SessionServiceInterace
+    let verifyMFA: VerifyMFA
+    let signIn: SignIn
     let request: express.Request
 
-    const createController = () => new AuthController(sessionService)
+    const createController = () => new AuthController(sessionService, verifyMFA, signIn)
 
     beforeEach(() => {
         sessionService = {} as jest.Mocked<SessionServiceInterace>
         sessionService.deleteSessionByToken = jest.fn()
+
+        verifyMFA = {} as jest.Mocked<VerifyMFA>
+        verifyMFA.execute = jest.fn()
+
+        signIn = {} as jest.Mocked<SignIn>
+        signIn.execute = jest.fn()
 
         request = {
           headers: {},

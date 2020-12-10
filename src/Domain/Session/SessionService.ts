@@ -1,12 +1,17 @@
 import * as crypto from 'crypto'
 import * as winston from 'winston'
+import * as moment from 'moment'
+import * as cryptoRandomString from 'crypto-random-string'
 import DeviceDetector = require('device-detector-js')
 import { inject, injectable } from 'inversify'
+import { v4 as uuidv4 } from 'uuid'
 
 import TYPES from '../../Bootstrap/Types'
 import { Session } from './Session'
 import { SessionRepositoryInterface } from './SessionRepositoryInterface'
 import { SessionServiceInterace } from './SessionServiceInterface'
+import { SessionPayload } from './SessionPayload'
+import { User } from '../User/User'
 
 @injectable()
 export class SessionService implements SessionServiceInterace {
@@ -15,8 +20,43 @@ export class SessionService implements SessionServiceInterace {
   constructor (
     @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface,
     @inject(TYPES.DeviceDetector) private deviceDetector: DeviceDetector,
-    @inject(TYPES.Logger) private logger: winston.Logger
+    @inject(TYPES.Logger) private logger: winston.Logger,
+    @inject(TYPES.ACCESS_TOKEN_AGE) private accessTokenAge: number,
+    @inject(TYPES.REFRESH_TOKEN_AGE) private refreshTokenAge: number
   ) {
+  }
+
+  async createNewSessionForUser(user: User, apiVersion: string, userAgent: string): Promise<Session> {
+    const session = new Session()
+    session.uuid = uuidv4()
+    session.userUuid = user.uuid
+    session.apiVersion = apiVersion
+    session.userAgent = userAgent
+
+    await this.sessionRepository.save(session)
+
+    return session
+  }
+
+  async createTokens(session: Session): Promise<SessionPayload> {
+    const accessToken = cryptoRandomString({ length: 16, type: 'url-safe' })
+    const refreshToken = cryptoRandomString({ length: 16, type: 'url-safe' })
+
+    const hashedAccessToken = crypto.createHash('sha256').update(accessToken).digest('hex')
+    const hashedRefreshToken = crypto.createHash('sha256').update(refreshToken).digest('hex')
+
+    await this.sessionRepository.updateHashedTokens(session.uuid, hashedAccessToken, hashedRefreshToken)
+
+    const accessTokenExpiration = moment.utc().add(this.accessTokenAge, 'seconds').toDate()
+    const refreshTokenExpiration = moment.utc().add(this.refreshTokenAge, 'seconds').toDate()
+    await this.sessionRepository.updatedTokenExpirationDates(session.uuid, accessTokenExpiration, refreshTokenExpiration)
+
+    return {
+      access_token: `${SessionService.SESSION_TOKEN_VERSION}:${session.uuid}:${accessToken}`,
+      refresh_token: `${SessionService.SESSION_TOKEN_VERSION}:${session.uuid}:${refreshToken}`,
+      access_expiration: moment(accessTokenExpiration).valueOf(),
+      refresh_expiration: moment(refreshTokenExpiration).valueOf()
+    }
   }
 
   isRefreshTokenValid(session: Session, token: string): boolean {
