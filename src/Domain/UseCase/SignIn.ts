@@ -1,4 +1,4 @@
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcryptjs'
 
 import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
