@@ -1,6 +1,5 @@
 import 'reflect-metadata'
 
-import * as bcryptjs from 'bcryptjs'
 import { AuthResponseFactoryInterface } from '../Auth/AuthResponseFactoryInterface'
 import { CurrentAuthResponse } from '../Auth/CurrentAuthResponse'
 import { User } from '../User/User'
@@ -17,7 +16,7 @@ describe('SignIn', () => {
 
   beforeEach(() => {
     user = {} as jest.Mocked<User>
-    user.encryptedPassword = '$2a$11$K3g6XoTau8VmLJcai1bB0eYCa6LNouMpPj6Uu4yzTkq2b9vbR8yRK'
+    user.encryptedPassword = '$2a$11$K3g6XoTau8VmLJcai1bB0eD9/YvBSBRtBhMprJOaVZ0U3SgasZH3a'
 
     userRepository = {} as jest.Mocked<UserRepositoryInterface>
     userRepository.findOneByEmail = jest.fn().mockReturnValue(user)
@@ -29,17 +28,6 @@ describe('SignIn', () => {
   })
 
   it('should sign in a user', async () => {
-    const salt = await bcryptjs.getSalt('$2a$11$K3g6XoTau8VmLJcai1bB0eYCa6LNouMpPj6Uu4yzTkq2b9vbR8yRK')
-    const hashed = await bcryptjs.hashSync('qweqwe123123', salt)
-
-
-    console.log(hashed)
-
-    const a = bcryptjs.encodeBase64(Buffer.from(hashed), 60)
-    console.log(a)
-
-    console.log(await bcryptjs.compareSync(hashed, '$2a$11$K3g6XoTau8VmLJcai1bB0eYCa6LNouMpPj6Uu4yzTkq2b9vbR8yRK'))
-
     expect(await createUseCase().execute({
       email: 'test@test.te',
       password: 'qweqwe123123',
@@ -48,6 +36,18 @@ describe('SignIn', () => {
     })).toEqual({
       success: true,
       authResponse
+    })
+  })
+
+  it('should not sign in a user with wrong credentials', async () => {
+    expect(await createUseCase().execute({
+      email: 'test@test.te',
+      password: 'asdasd123123',
+      userAgent: 'Google Chrome',
+      apiVersion: '004'
+    })).toEqual({
+      success: false,
+      errorMessage: 'Invalid email or password'
     })
   })
 })

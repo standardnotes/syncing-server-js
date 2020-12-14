@@ -5,6 +5,7 @@ import DeviceDetector = require('device-detector-js')
 import { Session } from './Session'
 import { SessionRepositoryInterface } from './SessionRepositoryInterface'
 import { SessionService } from './SessionService'
+import { User } from '../User/User'
 
 describe('SessionService', () => {
   let sessionRepository: SessionRepositoryInterface
@@ -24,6 +25,9 @@ describe('SessionService', () => {
     sessionRepository = {} as jest.Mocked<SessionRepositoryInterface>
     sessionRepository.findOneByUuid = jest.fn()
     sessionRepository.deleteOneByUuid = jest.fn()
+    sessionRepository.save = jest.fn()
+    sessionRepository.updateHashedTokens = jest.fn()
+    sessionRepository.updatedTokenExpirationDates = jest.fn()
 
     session = {} as jest.Mocked<Session>
     session.uuid = '2e1e43'
@@ -55,6 +59,28 @@ describe('SessionService', () => {
 
     logger = {} as jest.Mocked<winston.Logger>
     logger.warning = jest.fn()
+  })
+
+  it('should create access and refresh tokens for a session', async () => {
+    expect(await createService().createTokens(session)).toEqual({
+      access_expiration: expect.any(Number),
+      access_token: expect.any(String),
+      refresh_token: expect.any(String),
+      refresh_expiration: expect.any(Number),
+    })
+
+    expect(sessionRepository.updateHashedTokens).toHaveBeenCalled()
+    expect(sessionRepository.updatedTokenExpirationDates).toHaveBeenCalled()
+  })
+
+  it('should create new session for a user', async () => {
+    const user = {} as jest.Mocked<User>
+    user.uuid = '123'
+
+    const session = await createService().createNewSessionForUser(user, '003', 'Google Chrome')
+
+    expect(session).toBeInstanceOf(Session)
+    expect(session.userUuid).toEqual('123')
   })
 
   it('should delete a session by token', async () => {

@@ -1,4 +1,3 @@
-import * as bcryptjs from 'bcryptjs'
 import * as bcrypt from 'bcrypt'
 
 import { inject, injectable } from 'inversify'
@@ -20,8 +19,7 @@ export class SignIn implements UseCaseInterface {
   async execute(dto: SignInDTO): Promise<SignInResponse> {
     const user = await this.userRepository.findOneByEmail(dto.email)
 
-
-    if (user && await this.passwordIsValid(dto.password, user.encryptedPassword)) {
+    if (user && await bcrypt.compare(dto.password, user.encryptedPassword)) {
       return {
         success: true,
         authResponse: await this.authResponseFactory.createSuccessAuthResponse(user, dto.apiVersion, dto.userAgent)
@@ -32,12 +30,5 @@ export class SignIn implements UseCaseInterface {
       success: false,
       errorMessage: 'Invalid email or password'
     }
-  }
-
-  private async passwordIsValid(password: string, encryptedPassword: string): Promise<boolean> {
-    const salt = bcryptjs.getSalt(encryptedPassword)
-    const hashed = await bcryptjs.hash(password, salt)
-
-    return bcryptjs.compareSync(hashed, encryptedPassword)
   }
 }
