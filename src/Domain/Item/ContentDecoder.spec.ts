@@ -1,3 +1,5 @@
+import 'reflect-metadata'
+
 import { ContentDecoder } from './ContentDecoder'
 
 describe('ContentDecoder', () => {
