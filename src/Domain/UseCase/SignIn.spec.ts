@@ -1,18 +1,18 @@
 import 'reflect-metadata'
 
 import { AuthResponseFactoryInterface } from '../Auth/AuthResponseFactoryInterface'
-import { CurrentAuthResponse } from '../Auth/CurrentAuthResponse'
+import { AuthResponseFactoryResolverInterface } from '../Auth/AuthResponseFactoryResolverInterface'
 import { User } from '../User/User'
 import { UserRepositoryInterface } from '../User/UserRepositoryInterface'
 import { SignIn } from './SignIn'
 
 describe('SignIn', () => {
   let user: User
-  let authResponse: CurrentAuthResponse
   let userRepository: UserRepositoryInterface
+  let authResponseFactoryResolver: AuthResponseFactoryResolverInterface
   let authResponseFactory: AuthResponseFactoryInterface
 
-  const createUseCase = () => new SignIn(userRepository, authResponseFactory)
+  const createUseCase = () => new SignIn(userRepository, authResponseFactoryResolver)
 
   beforeEach(() => {
     user = {} as jest.Mocked<User>
@@ -21,10 +21,11 @@ describe('SignIn', () => {
     userRepository = {} as jest.Mocked<UserRepositoryInterface>
     userRepository.findOneByEmail = jest.fn().mockReturnValue(user)
 
-    authResponse = {} as jest.Mocked<CurrentAuthResponse>
-
     authResponseFactory = {} as jest.Mocked<AuthResponseFactoryInterface>
-    authResponseFactory.createSuccessAuthResponse = jest.fn().mockReturnValue(authResponse)
+    authResponseFactory.createResponse = jest.fn().mockReturnValue({ foo: 'bar' })
+
+    authResponseFactoryResolver = {} as jest.Mocked<AuthResponseFactoryResolverInterface>
+    authResponseFactoryResolver.resolveAuthResponseFactoryVersion = jest.fn().mockReturnValue(authResponseFactory)
   })
 
   it('should sign in a user', async () => {
@@ -35,7 +36,7 @@ describe('SignIn', () => {
       apiVersion: '20190520'
     })).toEqual({
       success: true,
-      authResponse
+      authResponse: { foo: 'bar' }
     })
   })
 

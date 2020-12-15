@@ -27,7 +27,10 @@ const TYPES = {
   DeviceDetector: Symbol.for('DeviceDetector'),
   SessionService: Symbol.for('SessionService'),
   ContentDecoder: Symbol.for('ContentDecoder'),
-  AuthResponseFactory: Symbol.for('AuthResponseFactory'),
+  AuthResponseFactory20161215: Symbol.for('AuthResponseFactory20161215'),
+  AuthResponseFactory20190520: Symbol.for('AuthResponseFactory20190520'),
+  AuthResponseFactory20200115: Symbol.for('AuthResponseFactory20200115'),
+  AuthResponseFactoryResolver: Symbol.for('AuthResponseFactoryResolver'),
   KeyParamsFactory: Symbol.for('KeyParamsFactory'),
 }
 

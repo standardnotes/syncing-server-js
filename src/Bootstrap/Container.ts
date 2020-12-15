@@ -23,8 +23,11 @@ import { MySQLItemRepository } from '../Infra/MySQL/MySQLItemRepository'
 import { SignIn } from '../Domain/UseCase/SignIn'
 import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
 import { ContentDecoder } from '../Domain/Item/ContentDecoder'
-import { AuthResponseFactory } from '../Domain/Auth/AuthResponseFactory'
 import { UserProjector } from '../Projection/UserProjector'
+import { AuthResponseFactory20161215 } from '../Domain/Auth/AuthResponseFactory20161215'
+import { AuthResponseFactory20190520 } from '../Domain/Auth/AuthResponseFactory20190520'
+import { AuthResponseFactory20200115 } from '../Domain/Auth/AuthResponseFactory20200115'
+import { AuthResponseFactoryResolver } from '../Domain/Auth/AuthResponseFactoryResolver'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -110,7 +113,10 @@ export class ContainerConfigLoader {
         container.bind<DeviceDetector>(TYPES.DeviceDetector).toConstantValue(new DeviceDetector())
         container.bind<SessionService>(TYPES.SessionService).to(SessionService)
         container.bind<ContentDecoder>(TYPES.ContentDecoder).to(ContentDecoder)
-        container.bind<AuthResponseFactory>(TYPES.AuthResponseFactory).to(AuthResponseFactory)
+        container.bind<AuthResponseFactory20161215>(TYPES.AuthResponseFactory20161215).to(AuthResponseFactory20161215)
+        container.bind<AuthResponseFactory20190520>(TYPES.AuthResponseFactory20190520).to(AuthResponseFactory20190520)
+        container.bind<AuthResponseFactory20200115>(TYPES.AuthResponseFactory20200115).to(AuthResponseFactory20200115)
+        container.bind<AuthResponseFactoryResolver>(TYPES.AuthResponseFactoryResolver).to(AuthResponseFactoryResolver)
         container.bind<KeyParamsFactory>(TYPES.KeyParamsFactory).to(KeyParamsFactory)
 
         return container

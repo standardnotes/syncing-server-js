@@ -5,16 +5,16 @@ import { Session } from '../Session/Session'
 import { SessionServiceInterace } from '../Session/SessionServiceInterface'
 import { KeyParamsFactoryInterface } from '../User/KeyParamsFactoryInterface'
 import { User } from '../User/User'
-import { AuthResponseFactory } from './AuthResponseFactory'
+import { AuthResponseFactory20200115 } from './AuthResponseFactory20200115'
 
-describe('AuthResponseFactory', () => {
+describe('AuthResponseFactory20200115', () => {
   let sessionService: SessionServiceInterace
   let keyParamsFactory: KeyParamsFactoryInterface
   let userProjector: ProjectorInterface<User>
   let user: User
   let session: Session
 
-  const createFactory = () => new AuthResponseFactory(
+  const createFactory = () => new AuthResponseFactory20200115(
     sessionService,
     keyParamsFactory,
     userProjector,
@@ -46,19 +46,10 @@ describe('AuthResponseFactory', () => {
     user.encryptedPassword = 'test123'
   })
 
-  it('should create a legacy auth response for old API version', async () => {
-    const response = await createFactory().createSuccessAuthResponse(user, '20161215', 'Google Chrome')
-
-    expect(response).toEqual({
-      user: { foo: 'bar' },
-      token: expect.any(String)
-    })
-  })
-
-  it('should create a legacy auth response for new API version if user does not support sessions', async () => {
+  it('should create a 20161215 auth response if user does not support sessions', async () => {
     user.supportsSessions = jest.fn().mockReturnValue(false)
 
-    const response = await createFactory().createSuccessAuthResponse(user, '20200115', 'Google Chrome')
+    const response = await createFactory().createResponse(user, '20161215', 'Google Chrome')
 
     expect(response).toEqual({
       user: { foo: 'bar' },
@@ -66,10 +57,10 @@ describe('AuthResponseFactory', () => {
     })
   })
 
-  it('should create a current auth response for new API version', async () => {
+  it('should create a 20200115 auth response', async () => {
     user.supportsSessions = jest.fn().mockReturnValue(true)
 
-    const response = await createFactory().createSuccessAuthResponse(user, '20200115', 'Google Chrome')
+    const response = await createFactory().createResponse(user, '20200115', 'Google Chrome')
 
     expect(response).toEqual({
       key_params: {
