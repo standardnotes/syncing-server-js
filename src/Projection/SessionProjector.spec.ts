@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import * as moment from 'moment'
+import * as dayjs from 'dayjs'
 
 import { SessionServiceInterace } from '../Domain/Session/SessionServiceInterface'
 import { SessionProjector } from './SessionProjector'
@@ -18,8 +18,8 @@ describe('SessionProjector', () => {
     session.hashedAccessToken = 'hashed access token'
     session.userUuid = '234'
     session.apiVersion = '004'
-    session.createdAt = moment.utc('2020-11-26 13:34').toDate()
-    session.updatedAt = moment.utc('2020-11-26 13:34').toDate()
+    session.createdAt = dayjs.utc('2020-11-26 13:34').toDate()
+    session.updatedAt = dayjs.utc('2020-11-26 13:34').toDate()
 
     currentSession = new Session()
     currentSession.uuid = '234'

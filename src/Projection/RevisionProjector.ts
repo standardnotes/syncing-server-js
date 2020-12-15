@@ -1,5 +1,5 @@
 import { injectable } from 'inversify'
-import * as moment from 'moment'
+import * as dayjs from 'dayjs'
 
 import { Revision } from '../Domain/Revision/Revision'
 import { ProjectorInterface } from './ProjectorInterface'
@@ -10,8 +10,8 @@ export class RevisionProjector implements ProjectorInterface<Revision> {
     return {
       'uuid': revision.uuid,
       'content_type': revision.contentType,
-      'created_at': moment.utc(revision.createdAt).toISOString(),
-      'updated_at': moment.utc(revision.updatedAt).toISOString()
+      'created_at': dayjs.utc(revision.createdAt).toISOString(),
+      'updated_at': dayjs.utc(revision.updatedAt).toISOString()
     }
   }
 
@@ -24,9 +24,9 @@ export class RevisionProjector implements ProjectorInterface<Revision> {
       'items_key_id': revision.itemsKeyId,
       'enc_item_key': revision.encItemKey,
       'auth_hash': revision.authHash,
-      'creation_date': moment.utc(revision.creationDate).format('YYYY-MM-DD'),
-      'created_at': moment.utc(revision.createdAt).toISOString(),
-      'updated_at': moment.utc(revision.updatedAt).toISOString()
+      'creation_date': dayjs.utc(revision.creationDate).format('YYYY-MM-DD'),
+      'created_at': dayjs.utc(revision.createdAt).toISOString(),
+      'updated_at': dayjs.utc(revision.updatedAt).toISOString()
     }
   }
 

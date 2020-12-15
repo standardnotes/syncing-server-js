@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify'
-import * as moment from 'moment'
+import * as dayjs from 'dayjs'
 import TYPES from '../Bootstrap/Types'
 
 import { Session } from '../Domain/Session/Session'
@@ -19,8 +19,8 @@ export class SessionProjector implements ProjectorInterface<Session> {
     return {
       uuid: session.uuid,
       api_version: session.apiVersion,
-      created_at: moment.utc(session.createdAt).toISOString(),
-      updated_at: moment.utc(session.updatedAt).toISOString(),
+      created_at: dayjs.utc(session.createdAt).toISOString(),
+      updated_at: dayjs.utc(session.updatedAt).toISOString(),
       device_info: this.sessionService.getDeviceInfo(session)
     }
   }
@@ -31,8 +31,8 @@ export class SessionProjector implements ProjectorInterface<Session> {
         return {
           uuid: session.uuid,
           api_version: session.apiVersion,
-          created_at: moment.utc(session.createdAt).toISOString(),
-          updated_at: moment.utc(session.updatedAt).toISOString(),
+          created_at: dayjs.utc(session.createdAt).toISOString(),
+          updated_at: dayjs.utc(session.updatedAt).toISOString(),
           device_info: this.sessionService.getDeviceInfo(session),
           current: session.uuid === currentSession.uuid
         }

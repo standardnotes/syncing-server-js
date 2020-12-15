@@ -13,6 +13,8 @@ import * as bodyParser from 'body-parser'
 import * as prettyjson from 'prettyjson'
 import * as expressWinston from 'express-winston'
 import * as winston from 'winston'
+import * as dayjs from 'dayjs'
+import * as utc from 'dayjs/plugin/utc'
 
 import { InversifyExpressServer, getRouteInfo } from 'inversify-express-utils'
 import { ContainerConfigLoader } from '../src/Bootstrap/Container'
@@ -21,6 +23,8 @@ import { Env } from '../src/Bootstrap/Env'
 
 const container = new ContainerConfigLoader
 container.load().then(container => {
+  dayjs.extend(utc)
+
   const server = new InversifyExpressServer(container)
 
   server.setConfig((app) => {

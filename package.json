@@ -24,6 +24,7 @@
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "crypto-random-string": "^3.3.0",
+    "dayjs": "^1.9.7",
     "device-detector-js": "^2.2.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -31,7 +32,6 @@
     "inversify": "^5.0.1",
     "inversify-express-utils": "^6.3.2",
     "jsonwebtoken": "^8.5.1",
-    "moment": "^2.29.1",
     "mysql2": "^2.2.5",
     "otplib": "^12.0.1",
     "prettyjson": "^1.2.1",
@@ -105,6 +105,9 @@
         "diagnostics": false
       }
     },
+    "setupFilesAfterEnv": [
+      "<rootDir>/test-setup.ts"
+    ],
     "coverageThreshold": {
       "global": {
         "branches": 100,

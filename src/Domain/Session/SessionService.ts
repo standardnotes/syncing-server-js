@@ -1,6 +1,6 @@
 import * as crypto from 'crypto'
 import * as winston from 'winston'
-import * as moment from 'moment'
+import * as dayjs from 'dayjs'
 import * as cryptoRandomString from 'crypto-random-string'
 import DeviceDetector = require('device-detector-js')
 import { inject, injectable } from 'inversify'
@@ -47,15 +47,15 @@ export class SessionService implements SessionServiceInterace {
 
     await this.sessionRepository.updateHashedTokens(session.uuid, hashedAccessToken, hashedRefreshToken)
 
-    const accessTokenExpiration = moment.utc().add(this.accessTokenAge, 'seconds').toDate()
-    const refreshTokenExpiration = moment.utc().add(this.refreshTokenAge, 'seconds').toDate()
+    const accessTokenExpiration = dayjs.utc().add(this.accessTokenAge, 'second').toDate()
+    const refreshTokenExpiration = dayjs.utc().add(this.refreshTokenAge, 'second').toDate()
     await this.sessionRepository.updatedTokenExpirationDates(session.uuid, accessTokenExpiration, refreshTokenExpiration)
 
     return {
       access_token: `${SessionService.SESSION_TOKEN_VERSION}:${session.uuid}:${accessToken}`,
       refresh_token: `${SessionService.SESSION_TOKEN_VERSION}:${session.uuid}:${refreshToken}`,
-      access_expiration: moment(accessTokenExpiration).valueOf(),
-      refresh_expiration: moment(refreshTokenExpiration).valueOf()
+      access_expiration: dayjs.utc(accessTokenExpiration).valueOf(),
+      refresh_expiration: dayjs.utc(refreshTokenExpiration).valueOf()
     }
   }
 
