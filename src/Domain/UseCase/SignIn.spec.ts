@@ -32,7 +32,7 @@ describe('SignIn', () => {
       email: 'test@test.te',
       password: 'qweqwe123123',
       userAgent: 'Google Chrome',
-      apiVersion: '004'
+      apiVersion: '20190520'
     })).toEqual({
       success: true,
       authResponse
@@ -44,7 +44,7 @@ describe('SignIn', () => {
       email: 'test@test.te',
       password: 'asdasd123123',
       userAgent: 'Google Chrome',
-      apiVersion: '004'
+      apiVersion: '20190520'
     })).toEqual({
       success: false,
       errorMessage: 'Invalid email or password'
