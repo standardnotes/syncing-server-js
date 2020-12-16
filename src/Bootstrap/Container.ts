@@ -94,7 +94,7 @@ export class ContainerConfigLoader {
         // Middleware
         container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
         container.bind<SessionMiddleware>(TYPES.SessionMiddleware).to(SessionMiddleware)
-        container.bind<LockMiddleware>(TYPES.SessionMiddleware).to(LockMiddleware)
+        container.bind<LockMiddleware>(TYPES.LockMiddleware).to(LockMiddleware)
 
         // Projectors
         container.bind<RevisionProjector>(TYPES.RevisionProjector).to(RevisionProjector)
