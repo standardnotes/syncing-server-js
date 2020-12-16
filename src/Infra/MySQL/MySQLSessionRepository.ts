@@ -1,4 +1,4 @@
-import * as moment from 'moment'
+import * as dayjs from 'dayjs'
 
 import { injectable } from 'inversify'
 import { EntityRepository, Repository } from 'typeorm'
@@ -35,7 +35,7 @@ export class MySQLSessionRepository extends Repository<Session> implements Sessi
     return this.createQueryBuilder('session')
       .where(
         'session.refresh_expiration > :refresh_expiration AND session.user_uuid = :user_uuid',
-        { refresh_expiration: moment.utc().toDate(), user_uuid: userUuid }
+        { refresh_expiration: dayjs.utc().toDate(), user_uuid: userUuid }
       )
       .getMany()
   }

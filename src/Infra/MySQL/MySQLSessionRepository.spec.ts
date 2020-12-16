@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 
-import * as moment from 'moment'
+import * as dayjs from 'dayjs'
 
 import { SelectQueryBuilder, UpdateQueryBuilder } from 'typeorm'
 import { Session } from '../../Domain/Session/Session'
@@ -58,15 +58,15 @@ describe('MySQLSessionRepository', () => {
 
     await repository.updatedTokenExpirationDates(
       '123',
-      moment.utc('2020-11-26 13:34').toDate(),
-      moment.utc('2020-11-26 14:34').toDate()
+      dayjs.utc('2020-11-26 13:34').toDate(),
+      dayjs.utc('2020-11-26 14:34').toDate()
     )
 
     expect(updateQueryBuilder.update).toHaveBeenCalled()
     expect(updateQueryBuilder.set).toHaveBeenCalledWith(
       {
-        accessExpiration: moment('2020-11-26T13:34:00.000Z').toDate(),
-        refreshExpiration: moment('2020-11-26T14:34:00.000Z').toDate()
+        accessExpiration: dayjs.utc('2020-11-26T13:34:00.000Z').toDate(),
+        refreshExpiration: dayjs.utc('2020-11-26T14:34:00.000Z').toDate()
       }
     )
     expect(updateQueryBuilder.where).toHaveBeenCalledWith(

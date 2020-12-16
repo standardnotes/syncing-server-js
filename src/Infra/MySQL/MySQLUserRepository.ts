@@ -12,4 +12,10 @@ export class MySQLUserRepository extends Repository<User> implements UserReposit
       .where('user.uuid = :uuid', { uuid })
       .getOne()
   }
+
+  async findOneByEmail(email: string): Promise<User | undefined> {
+    return this.createQueryBuilder('user')
+      .where('user.email = :email', { email })
+      .getOne()
+  }
 }
