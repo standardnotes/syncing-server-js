@@ -4,19 +4,23 @@ import { BaseHttpController, controller, httpPost, results } from 'inversify-exp
 import TYPES from '../Bootstrap/Types'
 import { SessionServiceInterace } from '../Domain/Session/SessionServiceInterface'
 import { SignIn } from '../Domain/UseCase/SignIn'
+import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
 import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
+import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 
 @controller('/auth')
 export class AuthController extends BaseHttpController {
   constructor(
     @inject(TYPES.SessionService) private sessionService: SessionServiceInterace,
     @inject(TYPES.VerifyMFA) private verifyMFA: VerifyMFA,
-    @inject(TYPES.SignIn) private signIn: SignIn
+    @inject(TYPES.SignIn) private signIn: SignIn,
+    @inject(TYPES.ClearLoginAttempts) private clearLoginAttempts: ClearLoginAttempts,
+    @inject(TYPES.IncreaseLoginAttempts) private increaseLoginAttempts: IncreaseLoginAttempts
   ) {
     super()
   }
 
-  @httpPost('/sign_in')
+  @httpPost('/sign_in', TYPES.LockMiddleware)
   async singIn(request: Request): Promise<results.JsonResult> {
     if (!request.body.email || !request.body.password) {
       return this.json({
@@ -50,12 +54,16 @@ export class AuthController extends BaseHttpController {
     })
 
     if (!signInResult.success) {
+      await this.increaseLoginAttempts.execute({ email: request.body.email })
+
       return this.json({
         error: {
           message: signInResult.errorMessage
         }
       }, 401)
     }
+
+    await this.clearLoginAttempts.execute({ email: request.body.email })
 
     return this.json(signInResult.authResponse)
   }

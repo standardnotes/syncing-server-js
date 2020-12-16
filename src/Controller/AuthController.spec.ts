@@ -7,14 +7,24 @@ import { results } from 'inversify-express-utils'
 import { SessionServiceInterace } from '../Domain/Session/SessionServiceInterface'
 import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
 import { SignIn } from '../Domain/UseCase/SignIn'
+import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
+import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 
 describe('AuthController', () => {
     let sessionService: SessionServiceInterace
     let verifyMFA: VerifyMFA
     let signIn: SignIn
+    let clearLoginAttempts: ClearLoginAttempts
+    let increaseLoginAttempts: IncreaseLoginAttempts
     let request: express.Request
 
-    const createController = () => new AuthController(sessionService, verifyMFA, signIn)
+    const createController = () => new AuthController(
+      sessionService,
+      verifyMFA,
+      signIn,
+      clearLoginAttempts,
+      increaseLoginAttempts
+    )
 
     beforeEach(() => {
         sessionService = {} as jest.Mocked<SessionServiceInterace>
@@ -25,6 +35,12 @@ describe('AuthController', () => {
 
         signIn = {} as jest.Mocked<SignIn>
         signIn.execute = jest.fn()
+
+        clearLoginAttempts = {} as jest.Mocked<ClearLoginAttempts>
+        clearLoginAttempts.execute = jest.fn()
+
+        increaseLoginAttempts = {} as jest.Mocked<IncreaseLoginAttempts>
+        increaseLoginAttempts.execute = jest.fn()
 
         request = {
           headers: {},
@@ -42,6 +58,8 @@ describe('AuthController', () => {
 
       const httpResponse = <results.JsonResult> await createController().singIn(request)
       const result = await httpResponse.executeAsync()
+
+      expect(clearLoginAttempts.execute).toHaveBeenCalledWith({ email: 'test@test.te' })
 
       expect(result.statusCode).toEqual(200)
     })
@@ -77,6 +95,8 @@ describe('AuthController', () => {
 
       const httpResponse = <results.JsonResult> await createController().singIn(request)
       const result = await httpResponse.executeAsync()
+
+      expect(increaseLoginAttempts.execute).toHaveBeenCalledWith({ email: 'test@test.te' })
 
       expect(result.statusCode).toEqual(401)
     })

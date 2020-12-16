@@ -51,4 +51,16 @@ describe('SignIn', () => {
       errorMessage: 'Invalid email or password'
     })
   })
+
+  it('should not sign in a user with wrong credentials', async () => {
+    expect(await createUseCase().execute({
+      email: 'test@test.te',
+      password: 'asdasd123123',
+      userAgent: 'Google Chrome',
+      apiVersion: '20190520'
+    })).toEqual({
+      success: false,
+      errorMessage: 'Invalid email or password'
+    })
+  })
 })
