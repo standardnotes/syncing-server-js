@@ -7,14 +7,16 @@ import { results } from 'inversify-express-utils'
 import { SessionServiceInterace } from '../Domain/Session/SessionServiceInterface'
 import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
 import { SignIn } from '../Domain/UseCase/SignIn'
+import { UnlockUser } from '../Domain/UseCase/UnlockUser'
 
 describe('AuthController', () => {
     let sessionService: SessionServiceInterace
     let verifyMFA: VerifyMFA
     let signIn: SignIn
+    let unlockUser: UnlockUser
     let request: express.Request
 
-    const createController = () => new AuthController(sessionService, verifyMFA, signIn)
+    const createController = () => new AuthController(sessionService, verifyMFA, signIn, unlockUser)
 
     beforeEach(() => {
         sessionService = {} as jest.Mocked<SessionServiceInterace>
@@ -25,6 +27,9 @@ describe('AuthController', () => {
 
         signIn = {} as jest.Mocked<SignIn>
         signIn.execute = jest.fn()
+
+        unlockUser = {} as jest.Mocked<UnlockUser>
+        unlockUser.execute = jest.fn()
 
         request = {
           headers: {},
@@ -42,6 +47,8 @@ describe('AuthController', () => {
 
       const httpResponse = <results.JsonResult> await createController().singIn(request)
       const result = await httpResponse.executeAsync()
+
+      expect(unlockUser.execute).toHaveBeenCalledWith({ email: 'test@test.te' })
 
       expect(result.statusCode).toEqual(200)
     })

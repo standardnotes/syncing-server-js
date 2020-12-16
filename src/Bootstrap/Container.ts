@@ -28,6 +28,7 @@ import { AuthResponseFactory20161215 } from '../Domain/Auth/AuthResponseFactory2
 import { AuthResponseFactory20190520 } from '../Domain/Auth/AuthResponseFactory20190520'
 import { AuthResponseFactory20200115 } from '../Domain/Auth/AuthResponseFactory20200115'
 import { AuthResponseFactoryResolver } from '../Domain/Auth/AuthResponseFactoryResolver'
+import { UnlockUser } from '../Domain/UseCase/UnlockUser'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -108,6 +109,7 @@ export class ContainerConfigLoader {
         container.bind<RefreshSessionToken>(TYPES.RefreshSessionToken).to(RefreshSessionToken)
         container.bind<SignIn>(TYPES.SignIn).to(SignIn)
         container.bind<VerifyMFA>(TYPES.VerifyMFA).to(VerifyMFA)
+        container.bind<UnlockUser>(TYPES.UnlockUser).to(UnlockUser)
 
         // Services
         container.bind<DeviceDetector>(TYPES.DeviceDetector).toConstantValue(new DeviceDetector())

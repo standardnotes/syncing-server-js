@@ -4,6 +4,7 @@ import { BaseHttpController, controller, httpPost, results } from 'inversify-exp
 import TYPES from '../Bootstrap/Types'
 import { SessionServiceInterace } from '../Domain/Session/SessionServiceInterface'
 import { SignIn } from '../Domain/UseCase/SignIn'
+import { UnlockUser } from '../Domain/UseCase/UnlockUser'
 import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
 
 @controller('/auth')
@@ -11,7 +12,8 @@ export class AuthController extends BaseHttpController {
   constructor(
     @inject(TYPES.SessionService) private sessionService: SessionServiceInterace,
     @inject(TYPES.VerifyMFA) private verifyMFA: VerifyMFA,
-    @inject(TYPES.SignIn) private signIn: SignIn
+    @inject(TYPES.SignIn) private signIn: SignIn,
+    @inject(TYPES.UnlockUser) private unlockUser: UnlockUser
   ) {
     super()
   }
@@ -56,6 +58,8 @@ export class AuthController extends BaseHttpController {
         }
       }, 401)
     }
+
+    await this.unlockUser.execute({ email: request.body.email })
 
     return this.json(signInResult.authResponse)
   }

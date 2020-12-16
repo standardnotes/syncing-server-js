@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm'
+import { Column, Entity, Index, PrimaryColumn } from 'typeorm'
 
 @Entity({ name: 'users' })
 export class User {
@@ -19,6 +19,7 @@ export class User {
     length: 255,
     nullable: true
   })
+  @Index('index_users_on_email')
   email: string
 
   @Column({
@@ -84,6 +85,33 @@ export class User {
     length: 255
   })
   encryptedPassword: string
+
+  @Column({
+    name: 'created_at',
+    type: 'datetime',
+  })
+  createdAt: Date
+
+  @Column({
+    name: 'updated_at',
+    type: 'datetime',
+  })
+  updatedAt: Date
+
+  @Column({
+    name: 'locked_until',
+    type: 'datetime',
+    nullable: true
+  })
+  lockedUntil: Date | null
+
+  @Column({
+    name: 'num_failed_attempts',
+    type: 'int',
+    width: 11,
+    nullable: true
+  })
+  numberOfFailedAttempts: number | null
 
   supportsSessions(): boolean {
     return parseInt(this.version) >= this.SESSIONS_PROTOCOL_VERSION

@@ -23,6 +23,7 @@ const TYPES = {
   RefreshSessionToken: Symbol.for('RefreshSessionToken'),
   VerifyMFA: Symbol.for('VerifyMFA'),
   SignIn: Symbol.for('SignIn'),
+  UnlockUser: Symbol.for('UnlockUser'),
   // Services
   DeviceDetector: Symbol.for('DeviceDetector'),
   SessionService: Symbol.for('SessionService'),
