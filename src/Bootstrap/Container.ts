@@ -30,6 +30,7 @@ import { AuthResponseFactory20200115 } from '../Domain/Auth/AuthResponseFactory2
 import { AuthResponseFactoryResolver } from '../Domain/Auth/AuthResponseFactoryResolver'
 import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
 import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
+import { LockMiddleware } from '../Controller/LockMiddleware'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -93,6 +94,7 @@ export class ContainerConfigLoader {
         // Middleware
         container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
         container.bind<SessionMiddleware>(TYPES.SessionMiddleware).to(SessionMiddleware)
+        container.bind<LockMiddleware>(TYPES.SessionMiddleware).to(LockMiddleware)
 
         // Projectors
         container.bind<RevisionProjector>(TYPES.RevisionProjector).to(RevisionProjector)

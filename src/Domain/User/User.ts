@@ -1,3 +1,5 @@
+import * as dayjs from 'dayjs'
+
 import { Column, Entity, Index, PrimaryColumn } from 'typeorm'
 
 @Entity({ name: 'users' })
@@ -115,5 +117,13 @@ export class User {
 
   supportsSessions(): boolean {
     return parseInt(this.version) >= this.SESSIONS_PROTOCOL_VERSION
+  }
+
+  isLocked(): boolean {
+    if (!this.lockedUntil) {
+      return false
+    }
+
+    return dayjs.utc(this.lockedUntil).isAfter(dayjs.utc())
   }
 }

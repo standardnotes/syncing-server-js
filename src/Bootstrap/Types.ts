@@ -8,6 +8,7 @@ const TYPES = {
   ItemRepository: Symbol.for('ItemRepository'),
   // Middleware
   AuthMiddleware: Symbol.for('AuthMiddleware'),
+  LockMiddleware: Symbol.for('LockMiddleware'),
   SessionMiddleware: Symbol.for('SessionMiddleware'),
   // Projectors
   RevisionProjector: Symbol.for('RevisionProjector'),

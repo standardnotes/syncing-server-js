@@ -20,7 +20,7 @@ export class AuthController extends BaseHttpController {
     super()
   }
 
-  @httpPost('/sign_in')
+  @httpPost('/sign_in', TYPES.LockMiddleware)
   async singIn(request: Request): Promise<results.JsonResult> {
     if (!request.body.email || !request.body.password) {
       return this.json({
