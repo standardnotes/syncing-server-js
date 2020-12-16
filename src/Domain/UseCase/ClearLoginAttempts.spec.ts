@@ -2,27 +2,27 @@ import 'reflect-metadata'
 
 import { User } from '../User/User'
 import { UserRepositoryInterface } from '../User/UserRepositoryInterface'
-import { UnlockUser } from './UnlockUser'
+import { ClearLoginAttempts } from './ClearLoginAttempts'
 
-describe('UnlockUser', () => {
+describe('ClearLoginAttempts', () => {
   let userRepository: UserRepositoryInterface
   let user: User
 
-  const createUseCase = () => new UnlockUser(userRepository)
+  const createUseCase = () => new ClearLoginAttempts(userRepository)
 
   beforeEach(() => {
     user = {} as jest.Mocked<User>
     user.uuid = '234'
 
     userRepository = {} as jest.Mocked<UserRepositoryInterface>
-    userRepository.resetLockCounters = jest.fn()
+    userRepository.resetLockCounter = jest.fn()
     userRepository.findOneByEmail = jest.fn().mockReturnValue(user)
   })
 
   it('should unlock an user by email', async () => {
     expect(await createUseCase().execute({ email: 'test@test.te' })).toEqual({ success: true })
 
-    expect(userRepository.resetLockCounters).toHaveBeenCalledWith('234')
+    expect(userRepository.resetLockCounter).toHaveBeenCalledWith('234')
   })
 
   it('should unlock an user by email if user does not exist', async () => {
@@ -30,6 +30,6 @@ describe('UnlockUser', () => {
 
     expect(await createUseCase().execute({ email: 'test@test.te' })).toEqual({ success: false })
 
-    expect(userRepository.resetLockCounters).not.toHaveBeenCalled()
+    expect(userRepository.resetLockCounter).not.toHaveBeenCalled()
   })
 })

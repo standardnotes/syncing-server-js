@@ -1,5 +1,7 @@
 import 'reflect-metadata'
 
+import * as dayjs from 'dayjs'
+
 import { SelectQueryBuilder, UpdateQueryBuilder } from 'typeorm'
 import { User } from '../../Domain/User/User'
 
@@ -22,6 +24,53 @@ describe('MySQLUserRepository', () => {
     repository.createQueryBuilder = jest.fn().mockImplementation(() => queryBuilder)
   })
 
+  it('should update lock counter by user id', async () => {
+    repository.createQueryBuilder = jest.fn().mockImplementation(() => updateQueryBuilder)
+
+    updateQueryBuilder.update = jest.fn().mockReturnThis()
+    updateQueryBuilder.set = jest.fn().mockReturnThis()
+    updateQueryBuilder.where = jest.fn().mockReturnThis()
+    updateQueryBuilder.execute = jest.fn()
+
+    await repository.updateLockCounter('123', 5)
+
+    expect(updateQueryBuilder.update).toHaveBeenCalled()
+    expect(updateQueryBuilder.set).toHaveBeenCalledWith(
+      {
+        numberOfFailedAttempts: 5
+      }
+    )
+    expect(updateQueryBuilder.where).toHaveBeenCalledWith(
+      'uuid = :uuid',
+      { uuid: '123' }
+    )
+    expect(updateQueryBuilder.execute).toHaveBeenCalled()
+  })
+
+  it('should update locked until property', async () => {
+    repository.createQueryBuilder = jest.fn().mockImplementation(() => updateQueryBuilder)
+
+    updateQueryBuilder.update = jest.fn().mockReturnThis()
+    updateQueryBuilder.set = jest.fn().mockReturnThis()
+    updateQueryBuilder.where = jest.fn().mockReturnThis()
+    updateQueryBuilder.execute = jest.fn()
+
+    await repository.lockUntil('123', dayjs.utc('2030-01-01 10:00:00').toDate())
+
+    expect(updateQueryBuilder.update).toHaveBeenCalled()
+    expect(updateQueryBuilder.set).toHaveBeenCalledWith(
+      {
+        lockedUntil: dayjs.utc('2030-01-01 10:00:00').toDate(),
+        numberOfFailedAttempts: 0
+      }
+    )
+    expect(updateQueryBuilder.where).toHaveBeenCalledWith(
+      'uuid = :uuid',
+      { uuid: '123' }
+    )
+    expect(updateQueryBuilder.execute).toHaveBeenCalled()
+  })
+
   it('should reset lock counter by user id', async () => {
     repository.createQueryBuilder = jest.fn().mockImplementation(() => updateQueryBuilder)
 
@@ -30,7 +79,7 @@ describe('MySQLUserRepository', () => {
     updateQueryBuilder.where = jest.fn().mockReturnThis()
     updateQueryBuilder.execute = jest.fn()
 
-    await repository.resetLockCounters('123')
+    await repository.resetLockCounter('123')
 
     expect(updateQueryBuilder.update).toHaveBeenCalled()
     expect(updateQueryBuilder.set).toHaveBeenCalledWith(
