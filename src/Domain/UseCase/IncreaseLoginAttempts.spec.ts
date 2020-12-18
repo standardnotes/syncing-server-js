@@ -1,5 +1,7 @@
 import 'reflect-metadata'
 
+import { Logger } from 'winston'
+
 import { User } from '../User/User'
 import { UserRepositoryInterface } from '../User/UserRepositoryInterface'
 import { IncreaseLoginAttempts } from './IncreaseLoginAttempts'
@@ -7,10 +9,14 @@ import { IncreaseLoginAttempts } from './IncreaseLoginAttempts'
 describe('IncreaseLoginAttempts', () => {
   let userRepository: UserRepositoryInterface
   let user: User
+  let logger: Logger
 
-  const createUseCase = () => new IncreaseLoginAttempts(userRepository, 6, 3600)
+  const createUseCase = () => new IncreaseLoginAttempts(userRepository, 6, 3600, logger)
 
   beforeEach(() => {
+    logger = {} as jest.Mocked<Logger>
+    logger.debug = jest.fn()
+
     user = {} as jest.Mocked<User>
     user.uuid = '123'
 
@@ -26,7 +32,6 @@ describe('IncreaseLoginAttempts', () => {
     expect(await createUseCase().execute({ email: 'test@test.te' })).toEqual({ success: true })
 
     expect(userRepository.lockUntil).toHaveBeenCalledWith('123', expect.any(Date))
-    expect(userRepository.updateLockCounter).toHaveBeenCalledWith('123', 0)
   })
 
   it('should update the lock counter if a user is not exceeding the max failed login attempts', async () => {

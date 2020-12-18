@@ -1,4 +1,5 @@
 import { inject, injectable } from 'inversify'
+import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
 import { UserRepositoryInterface } from '../User/UserRepositoryInterface'
 import { ClearLoginAttemptsDTO } from './ClearLoginAttemptsDTO'
@@ -8,7 +9,8 @@ import { UseCaseInterface } from './UseCaseInterface'
 @injectable()
 export class ClearLoginAttempts implements UseCaseInterface {
   constructor (
-    @inject(TYPES.UserRepository) private userRepository: UserRepositoryInterface
+    @inject(TYPES.UserRepository) private userRepository: UserRepositoryInterface,
+    @inject(TYPES.Logger) private logger: Logger
   ) {
   }
 
@@ -18,6 +20,8 @@ export class ClearLoginAttempts implements UseCaseInterface {
     if (!user) {
       return { success: false }
     }
+
+    this.logger.debug(`Resetting lock counter for user ${user.uuid}`)
 
     await this.userRepository.resetLockCounter(user.uuid)
 
