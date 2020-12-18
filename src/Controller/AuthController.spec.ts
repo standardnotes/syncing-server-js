@@ -9,6 +9,7 @@ import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
 import { SignIn } from '../Domain/UseCase/SignIn'
 import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
 import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
+import { Logger } from 'winston'
 
 describe('AuthController', () => {
     let sessionService: SessionServiceInterace
@@ -17,35 +18,40 @@ describe('AuthController', () => {
     let clearLoginAttempts: ClearLoginAttempts
     let increaseLoginAttempts: IncreaseLoginAttempts
     let request: express.Request
+    let logger: Logger
 
     const createController = () => new AuthController(
       sessionService,
       verifyMFA,
       signIn,
       clearLoginAttempts,
-      increaseLoginAttempts
+      increaseLoginAttempts,
+      logger
     )
 
     beforeEach(() => {
-        sessionService = {} as jest.Mocked<SessionServiceInterace>
-        sessionService.deleteSessionByToken = jest.fn()
+      logger = {} as jest.Mocked<Logger>
+      logger.debug = jest.fn()
 
-        verifyMFA = {} as jest.Mocked<VerifyMFA>
-        verifyMFA.execute = jest.fn()
+      sessionService = {} as jest.Mocked<SessionServiceInterace>
+      sessionService.deleteSessionByToken = jest.fn()
 
-        signIn = {} as jest.Mocked<SignIn>
-        signIn.execute = jest.fn()
+      verifyMFA = {} as jest.Mocked<VerifyMFA>
+      verifyMFA.execute = jest.fn()
 
-        clearLoginAttempts = {} as jest.Mocked<ClearLoginAttempts>
-        clearLoginAttempts.execute = jest.fn()
+      signIn = {} as jest.Mocked<SignIn>
+      signIn.execute = jest.fn()
 
-        increaseLoginAttempts = {} as jest.Mocked<IncreaseLoginAttempts>
-        increaseLoginAttempts.execute = jest.fn()
+      clearLoginAttempts = {} as jest.Mocked<ClearLoginAttempts>
+      clearLoginAttempts.execute = jest.fn()
 
-        request = {
-          headers: {},
-          body: {},
-        } as jest.Mocked<express.Request>
+      increaseLoginAttempts = {} as jest.Mocked<IncreaseLoginAttempts>
+      increaseLoginAttempts.execute = jest.fn()
+
+      request = {
+        headers: {},
+        body: {},
+      } as jest.Mocked<express.Request>
     })
 
     it('should sign in a user', async () => {

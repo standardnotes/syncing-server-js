@@ -7,6 +7,7 @@ import { SignIn } from '../Domain/UseCase/SignIn'
 import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
 import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
 import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
+import { Logger } from 'winston'
 
 @controller('/auth')
 export class AuthController extends BaseHttpController {
@@ -15,7 +16,8 @@ export class AuthController extends BaseHttpController {
     @inject(TYPES.VerifyMFA) private verifyMFA: VerifyMFA,
     @inject(TYPES.SignIn) private signIn: SignIn,
     @inject(TYPES.ClearLoginAttempts) private clearLoginAttempts: ClearLoginAttempts,
-    @inject(TYPES.IncreaseLoginAttempts) private increaseLoginAttempts: IncreaseLoginAttempts
+    @inject(TYPES.IncreaseLoginAttempts) private increaseLoginAttempts: IncreaseLoginAttempts,
+    @inject(TYPES.Logger) private logger: Logger
   ) {
     super()
   }
@@ -23,6 +25,8 @@ export class AuthController extends BaseHttpController {
   @httpPost('/sign_in', TYPES.LockMiddleware)
   async singIn(request: Request): Promise<results.JsonResult> {
     if (!request.body.email || !request.body.password) {
+      this.logger.debug('/auth/sign_in request missing credentials: %O', request.body)
+
       return this.json({
         error: {
           tag: 'invalid-auth',
@@ -73,12 +77,14 @@ export class AuthController extends BaseHttpController {
     const authorizationHeader = <string> request.headers.authorization
 
     if (!authorizationHeader) {
-        return this.json({
-          error: {
-            tag: 'invalid-auth',
-            message: 'Invalid login credentials.',
-          },
-        }, 401)
+      this.logger.debug('/auth/sign_out request missing authorization header')
+
+      return this.json({
+        error: {
+          tag: 'invalid-auth',
+          message: 'Invalid login credentials.',
+        },
+      }, 401)
     }
 
     await this.sessionService.deleteSessionByToken(authorizationHeader.replace('Bearer ', ''))
