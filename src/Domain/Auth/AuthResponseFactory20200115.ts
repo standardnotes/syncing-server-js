@@ -1,4 +1,5 @@
 import { inject, injectable } from 'inversify'
+import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
 import { ProjectorInterface } from '../../Projection/ProjectorInterface'
 import { SessionServiceInterace } from '../Session/SessionServiceInterface'
@@ -12,22 +13,30 @@ export class AuthResponseFactory20200115 extends AuthResponseFactory20190520 {
     @inject(TYPES.SessionService) private sessionService: SessionServiceInterace,
     @inject(TYPES.KeyParamsFactory) private keyParamsFactory: KeyParamsFactoryInterface,
     @inject(TYPES.UserProjector) userProjector: ProjectorInterface<User>,
-    @inject(TYPES.JWT_SECRET) jwtSecret: string
+    @inject(TYPES.JWT_SECRET) jwtSecret: string,
+    @inject(TYPES.Logger) logger: Logger
   ) {
     super(
       userProjector,
-      jwtSecret
+      jwtSecret,
+      logger
     )
   }
 
   async createResponse(user: User, apiVersion: string, userAgent: string): Promise<Record<string, unknown>> {
     if (!user.supportsSessions()) {
+      this.logger.debug(`User ${user.uuid} does not support sessions. Falling back to JWT auth response`)
+
       return super.createResponse(user)
     }
 
     const session = await this.sessionService.createNewSessionForUser(user, apiVersion, userAgent)
 
+    this.logger.debug(`Created new session for user ${user.uuid}: %O`, session)
+
     const sessionPayload = await this.sessionService.createTokens(session)
+
+    this.logger.debug(`Created session payload for user ${user.uuid}: %O`, sessionPayload)
 
     return {
       session: sessionPayload,

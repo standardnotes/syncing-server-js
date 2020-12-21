@@ -25,7 +25,7 @@ describe('SessionService', () => {
     sessionRepository = {} as jest.Mocked<SessionRepositoryInterface>
     sessionRepository.findOneByUuid = jest.fn()
     sessionRepository.deleteOneByUuid = jest.fn()
-    sessionRepository.save = jest.fn()
+    sessionRepository.save = jest.fn().mockReturnValue(session)
     sessionRepository.updateHashedTokens = jest.fn()
     sessionRepository.updatedTokenExpirationDates = jest.fn()
 
@@ -77,10 +77,9 @@ describe('SessionService', () => {
     const user = {} as jest.Mocked<User>
     user.uuid = '123'
 
-    const session = await createService().createNewSessionForUser(user, '003', 'Google Chrome')
+    const createdSession = await createService().createNewSessionForUser(user, '003', 'Google Chrome')
 
-    expect(session).toBeInstanceOf(Session)
-    expect(session.userUuid).toEqual('123')
+    expect(createdSession).toEqual(session)
   })
 
   it('should delete a session by token', async () => {

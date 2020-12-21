@@ -33,9 +33,7 @@ export class SessionService implements SessionServiceInterace {
     session.apiVersion = apiVersion
     session.userAgent = userAgent
 
-    await this.sessionRepository.save(session)
-
-    return session
+    return this.sessionRepository.save(session)
   }
 
   async createTokens(session: Session): Promise<SessionPayload> {

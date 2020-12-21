@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import { Logger } from 'winston'
 
 import { ProjectorInterface } from '../../Projection/ProjectorInterface'
 import { User } from '../User/User'
@@ -7,13 +8,18 @@ import { AuthResponseFactory20190520 } from './AuthResponseFactory20190520'
 describe('AuthResponseFactory20190520', () => {
   let userProjector: ProjectorInterface<User>
   let user: User
+  let logger: Logger
 
   const createFactory = () => new AuthResponseFactory20190520(
     userProjector,
-    'secret'
+    'secret',
+    logger
   )
 
   beforeEach(() => {
+    logger = {} as jest.Mocked<Logger>
+    logger.debug = jest.fn()
+
     userProjector = {} as jest.Mocked<ProjectorInterface<User>>
     userProjector.projectSimple = jest.fn().mockReturnValue({ foo: 'bar' })
 

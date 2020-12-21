@@ -1,4 +1,5 @@
 import { inject, injectable } from 'inversify'
+import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
 import { AuthResponseFactory20161215 } from './AuthResponseFactory20161215'
 import { AuthResponseFactory20190520 } from './AuthResponseFactory20190520'
@@ -12,10 +13,13 @@ export class AuthResponseFactoryResolver implements AuthResponseFactoryResolverI
     @inject(TYPES.AuthResponseFactory20161215) private authResponseFactory20161215: AuthResponseFactory20161215,
     @inject(TYPES.AuthResponseFactory20190520) private authResponseFactory20190520: AuthResponseFactory20190520,
     @inject(TYPES.AuthResponseFactory20200115) private authResponseFactory20200115: AuthResponseFactory20200115,
+    @inject(TYPES.Logger) private logger: Logger
   ) {
   }
 
   resolveAuthResponseFactoryVersion(apiVersion: string): AuthResponseFactoryInterface {
+    this.logger.debug(`Resolving auth response factory for api version: ${apiVersion}`)
+
     switch(apiVersion) {
       case '20161215':
         return this.authResponseFactory20161215

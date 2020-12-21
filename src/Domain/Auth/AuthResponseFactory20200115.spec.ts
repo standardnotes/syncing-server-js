@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import { Logger } from 'winston'
 
 import { ProjectorInterface } from '../../Projection/ProjectorInterface'
 import { Session } from '../Session/Session'
@@ -13,15 +14,20 @@ describe('AuthResponseFactory20200115', () => {
   let userProjector: ProjectorInterface<User>
   let user: User
   let session: Session
+  let logger: Logger
 
   const createFactory = () => new AuthResponseFactory20200115(
     sessionService,
     keyParamsFactory,
     userProjector,
-    'secret'
+    'secret',
+    logger
   )
 
   beforeEach(() => {
+    logger = {} as jest.Mocked<Logger>
+    logger.debug = jest.fn()
+
     session = {} as jest.Mocked<Session>
 
     sessionService = {} as jest.Mocked<SessionServiceInterace>
