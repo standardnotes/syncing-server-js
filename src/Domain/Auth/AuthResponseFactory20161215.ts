@@ -32,6 +32,8 @@ export class AuthResponseFactory20161215 implements AuthResponseFactoryInterface
       }
     )
 
+    this.logger.debug(`Created JWT token for user ${user.uuid}: ${token}`)
+
     return {
       user: this.userProjector.projectSimple(user),
       token
