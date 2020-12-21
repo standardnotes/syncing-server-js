@@ -1,4 +1,4 @@
-import * as moment from 'moment'
+import * as dayjs from 'dayjs'
 
 import { Session } from './Session'
 
@@ -7,7 +7,7 @@ describe('Session', () => {
 
   it('should indicate if access token is expired', () => {
     const session = createSession()
-    const date = moment.utc().toDate()
+    const date = dayjs.utc().toDate()
     date.setDate(date.getDate() - 5)
     session.accessExpiration = date
 
@@ -16,7 +16,7 @@ describe('Session', () => {
 
   it('should indicate if access token is not expired', () => {
     const session = createSession()
-    const date = moment.utc().toDate()
+    const date = dayjs.utc().toDate()
     date.setDate(date.getDate() + 5)
     session.accessExpiration = date
 
@@ -25,7 +25,7 @@ describe('Session', () => {
 
   it('should indicate if refresh token is expired', () => {
     const session = createSession()
-    const date = moment.utc().toDate()
+    const date = dayjs.utc().toDate()
     date.setDate(date.getDate() - 5)
     session.refreshExpiration = date
 
@@ -34,7 +34,7 @@ describe('Session', () => {
 
   it('should indicate if refresh token is not expired', () => {
     const session = createSession()
-    const date = moment.utc().toDate()
+    const date = dayjs.utc().toDate()
     date.setDate(date.getDate() + 5)
     session.refreshExpiration = date
 

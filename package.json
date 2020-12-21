@@ -21,8 +21,10 @@
     "start": "node dist/bin/server.js"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "crypto-random-string": "^3.3.0",
+    "dayjs": "^1.9.7",
     "device-detector-js": "^2.2.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -30,21 +32,25 @@
     "inversify": "^5.0.1",
     "inversify-express-utils": "^6.3.2",
     "jsonwebtoken": "^8.5.1",
-    "moment": "^2.29.1",
     "mysql2": "^2.2.5",
+    "otplib": "^12.0.1",
     "prettyjson": "^1.2.1",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.29",
+    "uuid": "^8.3.2",
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
     "@types/cors": "^2.8.8",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.9",
     "@types/inversify-express-utils": "^2.0.0",
     "@types/jest": "^26.0.15",
     "@types/jsonwebtoken": "^8.5.0",
+    "@types/otplib": "^10.0.0",
     "@types/prettyjson": "^0.0.29",
+    "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
     "dd-trace": "^0.29.1",
@@ -99,6 +105,9 @@
         "diagnostics": false
       }
     },
+    "setupFilesAfterEnv": [
+      "<rootDir>/test-setup.ts"
+    ],
     "coverageThreshold": {
       "global": {
         "branches": 100,

@@ -1,21 +1,14 @@
 import 'reflect-metadata'
 
 import { Session } from '../Session/Session'
-import { SessionRepositoryInterface } from '../Session/SessionRepositoryInterface'
 import { SessionServiceInterace } from '../Session/SessionServiceInterface'
 import { RefreshSessionToken } from './RefreshSessionToken'
 
 describe('RefreshSessionToken', () => {
   let sessionService: SessionServiceInterace
-  let sessionRepository: SessionRepositoryInterface
   let session: Session
 
-  const createUseCase = () => new RefreshSessionToken(
-    sessionService,
-    sessionRepository,
-    123,
-    234
-  )
+  const createUseCase = () => new RefreshSessionToken(sessionService)
 
   beforeEach(() => {
     session = {} as jest.Mocked<Session>
@@ -25,10 +18,12 @@ describe('RefreshSessionToken', () => {
     sessionService = {} as jest.Mocked<SessionServiceInterace>
     sessionService.isRefreshTokenValid = jest.fn().mockReturnValue(true)
     sessionService.getSessionFromToken = jest.fn().mockReturnValue(session)
-
-    sessionRepository = {} as jest.Mocked<SessionRepositoryInterface>
-    sessionRepository.updateHashedTokens = jest.fn()
-    sessionRepository.updatedTokenExpirationDates = jest.fn()
+    sessionService.createTokens = jest.fn().mockReturnValue({
+      access_token: 'token1',
+      refresh_token: 'token2',
+      access_expiration: 123,
+      refresh_expiration: 234
+    })
   })
 
   it('should refresh session token', async () => {
@@ -37,16 +32,15 @@ describe('RefreshSessionToken', () => {
       refreshToken: '234'
     })
 
-    expect(sessionRepository.updateHashedTokens).toHaveBeenCalled()
-    expect(sessionRepository.updatedTokenExpirationDates).toHaveBeenCalled()
+    expect(sessionService.createTokens).toHaveBeenCalledWith(session)
 
     expect(result).toEqual({
       success: true,
       sessionPayload: {
-        access_expiration: expect.any(Number),
-        access_token: expect.any(String),
-        refresh_expiration: expect.any(Number),
-        refresh_token: expect.any(String)
+        access_token: 'token1',
+        refresh_token: 'token2',
+        access_expiration: 123,
+        refresh_expiration: 234
       }
     })
   })
