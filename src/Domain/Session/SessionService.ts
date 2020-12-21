@@ -32,6 +32,8 @@ export class SessionService implements SessionServiceInterace {
     session.userUuid = user.uuid
     session.apiVersion = apiVersion
     session.userAgent = userAgent
+    session.createdAt = dayjs.utc().toDate()
+    session.updatedAt = dayjs.utc().toDate()
 
     return this.sessionRepository.save(session)
   }
