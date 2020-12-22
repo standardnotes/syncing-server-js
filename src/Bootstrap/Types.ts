@@ -8,6 +8,7 @@ const TYPES = {
   ItemRepository: Symbol.for('ItemRepository'),
   // Middleware
   AuthMiddleware: Symbol.for('AuthMiddleware'),
+  AuthMiddlewareWithoutResponse: Symbol.for('AuthMiddlewareWithoutResponse'),
   LockMiddleware: Symbol.for('LockMiddleware'),
   SessionMiddleware: Symbol.for('SessionMiddleware'),
   // Projectors
@@ -21,6 +22,7 @@ const TYPES = {
   REFRESH_TOKEN_AGE: Symbol.for('REFRESH_TOKEN_AGE'),
   MAX_LOGIN_ATTEMPTS: Symbol.for('MAX_LOGIN_ATTEMPTS'),
   FAILED_LOGIN_LOCKOUT: Symbol.for('FAILED_LOGIN_LOCKOUT'),
+  PSEUDO_KEY_PARAMS_KEY: Symbol.for('PSEUDO_KEY_PARAMS_KEY'),
   // use cases
   AuthenticateUser: Symbol.for('AuthenticateUser'),
   RefreshSessionToken: Symbol.for('RefreshSessionToken'),
@@ -28,6 +30,7 @@ const TYPES = {
   SignIn: Symbol.for('SignIn'),
   ClearLoginAttempts: Symbol.for('ClearLoginAttempts'),
   IncreaseLoginAttempts: Symbol.for('IncreaseLoginAttempts'),
+  GetUserKeyParams: Symbol.for('GetUserKeyParams'),
   // Services
   DeviceDetector: Symbol.for('DeviceDetector'),
   SessionService: Symbol.for('SessionService'),

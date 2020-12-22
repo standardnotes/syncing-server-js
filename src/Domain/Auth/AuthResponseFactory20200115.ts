@@ -40,7 +40,7 @@ export class AuthResponseFactory20200115 extends AuthResponseFactory20190520 {
 
     return {
       session: sessionPayload,
-      key_params: this.keyParamsFactory.create(user),
+      key_params: this.keyParamsFactory.create(user, true),
       user: this.userProjector.projectSimple(user)
     }
   }
