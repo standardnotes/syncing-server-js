@@ -67,7 +67,7 @@ describe('AuthController', () => {
       request = {
         headers: {},
         body: {},
-        params: {}
+        query: {}
       } as jest.Mocked<express.Request>
 
       response = {
@@ -108,7 +108,7 @@ describe('AuthController', () => {
 
       verifyMFA.execute = jest.fn().mockReturnValue({ success: true })
 
-      request.params.email = 'test2@test.te'
+      request.query.email = 'test2@test.te'
 
       const httpResponse = <results.JsonResult> await createController().params(request, response)
       const result = await httpResponse.executeAsync()
@@ -128,7 +128,7 @@ describe('AuthController', () => {
         }
       })
 
-      request.params.email = 'test2@test.te'
+      request.query.email = 'test2@test.te'
 
       verifyMFA.execute = jest.fn().mockReturnValue({ success: false })
 
