@@ -31,6 +31,8 @@ import { AuthResponseFactoryResolver } from '../Domain/Auth/AuthResponseFactoryR
 import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
 import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { LockMiddleware } from '../Controller/LockMiddleware'
+import { AuthMiddlewareWithoutResponse } from '../Controller/AuthMiddlewareWithoutResponse'
+import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -95,6 +97,7 @@ export class ContainerConfigLoader {
         container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
         container.bind<SessionMiddleware>(TYPES.SessionMiddleware).to(SessionMiddleware)
         container.bind<LockMiddleware>(TYPES.LockMiddleware).to(LockMiddleware)
+        container.bind<AuthMiddlewareWithoutResponse>(TYPES.AuthMiddlewareWithoutResponse).to(AuthMiddlewareWithoutResponse)
 
         // Projectors
         container.bind<RevisionProjector>(TYPES.RevisionProjector).to(RevisionProjector)
@@ -108,6 +111,7 @@ export class ContainerConfigLoader {
         container.bind(TYPES.REFRESH_TOKEN_AGE).toConstantValue(env.get('REFRESH_TOKEN_AGE'))
         container.bind(TYPES.MAX_LOGIN_ATTEMPTS).toConstantValue(env.get('MAX_LOGIN_ATTEMPTS'))
         container.bind(TYPES.FAILED_LOGIN_LOCKOUT).toConstantValue(env.get('FAILED_LOGIN_LOCKOUT'))
+        container.bind(TYPES.PSEUDO_KEY_PARAMS_KEY).toConstantValue(env.get('PSEUDO_KEY_PARAMS_KEY'))
 
         // use cases
         container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
@@ -116,6 +120,7 @@ export class ContainerConfigLoader {
         container.bind<VerifyMFA>(TYPES.VerifyMFA).to(VerifyMFA)
         container.bind<ClearLoginAttempts>(TYPES.ClearLoginAttempts).to(ClearLoginAttempts)
         container.bind<IncreaseLoginAttempts>(TYPES.IncreaseLoginAttempts).to(IncreaseLoginAttempts)
+        container.bind<GetUserKeyParams>(TYPES.GetUserKeyParams).to(GetUserKeyParams)
 
         // Services
         container.bind<DeviceDetector>(TYPES.DeviceDetector).toConstantValue(new DeviceDetector())
