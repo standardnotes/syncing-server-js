@@ -35,6 +35,14 @@ export class AuthController extends BaseHttpController {
       return this.json(result.keyParams)
     }
 
+    if (!request.params.email) {
+      return this.json({
+        error: {
+          message: 'Please provide an email address.'
+        }
+      }, 400)
+    }
+
     const verifyMFAResponse = await this.verifyMFA.execute({
       email: request.params.email,
       requestParams: request.params
@@ -48,14 +56,6 @@ export class AuthController extends BaseHttpController {
           payload: verifyMFAResponse.errorPayload,
         }
       }, 401)
-    }
-
-    if (!request.params.email) {
-      return this.json({
-        error: {
-          message: 'Please provide an email address.'
-        }
-      }, 400)
     }
 
     const result = await this.getUserKeyParams.execute({

@@ -128,6 +128,8 @@ describe('AuthController', () => {
         }
       })
 
+      request.params.email = 'test2@test.te'
+
       verifyMFA.execute = jest.fn().mockReturnValue({ success: false })
 
       const httpResponse = <results.JsonResult> await createController().params(request, response)
