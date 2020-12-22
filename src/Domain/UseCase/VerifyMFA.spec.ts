@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { totp } from 'otplib'
+import { authenticator } from 'otplib'
 
 import { ContentDecoderInterface } from '../Item/ContentDecoderInterface'
 import { Item } from '../Item/Item'
@@ -59,6 +59,9 @@ describe('VerifyMFA', () => {
   })
 
   it('should not pass MFA verification if mfa is not correct', async () => {
+    contentDecoder.decode = jest.fn().mockReturnValue({
+      secret: 'shhhh'
+    })
     itemRepository.findMFAExtensionByUserUuid = jest.fn().mockReturnValue(item)
 
     expect(await createVerifyMFA().execute({ email: 'test@test.te', requestParams: { 'mfa_1-2-3': 'test' } })).toEqual({
@@ -76,7 +79,7 @@ describe('VerifyMFA', () => {
 
     itemRepository.findMFAExtensionByUserUuid = jest.fn().mockReturnValue(item)
 
-    expect(await createVerifyMFA().execute({ email: 'test@test.te', requestParams: { 'mfa_1-2-3': totp.generate('shhhh') } })).toEqual({
+    expect(await createVerifyMFA().execute({ email: 'test@test.te', requestParams: { 'mfa_1-2-3': authenticator.generate('shhhh') } })).toEqual({
       success: true,
     })
   })

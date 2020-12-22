@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify'
-import { totp } from 'otplib'
+import { authenticator } from 'otplib'
 import TYPES from '../../Bootstrap/Types'
 import { ContentDecoderInterface } from '../Item/ContentDecoderInterface'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
@@ -46,7 +46,7 @@ export class VerifyMFA implements UseCaseInterface {
 
     const mfaContent = this.contentDecoder.decode(mfaExtension.content)
 
-    if (!totp.verify({ token: <string> dto.requestParams[mfaParamKey], secret: <string> mfaContent.secret })) {
+    if (!authenticator.verify({ token: <string> dto.requestParams[mfaParamKey], secret: <string> mfaContent.secret })) {
       return {
         success: false,
         errorTag: 'mfa-invalid',
