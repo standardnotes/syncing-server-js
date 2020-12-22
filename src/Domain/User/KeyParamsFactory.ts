@@ -1,11 +1,27 @@
-import { injectable } from 'inversify'
+import * as crypto from 'crypto'
+
+import { inject, injectable } from 'inversify'
+import TYPES from '../../Bootstrap/Types'
 import { KeyParams } from './KeyParams'
 import { KeyParamsFactoryInterface } from './KeyParamsFactoryInterface'
 import { User } from './User'
 
 @injectable()
 export class KeyParamsFactory implements KeyParamsFactoryInterface {
-  create(user: User): KeyParams {
+  constructor (
+    @inject(TYPES.PSEUDO_KEY_PARAMS_KEY) private pseudoKeyParamsKey: string
+  ) {
+  }
+
+  createPseudoParams(email: string): KeyParams {
+    return {
+      identifier: email,
+      pw_nonce: crypto.createHash('sha256').update(`${email}${this.pseudoKeyParamsKey}`).digest('hex'),
+      version: '004',
+    }
+  }
+
+  create(user: User, authenticated: boolean): KeyParams {
     const keyParams: KeyParams = {
       version: user.version,
       identifier: user.email
@@ -13,8 +29,10 @@ export class KeyParamsFactory implements KeyParamsFactoryInterface {
 
     switch (user.version) {
       case '004':
-        keyParams.created = user.kpCreated
-        keyParams.origination = user.kpOrigination
+        if (authenticated) {
+          keyParams.created = user.kpCreated
+          keyParams.origination = user.kpOrigination
+        }
         keyParams.pw_nonce = user.pwNonce
         break
       case '003':

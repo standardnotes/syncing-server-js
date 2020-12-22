@@ -1,6 +1,6 @@
-import { Request } from 'express'
+import { Request, Response } from 'express'
 import { inject } from 'inversify'
-import { BaseHttpController, controller, httpPost, results } from 'inversify-express-utils'
+import { BaseHttpController, controller, httpGet, httpPost, results } from 'inversify-express-utils'
 import TYPES from '../Bootstrap/Types'
 import { SessionServiceInterace } from '../Domain/Session/SessionServiceInterface'
 import { SignIn } from '../Domain/UseCase/SignIn'
@@ -8,6 +8,7 @@ import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
 import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
 import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { Logger } from 'winston'
+import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 
 @controller('/auth')
 export class AuthController extends BaseHttpController {
@@ -15,11 +16,53 @@ export class AuthController extends BaseHttpController {
     @inject(TYPES.SessionService) private sessionService: SessionServiceInterace,
     @inject(TYPES.VerifyMFA) private verifyMFA: VerifyMFA,
     @inject(TYPES.SignIn) private signIn: SignIn,
+    @inject(TYPES.GetUserKeyParams) private getUserKeyParams: GetUserKeyParams,
     @inject(TYPES.ClearLoginAttempts) private clearLoginAttempts: ClearLoginAttempts,
     @inject(TYPES.IncreaseLoginAttempts) private increaseLoginAttempts: IncreaseLoginAttempts,
     @inject(TYPES.Logger) private logger: Logger
   ) {
     super()
+  }
+
+  @httpGet('/params', TYPES.AuthMiddlewareWithoutResponse)
+  async params(request: Request, response: Response): Promise<results.JsonResult> {
+    if (response.locals.session) {
+      const result = await this.getUserKeyParams.execute({
+        email: response.locals.user.email,
+        authenticatedUser: response.locals.user
+      })
+
+      return this.json(result.keyParams)
+    }
+
+    const verifyMFAResponse = await this.verifyMFA.execute({
+      email: request.params.email,
+      requestParams: request.params
+    })
+
+    if (!verifyMFAResponse.success) {
+      return this.json({
+        error: {
+          tag: verifyMFAResponse.errorTag,
+          message: verifyMFAResponse.errorMessage,
+          payload: verifyMFAResponse.errorPayload,
+        }
+      }, 401)
+    }
+
+    if (!request.params.email) {
+      return this.json({
+        error: {
+          message: 'Please provide an email address.'
+        }
+      }, 400)
+    }
+
+    const result = await this.getUserKeyParams.execute({
+      email: request.params.email
+    })
+
+    return this.json(result.keyParams)
   }
 
   @httpPost('/sign_in', TYPES.LockMiddleware)

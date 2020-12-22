@@ -6,7 +6,7 @@ import { User } from './User'
 describe('KeyParamsFactory', () => {
   let user: User
 
-  const createFactory = () => new KeyParamsFactory()
+  const createFactory = () => new KeyParamsFactory('secret_key')
 
   beforeEach(() => {
     user = new User()
@@ -23,7 +23,7 @@ describe('KeyParamsFactory', () => {
   })
 
   it('should create a basic key params structure', () => {
-    expect(createFactory().create(user)).toEqual({
+    expect(createFactory().create(user, true)).toEqual({
       identifier: 'test@test.te',
       version: 'test'
     })
@@ -32,7 +32,7 @@ describe('KeyParamsFactory', () => {
   it('should create a key params structure for 001 version', () => {
     user.version = '001'
 
-    expect(createFactory().create(user)).toEqual({
+    expect(createFactory().create(user, true)).toEqual({
       email: 'test@test.te',
       identifier: 'test@test.te',
       pw_alg: 'pwAlg',
@@ -47,7 +47,7 @@ describe('KeyParamsFactory', () => {
   it('should create a key params structure for 002 version', () => {
     user.version = '002'
 
-    expect(createFactory().create(user)).toEqual({
+    expect(createFactory().create(user, true)).toEqual({
       email: 'test@test.te',
       identifier: 'test@test.te',
       pw_cost: 1,
@@ -59,7 +59,7 @@ describe('KeyParamsFactory', () => {
   it('should create a key params structure for 003 version', () => {
     user.version = '003'
 
-    expect(createFactory().create(user)).toEqual({
+    expect(createFactory().create(user, true)).toEqual({
       identifier: 'test@test.te',
       pw_cost: 1,
       pw_nonce: 'pwNonce',
@@ -70,11 +70,29 @@ describe('KeyParamsFactory', () => {
   it('should create a key params structure for 004 version', () => {
     user.version = '004'
 
-    expect(createFactory().create(user)).toEqual({
+    expect(createFactory().create(user, true)).toEqual({
       identifier: 'test@test.te',
       created: 'kpCreated',
       origination: 'kpOrigination',
       pw_nonce: 'pwNonce',
+      version: '004',
+    })
+  })
+
+  it('should create a key params structure for not authenticated 004 version', () => {
+    user.version = '004'
+
+    expect(createFactory().create(user, false)).toEqual({
+      identifier: 'test@test.te',
+      pw_nonce: 'pwNonce',
+      version: '004',
+    })
+  })
+
+  it('should create pseudo key params', () => {
+    expect(createFactory().createPseudoParams('test@test.te')).toEqual({
+      identifier: 'test@test.te',
+      pw_nonce: '2552d8b41fc63fcdbd8d07ef4d26a4e6fc61742b348e7094838b1e738c318736',
       version: '004',
     })
   })
