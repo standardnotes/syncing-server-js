@@ -115,6 +115,13 @@ export class User {
   })
   numberOfFailedAttempts: number | null
 
+  @Column({
+    name: 'updated_with_user_agent',
+    type: 'text',
+    nullable: true
+  })
+  updatedWithUserAgent: string | null
+
   supportsSessions(): boolean {
     return parseInt(this.version) >= this.SESSIONS_PROTOCOL_VERSION
   }
