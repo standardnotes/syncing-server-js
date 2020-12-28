@@ -5,6 +5,7 @@ const TYPES = {
   RevisionRepository: Symbol.for('RevisionRepository'),
   UserRepository: Symbol.for('UserRepository'),
   SessionRepository: Symbol.for('SessionRepository'),
+  EphemeralSessionRepository: Symbol.for('EphemeralSessionRepository'),
   ItemRepository: Symbol.for('ItemRepository'),
   // Middleware
   AuthMiddleware: Symbol.for('AuthMiddleware'),

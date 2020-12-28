@@ -182,6 +182,7 @@ describe('AuthController', () => {
     })
 
     it('should sign in a user', async () => {
+      request.body.api = '20200115'
       request.headers['user-agent'] = 'Google Chrome'
       request.body.email = 'test@test.te'
       request.body.password = 'qwerty'
@@ -192,6 +193,41 @@ describe('AuthController', () => {
 
       const httpResponse = <results.JsonResult> await createController().signIn(request)
       const result = await httpResponse.executeAsync()
+
+      expect(signIn.execute).toHaveBeenCalledWith({
+        apiVersion: '20200115',
+        email: 'test@test.te',
+        ephemeralSession: false,
+        password: 'qwerty',
+        userAgent: 'Google Chrome',
+      })
+
+      expect(clearLoginAttempts.execute).toHaveBeenCalledWith({ email: 'test@test.te' })
+
+      expect(result.statusCode).toEqual(200)
+    })
+
+    it('should sign in a user with an ephemeral session', async () => {
+      request.body.api = '20200115'
+      request.headers['user-agent'] = 'Safari'
+      request.body.email = 'test@test.te'
+      request.body.password = 'qwerty'
+      request.body.ephemeral = true
+
+      verifyMFA.execute = jest.fn().mockReturnValue({ success: true })
+
+      signIn.execute = jest.fn().mockReturnValue({ success: true })
+
+      const httpResponse = <results.JsonResult> await createController().signIn(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(signIn.execute).toHaveBeenCalledWith({
+        apiVersion: '20200115',
+        email: 'test@test.te',
+        ephemeralSession: true,
+        password: 'qwerty',
+        userAgent: 'Safari',
+      })
 
       expect(clearLoginAttempts.execute).toHaveBeenCalledWith({ email: 'test@test.te' })
 

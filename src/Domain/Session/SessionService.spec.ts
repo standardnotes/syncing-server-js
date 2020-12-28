@@ -6,15 +6,20 @@ import { Session } from './Session'
 import { SessionRepositoryInterface } from './SessionRepositoryInterface'
 import { SessionService } from './SessionService'
 import { User } from '../User/User'
+import { EphemeralSessionRepositoryInterface } from './EphemeralSessionRepositoryInterface'
+import { EphemeralSession } from './EphemeralSession'
 
 describe('SessionService', () => {
   let sessionRepository: SessionRepositoryInterface
+  let ephemeralSessionRepository: EphemeralSessionRepositoryInterface
   let session: Session
+  let ephemeralSession: EphemeralSession
   let deviceDetector: DeviceDetector
   let logger: winston.Logger
 
   const createService = () => new SessionService(
     sessionRepository,
+    ephemeralSessionRepository,
     deviceDetector,
     logger,
     123,
@@ -29,11 +34,16 @@ describe('SessionService', () => {
     sessionRepository.updateHashedTokens = jest.fn()
     sessionRepository.updatedTokenExpirationDates = jest.fn()
 
+    ephemeralSessionRepository = {} as jest.Mocked<EphemeralSessionRepositoryInterface>
+    ephemeralSessionRepository.save = jest.fn().mockReturnValue(ephemeralSession)
+
     session = {} as jest.Mocked<Session>
     session.uuid = '2e1e43'
     session.userAgent = 'Chrome'
     session.hashedAccessToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
     session.hashedRefreshToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
+
+    ephemeralSession = {} as jest.Mocked<EphemeralSession>
 
     deviceDetector = {} as jest.Mocked<DeviceDetector>
     deviceDetector.parse = jest.fn().mockReturnValue({
@@ -80,6 +90,15 @@ describe('SessionService', () => {
     const createdSession = await createService().createNewSessionForUser(user, '003', 'Google Chrome')
 
     expect(createdSession).toEqual(session)
+  })
+
+  it('should create new ephemeral session for a user', async () => {
+    const user = {} as jest.Mocked<User>
+    user.uuid = '123'
+
+    const createdSession = await createService().createNewEphemeralSessionForUser(user, '003', 'Google Chrome')
+
+    expect(createdSession).toEqual(ephemeralSession)
   })
 
   it('should delete a session by token', async () => {

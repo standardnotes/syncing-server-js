@@ -12,6 +12,8 @@ import { SessionRepositoryInterface } from './SessionRepositoryInterface'
 import { SessionServiceInterace } from './SessionServiceInterface'
 import { SessionPayload } from './SessionPayload'
 import { User } from '../User/User'
+import { EphemeralSessionRepositoryInterface } from './EphemeralSessionRepositoryInterface'
+import { EphemeralSession } from './EphemeralSession'
 
 @injectable()
 export class SessionService implements SessionServiceInterace {
@@ -19,6 +21,7 @@ export class SessionService implements SessionServiceInterace {
 
   constructor (
     @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface,
+    @inject(TYPES.EphemeralSessionRepository) private ephemeralSessionRepository: EphemeralSessionRepositoryInterface,
     @inject(TYPES.DeviceDetector) private deviceDetector: DeviceDetector,
     @inject(TYPES.Logger) private logger: winston.Logger,
     @inject(TYPES.ACCESS_TOKEN_AGE) private accessTokenAge: number,
@@ -27,15 +30,15 @@ export class SessionService implements SessionServiceInterace {
   }
 
   async createNewSessionForUser(user: User, apiVersion: string, userAgent: string): Promise<Session> {
-    const session = new Session()
-    session.uuid = uuidv4()
-    session.userUuid = user.uuid
-    session.apiVersion = apiVersion
-    session.userAgent = userAgent
-    session.createdAt = dayjs.utc().toDate()
-    session.updatedAt = dayjs.utc().toDate()
+    return this.sessionRepository.save(
+      this.createSession(user, apiVersion, userAgent, false)
+    )
+  }
 
-    return this.sessionRepository.save(session)
+  async createNewEphemeralSessionForUser(user: User, apiVersion: string, userAgent: string): Promise<EphemeralSession> {
+    return this.ephemeralSessionRepository.save(
+      this.createSession(user, apiVersion, userAgent, true)
+    )
   }
 
   async createTokens(session: Session): Promise<SessionPayload> {
@@ -111,5 +114,20 @@ export class SessionService implements SessionServiceInterace {
     if (session) {
       await this.sessionRepository.deleteOneByUuid(session.uuid)
     }
+  }
+
+  private createSession(user: User, apiVersion: string, userAgent: string, ephemeral: boolean): Session {
+    let session = new Session()
+    if (ephemeral) {
+      session = new EphemeralSession()
+    }
+    session.uuid = uuidv4()
+    session.userUuid = user.uuid
+    session.apiVersion = apiVersion
+    session.userAgent = userAgent
+    session.createdAt = dayjs.utc().toDate()
+    session.updatedAt = dayjs.utc().toDate()
+
+    return session
   }
 }
