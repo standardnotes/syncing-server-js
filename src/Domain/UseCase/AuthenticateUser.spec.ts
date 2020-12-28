@@ -1,4 +1,6 @@
 import 'reflect-metadata'
+import * as dayjs from 'dayjs'
+
 import { Session } from '../Session/Session'
 
 import { SessionServiceInterace } from '../Session/SessionServiceInterface'
@@ -24,8 +26,8 @@ describe('AuthenticateUser', () => {
     user = {} as jest.Mocked<User>
     user.supportsSessions = jest.fn().mockReturnValue(false)
     session = {} as jest.Mocked<Session>
-    session.accessExpired = jest.fn().mockReturnValue(false)
-    session.refreshExpired = jest.fn().mockReturnValue(false)
+    session.accessExpiration = dayjs.utc().add(1, 'day').toDate()
+    session.refreshExpiration = dayjs.utc().add(1, 'day').toDate()
   })
 
   it('should authenticate a user based on a JWT token', async () => {
@@ -89,7 +91,7 @@ describe('AuthenticateUser', () => {
   })
 
   it('should not authenticate a user from a session token if session is expired', async () => {
-    session.accessExpired = jest.fn().mockReturnValue(true)
+    session.accessExpiration = dayjs.utc().subtract(1, 'day').toDate()
     sessionService.getSessionFromToken = jest.fn().mockReturnValue(session)
 
     user.supportsSessions = jest.fn().mockReturnValue(true)
@@ -101,7 +103,7 @@ describe('AuthenticateUser', () => {
   })
 
   it('should not authenticate a user from a session token if refresh token is expired', async () => {
-    session.refreshExpired = jest.fn().mockReturnValue(true)
+    session.refreshExpiration = dayjs.utc().subtract(1, 'day').toDate()
     sessionService.getSessionFromToken = jest.fn().mockReturnValue(session)
 
     user.supportsSessions = jest.fn().mockReturnValue(true)

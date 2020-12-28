@@ -1,5 +1,8 @@
 import { EphemeralSession } from './EphemeralSession'
 
 export interface EphemeralSessionRepositoryInterface {
-  save(ephemeralSession: EphemeralSession): Promise<EphemeralSession>
+  findOneByUuid(uuid: string): Promise<EphemeralSession | undefined>
+  updateTokensAndExpirationDates(uuid: string, hashedAccessToken: string, hashedRefreshToken: string, accessExpiration: Date, refreshExpiration: Date): Promise<void>
+  deleteOneByUuid(uuid: string): Promise<void>
+  save(ephemeralSession: EphemeralSession): Promise<void>
 }

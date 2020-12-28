@@ -1,3 +1,5 @@
+import * as dayjs from 'dayjs'
+
 import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
 import { SessionServiceInterace } from '../Session/SessionServiceInterface'
@@ -29,7 +31,7 @@ export class RefreshSessionToken {
       }
     }
 
-    if (session.refreshExpired()) {
+    if (session.refreshExpiration < dayjs.utc().toDate()) {
       return {
         success: false,
         errorTag: 'expired-refresh-token',

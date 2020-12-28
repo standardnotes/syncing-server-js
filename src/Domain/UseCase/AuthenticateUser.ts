@@ -1,4 +1,5 @@
 import * as crypto from 'crypto'
+import * as dayjs from 'dayjs'
 import { inject, injectable } from 'inversify'
 
 import { verify } from 'jsonwebtoken'
@@ -62,14 +63,14 @@ export class AuthenticateUser implements UseCaseInterface {
       case 'session_token': {
         const session = <Session> authenticationMethod.session
 
-        if (session.refreshExpired()) {
+        if (session.refreshExpiration < dayjs.utc().toDate()) {
           return {
             success: false,
             failureType: 'INVALID_AUTH'
           }
         }
 
-        if (session.accessExpired()) {
+        if (session.accessExpiration < dayjs.utc().toDate()) {
           return {
             success: false,
             failureType: 'EXPIRED_TOKEN'
