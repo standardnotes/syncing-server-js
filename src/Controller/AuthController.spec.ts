@@ -161,7 +161,7 @@ describe('AuthController', () => {
 
       signIn.execute = jest.fn().mockReturnValue({ success: true })
 
-      const httpResponse = <results.JsonResult> await createController().singIn(request)
+      const httpResponse = <results.JsonResult> await createController().signIn(request)
       const result = await httpResponse.executeAsync()
 
       expect(clearLoginAttempts.execute).toHaveBeenCalledWith({ email: 'test@test.te' })
@@ -172,7 +172,7 @@ describe('AuthController', () => {
     it('should not sign in a user if request param is missing', async () => {
       request.body.email = 'test@test.te'
 
-      const httpResponse = <results.JsonResult> await createController().singIn(request)
+      const httpResponse = <results.JsonResult> await createController().signIn(request)
       const result = await httpResponse.executeAsync()
 
       expect(result.statusCode).toEqual(401)
@@ -184,7 +184,7 @@ describe('AuthController', () => {
 
       verifyMFA.execute = jest.fn().mockReturnValue({ success: false })
 
-      const httpResponse = <results.JsonResult> await createController().singIn(request)
+      const httpResponse = <results.JsonResult> await createController().signIn(request)
       const result = await httpResponse.executeAsync()
 
       expect(result.statusCode).toEqual(401)
@@ -198,7 +198,7 @@ describe('AuthController', () => {
 
       signIn.execute = jest.fn().mockReturnValue({ success: false })
 
-      const httpResponse = <results.JsonResult> await createController().singIn(request)
+      const httpResponse = <results.JsonResult> await createController().signIn(request)
       const result = await httpResponse.executeAsync()
 
       expect(increaseLoginAttempts.execute).toHaveBeenCalledWith({ email: 'test@test.te' })

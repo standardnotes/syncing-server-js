@@ -15,7 +15,7 @@ export class AuthController extends BaseHttpController {
   constructor(
     @inject(TYPES.SessionService) private sessionService: SessionServiceInterace,
     @inject(TYPES.VerifyMFA) private verifyMFA: VerifyMFA,
-    @inject(TYPES.SignIn) private signIn: SignIn,
+    @inject(TYPES.SignIn) private signInUseCase: SignIn,
     @inject(TYPES.GetUserKeyParams) private getUserKeyParams: GetUserKeyParams,
     @inject(TYPES.ClearLoginAttempts) private clearLoginAttempts: ClearLoginAttempts,
     @inject(TYPES.IncreaseLoginAttempts) private increaseLoginAttempts: IncreaseLoginAttempts,
@@ -66,7 +66,7 @@ export class AuthController extends BaseHttpController {
   }
 
   @httpPost('/sign_in', TYPES.LockMiddleware)
-  async singIn(request: Request): Promise<results.JsonResult> {
+  async signIn(request: Request): Promise<results.JsonResult> {
     if (!request.body.email || !request.body.password) {
       this.logger.debug('/auth/sign_in request missing credentials: %O', request.body)
 
@@ -93,7 +93,7 @@ export class AuthController extends BaseHttpController {
       }, 401)
     }
 
-    const signInResult = await this.signIn.execute({
+    const signInResult = await this.signInUseCase.execute({
       apiVersion: request.body.api,
       userAgent: request.body.user_agent,
       email: request.body.email,
