@@ -14,11 +14,11 @@ export class KeyParamsFactory implements KeyParamsFactoryInterface {
   }
 
   createPseudoParams(email: string): KeyParams {
-    return {
+    return this.sortKeys({
       identifier: email,
       pw_nonce: crypto.createHash('sha256').update(`${email}${this.pseudoKeyParamsKey}`).digest('hex'),
       version: '004',
-    }
+    })
   }
 
   create(user: User, authenticated: boolean): KeyParams {
@@ -54,6 +54,16 @@ export class KeyParamsFactory implements KeyParamsFactoryInterface {
         break
     }
 
-    return keyParams
+    return this.sortKeys(keyParams)
+  }
+
+  private sortKeys(keyParams: KeyParams): KeyParams {
+    const sortedKeyParams: {[key: string]: string | number | undefined } = {}
+
+    Object.keys(keyParams).sort().forEach(key => {
+      sortedKeyParams[key] = keyParams[key]
+    })
+
+    return <KeyParams> sortedKeyParams
   }
 }

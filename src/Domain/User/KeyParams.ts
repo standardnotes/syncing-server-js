@@ -1,4 +1,5 @@
 export type KeyParams = {
+  [key: string]: string | number | undefined
   version: string
   identifier: string
   created?: string

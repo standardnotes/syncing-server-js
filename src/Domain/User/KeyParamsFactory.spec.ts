@@ -96,4 +96,14 @@ describe('KeyParamsFactory', () => {
       version: '004',
     })
   })
+
+  it('should create a key params with sorted keys', () => {
+    user.version = '003'
+
+    const expectedKeysOrder = ['identifier', 'pw_cost', 'pw_nonce', 'version']
+    const keyParams = createFactory().create(user, true)
+    Object.keys(keyParams).forEach((key, index) => {
+      expect(key).toEqual(expectedKeysOrder[index])
+    })
+  })
 })
