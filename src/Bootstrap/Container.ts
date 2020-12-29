@@ -36,6 +36,7 @@ import { AuthMiddlewareWithoutResponse } from '../Controller/AuthMiddlewareWitho
 import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { UpdateUser } from '../Domain/UseCase/UpdateUser'
 import { RedisEphemeralSessionRepository } from '../Infra/Redis/RedisEphemeralSessionRepository'
+import { GetActiveSessionsForUser } from '../Domain/UseCase/GetActiveSessionsForUser'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -130,6 +131,7 @@ export class ContainerConfigLoader {
         container.bind<IncreaseLoginAttempts>(TYPES.IncreaseLoginAttempts).to(IncreaseLoginAttempts)
         container.bind<GetUserKeyParams>(TYPES.GetUserKeyParams).to(GetUserKeyParams)
         container.bind<UpdateUser>(TYPES.UpdateUser).to(UpdateUser)
+        container.bind<GetActiveSessionsForUser>(TYPES.GetActiveSessionsForUser).to(GetActiveSessionsForUser)
 
         // Services
         container.bind<DeviceDetector>(TYPES.DeviceDetector).toConstantValue(new DeviceDetector())

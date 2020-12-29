@@ -27,6 +27,12 @@ describe('SessionService', () => {
   )
 
   beforeEach(() => {
+    session = {} as jest.Mocked<Session>
+    session.uuid = '2e1e43'
+    session.userAgent = 'Chrome'
+    session.hashedAccessToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
+    session.hashedRefreshToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
+
     sessionRepository = {} as jest.Mocked<SessionRepositoryInterface>
     sessionRepository.findOneByUuid = jest.fn()
     sessionRepository.deleteOneByUuid = jest.fn()
@@ -39,12 +45,6 @@ describe('SessionService', () => {
     ephemeralSessionRepository.findOneByUuid = jest.fn()
     ephemeralSessionRepository.updateTokensAndExpirationDates = jest.fn()
     ephemeralSessionRepository.deleteOneByUuid = jest.fn()
-
-    session = {} as jest.Mocked<Session>
-    session.uuid = '2e1e43'
-    session.userAgent = 'Chrome'
-    session.hashedAccessToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
-    session.hashedRefreshToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
 
     ephemeralSession = {} as jest.Mocked<EphemeralSession>
     ephemeralSession.uuid = '2-3-4'
