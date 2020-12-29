@@ -4,31 +4,26 @@ import * as express from 'express'
 
 import { SessionController } from './SessionController'
 import { results } from 'inversify-express-utils'
-import { SessionRepositoryInterface } from '../Domain/Session/SessionRepositoryInterface'
-import { Session } from '../Domain/Session/Session'
 import { RefreshSessionToken } from '../Domain/UseCase/RefreshSessionToken'
 import { DeletePreviousSessionsForUser } from '../Domain/UseCase/DeletePreviousSessionsForUser'
+import { DeleteSessionForUser } from '../Domain/UseCase/DeleteSessionForUser'
 
 describe('SessionController', () => {
-    let sessionsRepository: SessionRepositoryInterface
+    let deleteSessionForUser: DeleteSessionForUser
     let deletePreviousSessionsForUser: DeletePreviousSessionsForUser
     let refreshSessionToken: RefreshSessionToken
-    let session: Session
     let request: express.Request
     let response: express.Response
 
     const createController = () => new SessionController(
-      sessionsRepository,
+      deleteSessionForUser,
       deletePreviousSessionsForUser,
       refreshSessionToken
     )
 
     beforeEach(() => {
-        session = {} as jest.Mocked<Session>
-
-        sessionsRepository = {} as jest.Mocked<SessionRepositoryInterface>
-        sessionsRepository.deleteOneByUuid = jest.fn()
-        sessionsRepository.findOneByUuidAndUserUuid = jest.fn().mockReturnValue(session)
+        deleteSessionForUser = {} as jest.Mocked<DeleteSessionForUser>
+        deleteSessionForUser.execute = jest.fn().mockReturnValue({ success: true })
 
         deletePreviousSessionsForUser = {} as jest.Mocked<DeletePreviousSessionsForUser>
         deletePreviousSessionsForUser.execute = jest.fn()
@@ -111,7 +106,10 @@ describe('SessionController', () => {
 
       const httpResponse = await createController().deleteSession(request, response)
 
-      expect(sessionsRepository.deleteOneByUuid).toBeCalledWith('123')
+      expect(deleteSessionForUser.execute).toBeCalledWith({
+        userUuid: '123',
+        sessionUuid: '123'
+      })
 
       expect(httpResponse).toBeInstanceOf(results.StatusCodeResult)
     })
@@ -128,7 +126,7 @@ describe('SessionController', () => {
 
       const httpResponse = <results.JsonResult> await createController().deleteSession(request, response)
 
-      expect(sessionsRepository.deleteOneByUuid).not.toHaveBeenCalled()
+      expect(deleteSessionForUser.execute).not.toHaveBeenCalled()
 
       expect(httpResponse.statusCode).toEqual(400)
     })
@@ -146,12 +144,12 @@ describe('SessionController', () => {
 
       const httpResponse = <results.JsonResult> await createController().deleteSession(request, response)
 
-      expect(sessionsRepository.deleteOneByUuid).not.toHaveBeenCalled()
+      expect(deleteSessionForUser.execute).not.toHaveBeenCalled()
 
       expect(httpResponse.statusCode).toEqual(400)
     })
 
-    it('should not delete a specific session if it does not exist', async () => {
+    it('should respond with failure if deleting a specific session fails', async () => {
       response.locals = {
         user: {
           uuid: '123',
@@ -162,11 +160,9 @@ describe('SessionController', () => {
       }
       request.body.uuid = '123'
 
-      sessionsRepository.findOneByUuidAndUserUuid = jest.fn().mockReturnValue(null)
+      deleteSessionForUser.execute = jest.fn().mockReturnValue({ success: false })
 
       const httpResponse = <results.JsonResult> await createController().deleteSession(request, response)
-
-      expect(sessionsRepository.deleteOneByUuid).not.toHaveBeenCalled()
 
       expect(httpResponse.statusCode).toEqual(400)
     })
