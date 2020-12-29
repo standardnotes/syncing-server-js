@@ -4,7 +4,7 @@ export interface SessionRepositoryInterface {
   findOneByUuid(uuid: string): Promise<Session | undefined>
   findOneByUuidAndUserUuid(uuid: string, userUuid: string): Promise<Session | undefined>
   findAllByRefreshExpirationAndUserUuid(userUuid: string): Promise<Array<Session>>
-  deleteAllByUserUuidExceptOne(userUuid: string, currentSessionUuid: string): Promise<void>
+  deleteAllByUserUuid(userUuid: string, currentSessionUuid: string): Promise<void>
   deleteOneByUuid(uuid: string): Promise<void>
   updateHashedTokens(uuid: string, hashedAccessToken: string, hashedRefreshToken: string): Promise<void>
   updatedTokenExpirationDates(uuid: string, accessExpiration: Date, refreshExpiration: Date): Promise<void>

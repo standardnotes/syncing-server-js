@@ -114,7 +114,7 @@ describe('MySQLSessionRepository', () => {
     queryBuilder.delete = jest.fn().mockReturnThis()
     queryBuilder.execute = jest.fn()
 
-    await repository.deleteAllByUserUuidExceptOne('123', '234')
+    await repository.deleteAllByUserUuid('123', '234')
 
     expect(queryBuilder.delete).toHaveBeenCalled()
     expect(queryBuilder.where).toHaveBeenCalledWith(

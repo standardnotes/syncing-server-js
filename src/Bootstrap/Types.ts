@@ -37,6 +37,7 @@ const TYPES = {
   GetUserKeyParams: Symbol.for('GetUserKeyParams'),
   UpdateUser: Symbol.for('UpdateUser'),
   GetActiveSessionsForUser: Symbol.for('GetActiveSessionsForUser'),
+  DeletePreviousSessionsForUser: Symbol.for('DeletePreviousSessionsForUser'),
   // Services
   DeviceDetector: Symbol.for('DeviceDetector'),
   SessionService: Symbol.for('SessionService'),

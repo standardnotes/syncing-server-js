@@ -59,7 +59,7 @@ export class MySQLSessionRepository extends Repository<Session> implements Sessi
       .getOne()
   }
 
-  async deleteAllByUserUuidExceptOne(userUuid: string, currentSessionUuid: string): Promise<void> {
+  async deleteAllByUserUuid(userUuid: string, currentSessionUuid: string): Promise<void> {
     await this.createQueryBuilder('session')
       .delete()
       .where(

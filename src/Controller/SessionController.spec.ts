@@ -7,23 +7,31 @@ import { results } from 'inversify-express-utils'
 import { SessionRepositoryInterface } from '../Domain/Session/SessionRepositoryInterface'
 import { Session } from '../Domain/Session/Session'
 import { RefreshSessionToken } from '../Domain/UseCase/RefreshSessionToken'
+import { DeletePreviousSessionsForUser } from '../Domain/UseCase/DeletePreviousSessionsForUser'
 
 describe('SessionController', () => {
     let sessionsRepository: SessionRepositoryInterface
+    let deletePreviousSessionsForUser: DeletePreviousSessionsForUser
     let refreshSessionToken: RefreshSessionToken
     let session: Session
     let request: express.Request
     let response: express.Response
 
-    const createController = () => new SessionController(sessionsRepository, refreshSessionToken)
+    const createController = () => new SessionController(
+      sessionsRepository,
+      deletePreviousSessionsForUser,
+      refreshSessionToken
+    )
 
     beforeEach(() => {
         session = {} as jest.Mocked<Session>
 
         sessionsRepository = {} as jest.Mocked<SessionRepositoryInterface>
-        sessionsRepository.deleteAllByUserUuidExceptOne = jest.fn()
         sessionsRepository.deleteOneByUuid = jest.fn()
         sessionsRepository.findOneByUuidAndUserUuid = jest.fn().mockReturnValue(session)
+
+        deletePreviousSessionsForUser = {} as jest.Mocked<DeletePreviousSessionsForUser>
+        deletePreviousSessionsForUser.execute = jest.fn()
 
         refreshSessionToken = {} as jest.Mocked<RefreshSessionToken>
         refreshSessionToken.execute = jest.fn()
@@ -174,7 +182,10 @@ describe('SessionController', () => {
         }
         const httpResponse = await createController().deleteAllSessions(request, response)
 
-        expect(sessionsRepository.deleteAllByUserUuidExceptOne).toHaveBeenCalledWith('123', '234')
+        expect(deletePreviousSessionsForUser.execute).toHaveBeenCalledWith({
+          userUuid: '123',
+          currentSessionUuid: '234'
+        })
 
         expect(httpResponse).toBeInstanceOf(results.StatusCodeResult)
     })

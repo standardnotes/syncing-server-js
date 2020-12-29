@@ -3,15 +3,17 @@ import { inject } from 'inversify'
 import { BaseHttpController, controller, httpDelete, httpPost, results } from 'inversify-express-utils'
 import TYPES from '../Bootstrap/Types'
 import { SessionRepositoryInterface } from '../Domain/Session/SessionRepositoryInterface'
+import { DeletePreviousSessionsForUser } from '../Domain/UseCase/DeletePreviousSessionsForUser'
 import { RefreshSessionToken } from '../Domain/UseCase/RefreshSessionToken'
 
 @controller('/session')
 export class SessionController extends BaseHttpController {
   constructor(
     @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface,
+    @inject(TYPES.DeletePreviousSessionsForUser) private deletePreviousSessionsForUser: DeletePreviousSessionsForUser,
     @inject(TYPES.RefreshSessionToken) private refreshSessionToken: RefreshSessionToken
   ) {
-      super()
+    super()
   }
 
   @httpDelete('/', TYPES.AuthMiddleware, TYPES.SessionMiddleware)
@@ -48,23 +50,23 @@ export class SessionController extends BaseHttpController {
 
   @httpDelete('/all', TYPES.AuthMiddleware, TYPES.SessionMiddleware)
   async deleteAllSessions(_request: Request, response: Response): Promise<results.JsonResult | results.StatusCodeResult> {
-      if (!response.locals.user) {
-        return this.json(
-          {
-            error: {
-              message: 'No session exists with the provided identifier.',
-            }
-          },
-          401
-        )
-      }
-
-      await this.sessionRepository.deleteAllByUserUuidExceptOne(
-        response.locals.user.uuid,
-        response.locals.session.uuid
+    if (!response.locals.user) {
+      return this.json(
+        {
+          error: {
+            message: 'No session exists with the provided identifier.',
+          }
+        },
+        401
       )
+    }
 
-      return this.statusCode(204)
+    await this.deletePreviousSessionsForUser.execute({
+      userUuid: response.locals.user.uuid,
+      currentSessionUuid: response.locals.session.uuid
+    })
+
+    return this.statusCode(204)
   }
 
   @httpPost('/refresh')
