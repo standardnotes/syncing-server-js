@@ -13,6 +13,7 @@ import { Logger } from 'winston'
 import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { User } from '../Domain/User/User'
 import { Session } from '../Domain/Session/Session'
+import { UpdateUser } from '../Domain/UseCase/UpdateUser'
 
 describe('AuthController', () => {
     let sessionService: SessionServiceInterace
@@ -21,6 +22,7 @@ describe('AuthController', () => {
     let getUserKeyParams: GetUserKeyParams
     let clearLoginAttempts: ClearLoginAttempts
     let increaseLoginAttempts: IncreaseLoginAttempts
+    let updateUser: UpdateUser
     let request: express.Request
     let response: express.Response
     let user: User
@@ -34,6 +36,7 @@ describe('AuthController', () => {
       getUserKeyParams,
       clearLoginAttempts,
       increaseLoginAttempts,
+      updateUser,
       logger
     )
 
@@ -49,6 +52,9 @@ describe('AuthController', () => {
 
       signIn = {} as jest.Mocked<SignIn>
       signIn.execute = jest.fn()
+
+      updateUser = {} as jest.Mocked<UpdateUser>
+      updateUser.execute = jest.fn()
 
       user = {} as jest.Mocked<User>
       user.email = 'test@test.te'
@@ -73,6 +79,28 @@ describe('AuthController', () => {
       response = {
         locals: {}
       } as jest.Mocked<express.Response>
+    })
+
+    it('should update user', async () => {
+      request.body.version = '002'
+      request.body.api = '20190520'
+      request.body.origination = 'test'
+      request.headers['user-agent'] = 'Google Chrome'
+
+      updateUser.execute = jest.fn().mockReturnValue({ authResponse: { foo: 'bar' } })
+
+      const httpResponse = <results.JsonResult> await createController().update(request, response)
+      const result = await httpResponse.executeAsync()
+
+      expect(updateUser.execute).toHaveBeenCalledWith({
+        apiVersion: '20190520',
+        kpOrigination: 'test',
+        updatedWithUserAgent: 'Google Chrome',
+        version: '002',
+      })
+
+      expect(result.statusCode).toEqual(200)
+      expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
     })
 
     it('should get auth params for an authenticated user', async () => {
@@ -162,7 +190,7 @@ describe('AuthController', () => {
 
       signIn.execute = jest.fn().mockReturnValue({ success: true })
 
-      const httpResponse = <results.JsonResult> await createController().singIn(request)
+      const httpResponse = <results.JsonResult> await createController().signIn(request)
       const result = await httpResponse.executeAsync()
 
       expect(clearLoginAttempts.execute).toHaveBeenCalledWith({ email: 'test@test.te' })
@@ -173,7 +201,7 @@ describe('AuthController', () => {
     it('should not sign in a user if request param is missing', async () => {
       request.body.email = 'test@test.te'
 
-      const httpResponse = <results.JsonResult> await createController().singIn(request)
+      const httpResponse = <results.JsonResult> await createController().signIn(request)
       const result = await httpResponse.executeAsync()
 
       expect(result.statusCode).toEqual(401)
@@ -185,7 +213,7 @@ describe('AuthController', () => {
 
       verifyMFA.execute = jest.fn().mockReturnValue({ success: false })
 
-      const httpResponse = <results.JsonResult> await createController().singIn(request)
+      const httpResponse = <results.JsonResult> await createController().signIn(request)
       const result = await httpResponse.executeAsync()
 
       expect(result.statusCode).toEqual(401)
@@ -199,7 +227,7 @@ describe('AuthController', () => {
 
       signIn.execute = jest.fn().mockReturnValue({ success: false })
 
-      const httpResponse = <results.JsonResult> await createController().singIn(request)
+      const httpResponse = <results.JsonResult> await createController().signIn(request)
       const result = await httpResponse.executeAsync()
 
       expect(increaseLoginAttempts.execute).toHaveBeenCalledWith({ email: 'test@test.te' })

@@ -31,6 +31,7 @@ const TYPES = {
   ClearLoginAttempts: Symbol.for('ClearLoginAttempts'),
   IncreaseLoginAttempts: Symbol.for('IncreaseLoginAttempts'),
   GetUserKeyParams: Symbol.for('GetUserKeyParams'),
+  UpdateUser: Symbol.for('UpdateUser'),
   // Services
   DeviceDetector: Symbol.for('DeviceDetector'),
   SessionService: Symbol.for('SessionService'),

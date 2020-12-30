@@ -9,16 +9,18 @@ import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
 import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { Logger } from 'winston'
 import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
+import { UpdateUser } from '../Domain/UseCase/UpdateUser'
 
 @controller('/auth')
 export class AuthController extends BaseHttpController {
   constructor(
     @inject(TYPES.SessionService) private sessionService: SessionServiceInterace,
     @inject(TYPES.VerifyMFA) private verifyMFA: VerifyMFA,
-    @inject(TYPES.SignIn) private signIn: SignIn,
+    @inject(TYPES.SignIn) private signInUseCase: SignIn,
     @inject(TYPES.GetUserKeyParams) private getUserKeyParams: GetUserKeyParams,
     @inject(TYPES.ClearLoginAttempts) private clearLoginAttempts: ClearLoginAttempts,
     @inject(TYPES.IncreaseLoginAttempts) private increaseLoginAttempts: IncreaseLoginAttempts,
+    @inject(TYPES.UpdateUser) private updateUser: UpdateUser,
     @inject(TYPES.Logger) private logger: Logger
   ) {
     super()
@@ -66,7 +68,7 @@ export class AuthController extends BaseHttpController {
   }
 
   @httpPost('/sign_in', TYPES.LockMiddleware)
-  async singIn(request: Request): Promise<results.JsonResult> {
+  async signIn(request: Request): Promise<results.JsonResult> {
     if (!request.body.email || !request.body.password) {
       this.logger.debug('/auth/sign_in request missing credentials: %O', request.body)
 
@@ -93,7 +95,7 @@ export class AuthController extends BaseHttpController {
       }, 401)
     }
 
-    const signInResult = await this.signIn.execute({
+    const signInResult = await this.signInUseCase.execute({
       apiVersion: request.body.api,
       userAgent: <string> request.headers['user-agent'],
       email: request.body.email,
@@ -133,5 +135,25 @@ export class AuthController extends BaseHttpController {
     await this.sessionService.deleteSessionByToken(authorizationHeader.replace('Bearer ', ''))
 
     return this.statusCode(204)
+  }
+
+  @httpPost('/update', TYPES.AuthMiddleware)
+  async update(request: Request, response: Response): Promise<results.JsonResult> {
+    const updateResult = await this.updateUser.execute({
+      user: response.locals.user,
+      updatedWithUserAgent: <string> request.headers['user-agent'],
+      apiVersion: request.body.api,
+      pwFunc: request.body.pw_func,
+      pwAlg: request.body.pw_alg,
+      pwCost: request.body.pw_cost,
+      pwKeySize: request.body.pw_key_size,
+      pwNonce: request.body.pw_nonce,
+      pwSalt: request.body.pw_salt,
+      kpOrigination: request.body.origination,
+      kpCreated: request.body.created,
+      version: request.body.version,
+    })
+
+    return this.json(updateResult.authResponse)
   }
 }
