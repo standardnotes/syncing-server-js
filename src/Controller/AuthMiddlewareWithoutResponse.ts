@@ -20,8 +20,6 @@ export class AuthMiddlewareWithoutResponse extends BaseMiddleware {
         const authorizationHeader = <string> request.headers.authorization
 
         if (!authorizationHeader) {
-            this.logger.warn('Missing authentication headers')
-
             return next()
         }
 
