@@ -33,6 +33,7 @@ import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { LockMiddleware } from '../Controller/LockMiddleware'
 import { AuthMiddlewareWithoutResponse } from '../Controller/AuthMiddlewareWithoutResponse'
 import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
+import { UpdateUser } from '../Domain/UseCase/UpdateUser'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -121,6 +122,7 @@ export class ContainerConfigLoader {
         container.bind<ClearLoginAttempts>(TYPES.ClearLoginAttempts).to(ClearLoginAttempts)
         container.bind<IncreaseLoginAttempts>(TYPES.IncreaseLoginAttempts).to(IncreaseLoginAttempts)
         container.bind<GetUserKeyParams>(TYPES.GetUserKeyParams).to(GetUserKeyParams)
+        container.bind<UpdateUser>(TYPES.UpdateUser).to(UpdateUser)
 
         // Services
         container.bind<DeviceDetector>(TYPES.DeviceDetector).toConstantValue(new DeviceDetector())

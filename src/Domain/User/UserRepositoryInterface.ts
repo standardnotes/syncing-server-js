@@ -6,4 +6,5 @@ export interface UserRepositoryInterface {
   resetLockCounter(uuid: string): Promise<void>
   updateLockCounter(uuid: string, counter: number): Promise<void>
   lockUntil(uuid: string, date: Date): Promise<void>
+  save(user: User): Promise<User>
 }
