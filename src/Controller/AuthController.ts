@@ -97,7 +97,7 @@ export class AuthController extends BaseHttpController {
 
     const signInResult = await this.signInUseCase.execute({
       apiVersion: request.body.api,
-      userAgent: request.body.user_agent,
+      userAgent: <string> request.headers['user-agent'],
       email: request.body.email,
       password: request.body.password
     })
