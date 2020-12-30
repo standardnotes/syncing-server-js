@@ -154,6 +154,7 @@ describe('AuthController', () => {
     })
 
     it('should sign in a user', async () => {
+      request.headers['user-agent'] = 'Google Chrome'
       request.body.email = 'test@test.te'
       request.body.password = 'qwerty'
 
