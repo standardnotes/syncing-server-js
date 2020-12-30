@@ -8,6 +8,7 @@ import '../src/Controller/SessionController'
 import '../src/Controller/SessionsController'
 import '../src/Controller/AuthController'
 
+import * as helmet from 'helmet'
 import * as cors from 'cors'
 import * as bodyParser from 'body-parser'
 import * as prettyjson from 'prettyjson'
@@ -31,6 +32,28 @@ container.load().then(container => {
     app.use(bodyParser.urlencoded({
       extended: true,
     }))
+    /* eslint-disable */
+    app.use(helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["https: 'self'"],
+          baseUri: ["'self'"],
+          childSrc: ["*", "blob:"],
+          connectSrc: ["*"],
+          fontSrc: ["*", "'self'"],
+          formAction: ["'self'"],
+          frameAncestors: ["*", "*.standardnotes.org"],
+          frameSrc: ["*", "blob:"],
+          imgSrc: ["'self'", "*", "data:"],
+          manifestSrc: ["'self'"],
+          mediaSrc: ["'self'"],
+          objectSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'"]
+        }
+      }
+    }))
+    /* eslint-enable */
     app.use(bodyParser.json())
     app.use(bodyParser.urlencoded({ extended: true }))
     app.use(cors())
