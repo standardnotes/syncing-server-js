@@ -1,3 +1,5 @@
 import tracer from 'dd-trace'
-tracer.init()
+tracer.init({
+  logInjection: true,
+})
 export default tracer
