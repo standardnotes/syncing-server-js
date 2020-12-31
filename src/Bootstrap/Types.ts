@@ -36,6 +36,9 @@ const TYPES = {
   IncreaseLoginAttempts: Symbol.for('IncreaseLoginAttempts'),
   GetUserKeyParams: Symbol.for('GetUserKeyParams'),
   UpdateUser: Symbol.for('UpdateUser'),
+  GetActiveSessionsForUser: Symbol.for('GetActiveSessionsForUser'),
+  DeletePreviousSessionsForUser: Symbol.for('DeletePreviousSessionsForUser'),
+  DeleteSessionForUser: Symbol.for('DeleteSessionForUser'),
   // Services
   DeviceDetector: Symbol.for('DeviceDetector'),
   SessionService: Symbol.for('SessionService'),

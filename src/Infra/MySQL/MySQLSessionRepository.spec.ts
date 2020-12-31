@@ -80,7 +80,7 @@ describe('MySQLSessionRepository', () => {
     queryBuilder.where = jest.fn().mockReturnThis()
     queryBuilder.getMany = jest.fn().mockReturnValue([session])
 
-    const result = await repository.findActiveByUserUuid('123')
+    const result = await repository.findAllByRefreshExpirationAndUserUuid('123')
 
     expect(queryBuilder.where).toHaveBeenCalledWith(
       'session.refresh_expiration > :refresh_expiration AND session.user_uuid = :user_uuid',
@@ -114,7 +114,7 @@ describe('MySQLSessionRepository', () => {
     queryBuilder.delete = jest.fn().mockReturnThis()
     queryBuilder.execute = jest.fn()
 
-    await repository.deleteAllByUserUuidExceptOne('123', '234')
+    await repository.deleteAllByUserUuid('123', '234')
 
     expect(queryBuilder.delete).toHaveBeenCalled()
     expect(queryBuilder.where).toHaveBeenCalledWith(

@@ -2,16 +2,18 @@ import { Request, Response } from 'express'
 import { inject } from 'inversify'
 import { BaseHttpController, controller, httpDelete, httpPost, results } from 'inversify-express-utils'
 import TYPES from '../Bootstrap/Types'
-import { SessionRepositoryInterface } from '../Domain/Session/SessionRepositoryInterface'
+import { DeletePreviousSessionsForUser } from '../Domain/UseCase/DeletePreviousSessionsForUser'
+import { DeleteSessionForUser } from '../Domain/UseCase/DeleteSessionForUser'
 import { RefreshSessionToken } from '../Domain/UseCase/RefreshSessionToken'
 
 @controller('/session')
 export class SessionController extends BaseHttpController {
   constructor(
-    @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface,
+    @inject(TYPES.DeleteSessionForUser) private deleteSessionForUser: DeleteSessionForUser,
+    @inject(TYPES.DeletePreviousSessionsForUser) private deletePreviousSessionsForUser: DeletePreviousSessionsForUser,
     @inject(TYPES.RefreshSessionToken) private refreshSessionToken: RefreshSessionToken
   ) {
-      super()
+    super()
   }
 
   @httpDelete('/', TYPES.AuthMiddleware, TYPES.SessionMiddleware)
@@ -32,39 +34,41 @@ export class SessionController extends BaseHttpController {
       }, 400)
     }
 
-    const session = await this.sessionRepository.findOneByUuidAndUserUuid(request.body.uuid, response.locals.user.uuid)
-    if (!session) {
+    const useCaseResponse = await this.deleteSessionForUser.execute({
+      userUuid: response.locals.user.uuid,
+      sessionUuid: request.body.uuid,
+    })
+
+    if (!useCaseResponse.success) {
       return this.json({
         error: {
-          message: 'No session exists with the provided identifier.'
+          message: useCaseResponse.errorMessage
         }
       }, 400)
     }
-
-    await this.sessionRepository.deleteOneByUuid(request.body.uuid)
 
     return this.statusCode(204)
   }
 
   @httpDelete('/all', TYPES.AuthMiddleware, TYPES.SessionMiddleware)
   async deleteAllSessions(_request: Request, response: Response): Promise<results.JsonResult | results.StatusCodeResult> {
-      if (!response.locals.user) {
-        return this.json(
-          {
-            error: {
-              message: 'No session exists with the provided identifier.',
-            }
-          },
-          401
-        )
-      }
-
-      await this.sessionRepository.deleteAllByUserUuidExceptOne(
-        response.locals.user.uuid,
-        response.locals.session.uuid
+    if (!response.locals.user) {
+      return this.json(
+        {
+          error: {
+            message: 'No session exists with the provided identifier.',
+          }
+        },
+        401
       )
+    }
 
-      return this.statusCode(204)
+    await this.deletePreviousSessionsForUser.execute({
+      userUuid: response.locals.user.uuid,
+      currentSessionUuid: response.locals.session.uuid
+    })
+
+    return this.statusCode(204)
   }
 
   @httpPost('/refresh')
