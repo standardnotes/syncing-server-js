@@ -81,7 +81,16 @@ export class ContainerConfigLoader {
         })
         container.bind<Connection>(TYPES.DBConnection).toConstantValue(connection)
 
-        container.bind<IORedis.Redis>(TYPES.Redis).toConstantValue(new IORedis(env.get('REDIS_URL')))
+        const redisUrl = env.get('REDIS_URL')
+        const isRedisInClusterMode = redisUrl.indexOf(',') > 0
+        let redis
+        if (isRedisInClusterMode) {
+          redis = new IORedis.Cluster(redisUrl.split(','))
+        } else {
+          redis = new IORedis(redisUrl)
+        }
+
+        container.bind(TYPES.Redis).toConstantValue(redis)
 
         const logger = winston.createLogger({
           level: env.get('LOG_LEVEL') || 'info',
