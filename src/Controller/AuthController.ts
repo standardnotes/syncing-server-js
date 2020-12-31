@@ -99,7 +99,8 @@ export class AuthController extends BaseHttpController {
       apiVersion: request.body.api,
       userAgent: <string> request.headers['user-agent'],
       email: request.body.email,
-      password: request.body.password
+      password: request.body.password,
+      ephemeralSession: request.body.ephemeral ?? false
     })
 
     if (!signInResult.success) {

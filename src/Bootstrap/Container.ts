@@ -1,4 +1,5 @@
 import * as winston from 'winston'
+import * as IORedis from 'ioredis'
 import { Container } from 'inversify'
 import { Env } from './Env'
 import TYPES from './Types'
@@ -34,6 +35,7 @@ import { LockMiddleware } from '../Controller/LockMiddleware'
 import { AuthMiddlewareWithoutResponse } from '../Controller/AuthMiddlewareWithoutResponse'
 import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { UpdateUser } from '../Domain/UseCase/UpdateUser'
+import { RedisEphemeralSessionRepository } from '../Infra/Redis/RedisEphemeralSessionRepository'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -76,6 +78,8 @@ export class ContainerConfigLoader {
         })
         container.bind<Connection>(TYPES.DBConnection).toConstantValue(connection)
 
+        container.bind<IORedis.Redis>(TYPES.Redis).toConstantValue(new IORedis(env.get('REDIS_URL')))
+
         const logger = winston.createLogger({
           level: env.get('LOG_LEVEL') || 'info',
           format: winston.format.combine(
@@ -93,6 +97,7 @@ export class ContainerConfigLoader {
         container.bind<MySQLUserRepository>(TYPES.UserRepository).toConstantValue(connection.getCustomRepository(MySQLUserRepository))
         container.bind<MySQLRevisionRepository>(TYPES.RevisionRepository).toConstantValue(connection.getCustomRepository(MySQLRevisionRepository))
         container.bind<MySQLItemRepository>(TYPES.ItemRepository).toConstantValue(connection.getCustomRepository(MySQLItemRepository))
+        container.bind<RedisEphemeralSessionRepository>(TYPES.EphemeralSessionRepository).to(RedisEphemeralSessionRepository)
 
         // Middleware
         container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
@@ -113,6 +118,8 @@ export class ContainerConfigLoader {
         container.bind(TYPES.MAX_LOGIN_ATTEMPTS).toConstantValue(env.get('MAX_LOGIN_ATTEMPTS'))
         container.bind(TYPES.FAILED_LOGIN_LOCKOUT).toConstantValue(env.get('FAILED_LOGIN_LOCKOUT'))
         container.bind(TYPES.PSEUDO_KEY_PARAMS_KEY).toConstantValue(env.get('PSEUDO_KEY_PARAMS_KEY'))
+        container.bind(TYPES.EPHEMERAL_SESSION_AGE).toConstantValue(env.get('EPHEMERAL_SESSION_AGE'))
+        container.bind(TYPES.REDIS_URL).toConstantValue(env.get('REDIS_URL'))
 
         // use cases
         container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)

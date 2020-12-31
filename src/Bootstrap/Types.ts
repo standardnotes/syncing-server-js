@@ -1,10 +1,12 @@
 const TYPES = {
   DBConnection: Symbol.for('DBConnection'),
   Logger: Symbol.for('Logger'),
+  Redis: Symbol.for('Redis'),
   // Repositories
   RevisionRepository: Symbol.for('RevisionRepository'),
   UserRepository: Symbol.for('UserRepository'),
   SessionRepository: Symbol.for('SessionRepository'),
+  EphemeralSessionRepository: Symbol.for('EphemeralSessionRepository'),
   ItemRepository: Symbol.for('ItemRepository'),
   // Middleware
   AuthMiddleware: Symbol.for('AuthMiddleware'),
@@ -20,9 +22,11 @@ const TYPES = {
   LEGACY_JWT_SECRET: Symbol.for('LEGACY_JWT_SECRET'),
   ACCESS_TOKEN_AGE: Symbol.for('ACCESS_TOKEN_AGE'),
   REFRESH_TOKEN_AGE: Symbol.for('REFRESH_TOKEN_AGE'),
+  EPHEMERAL_SESSION_AGE: Symbol.for('EPHEMERAL_SESSION_AGE'),
   MAX_LOGIN_ATTEMPTS: Symbol.for('MAX_LOGIN_ATTEMPTS'),
   FAILED_LOGIN_LOCKOUT: Symbol.for('FAILED_LOGIN_LOCKOUT'),
   PSEUDO_KEY_PARAMS_KEY: Symbol.for('PSEUDO_KEY_PARAMS_KEY'),
+  REDIS_URL: Symbol.for('REDIS_URL'),
   // use cases
   AuthenticateUser: Symbol.for('AuthenticateUser'),
   RefreshSessionToken: Symbol.for('RefreshSessionToken'),
