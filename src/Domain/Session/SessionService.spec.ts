@@ -76,6 +76,7 @@ describe('SessionService', () => {
 
     logger = {} as jest.Mocked<winston.Logger>
     logger.warning = jest.fn()
+    logger.debug = jest.fn()
   })
 
   it('should create access and refresh tokens for a session', async () => {
