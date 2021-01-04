@@ -186,6 +186,14 @@ export class AuthController extends BaseHttpController {
       version: request.body.version,
     })
 
+    if (!registerResult.success) {
+      return this.json({
+        error: {
+          message: registerResult.errorMessage
+        }
+      }, 400)
+    }
+
     return this.json(registerResult.authResponse)
   }
 }

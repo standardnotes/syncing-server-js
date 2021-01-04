@@ -95,7 +95,7 @@ describe('AuthController', () => {
       request.body.origination = 'test'
       request.headers['user-agent'] = 'Google Chrome'
 
-      register.execute = jest.fn().mockReturnValue({ authResponse: { foo: 'bar' } })
+      register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { foo: 'bar' } })
 
       const httpResponse = <results.JsonResult> await createController().register(request)
       const result = await httpResponse.executeAsync()
@@ -115,6 +115,22 @@ describe('AuthController', () => {
 
     it('should not register a user if request param is missing', async () => {
       request.body.email = 'test@test.te'
+
+      const httpResponse = <results.JsonResult> await createController().register(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(result.statusCode).toEqual(400)
+    })
+
+    it('should respond with error if registering a user fails', async () => {
+      request.body.email = 'test@test.te'
+      request.body.password = 'asdzxc'
+      request.body.version = '003'
+      request.body.api = '20190520'
+      request.body.origination = 'test'
+      request.headers['user-agent'] = 'Google Chrome'
+
+      register.execute = jest.fn().mockReturnValue({ success: false, errorMessage: 'Something bad happened' })
 
       const httpResponse = <results.JsonResult> await createController().register(request)
       const result = await httpResponse.executeAsync()
