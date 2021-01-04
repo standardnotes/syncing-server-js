@@ -113,6 +113,58 @@ describe('AuthController', () => {
       expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
     })
 
+    it('should register a user - with 001 version', async () => {
+      request.body.email = 'test@test.te'
+      request.body.password = 'asdzxc'
+      request.body.pw_nonce = 'test'
+      request.body.api = '20190520'
+      request.body.origination = 'test'
+      request.headers['user-agent'] = 'Google Chrome'
+
+      register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { foo: 'bar' } })
+
+      const httpResponse = <results.JsonResult> await createController().register(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(register.execute).toHaveBeenCalledWith({
+        apiVersion: '20190520',
+        kpOrigination: 'test',
+        updatedWithUserAgent: 'Google Chrome',
+        version: '001',
+        pwNonce: 'test',
+        email: 'test@test.te',
+        password: 'asdzxc'
+      })
+
+      expect(result.statusCode).toEqual(200)
+      expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
+    })
+
+    it('should register a user - with 002 version', async () => {
+      request.body.email = 'test@test.te'
+      request.body.password = 'asdzxc'
+      request.body.api = '20190520'
+      request.body.origination = 'test'
+      request.headers['user-agent'] = 'Google Chrome'
+
+      register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { foo: 'bar' } })
+
+      const httpResponse = <results.JsonResult> await createController().register(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(register.execute).toHaveBeenCalledWith({
+        apiVersion: '20190520',
+        kpOrigination: 'test',
+        updatedWithUserAgent: 'Google Chrome',
+        version: '002',
+        email: 'test@test.te',
+        password: 'asdzxc'
+      })
+
+      expect(result.statusCode).toEqual(200)
+      expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
+    })
+
     it('should not register a user if request param is missing', async () => {
       request.body.email = 'test@test.te'
 

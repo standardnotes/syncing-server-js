@@ -183,7 +183,8 @@ export class AuthController extends BaseHttpController {
       pwSalt: request.body.pw_salt,
       kpOrigination: request.body.origination,
       kpCreated: request.body.created,
-      version: request.body.version,
+      version: request.body.version ? request.body.version :
+        request.body.pw_nonce ? '001' : '002',
     })
 
     if (!registerResult.success) {
