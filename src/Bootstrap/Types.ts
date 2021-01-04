@@ -36,6 +36,7 @@ const TYPES = {
   IncreaseLoginAttempts: Symbol.for('IncreaseLoginAttempts'),
   GetUserKeyParams: Symbol.for('GetUserKeyParams'),
   UpdateUser: Symbol.for('UpdateUser'),
+  Register: Symbol.for('Register'),
   GetActiveSessionsForUser: Symbol.for('GetActiveSessionsForUser'),
   DeletePreviousSessionsForUser: Symbol.for('DeletePreviousSessionsForUser'),
   DeleteSessionForUser: Symbol.for('DeleteSessionForUser'),

@@ -4,7 +4,7 @@ import { Column, Entity, Index, PrimaryColumn } from 'typeorm'
 
 @Entity({ name: 'users' })
 export class User {
-  SESSIONS_PROTOCOL_VERSION = 4
+  private readonly SESSIONS_PROTOCOL_VERSION = 4
 
   @PrimaryColumn({
     length: 36
