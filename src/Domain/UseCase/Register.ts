@@ -17,11 +17,19 @@ export class Register implements UseCaseInterface {
 
   constructor(
     @inject(TYPES.UserRepository) private userRepository: UserRepositoryInterface,
-    @inject(TYPES.AuthResponseFactoryResolver) private authResponseFactoryResolver: AuthResponseFactoryResolverInterface
+    @inject(TYPES.AuthResponseFactoryResolver) private authResponseFactoryResolver: AuthResponseFactoryResolverInterface,
+    @inject(TYPES.DISABLE_USER_REGISTRATION) private disableUserRegistration: boolean
   ) {
   }
 
   async execute(dto: RegisterDTO): Promise<RegisterResponse> {
+    if (this.disableUserRegistration) {
+      return {
+        success: false,
+        errorMessage: 'User registration is currently not allowed.'
+      }
+    }
+
     const { email, password, apiVersion, ...registrationFields } = dto
 
     const existingUser = await this.userRepository.findOneByEmail(email)

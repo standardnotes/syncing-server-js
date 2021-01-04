@@ -133,6 +133,7 @@ export class ContainerConfigLoader {
         container.bind(TYPES.PSEUDO_KEY_PARAMS_KEY).toConstantValue(env.get('PSEUDO_KEY_PARAMS_KEY'))
         container.bind(TYPES.EPHEMERAL_SESSION_AGE).toConstantValue(env.get('EPHEMERAL_SESSION_AGE'))
         container.bind(TYPES.REDIS_URL).toConstantValue(env.get('REDIS_URL'))
+        container.bind(TYPES.DISABLE_USER_REGISTRATION).toConstantValue(env.get('DISABLE_USER_REGISTRATION') === 'true')
 
         // use cases
         container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)

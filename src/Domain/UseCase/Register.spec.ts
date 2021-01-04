@@ -12,7 +12,7 @@ describe('Register', () => {
   let authResponseFactory: AuthResponseFactoryInterface
   let user: User
 
-  const createUseCase = () => new Register(userRepository, authResponseFactoryResolver)
+  const createUseCase = () => new Register(userRepository, authResponseFactoryResolver, false)
 
   beforeEach(() => {
     userRepository = {} as jest.Mocked<UserRepositoryInterface>
@@ -70,6 +70,26 @@ describe('Register', () => {
     })).toEqual({
       success: false,
       errorMessage: 'This email is already registered.'
+    })
+
+    expect(userRepository.save).not.toHaveBeenCalled()
+  })
+
+  it('should fail to register if a registration is disabled', async () => {
+    userRepository.findOneByEmail = jest.fn().mockReturnValue(user)
+
+    expect(await new Register(userRepository, authResponseFactoryResolver, true).execute({
+      email: 'test@test.te',
+      password: 'asdzxc',
+      updatedWithUserAgent: 'Mozilla',
+      apiVersion: '20190520',
+      version: '004',
+      pwCost: 11,
+      pwSalt: 'qweqwe',
+      pwNonce: undefined
+    })).toEqual({
+      success: false,
+      errorMessage: 'User registration is currently not allowed.'
     })
 
     expect(userRepository.save).not.toHaveBeenCalled()
