@@ -4,6 +4,7 @@ import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
 import { EphemeralSession } from '../../Domain/Session/EphemeralSession'
 import { EphemeralSessionRepositoryInterface } from '../../Domain/Session/EphemeralSessionRepositoryInterface'
+import { Logger } from 'winston'
 
 @injectable()
 export class RedisEphemeralSessionRepository implements EphemeralSessionRepositoryInterface {
@@ -11,7 +12,8 @@ export class RedisEphemeralSessionRepository implements EphemeralSessionReposito
 
   constructor(
     @inject(TYPES.Redis) private redisClient: IORedis.Redis,
-    @inject(TYPES.EPHEMERAL_SESSION_AGE) private ephemeralSessionAge: number
+    @inject(TYPES.EPHEMERAL_SESSION_AGE) private ephemeralSessionAge: number,
+    @inject(TYPES.Logger) private logger: Logger
   ) {
   }
 
@@ -33,9 +35,48 @@ export class RedisEphemeralSessionRepository implements EphemeralSessionReposito
     await this.save(session)
   }
 
-  async findOneByUuid(uuid: string): Promise<EphemeralSession | undefined> {
-    const stringifiedSession = await this.redisClient.get(`${this.PREFIX}:${uuid}`)
+  async findAllByUserUuid(userUuid: string): Promise<Array<EphemeralSession>> {
+    let cursor = '0'
+    let sessionKeys: Array<string> = []
+    do {
+      const scanResult = await this.redisClient.scan(
+        cursor,
+        'MATCH',
+        `${this.PREFIX}:*:${userUuid}`
+      )
+      this.logger.debug('Scan result: %O', scanResult)
 
+      cursor = scanResult[0]
+      sessionKeys = sessionKeys.concat(scanResult[1])
+    } while (cursor !== '0')
+
+    const sessions = await this.redisClient.mget(sessionKeys)
+
+    return (<string[]> sessions.filter(value => value)).map(stringifiedSession => JSON.parse(stringifiedSession))
+  }
+
+  async findOneByUuid(uuid: string): Promise<EphemeralSession | undefined> {
+    let cursor = '0'
+    let sessionKeys: Array<string> = []
+    do {
+      const scanResult = await this.redisClient.scan(
+        cursor,
+        'MATCH',
+        `${this.PREFIX}:${uuid}:*`
+      )
+      this.logger.debug('Scan result: %O', scanResult)
+
+      cursor = scanResult[0]
+      sessionKeys = sessionKeys.concat(scanResult[1])
+    } while (cursor !== '0')
+
+    sessionKeys = sessionKeys.filter(key => key)
+
+    if (!sessionKeys.length) {
+      return undefined
+    }
+
+    const stringifiedSession = await this.redisClient.get(sessionKeys[0])
     if (!stringifiedSession) {
       return undefined
     }
@@ -45,7 +86,7 @@ export class RedisEphemeralSessionRepository implements EphemeralSessionReposito
 
   async save(ephemeralSession: EphemeralSession): Promise<void> {
     await this.redisClient.setex(
-      `${this.PREFIX}:${ephemeralSession.uuid}`,
+      `${this.PREFIX}:${ephemeralSession.uuid}:${ephemeralSession.userUuid}`,
       this.ephemeralSessionAge,
       JSON.stringify(ephemeralSession)
     )
