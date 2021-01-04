@@ -160,7 +160,7 @@ export class AuthController extends BaseHttpController {
     return this.json(updateResult.authResponse)
   }
 
-  @httpPost('/register')
+  @httpPost('/')
   async register(request: Request): Promise<results.JsonResult> {
     if (!request.body.email || !request.body.password) {
       return this.json({
