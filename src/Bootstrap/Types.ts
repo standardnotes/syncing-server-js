@@ -27,6 +27,7 @@ const TYPES = {
   FAILED_LOGIN_LOCKOUT: Symbol.for('FAILED_LOGIN_LOCKOUT'),
   PSEUDO_KEY_PARAMS_KEY: Symbol.for('PSEUDO_KEY_PARAMS_KEY'),
   REDIS_URL: Symbol.for('REDIS_URL'),
+  DISABLE_USER_REGISTRATION: Symbol.for('DISABLE_USER_REGISTRATION'),
   // use cases
   AuthenticateUser: Symbol.for('AuthenticateUser'),
   RefreshSessionToken: Symbol.for('RefreshSessionToken'),
@@ -36,6 +37,7 @@ const TYPES = {
   IncreaseLoginAttempts: Symbol.for('IncreaseLoginAttempts'),
   GetUserKeyParams: Symbol.for('GetUserKeyParams'),
   UpdateUser: Symbol.for('UpdateUser'),
+  Register: Symbol.for('Register'),
   GetActiveSessionsForUser: Symbol.for('GetActiveSessionsForUser'),
   DeletePreviousSessionsForUser: Symbol.for('DeletePreviousSessionsForUser'),
   DeleteSessionForUser: Symbol.for('DeleteSessionForUser'),

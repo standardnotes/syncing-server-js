@@ -39,6 +39,7 @@ import { RedisEphemeralSessionRepository } from '../Infra/Redis/RedisEphemeralSe
 import { GetActiveSessionsForUser } from '../Domain/UseCase/GetActiveSessionsForUser'
 import { DeletePreviousSessionsForUser } from '../Domain/UseCase/DeletePreviousSessionsForUser'
 import { DeleteSessionForUser } from '../Domain/UseCase/DeleteSessionForUser'
+import { Register } from '../Domain/UseCase/Register'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -132,6 +133,7 @@ export class ContainerConfigLoader {
         container.bind(TYPES.PSEUDO_KEY_PARAMS_KEY).toConstantValue(env.get('PSEUDO_KEY_PARAMS_KEY'))
         container.bind(TYPES.EPHEMERAL_SESSION_AGE).toConstantValue(env.get('EPHEMERAL_SESSION_AGE'))
         container.bind(TYPES.REDIS_URL).toConstantValue(env.get('REDIS_URL'))
+        container.bind(TYPES.DISABLE_USER_REGISTRATION).toConstantValue(env.get('DISABLE_USER_REGISTRATION') === 'true')
 
         // use cases
         container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
@@ -142,6 +144,7 @@ export class ContainerConfigLoader {
         container.bind<IncreaseLoginAttempts>(TYPES.IncreaseLoginAttempts).to(IncreaseLoginAttempts)
         container.bind<GetUserKeyParams>(TYPES.GetUserKeyParams).to(GetUserKeyParams)
         container.bind<UpdateUser>(TYPES.UpdateUser).to(UpdateUser)
+        container.bind<Register>(TYPES.Register).to(Register)
         container.bind<GetActiveSessionsForUser>(TYPES.GetActiveSessionsForUser).to(GetActiveSessionsForUser)
         container.bind<DeletePreviousSessionsForUser>(TYPES.DeletePreviousSessionsForUser).to(DeletePreviousSessionsForUser)
         container.bind<DeleteSessionForUser>(TYPES.DeleteSessionForUser).to(DeleteSessionForUser)

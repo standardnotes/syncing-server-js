@@ -14,6 +14,7 @@ import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { User } from '../Domain/User/User'
 import { Session } from '../Domain/Session/Session'
 import { UpdateUser } from '../Domain/UseCase/UpdateUser'
+import { Register } from '../Domain/UseCase/Register'
 
 describe('AuthController', () => {
     let sessionService: SessionServiceInterace
@@ -23,6 +24,7 @@ describe('AuthController', () => {
     let clearLoginAttempts: ClearLoginAttempts
     let increaseLoginAttempts: IncreaseLoginAttempts
     let updateUser: UpdateUser
+    let register: Register
     let request: express.Request
     let response: express.Response
     let user: User
@@ -37,6 +39,7 @@ describe('AuthController', () => {
       clearLoginAttempts,
       increaseLoginAttempts,
       updateUser,
+      register,
       logger
     )
 
@@ -55,6 +58,9 @@ describe('AuthController', () => {
 
       updateUser = {} as jest.Mocked<UpdateUser>
       updateUser.execute = jest.fn()
+
+      register = {} as jest.Mocked<Register>
+      register.execute = jest.fn()
 
       user = {} as jest.Mocked<User>
       user.email = 'test@test.te'
@@ -79,6 +85,109 @@ describe('AuthController', () => {
       response = {
         locals: {}
       } as jest.Mocked<express.Response>
+    })
+
+    it('should register a user', async () => {
+      request.body.email = 'test@test.te'
+      request.body.password = 'asdzxc'
+      request.body.version = '003'
+      request.body.api = '20190520'
+      request.body.origination = 'test'
+      request.headers['user-agent'] = 'Google Chrome'
+
+      register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { foo: 'bar' } })
+
+      const httpResponse = <results.JsonResult> await createController().register(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(register.execute).toHaveBeenCalledWith({
+        apiVersion: '20190520',
+        kpOrigination: 'test',
+        updatedWithUserAgent: 'Google Chrome',
+        version: '003',
+        email: 'test@test.te',
+        password: 'asdzxc'
+      })
+
+      expect(result.statusCode).toEqual(200)
+      expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
+    })
+
+    it('should register a user - with 001 version', async () => {
+      request.body.email = 'test@test.te'
+      request.body.password = 'asdzxc'
+      request.body.pw_nonce = 'test'
+      request.body.api = '20190520'
+      request.body.origination = 'test'
+      request.headers['user-agent'] = 'Google Chrome'
+
+      register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { foo: 'bar' } })
+
+      const httpResponse = <results.JsonResult> await createController().register(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(register.execute).toHaveBeenCalledWith({
+        apiVersion: '20190520',
+        kpOrigination: 'test',
+        updatedWithUserAgent: 'Google Chrome',
+        version: '001',
+        pwNonce: 'test',
+        email: 'test@test.te',
+        password: 'asdzxc'
+      })
+
+      expect(result.statusCode).toEqual(200)
+      expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
+    })
+
+    it('should register a user - with 002 version', async () => {
+      request.body.email = 'test@test.te'
+      request.body.password = 'asdzxc'
+      request.body.api = '20190520'
+      request.body.origination = 'test'
+      request.headers['user-agent'] = 'Google Chrome'
+
+      register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { foo: 'bar' } })
+
+      const httpResponse = <results.JsonResult> await createController().register(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(register.execute).toHaveBeenCalledWith({
+        apiVersion: '20190520',
+        kpOrigination: 'test',
+        updatedWithUserAgent: 'Google Chrome',
+        version: '002',
+        email: 'test@test.te',
+        password: 'asdzxc'
+      })
+
+      expect(result.statusCode).toEqual(200)
+      expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
+    })
+
+    it('should not register a user if request param is missing', async () => {
+      request.body.email = 'test@test.te'
+
+      const httpResponse = <results.JsonResult> await createController().register(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(result.statusCode).toEqual(400)
+    })
+
+    it('should respond with error if registering a user fails', async () => {
+      request.body.email = 'test@test.te'
+      request.body.password = 'asdzxc'
+      request.body.version = '003'
+      request.body.api = '20190520'
+      request.body.origination = 'test'
+      request.headers['user-agent'] = 'Google Chrome'
+
+      register.execute = jest.fn().mockReturnValue({ success: false, errorMessage: 'Something bad happened' })
+
+      const httpResponse = <results.JsonResult> await createController().register(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(result.statusCode).toEqual(400)
     })
 
     it('should update user', async () => {

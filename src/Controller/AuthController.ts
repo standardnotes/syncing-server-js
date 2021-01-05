@@ -10,6 +10,7 @@ import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { Logger } from 'winston'
 import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { UpdateUser } from '../Domain/UseCase/UpdateUser'
+import { Register } from '../Domain/UseCase/Register'
 
 @controller('/auth')
 export class AuthController extends BaseHttpController {
@@ -21,6 +22,7 @@ export class AuthController extends BaseHttpController {
     @inject(TYPES.ClearLoginAttempts) private clearLoginAttempts: ClearLoginAttempts,
     @inject(TYPES.IncreaseLoginAttempts) private increaseLoginAttempts: IncreaseLoginAttempts,
     @inject(TYPES.UpdateUser) private updateUser: UpdateUser,
+    @inject(TYPES.Register) private registerUser: Register,
     @inject(TYPES.Logger) private logger: Logger
   ) {
     super()
@@ -156,5 +158,43 @@ export class AuthController extends BaseHttpController {
     })
 
     return this.json(updateResult.authResponse)
+  }
+
+  @httpPost('/')
+  async register(request: Request): Promise<results.JsonResult> {
+    if (!request.body.email || !request.body.password) {
+      return this.json({
+        error: {
+          message: 'Please enter an email and a password to register.',
+        }
+      }, 400)
+    }
+
+    const registerResult = await this.registerUser.execute({
+      email: request.body.email,
+      password: request.body.password,
+      updatedWithUserAgent: <string> request.headers['user-agent'],
+      apiVersion: request.body.api,
+      pwFunc: request.body.pw_func,
+      pwAlg: request.body.pw_alg,
+      pwCost: request.body.pw_cost,
+      pwKeySize: request.body.pw_key_size,
+      pwNonce: request.body.pw_nonce,
+      pwSalt: request.body.pw_salt,
+      kpOrigination: request.body.origination,
+      kpCreated: request.body.created,
+      version: request.body.version ? request.body.version :
+        request.body.pw_nonce ? '001' : '002',
+    })
+
+    if (!registerResult.success) {
+      return this.json({
+        error: {
+          message: registerResult.errorMessage
+        }
+      }, 400)
+    }
+
+    return this.json(registerResult.authResponse)
   }
 }
