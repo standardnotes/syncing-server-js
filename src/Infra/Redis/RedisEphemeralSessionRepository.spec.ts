@@ -59,6 +59,8 @@ describe('RedisEphemeralSessionRepository', () => {
 
     const ephemeralSessions = await createRepository().findAllByUserUuid('2-3-4')
 
+    expect(redisClient.mget).toHaveBeenCalledWith('session:1-2-3:2-3-4', 'session:2-3-4:2-3-4')
+
     expect(ephemeralSessions.length).toEqual(2)
     expect(ephemeralSessions[1].userAgent).toEqual('Google Chrome')
   })
