@@ -20,6 +20,10 @@ export class RedisEphemeralSessionRepository implements EphemeralSessionReposito
   async deleteOneByUuid(uuid: string): Promise<void> {
     const sessionKeys = await this.findKeysByUuid(uuid)
 
+    if (!sessionKeys.length) {
+      return
+    }
+
     await this.redisClient.del(sessionKeys[0])
   }
 
