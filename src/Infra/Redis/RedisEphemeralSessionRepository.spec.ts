@@ -25,9 +25,11 @@ describe('RedisEphemeralSessionRepository', () => {
   })
 
   it('should delete an ephemeral session by uuid', async () => {
+    redisClient.scan = jest.fn().mockReturnValue(['0', ['session:1-2-3:2-3-4']])
+
     await createRepository().deleteOneByUuid('1-2-3')
 
-    expect(redisClient.del).toHaveBeenCalledWith('session:1-2-3')
+    expect(redisClient.del).toHaveBeenCalledWith('session:1-2-3:2-3-4')
   })
 
   it('should save an ephemeral session', async () => {

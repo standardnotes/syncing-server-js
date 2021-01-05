@@ -18,7 +18,9 @@ export class RedisEphemeralSessionRepository implements EphemeralSessionReposito
   }
 
   async deleteOneByUuid(uuid: string): Promise<void> {
-    await this.redisClient.del(`${this.PREFIX}:${uuid}`)
+    const sessionKeys = await this.findKeysByUuid(uuid)
+
+    await this.redisClient.del(sessionKeys[0])
   }
 
   async updateTokensAndExpirationDates(uuid: string, hashedAccessToken: string, hashedRefreshToken: string, accessExpiration: Date, refreshExpiration: Date): Promise<void> {
@@ -60,21 +62,7 @@ export class RedisEphemeralSessionRepository implements EphemeralSessionReposito
   }
 
   async findOneByUuid(uuid: string): Promise<EphemeralSession | undefined> {
-    let cursor = '0'
-    let sessionKeys: Array<string> = []
-    do {
-      const scanResult = await this.redisClient.scan(
-        cursor,
-        'MATCH',
-        `${this.PREFIX}:${uuid}:*`
-      )
-      this.logger.debug('Scan result: %O', scanResult)
-
-      cursor = scanResult[0]
-      sessionKeys = sessionKeys.concat(scanResult[1])
-    } while (cursor !== '0')
-
-    sessionKeys = sessionKeys.filter(key => key)
+    const sessionKeys = await this.findKeysByUuid(uuid)
 
     if (!sessionKeys.length) {
       return undefined
@@ -94,5 +82,23 @@ export class RedisEphemeralSessionRepository implements EphemeralSessionReposito
       this.ephemeralSessionAge,
       JSON.stringify(ephemeralSession)
     )
+  }
+
+  private async findKeysByUuid(uuid: string): Promise<Array<string>> {
+    let cursor = '0'
+    let sessionKeys: Array<string> = []
+    do {
+      const scanResult = await this.redisClient.scan(
+        cursor,
+        'MATCH',
+        `${this.PREFIX}:${uuid}:*`
+      )
+      this.logger.debug('Scan result: %O', scanResult)
+
+      cursor = scanResult[0]
+      sessionKeys = sessionKeys.concat(scanResult[1])
+    } while (cursor !== '0')
+
+    return sessionKeys.filter(key => key)
   }
 }
