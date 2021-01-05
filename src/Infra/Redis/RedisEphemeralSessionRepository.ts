@@ -50,7 +50,11 @@ export class RedisEphemeralSessionRepository implements EphemeralSessionReposito
       sessionKeys = sessionKeys.concat(scanResult[1])
     } while (cursor !== '0')
 
-    const sessions = await this.redisClient.mget(...sessionKeys)
+    if (!sessionKeys.length) {
+      return []
+    }
+
+    const sessions = await this.redisClient.mget(sessionKeys)
 
     return (<string[]> sessions.filter(value => value)).map(stringifiedSession => JSON.parse(stringifiedSession))
   }
