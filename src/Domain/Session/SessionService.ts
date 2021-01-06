@@ -87,7 +87,28 @@ export class SessionService implements SessionServiceInterace {
     try {
       const userAgentParsed = this.deviceDetector.parse(session.userAgent)
 
-      return `${userAgentParsed.client?.name} ${userAgentParsed.client?.version} on ${userAgentParsed.os?.name} ${userAgentParsed.os?.version}`
+      let osInfo = ''
+      if (userAgentParsed.os?.name && userAgentParsed.os?.version) {
+        osInfo = `${userAgentParsed.os.name} ${userAgentParsed.os.version}`
+      }
+      let clientInfo = ''
+      if (userAgentParsed.client?.name && userAgentParsed.client?.version) {
+        clientInfo = `${userAgentParsed.client.name} ${userAgentParsed.client.version}`
+      }
+
+      if (osInfo && clientInfo) {
+        return `${clientInfo} on ${osInfo}`
+      }
+
+      if (osInfo) {
+        return osInfo
+      }
+
+      if (clientInfo) {
+        return clientInfo
+      }
+
+      return 'Unknown Client on Unknown OS'
     }
     catch (error) {
       this.logger.warning(`Could not parse session device info. User agent: ${session.userAgent}: ${error.message}`)

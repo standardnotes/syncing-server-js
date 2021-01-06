@@ -160,7 +160,29 @@ describe('SessionService', () => {
       },
       'bot': null
     })
-    expect(createService().getDeviceInfo(session)).toEqual('undefined undefined on undefined undefined')
+    expect(createService().getDeviceInfo(session)).toEqual('Unknown Client on Unknown OS')
+  })
+
+  it('should return a shorter info based on lack of client in user agent', () => {
+    deviceDetector.parse = jest.fn().mockReturnValue({
+      client: null,
+      os: { name: 'iOS', version: '10.3', platform: '' },
+      device: { type: '', brand: 'Apple', model: '' },
+      bot: null
+    })
+
+    expect(createService().getDeviceInfo(session)).toEqual('iOS 10.3')
+  })
+
+  it('should return a shorter info based on lack of os in user agent', () => {
+    deviceDetector.parse = jest.fn().mockReturnValue({
+      client: { name: 'Chrome', version: '69.0' },
+      os: { name: '', version: '', platform: '' },
+      device: { type: '', brand: 'Apple', model: '' },
+      bot: null
+    })
+
+    expect(createService().getDeviceInfo(session)).toEqual('Chrome 69.0')
   })
 
   it('should return device info fallback to user agent', () => {
