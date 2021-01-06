@@ -40,6 +40,7 @@ import { GetActiveSessionsForUser } from '../Domain/UseCase/GetActiveSessionsFor
 import { DeletePreviousSessionsForUser } from '../Domain/UseCase/DeletePreviousSessionsForUser'
 import { DeleteSessionForUser } from '../Domain/UseCase/DeleteSessionForUser'
 import { Register } from '../Domain/UseCase/Register'
+import { LockRepository } from '../Infra/Redis/LockRepository'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -111,6 +112,7 @@ export class ContainerConfigLoader {
         container.bind<MySQLRevisionRepository>(TYPES.RevisionRepository).toConstantValue(connection.getCustomRepository(MySQLRevisionRepository))
         container.bind<MySQLItemRepository>(TYPES.ItemRepository).toConstantValue(connection.getCustomRepository(MySQLItemRepository))
         container.bind<RedisEphemeralSessionRepository>(TYPES.EphemeralSessionRepository).to(RedisEphemeralSessionRepository)
+        container.bind<LockRepository>(TYPES.LockRepository).to(LockRepository)
 
         // Middleware
         container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)

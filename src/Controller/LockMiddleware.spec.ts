@@ -4,19 +4,23 @@ import { LockMiddleware } from './LockMiddleware'
 import { NextFunction, Request, Response } from 'express'
 import { User } from '../Domain/User/User'
 import { UserRepositoryInterface } from '../Domain/User/UserRepositoryInterface'
+import { LockRepositoryInterface } from '../Domain/User/LockRepositoryInterface'
 
 describe('LockMiddleware', () => {
   let userRepository: UserRepositoryInterface
+  let lockRepository: LockRepositoryInterface
   let request: Request
   let response: Response
   let user: User
   let next: NextFunction
 
-  const createMiddleware = () => new LockMiddleware(userRepository)
+  const createMiddleware = () => new LockMiddleware(userRepository, lockRepository)
 
   beforeEach(() => {
     user = {} as jest.Mocked<User>
-    user.isLocked = jest.fn().mockReturnValue(true)
+
+    lockRepository = {} as jest.Mocked<LockRepositoryInterface>
+    lockRepository.isUserLocked = jest.fn().mockReturnValue(true)
 
     userRepository = {} as jest.Mocked<UserRepositoryInterface>
     userRepository.findOneByEmail = jest.fn().mockReturnValue(user)
@@ -39,7 +43,7 @@ describe('LockMiddleware', () => {
   })
 
   it('should let the request pass if user is not locked', async () => {
-    user.isLocked = jest.fn().mockReturnValue(false)
+    lockRepository.isUserLocked = jest.fn().mockReturnValue(false)
 
     await createMiddleware().handler(request, response, next)
 
