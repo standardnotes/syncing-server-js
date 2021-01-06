@@ -89,6 +89,19 @@ describe('MySQLSessionRepository', () => {
     expect(result).toEqual([session])
   })
 
+  it('should find all sessions by user id', async () => {
+    queryBuilder.where = jest.fn().mockReturnThis()
+    queryBuilder.getMany = jest.fn().mockReturnValue([session])
+
+    const result = await repository.findAllByUserUuid('123')
+
+    expect(queryBuilder.where).toHaveBeenCalledWith(
+      'session.user_uuid = :user_uuid',
+      { user_uuid: '123' }
+    )
+    expect(result).toEqual([session])
+  })
+
   it('should find one session by id', async () => {
     queryBuilder.where = jest.fn().mockReturnThis()
     queryBuilder.getOne = jest.fn().mockReturnValue(session)

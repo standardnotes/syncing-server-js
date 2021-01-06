@@ -14,6 +14,8 @@ import { SessionPayload } from './SessionPayload'
 import { User } from '../User/User'
 import { EphemeralSessionRepositoryInterface } from './EphemeralSessionRepositoryInterface'
 import { EphemeralSession } from './EphemeralSession'
+import { ArchivedSession } from './ArchivedSession'
+import { ArchivedSessionRepositoryInterface } from './ArchivedSessionRepositoryInterface'
 
 @injectable()
 export class SessionService implements SessionServiceInterace {
@@ -22,6 +24,7 @@ export class SessionService implements SessionServiceInterace {
   constructor (
     @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface,
     @inject(TYPES.EphemeralSessionRepository) private ephemeralSessionRepository: EphemeralSessionRepositoryInterface,
+    @inject(TYPES.ArchivedSessionRepository) private archivedSessionRepository: ArchivedSessionRepositoryInterface,
     @inject(TYPES.DeviceDetector) private deviceDetector: DeviceDetector,
     @inject(TYPES.Logger) private logger: winston.Logger,
     @inject(TYPES.ACCESS_TOKEN_AGE) private accessTokenAge: number,
@@ -144,6 +147,16 @@ export class SessionService implements SessionServiceInterace {
     return undefined
   }
 
+  async getArchivedSessionFromToken(token: string): Promise<ArchivedSession | undefined> {
+    const tokenParts = token.split(':')
+    const sessionUuid = tokenParts[1]
+    if (!sessionUuid) {
+      return undefined
+    }
+
+    return this.archivedSessionRepository.findOneByUuid(sessionUuid)
+  }
+
   async deleteSessionByToken(token: string): Promise<void> {
     const session = await this.getSessionFromToken(token)
 
@@ -151,6 +164,15 @@ export class SessionService implements SessionServiceInterace {
       await this.sessionRepository.deleteOneByUuid(session.uuid)
       await this.ephemeralSessionRepository.deleteOneByUuid(session.uuid)
     }
+  }
+
+  async archiveSession(session: Session): Promise<ArchivedSession> {
+    const archivedSession = new ArchivedSession()
+    archivedSession.uuid = session.uuid
+    archivedSession.userUuid = session.userUuid
+    archivedSession.createdAt = dayjs.utc().toDate()
+
+    return this.archivedSessionRepository.save(archivedSession)
   }
 
   private createSession(user: User, apiVersion: string, userAgent: string, ephemeral: boolean): Session {
