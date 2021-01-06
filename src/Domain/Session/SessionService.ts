@@ -96,6 +96,10 @@ export class SessionService implements SessionServiceInterace {
         clientInfo = `${userAgentParsed.client.name ?? ''} ${userAgentParsed.client.version ?? ''}`.trim()
       }
 
+      if (clientInfo.indexOf('okHttp') >= 0) {
+        return osInfo
+      }
+
       if (osInfo && clientInfo) {
         return `${clientInfo} on ${osInfo}`
       }

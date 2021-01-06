@@ -243,6 +243,17 @@ describe('SessionService', () => {
     expect(createService().getDeviceInfo(session)).toEqual('Windows 7')
   })
 
+  it('should return only Android os for okHttp client', () => {
+    deviceDetector.parse = jest.fn().mockReturnValue({
+      client: { name: 'okHttp', version: '3.14' },
+      os: { name: 'Android', version: '', platform: '' },
+      device: { type: '', brand: '', model: '' },
+      bot: null
+    })
+
+    expect(createService().getDeviceInfo(session)).toEqual('Android')
+  })
+
   it('should return device info fallback to user agent', () => {
     deviceDetector.parse = jest.fn().mockImplementation(() => {
       throw new Error('something bad happened')
