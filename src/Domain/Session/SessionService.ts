@@ -88,12 +88,12 @@ export class SessionService implements SessionServiceInterace {
       const userAgentParsed = this.deviceDetector.parse(session.userAgent)
 
       let osInfo = ''
-      if (userAgentParsed.os?.name && userAgentParsed.os?.version) {
-        osInfo = `${userAgentParsed.os.name} ${userAgentParsed.os.version}`
+      if (userAgentParsed.os) {
+        osInfo = `${userAgentParsed.os.name ?? ''} ${userAgentParsed.os.version ?? ''}`.trim()
       }
       let clientInfo = ''
-      if (userAgentParsed.client?.name && userAgentParsed.client?.version) {
-        clientInfo = `${userAgentParsed.client.name} ${userAgentParsed.client.version}`
+      if (userAgentParsed.client) {
+        clientInfo = `${userAgentParsed.client.name ?? ''} ${userAgentParsed.client.version ?? ''}`.trim()
       }
 
       if (osInfo && clientInfo) {

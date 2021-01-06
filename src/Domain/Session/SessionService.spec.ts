@@ -185,6 +185,64 @@ describe('SessionService', () => {
     expect(createService().getDeviceInfo(session)).toEqual('Chrome 69.0')
   })
 
+  it('should return a shorter info based on partial os in user agent', () => {
+    deviceDetector.parse = jest.fn().mockReturnValue({
+      client: { name: 'Chrome', version: '69.0' },
+      os: { name: 'Windows', version: '', platform: '' },
+      device: { type: '', brand: 'Apple', model: '' },
+      bot: null
+    })
+
+    expect(createService().getDeviceInfo(session)).toEqual('Chrome 69.0 on Windows')
+
+    deviceDetector.parse = jest.fn().mockReturnValue({
+      client: { name: 'Chrome', version: '69.0' },
+      os: { name: '', version: '7', platform: '' },
+      device: { type: '', brand: 'Apple', model: '' },
+      bot: null
+    })
+
+    expect(createService().getDeviceInfo(session)).toEqual('Chrome 69.0 on 7')
+
+    deviceDetector.parse = jest.fn().mockReturnValue({
+      client: { name: 'Chrome', version: '69.0' },
+      os: { },
+      device: { type: '', brand: 'Apple', model: '' },
+      bot: null
+    })
+
+    expect(createService().getDeviceInfo(session)).toEqual('Chrome 69.0')
+  })
+
+  it('should return a shorter info based on partial client in user agent', () => {
+    deviceDetector.parse = jest.fn().mockReturnValue({
+      client: { name: '', version: '69.0' },
+      os: { name: 'Windows', version: '7', platform: '' },
+      device: { type: '', brand: 'Apple', model: '' },
+      bot: null
+    })
+
+    expect(createService().getDeviceInfo(session)).toEqual('69.0 on Windows 7')
+
+    deviceDetector.parse = jest.fn().mockReturnValue({
+      client: { name: 'Chrome', version: '' },
+      os: { name: 'Windows', version: '7', platform: '' },
+      device: { type: '', brand: 'Apple', model: '' },
+      bot: null
+    })
+
+    expect(createService().getDeviceInfo(session)).toEqual('Chrome on Windows 7')
+
+    deviceDetector.parse = jest.fn().mockReturnValue({
+      client: { },
+      os: { name: 'Windows', version: '7', platform: '' },
+      device: { type: '', brand: 'Apple', model: '' },
+      bot: null
+    })
+
+    expect(createService().getDeviceInfo(session)).toEqual('Windows 7')
+  })
+
   it('should return device info fallback to user agent', () => {
     deviceDetector.parse = jest.fn().mockImplementation(() => {
       throw new Error('something bad happened')
