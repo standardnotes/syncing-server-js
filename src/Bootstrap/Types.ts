@@ -7,6 +7,7 @@ const TYPES = {
   UserRepository: Symbol.for('UserRepository'),
   SessionRepository: Symbol.for('SessionRepository'),
   EphemeralSessionRepository: Symbol.for('EphemeralSessionRepository'),
+  ArchivedSessionRepository: Symbol.for('ArchivedSessionRepository'),
   ItemRepository: Symbol.for('ItemRepository'),
   LockRepository: Symbol.for('LockRepository'),
   // Middleware
@@ -51,6 +52,8 @@ const TYPES = {
   AuthResponseFactory20200115: Symbol.for('AuthResponseFactory20200115'),
   AuthResponseFactoryResolver: Symbol.for('AuthResponseFactoryResolver'),
   KeyParamsFactory: Symbol.for('KeyParamsFactory'),
+  TokenDecoder: Symbol.for('TokenDecoder'),
+  AuthenticationMethodResolver: Symbol.for('AuthenticationMethodResolver'),
 }
 
 export default TYPES

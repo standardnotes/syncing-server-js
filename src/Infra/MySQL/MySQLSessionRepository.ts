@@ -59,6 +59,17 @@ export class MySQLSessionRepository extends Repository<Session> implements Sessi
       .getOne()
   }
 
+  async findAllByUserUuid(userUuid: string): Promise<Array<Session>> {
+    return this.createQueryBuilder('session')
+      .where(
+        'session.user_uuid = :user_uuid',
+        {
+          user_uuid: userUuid
+        }
+      )
+      .getMany()
+  }
+
   async deleteAllByUserUuid(userUuid: string, currentSessionUuid: string): Promise<void> {
     await this.createQueryBuilder('session')
       .delete()

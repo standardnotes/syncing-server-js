@@ -98,4 +98,18 @@ describe('AuthMiddleware', () => {
     expect(response.status).toHaveBeenCalledWith(498)
     expect(next).not.toHaveBeenCalled()
   })
+
+  it('should not authorize user if the session is revoked', async () => {
+    request.headers.authorization = 'Bearer test'
+
+    authenticateUser.execute = jest.fn().mockReturnValue({
+      success: false,
+      failureType: 'REVOKED_SESSION',
+    })
+
+    await createMiddleware().handler(request, response, next)
+
+    expect(response.status).toHaveBeenCalledWith(401)
+    expect(next).not.toHaveBeenCalled()
+  })
 })
