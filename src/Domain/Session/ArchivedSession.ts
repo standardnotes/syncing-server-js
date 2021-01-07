@@ -1,4 +1,5 @@
-import { Column, Entity, Index, PrimaryColumn } from 'typeorm'
+import { Column, Entity, Index, ManyToOne, PrimaryColumn } from 'typeorm'
+import { User } from '../User/User'
 
 @Entity({ name: 'archived_sessions' })
 export class ArchivedSession {
@@ -19,4 +20,12 @@ export class ArchivedSession {
     type: 'datetime',
   })
   createdAt: Date
+
+  @ManyToOne(
+    /* istanbul ignore next */
+    () => User,
+    /* istanbul ignore next */
+    user => user.archivedSessions, { onDelete: 'CASCADE' }
+  )
+  user: Promise<User>
 }
