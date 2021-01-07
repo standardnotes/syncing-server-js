@@ -1,4 +1,4 @@
-import { Column, Entity, Index, ManyToOne, PrimaryColumn } from 'typeorm'
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
 import { User } from '../User/User'
 
 @Entity({ name: 'revoked_sessions' })
@@ -27,5 +27,6 @@ export class RevokedSession {
     /* istanbul ignore next */
     user => user.revokedSessions, { onDelete: 'CASCADE' }
   )
+  @JoinColumn({ name: 'user_uuid' })
   user: Promise<User>
 }
