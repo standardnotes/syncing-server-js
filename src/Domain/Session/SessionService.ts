@@ -14,8 +14,8 @@ import { SessionPayload } from './SessionPayload'
 import { User } from '../User/User'
 import { EphemeralSessionRepositoryInterface } from './EphemeralSessionRepositoryInterface'
 import { EphemeralSession } from './EphemeralSession'
-import { ArchivedSession } from './ArchivedSession'
-import { ArchivedSessionRepositoryInterface } from './ArchivedSessionRepositoryInterface'
+import { RevokedSession } from './RevokedSession'
+import { RevokedSessionRepositoryInterface } from './RevokedSessionRepositoryInterface'
 
 @injectable()
 export class SessionService implements SessionServiceInterace {
@@ -24,7 +24,7 @@ export class SessionService implements SessionServiceInterace {
   constructor (
     @inject(TYPES.SessionRepository) private sessionRepository: SessionRepositoryInterface,
     @inject(TYPES.EphemeralSessionRepository) private ephemeralSessionRepository: EphemeralSessionRepositoryInterface,
-    @inject(TYPES.ArchivedSessionRepository) private archivedSessionRepository: ArchivedSessionRepositoryInterface,
+    @inject(TYPES.RevokedSessionRepository) private revokedSessionRepository: RevokedSessionRepositoryInterface,
     @inject(TYPES.DeviceDetector) private deviceDetector: DeviceDetector,
     @inject(TYPES.Logger) private logger: winston.Logger,
     @inject(TYPES.ACCESS_TOKEN_AGE) private accessTokenAge: number,
@@ -147,14 +147,14 @@ export class SessionService implements SessionServiceInterace {
     return undefined
   }
 
-  async getArchivedSessionFromToken(token: string): Promise<ArchivedSession | undefined> {
+  async getRevokedSessionFromToken(token: string): Promise<RevokedSession | undefined> {
     const tokenParts = token.split(':')
     const sessionUuid = tokenParts[1]
     if (!sessionUuid) {
       return undefined
     }
 
-    return this.archivedSessionRepository.findOneByUuid(sessionUuid)
+    return this.revokedSessionRepository.findOneByUuid(sessionUuid)
   }
 
   async deleteSessionByToken(token: string): Promise<void> {
@@ -166,13 +166,13 @@ export class SessionService implements SessionServiceInterace {
     }
   }
 
-  async archiveSession(session: Session): Promise<ArchivedSession> {
-    const archivedSession = new ArchivedSession()
-    archivedSession.uuid = session.uuid
-    archivedSession.userUuid = session.userUuid
-    archivedSession.createdAt = dayjs.utc().toDate()
+  async revokeSession(session: Session): Promise<RevokedSession> {
+    const revokedSession = new RevokedSession()
+    revokedSession.uuid = session.uuid
+    revokedSession.userUuid = session.userUuid
+    revokedSession.createdAt = dayjs.utc().toDate()
 
-    return this.archivedSessionRepository.save(archivedSession)
+    return this.revokedSessionRepository.save(revokedSession)
   }
 
   private createSession(user: User, apiVersion: string, userAgent: string, ephemeral: boolean): Session {

@@ -23,7 +23,7 @@ describe('DeleteSessionForUser', () => {
     sessionRepository.findOneByUuidAndUserUuid = jest.fn().mockReturnValue(session)
 
     sessionService = {} as jest.Mocked<SessionServiceInterace>
-    sessionService.archiveSession = jest.fn()
+    sessionService.revokeSession = jest.fn()
   })
 
   it('should delete a session for a given user', async () => {
@@ -31,7 +31,7 @@ describe('DeleteSessionForUser', () => {
       .toEqual({ success: true })
 
     expect(sessionRepository.deleteOneByUuid).toHaveBeenCalledWith('2-3-4')
-    expect(sessionService.archiveSession).toHaveBeenCalledWith(session)
+    expect(sessionService.revokeSession).toHaveBeenCalledWith(session)
   })
 
   it('should not delete a session if it does not exist for a given user', async () => {
@@ -41,6 +41,6 @@ describe('DeleteSessionForUser', () => {
       .toEqual({ success: false, errorMessage: 'No session exists with the provided identifier.' })
 
     expect(sessionRepository.deleteOneByUuid).not.toHaveBeenCalled()
-    expect(sessionService.archiveSession).not.toHaveBeenCalled()
+    expect(sessionService.revokeSession).not.toHaveBeenCalled()
   })
 })

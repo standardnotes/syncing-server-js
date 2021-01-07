@@ -41,10 +41,10 @@ import { DeletePreviousSessionsForUser } from '../Domain/UseCase/DeletePreviousS
 import { DeleteSessionForUser } from '../Domain/UseCase/DeleteSessionForUser'
 import { Register } from '../Domain/UseCase/Register'
 import { LockRepository } from '../Infra/Redis/LockRepository'
-import { MySQLArchivedSessionRepository } from '../Infra/MySQL/MySQLArchivedSessionRepository'
+import { MySQLRevokedSessionRepository } from '../Infra/MySQL/MySQLRevokedSessionRepository'
 import { TokenDecoder } from '../Domain/Auth/TokenDecoder'
 import { AuthenticationMethodResolver } from '../Domain/Auth/AuthenticationMethodResolver'
-import { ArchivedSession } from '../Domain/Session/ArchivedSession'
+import { RevokedSession } from '../Domain/Session/RevokedSession'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -76,7 +76,7 @@ export class ContainerConfigLoader {
           entities: [
             User,
             Session,
-            ArchivedSession,
+            RevokedSession,
             Item,
             Revision
           ],
@@ -113,7 +113,7 @@ export class ContainerConfigLoader {
 
         // Repositories
         container.bind<MySQLSessionRepository>(TYPES.SessionRepository).toConstantValue(connection.getCustomRepository(MySQLSessionRepository))
-        container.bind<MySQLArchivedSessionRepository>(TYPES.ArchivedSessionRepository).toConstantValue(connection.getCustomRepository(MySQLArchivedSessionRepository))
+        container.bind<MySQLRevokedSessionRepository>(TYPES.RevokedSessionRepository).toConstantValue(connection.getCustomRepository(MySQLRevokedSessionRepository))
         container.bind<MySQLUserRepository>(TYPES.UserRepository).toConstantValue(connection.getCustomRepository(MySQLUserRepository))
         container.bind<MySQLRevisionRepository>(TYPES.RevisionRepository).toConstantValue(connection.getCustomRepository(MySQLRevisionRepository))
         container.bind<MySQLItemRepository>(TYPES.ItemRepository).toConstantValue(connection.getCustomRepository(MySQLItemRepository))

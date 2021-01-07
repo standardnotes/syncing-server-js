@@ -25,7 +25,7 @@ export class AuthenticateUser implements UseCaseInterface {
       }
     }
 
-    if (authenticationMethod.type === 'archived') {
+    if (authenticationMethod.type === 'revoked') {
       return {
         success: false,
         failureType: 'REVOKED_SESSION'

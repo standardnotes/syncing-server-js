@@ -8,23 +8,23 @@ import { SessionService } from './SessionService'
 import { User } from '../User/User'
 import { EphemeralSessionRepositoryInterface } from './EphemeralSessionRepositoryInterface'
 import { EphemeralSession } from './EphemeralSession'
-import { ArchivedSessionRepositoryInterface } from './ArchivedSessionRepositoryInterface'
-import { ArchivedSession } from './ArchivedSession'
+import { RevokedSessionRepositoryInterface } from './RevokedSessionRepositoryInterface'
+import { RevokedSession } from './RevokedSession'
 
 describe('SessionService', () => {
   let sessionRepository: SessionRepositoryInterface
   let ephemeralSessionRepository: EphemeralSessionRepositoryInterface
-  let archivedSessionRepository: ArchivedSessionRepositoryInterface
+  let revokedSessionRepository: RevokedSessionRepositoryInterface
   let session: Session
   let ephemeralSession: EphemeralSession
-  let archivedSession: ArchivedSession
+  let revokedSession: RevokedSession
   let deviceDetector: DeviceDetector
   let logger: winston.Logger
 
   const createService = () => new SessionService(
     sessionRepository,
     ephemeralSessionRepository,
-    archivedSessionRepository,
+    revokedSessionRepository,
     deviceDetector,
     logger,
     123,
@@ -39,8 +39,8 @@ describe('SessionService', () => {
     session.hashedAccessToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
     session.hashedRefreshToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
 
-    archivedSession = {} as jest.Mocked<ArchivedSession>
-    archivedSession.uuid = '2e1e43'
+    revokedSession = {} as jest.Mocked<RevokedSession>
+    revokedSession.uuid = '2e1e43'
 
     sessionRepository = {} as jest.Mocked<SessionRepositoryInterface>
     sessionRepository.findOneByUuid = jest.fn()
@@ -55,8 +55,8 @@ describe('SessionService', () => {
     ephemeralSessionRepository.updateTokensAndExpirationDates = jest.fn()
     ephemeralSessionRepository.deleteOneByUuid = jest.fn()
 
-    archivedSessionRepository = {} as jest.Mocked<ArchivedSessionRepositoryInterface>
-    archivedSessionRepository.save = jest.fn()
+    revokedSessionRepository = {} as jest.Mocked<RevokedSessionRepositoryInterface>
+    revokedSessionRepository.save = jest.fn()
 
     ephemeralSession = {} as jest.Mocked<EphemeralSession>
     ephemeralSession.uuid = '2-3-4'
@@ -334,10 +334,10 @@ describe('SessionService', () => {
     expect(result).toBeUndefined()
   })
 
-  it('should archive a session', async () => {
-    await createService().archiveSession(session)
+  it('should revoked a session', async () => {
+    await createService().revokeSession(session)
 
-    expect(archivedSessionRepository.save).toHaveBeenCalledWith({
+    expect(revokedSessionRepository.save).toHaveBeenCalledWith({
       uuid: '2e1e43',
       userUuid: '1-2-3',
       createdAt: expect.any(Date)
@@ -345,17 +345,17 @@ describe('SessionService', () => {
   })
 
   it('should retrieve an archvied session from a session token', async () => {
-    archivedSessionRepository.findOneByUuid = jest.fn().mockReturnValue(archivedSession)
+    revokedSessionRepository.findOneByUuid = jest.fn().mockReturnValue(revokedSession)
 
-    const result = await createService().getArchivedSessionFromToken('1:2:3')
+    const result = await createService().getRevokedSessionFromToken('1:2:3')
 
-    expect(result).toEqual(archivedSession)
+    expect(result).toEqual(revokedSession)
   })
 
   it('should not retrieve an archvied session if session id is missing from token', async () => {
-    archivedSessionRepository.findOneByUuid = jest.fn()
+    revokedSessionRepository.findOneByUuid = jest.fn()
 
-    const result = await createService().getArchivedSessionFromToken('1::3')
+    const result = await createService().getRevokedSessionFromToken('1::3')
 
     expect(result).toBeUndefined()
   })
