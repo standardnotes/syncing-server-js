@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { ArchivedSession } from '../Session/ArchivedSession'
+import { RevokedSession } from '../Session/RevokedSession'
 import { Session } from '../Session/Session'
 import { SessionServiceInterace } from '../Session/SessionServiceInterface'
 import { User } from '../User/User'
@@ -14,7 +14,7 @@ describe('AuthenticationMethodResolver', () => {
   let tokenDecoder: TokenDecoderInterface
   let user: User
   let session: Session
-  let archivedSession: ArchivedSession
+  let revokedSession: RevokedSession
 
   const createResolver = () => new AuthenticationMethodResolver(userRepository, sessionService, tokenDecoder)
 
@@ -23,14 +23,14 @@ describe('AuthenticationMethodResolver', () => {
 
     session = {} as jest.Mocked<Session>
 
-    archivedSession = {} as jest.Mocked<ArchivedSession>
+    revokedSession = {} as jest.Mocked<RevokedSession>
 
     userRepository = {} as jest.Mocked<UserRepositoryInterface>
     userRepository.findOneByUuid = jest.fn().mockReturnValue(user)
 
     sessionService = {} as jest.Mocked<SessionServiceInterace>
     sessionService.getSessionFromToken = jest.fn()
-    sessionService.getArchivedSessionFromToken = jest.fn()
+    sessionService.getRevokedSessionFromToken = jest.fn()
 
     tokenDecoder = {} as jest.Mocked<TokenDecoderInterface>
     tokenDecoder.decode = jest.fn()
@@ -59,11 +59,11 @@ describe('AuthenticationMethodResolver', () => {
   })
 
   it('should resolve archvied session authentication method', async () => {
-    sessionService.getArchivedSessionFromToken = jest.fn().mockReturnValue(archivedSession)
+    sessionService.getRevokedSessionFromToken = jest.fn().mockReturnValue(revokedSession)
 
     expect(await createResolver().resolve('test')).toEqual({
-      archivedSession,
-      type: 'archived'
+      revokedSession,
+      type: 'revoked'
     })
   })
 

@@ -23,7 +23,7 @@ export class DeleteSessionForUser implements UseCaseInterface {
       }
     }
 
-    await this.sessionService.archiveSession(session)
+    await this.sessionService.revokeSession(session)
 
     await this.sessionRepository.deleteOneByUuid(dto.sessionUuid)
 

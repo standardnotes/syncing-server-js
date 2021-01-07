@@ -1,11 +1,11 @@
-import { ArchivedSession } from '../Session/ArchivedSession'
+import { RevokedSession } from '../Session/RevokedSession'
 import { Session } from '../Session/Session'
 import { User } from '../User/User'
 
 export type AuthenticationMethod = {
-  type: 'jwt' | 'session_token' | 'archived'
+  type: 'jwt' | 'session_token' | 'revoked'
   user?: User
   claims?: Record<string, unknown>
   session?: Session
-  archivedSession?: ArchivedSession
+  revokedSession?: RevokedSession
 }

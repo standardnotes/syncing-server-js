@@ -34,11 +34,11 @@ export class AuthenticationMethodResolver implements AuthenticationMethodResolve
       }
     }
 
-    const archivedSession = await this.sessionService.getArchivedSessionFromToken(token)
-    if (archivedSession) {
+    const revokedSession = await this.sessionService.getRevokedSessionFromToken(token)
+    if (revokedSession) {
       return {
-        type: 'archived',
-        archivedSession
+        type: 'revoked',
+        revokedSession
       }
     }
 

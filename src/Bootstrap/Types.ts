@@ -7,7 +7,7 @@ const TYPES = {
   UserRepository: Symbol.for('UserRepository'),
   SessionRepository: Symbol.for('SessionRepository'),
   EphemeralSessionRepository: Symbol.for('EphemeralSessionRepository'),
-  ArchivedSessionRepository: Symbol.for('ArchivedSessionRepository'),
+  RevokedSessionRepository: Symbol.for('RevokedSessionRepository'),
   ItemRepository: Symbol.for('ItemRepository'),
   LockRepository: Symbol.for('LockRepository'),
   // Middleware

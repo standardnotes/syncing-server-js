@@ -5,13 +5,13 @@ import { Session } from '../Session/Session'
 
 import { User } from '../User/User'
 import { AuthenticateUser } from './AuthenticateUser'
-import { ArchivedSession } from '../Session/ArchivedSession'
+import { RevokedSession } from '../Session/RevokedSession'
 import { AuthenticationMethodResolverInterface } from '../Auth/AuthenticationMethodResolverInterface'
 
 describe('AuthenticateUser', () => {
   let user: User
   let session: Session
-  let archivedSession: ArchivedSession
+  let revokedSession: RevokedSession
   let authenticationMethodResolver: AuthenticationMethodResolverInterface
 
   const createUseCase = () => new AuthenticateUser(authenticationMethodResolver)
@@ -24,8 +24,8 @@ describe('AuthenticateUser', () => {
     session.accessExpiration = dayjs.utc().add(1, 'day').toDate()
     session.refreshExpiration = dayjs.utc().add(1, 'day').toDate()
 
-    archivedSession = {} as jest.Mocked<ArchivedSession>
-    archivedSession.uuid = '1-2-3'
+    revokedSession = {} as jest.Mocked<RevokedSession>
+    revokedSession.uuid = '1-2-3'
 
     authenticationMethodResolver = {} as jest.Mocked<AuthenticationMethodResolverInterface>
     authenticationMethodResolver.resolve = jest.fn()
@@ -149,10 +149,10 @@ describe('AuthenticateUser', () => {
     expect(response.success).toBeFalsy()
   })
 
-  it('should not authenticate a user if a session is archived', async () => {
+  it('should not authenticate a user if a session is revoked', async () => {
     authenticationMethodResolver.resolve = jest.fn().mockReturnValue({
-      type: 'archived',
-      archivedSession
+      type: 'revoked',
+      revokedSession
     })
 
     const response = await createUseCase().execute({ token: 'test' })

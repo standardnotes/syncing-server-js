@@ -1,5 +1,5 @@
 import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm'
-import { ArchivedSession } from '../Session/ArchivedSession'
+import { RevokedSession } from '../Session/RevokedSession'
 
 @Entity({ name: 'users' })
 export class User {
@@ -123,11 +123,11 @@ export class User {
 
   @OneToMany(
     /* istanbul ignore next */
-    () => ArchivedSession,
+    () => RevokedSession,
     /* istanbul ignore next */
-    archivedSession => archivedSession.user
+    revokedSession => revokedSession.user
   )
-  archivedSessions: Promise<ArchivedSession[]>
+  revokedSessions: Promise<RevokedSession[]>
 
   supportsSessions(): boolean {
     return parseInt(this.version) >= this.SESSIONS_PROTOCOL_VERSION
