@@ -106,5 +106,5 @@ export class Item {
         referencedColumnName: 'uuid'
     },
   })
-  revisions: Array<Revision>
+  revisions: Promise<Array<Revision>>
 }

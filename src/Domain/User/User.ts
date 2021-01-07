@@ -1,4 +1,5 @@
-import { Column, Entity, Index, PrimaryColumn } from 'typeorm'
+import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm'
+import { ArchivedSession } from '../Session/ArchivedSession'
 
 @Entity({ name: 'users' })
 export class User {
@@ -119,6 +120,14 @@ export class User {
     nullable: true
   })
   updatedWithUserAgent: string | null
+
+  @OneToMany(
+    /* istanbul ignore next */
+    () => ArchivedSession,
+    /* istanbul ignore next */
+    archivedSession => archivedSession.user
+  )
+  archivedSessions: Promise<ArchivedSession[]>
 
   supportsSessions(): boolean {
     return parseInt(this.version) >= this.SESSIONS_PROTOCOL_VERSION
