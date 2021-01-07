@@ -27,6 +27,6 @@ export class RevokedSession {
     /* istanbul ignore next */
     user => user.revokedSessions, { onDelete: 'CASCADE' }
   )
-  @JoinColumn({ name: 'user_uuid' })
+  @JoinColumn({ name: 'user_uuid', referencedColumnName: 'uuid' })
   user: Promise<User>
 }
