@@ -9,7 +9,6 @@ import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
 import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { Logger } from 'winston'
 import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
-import { UpdateUser } from '../Domain/UseCase/UpdateUser'
 import { Register } from '../Domain/UseCase/Register'
 
 @controller('/auth')
@@ -21,7 +20,6 @@ export class AuthController extends BaseHttpController {
     @inject(TYPES.GetUserKeyParams) private getUserKeyParams: GetUserKeyParams,
     @inject(TYPES.ClearLoginAttempts) private clearLoginAttempts: ClearLoginAttempts,
     @inject(TYPES.IncreaseLoginAttempts) private increaseLoginAttempts: IncreaseLoginAttempts,
-    @inject(TYPES.UpdateUser) private updateUser: UpdateUser,
     @inject(TYPES.Register) private registerUser: Register,
     @inject(TYPES.Logger) private logger: Logger
   ) {
@@ -138,26 +136,6 @@ export class AuthController extends BaseHttpController {
     await this.sessionService.deleteSessionByToken(authorizationHeader.replace('Bearer ', ''))
 
     return this.statusCode(204)
-  }
-
-  @httpPost('/update', TYPES.AuthMiddleware)
-  async update(request: Request, response: Response): Promise<results.JsonResult> {
-    const updateResult = await this.updateUser.execute({
-      user: response.locals.user,
-      updatedWithUserAgent: <string> request.headers['user-agent'],
-      apiVersion: request.body.api,
-      pwFunc: request.body.pw_func,
-      pwAlg: request.body.pw_alg,
-      pwCost: request.body.pw_cost,
-      pwKeySize: request.body.pw_key_size,
-      pwNonce: request.body.pw_nonce,
-      pwSalt: request.body.pw_salt,
-      kpOrigination: request.body.origination,
-      kpCreated: request.body.created,
-      version: request.body.version,
-    })
-
-    return this.json(updateResult.authResponse)
   }
 
   @httpPost('/')
