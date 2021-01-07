@@ -13,7 +13,6 @@ import { Logger } from 'winston'
 import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { User } from '../Domain/User/User'
 import { Session } from '../Domain/Session/Session'
-import { UpdateUser } from '../Domain/UseCase/UpdateUser'
 import { Register } from '../Domain/UseCase/Register'
 
 describe('AuthController', () => {
@@ -23,7 +22,6 @@ describe('AuthController', () => {
     let getUserKeyParams: GetUserKeyParams
     let clearLoginAttempts: ClearLoginAttempts
     let increaseLoginAttempts: IncreaseLoginAttempts
-    let updateUser: UpdateUser
     let register: Register
     let request: express.Request
     let response: express.Response
@@ -38,7 +36,6 @@ describe('AuthController', () => {
       getUserKeyParams,
       clearLoginAttempts,
       increaseLoginAttempts,
-      updateUser,
       register,
       logger
     )
@@ -55,9 +52,6 @@ describe('AuthController', () => {
 
       signIn = {} as jest.Mocked<SignIn>
       signIn.execute = jest.fn()
-
-      updateUser = {} as jest.Mocked<UpdateUser>
-      updateUser.execute = jest.fn()
 
       register = {} as jest.Mocked<Register>
       register.execute = jest.fn()
@@ -188,28 +182,6 @@ describe('AuthController', () => {
       const result = await httpResponse.executeAsync()
 
       expect(result.statusCode).toEqual(400)
-    })
-
-    it('should update user', async () => {
-      request.body.version = '002'
-      request.body.api = '20190520'
-      request.body.origination = 'test'
-      request.headers['user-agent'] = 'Google Chrome'
-
-      updateUser.execute = jest.fn().mockReturnValue({ authResponse: { foo: 'bar' } })
-
-      const httpResponse = <results.JsonResult> await createController().update(request, response)
-      const result = await httpResponse.executeAsync()
-
-      expect(updateUser.execute).toHaveBeenCalledWith({
-        apiVersion: '20190520',
-        kpOrigination: 'test',
-        updatedWithUserAgent: 'Google Chrome',
-        version: '002',
-      })
-
-      expect(result.statusCode).toEqual(200)
-      expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
     })
 
     it('should get auth params for an authenticated user', async () => {
