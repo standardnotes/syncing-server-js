@@ -14,6 +14,9 @@ import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { User } from '../Domain/User/User'
 import { Session } from '../Domain/Session/Session'
 import { Register } from '../Domain/UseCase/Register'
+import { DomainEventPublisherInterface } from '../Domain/Event/DomainEventPublisherInterface'
+import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
+import { DomainEventInterface } from '../Domain/Event/DomainEventInterface'
 
 describe('AuthController', () => {
     let sessionService: SessionServiceInterace
@@ -23,6 +26,9 @@ describe('AuthController', () => {
     let clearLoginAttempts: ClearLoginAttempts
     let increaseLoginAttempts: IncreaseLoginAttempts
     let register: Register
+    let domainEventPublisher: DomainEventPublisherInterface
+    let domainEventFactory: DomainEventFactoryInterface
+    let event: DomainEventInterface
     let request: express.Request
     let response: express.Response
     let user: User
@@ -37,6 +43,8 @@ describe('AuthController', () => {
       clearLoginAttempts,
       increaseLoginAttempts,
       register,
+      domainEventPublisher,
+      domainEventFactory,
       logger
     )
 
@@ -70,6 +78,14 @@ describe('AuthController', () => {
       increaseLoginAttempts = {} as jest.Mocked<IncreaseLoginAttempts>
       increaseLoginAttempts.execute = jest.fn()
 
+      event = {} as jest.Mocked<DomainEventInterface>
+
+      domainEventPublisher = {} as jest.Mocked<DomainEventPublisherInterface>
+      domainEventPublisher.publish = jest.fn()
+
+      domainEventFactory = {} as jest.Mocked<DomainEventFactoryInterface>
+      domainEventFactory.createUserRegisteredEvent = jest.fn().mockReturnValue(event)
+
       request = {
         headers: {},
         body: {},
@@ -89,7 +105,7 @@ describe('AuthController', () => {
       request.body.origination = 'test'
       request.headers['user-agent'] = 'Google Chrome'
 
-      register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { foo: 'bar' } })
+      register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { user } })
 
       const httpResponse = <results.JsonResult> await createController().register(request)
       const result = await httpResponse.executeAsync()
@@ -103,8 +119,10 @@ describe('AuthController', () => {
         password: 'asdzxc'
       })
 
+      expect(domainEventPublisher.publish).toHaveBeenCalledWith(event)
+
       expect(result.statusCode).toEqual(200)
-      expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
+      expect(await result.content.readAsStringAsync()).toEqual('{"user":{"email":"test@test.te"}}')
     })
 
     it('should register a user - with 001 version', async () => {
@@ -115,7 +133,7 @@ describe('AuthController', () => {
       request.body.origination = 'test'
       request.headers['user-agent'] = 'Google Chrome'
 
-      register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { foo: 'bar' } })
+      register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { user } })
 
       const httpResponse = <results.JsonResult> await createController().register(request)
       const result = await httpResponse.executeAsync()
@@ -130,8 +148,10 @@ describe('AuthController', () => {
         password: 'asdzxc'
       })
 
+      expect(domainEventPublisher.publish).toHaveBeenCalledWith(event)
+
       expect(result.statusCode).toEqual(200)
-      expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
+      expect(await result.content.readAsStringAsync()).toEqual('{"user":{"email":"test@test.te"}}')
     })
 
     it('should register a user - with 002 version', async () => {
@@ -141,7 +161,7 @@ describe('AuthController', () => {
       request.body.origination = 'test'
       request.headers['user-agent'] = 'Google Chrome'
 
-      register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { foo: 'bar' } })
+      register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { user } })
 
       const httpResponse = <results.JsonResult> await createController().register(request)
       const result = await httpResponse.executeAsync()
@@ -155,8 +175,23 @@ describe('AuthController', () => {
         password: 'asdzxc'
       })
 
+      expect(domainEventPublisher.publish).toHaveBeenCalledWith(event)
+
       expect(result.statusCode).toEqual(200)
-      expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
+      expect(await result.content.readAsStringAsync()).toEqual('{"user":{"email":"test@test.te"}}')
+    })
+
+    it('should not register a user if auth response is missing', async () => {
+      register.execute = jest.fn().mockReturnValue({ success: true })
+
+      request.body.email = 'test@test.te'
+
+      const httpResponse = <results.JsonResult> await createController().register(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(domainEventPublisher.publish).not.toHaveBeenCalled()
+
+      expect(result.statusCode).toEqual(400)
     })
 
     it('should not register a user if request param is missing', async () => {
@@ -164,6 +199,8 @@ describe('AuthController', () => {
 
       const httpResponse = <results.JsonResult> await createController().register(request)
       const result = await httpResponse.executeAsync()
+
+      expect(domainEventPublisher.publish).not.toHaveBeenCalled()
 
       expect(result.statusCode).toEqual(400)
     })
@@ -180,6 +217,8 @@ describe('AuthController', () => {
 
       const httpResponse = <results.JsonResult> await createController().register(request)
       const result = await httpResponse.executeAsync()
+
+      expect(domainEventPublisher.publish).not.toHaveBeenCalled()
 
       expect(result.statusCode).toEqual(400)
     })

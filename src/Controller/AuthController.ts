@@ -10,6 +10,8 @@ import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { Logger } from 'winston'
 import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { Register } from '../Domain/UseCase/Register'
+import { DomainEventPublisherInterface } from '../Domain/Event/DomainEventPublisherInterface'
+import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
 
 @controller('/auth')
 export class AuthController extends BaseHttpController {
@@ -21,6 +23,8 @@ export class AuthController extends BaseHttpController {
     @inject(TYPES.ClearLoginAttempts) private clearLoginAttempts: ClearLoginAttempts,
     @inject(TYPES.IncreaseLoginAttempts) private increaseLoginAttempts: IncreaseLoginAttempts,
     @inject(TYPES.Register) private registerUser: Register,
+    @inject(TYPES.DomainEventPublisher) private domainEventPublisher: DomainEventPublisherInterface,
+    @inject(TYPES.DomainEventFactory) private domainEventFactory: DomainEventFactoryInterface,
     @inject(TYPES.Logger) private logger: Logger
   ) {
     super()
@@ -165,13 +169,20 @@ export class AuthController extends BaseHttpController {
         request.body.pw_nonce ? '001' : '002',
     })
 
-    if (!registerResult.success) {
+    if (!registerResult.success || !registerResult.authResponse) {
       return this.json({
         error: {
           message: registerResult.errorMessage
         }
       }, 400)
     }
+
+    await this.domainEventPublisher.publish(
+      this.domainEventFactory.createUserRegisteredEvent(
+        <string> registerResult.authResponse.user.uuid,
+        <string> registerResult.authResponse.user.email,
+      )
+    )
 
     return this.json(registerResult.authResponse)
   }

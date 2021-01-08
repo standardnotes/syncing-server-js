@@ -2,6 +2,7 @@ const TYPES = {
   DBConnection: Symbol.for('DBConnection'),
   Logger: Symbol.for('Logger'),
   Redis: Symbol.for('Redis'),
+  SNS: Symbol.for('SNS'),
   // Repositories
   RevisionRepository: Symbol.for('RevisionRepository'),
   UserRepository: Symbol.for('UserRepository'),
@@ -30,6 +31,8 @@ const TYPES = {
   PSEUDO_KEY_PARAMS_KEY: Symbol.for('PSEUDO_KEY_PARAMS_KEY'),
   REDIS_URL: Symbol.for('REDIS_URL'),
   DISABLE_USER_REGISTRATION: Symbol.for('DISABLE_USER_REGISTRATION'),
+  SNS_TOPIC_ARN: Symbol.for('SNS_TOPIC_ARN'),
+  SNS_AWS_REGION: Symbol.for('SNS_AWS_REGION'),
   // use cases
   AuthenticateUser: Symbol.for('AuthenticateUser'),
   RefreshSessionToken: Symbol.for('RefreshSessionToken'),
@@ -54,6 +57,8 @@ const TYPES = {
   KeyParamsFactory: Symbol.for('KeyParamsFactory'),
   TokenDecoder: Symbol.for('TokenDecoder'),
   AuthenticationMethodResolver: Symbol.for('AuthenticationMethodResolver'),
+  DomainEventPublisher: Symbol.for('DomainEventPublisher'),
+  DomainEventFactory: Symbol.for('DomainEventFactory'),
 }
 
 export default TYPES

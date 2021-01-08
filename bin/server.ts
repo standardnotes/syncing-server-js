@@ -24,7 +24,7 @@ import TYPES from '../src/Bootstrap/Types'
 import { Env } from '../src/Bootstrap/Env'
 
 const container = new ContainerConfigLoader
-container.load().then(container => {
+void container.load().then(container => {
   dayjs.extend(utc)
 
   const server = new InversifyExpressServer(container)
