@@ -1,5 +1,6 @@
 import * as winston from 'winston'
 import * as IORedis from 'ioredis'
+import * as AWS from 'aws-sdk'
 import { Container } from 'inversify'
 import { Env } from './Env'
 import TYPES from './Types'
@@ -45,6 +46,9 @@ import { MySQLRevokedSessionRepository } from '../Infra/MySQL/MySQLRevokedSessio
 import { TokenDecoder } from '../Domain/Auth/TokenDecoder'
 import { AuthenticationMethodResolver } from '../Domain/Auth/AuthenticationMethodResolver'
 import { RevokedSession } from '../Domain/Session/RevokedSession'
+import { SNSDomainEventPublisher } from '../Infra/SNS/SNSDomainEventPublisher'
+import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
+import { RedisDomainEventPublisher } from '../Infra/Redis/RedisDomainEventPublisher'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -111,6 +115,13 @@ export class ContainerConfigLoader {
         })
         container.bind<winston.Logger>(TYPES.Logger).toConstantValue(logger)
 
+        if (env.get('SNS_AWS_REGION', true)) {
+          container.bind<AWS.SNS>(TYPES.SNS).toConstantValue(new AWS.SNS({
+            apiVersion: 'latest',
+            region: env.get('SNS_AWS_REGION', true)
+          }))
+        }
+
         // Repositories
         container.bind<MySQLSessionRepository>(TYPES.SessionRepository).toConstantValue(connection.getCustomRepository(MySQLSessionRepository))
         container.bind<MySQLRevokedSessionRepository>(TYPES.RevokedSessionRepository).toConstantValue(connection.getCustomRepository(MySQLRevokedSessionRepository))
@@ -142,6 +153,8 @@ export class ContainerConfigLoader {
         container.bind(TYPES.EPHEMERAL_SESSION_AGE).toConstantValue(env.get('EPHEMERAL_SESSION_AGE'))
         container.bind(TYPES.REDIS_URL).toConstantValue(env.get('REDIS_URL'))
         container.bind(TYPES.DISABLE_USER_REGISTRATION).toConstantValue(env.get('DISABLE_USER_REGISTRATION') === 'true')
+        container.bind(TYPES.SNS_TOPIC_ARN).toConstantValue(env.get('SNS_TOPIC_ARN', true))
+        container.bind(TYPES.SNS_AWS_REGION).toConstantValue(env.get('SNS_AWS_REGION', true))
 
         // use cases
         container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
@@ -168,6 +181,12 @@ export class ContainerConfigLoader {
         container.bind<KeyParamsFactory>(TYPES.KeyParamsFactory).to(KeyParamsFactory)
         container.bind<TokenDecoder>(TYPES.TokenDecoder).to(TokenDecoder)
         container.bind<AuthenticationMethodResolver>(TYPES.AuthenticationMethodResolver).to(AuthenticationMethodResolver)
+        container.bind<DomainEventFactory>(TYPES.DomainEventFactory).to(DomainEventFactory)
+        if (env.get('SNS_TOPIC_ARN', true)) {
+          container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).to(SNSDomainEventPublisher)
+        } else {
+          container.bind<RedisDomainEventPublisher>(TYPES.DomainEventPublisher).to(RedisDomainEventPublisher)
+        }
 
         return container
     }

@@ -6,6 +6,8 @@ import { Session } from '../Session/Session'
 import { SessionServiceInterace } from '../Session/SessionServiceInterface'
 import { KeyParamsFactoryInterface } from '../User/KeyParamsFactoryInterface'
 import { User } from '../User/User'
+import { AuthResponse20161215 } from './AuthResponse20161215'
+import { AuthResponse20200115 } from './AuthResponse20200115'
 import { AuthResponseFactory20190520 } from './AuthResponseFactory20190520'
 
 @injectable()
@@ -24,7 +26,7 @@ export class AuthResponseFactory20200115 extends AuthResponseFactory20190520 {
     )
   }
 
-  async createResponse(user: User, apiVersion: string, userAgent: string, ephemeralSession: boolean): Promise<Record<string, unknown>> {
+  async createResponse(user: User, apiVersion: string, userAgent: string, ephemeralSession: boolean): Promise<AuthResponse20161215 | AuthResponse20200115> {
     if (!user.supportsSessions()) {
       this.logger.debug(`User ${user.uuid} does not support sessions. Falling back to JWT auth response`)
 

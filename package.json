@@ -21,6 +21,7 @@
     "start": "node dist/bin/server.js"
   },
   "dependencies": {
+    "aws-sdk": "^2.824.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "crypto-random-string": "^3.3.0",
