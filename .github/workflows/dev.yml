@@ -85,7 +85,7 @@ jobs:
       with:
         task-definition: task-definition.json
         container-name: syncing-server-js-worker-dev
-        image: "standardnotes/syncing-server-js-worker:${{ github.sha }}"
+        image: "standardnotes/syncing-server-js:${{ github.sha }}"
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
