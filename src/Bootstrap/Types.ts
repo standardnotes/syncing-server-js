@@ -3,6 +3,7 @@ const TYPES = {
   Logger: Symbol.for('Logger'),
   Redis: Symbol.for('Redis'),
   SNS: Symbol.for('SNS'),
+  SQS: Symbol.for('SQS'),
   // Repositories
   RevisionRepository: Symbol.for('RevisionRepository'),
   UserRepository: Symbol.for('UserRepository'),
@@ -33,6 +34,8 @@ const TYPES = {
   DISABLE_USER_REGISTRATION: Symbol.for('DISABLE_USER_REGISTRATION'),
   SNS_TOPIC_ARN: Symbol.for('SNS_TOPIC_ARN'),
   SNS_AWS_REGION: Symbol.for('SNS_AWS_REGION'),
+  SQS_QUEUE_URL: Symbol.for('SQS_QUEUE_URL'),
+  SQS_AWS_REGION: Symbol.for('SQS_AWS_REGION'),
   // use cases
   AuthenticateUser: Symbol.for('AuthenticateUser'),
   RefreshSessionToken: Symbol.for('RefreshSessionToken'),
@@ -58,7 +61,9 @@ const TYPES = {
   TokenDecoder: Symbol.for('TokenDecoder'),
   AuthenticationMethodResolver: Symbol.for('AuthenticationMethodResolver'),
   DomainEventPublisher: Symbol.for('DomainEventPublisher'),
+  DomainEventSubscriberFactory: Symbol.for('DomainEventSubscriberFactory'),
   DomainEventFactory: Symbol.for('DomainEventFactory'),
+  EventMessageHandler: Symbol.for('EventMessageHandler')
 }
 
 export default TYPES

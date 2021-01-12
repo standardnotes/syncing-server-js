@@ -49,6 +49,13 @@ import { RevokedSession } from '../Domain/Session/RevokedSession'
 import { SNSDomainEventPublisher } from '../Infra/SNS/SNSDomainEventPublisher'
 import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
 import { RedisDomainEventPublisher } from '../Infra/Redis/RedisDomainEventPublisher'
+import { EventMessageHandlerInterface } from '../Domain/Event/EventMessageHandlerInterface'
+import { SQSEventMessageHandler } from '../Infra/SQS/SQSEventMessageHandler'
+import { DomainEventSubscriberFactoryInterface } from '../Domain/Event/DomainEventSubscriberFactoryInterface'
+import { SQSDomainEventSubscriberFactory } from '../Infra/SQS/SQSDomainEventSubscriberFactory'
+import { RedisEventMessageHandler } from '../Infra/Redis/RedisEventMessageHandler'
+import { RedisDomainEventSubscriberFactory } from '../Infra/Redis/RedisDomainEventSubscriberFactory'
+import { DomainEventHandlerInterface } from '../Domain/Event/DomainEventHandlerInterface'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -122,6 +129,13 @@ export class ContainerConfigLoader {
           }))
         }
 
+        if (env.get('SQS_AWS_REGION', true)) {
+          container.bind<AWS.SQS>(TYPES.SQS).toConstantValue(new AWS.SQS({
+            apiVersion: 'latest',
+            region: env.get('SQS_AWS_REGION', true)
+          }))
+        }
+
         // Repositories
         container.bind<MySQLSessionRepository>(TYPES.SessionRepository).toConstantValue(connection.getCustomRepository(MySQLSessionRepository))
         container.bind<MySQLRevokedSessionRepository>(TYPES.RevokedSessionRepository).toConstantValue(connection.getCustomRepository(MySQLRevokedSessionRepository))
@@ -155,6 +169,8 @@ export class ContainerConfigLoader {
         container.bind(TYPES.DISABLE_USER_REGISTRATION).toConstantValue(env.get('DISABLE_USER_REGISTRATION') === 'true')
         container.bind(TYPES.SNS_TOPIC_ARN).toConstantValue(env.get('SNS_TOPIC_ARN', true))
         container.bind(TYPES.SNS_AWS_REGION).toConstantValue(env.get('SNS_AWS_REGION', true))
+        container.bind(TYPES.SQS_QUEUE_URL).toConstantValue(env.get('SQS_QUEUE_URL', true))
+        container.bind(TYPES.SQS_AWS_REGION).toConstantValue(env.get('SQS_AWS_REGION', true))
 
         // use cases
         container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
@@ -182,10 +198,26 @@ export class ContainerConfigLoader {
         container.bind<TokenDecoder>(TYPES.TokenDecoder).to(TokenDecoder)
         container.bind<AuthenticationMethodResolver>(TYPES.AuthenticationMethodResolver).to(AuthenticationMethodResolver)
         container.bind<DomainEventFactory>(TYPES.DomainEventFactory).to(DomainEventFactory)
+
         if (env.get('SNS_TOPIC_ARN', true)) {
           container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).to(SNSDomainEventPublisher)
         } else {
           container.bind<RedisDomainEventPublisher>(TYPES.DomainEventPublisher).to(RedisDomainEventPublisher)
+        }
+
+        const eventHandlers: Map<string, DomainEventHandlerInterface> = new Map([
+        ])
+
+        if (env.get('SQS_QUEUE_URL', true)) {
+          container.bind<EventMessageHandlerInterface>(TYPES.EventMessageHandler).toConstantValue(
+            new SQSEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
+          )
+          container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).to(SQSDomainEventSubscriberFactory)
+        } else {
+          container.bind<EventMessageHandlerInterface>(TYPES.EventMessageHandler).toConstantValue(
+            new RedisEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
+          )
+          container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).to(RedisDomainEventSubscriberFactory)
         }
 
         return container
