@@ -18,7 +18,8 @@
     "coverage": "jest --coverage --maxWorkers=2 --no-cache spec --reporters=\"default\" \"jest-junit\"",
     "pretest": "yarn lint && yarn build",
     "test": "jest spec",
-    "start": "node dist/bin/server.js"
+    "start": "node dist/bin/server.js",
+    "worker": "node dist/bin/worker.js"
   },
   "dependencies": {
     "aws-sdk": "^2.824.0",
@@ -39,6 +40,7 @@
     "otplib": "^12.0.1",
     "prettyjson": "^1.2.1",
     "reflect-metadata": "^0.1.13",
+    "sqs-consumer": "^5.5.0",
     "typeorm": "^0.2.29",
     "uuid": "^8.3.2",
     "winston": "^3.3.3"
