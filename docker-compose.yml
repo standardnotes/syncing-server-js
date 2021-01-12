@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   app:
+    image: syncing-server-js-local
     build: .
     command: start-local
     env_file: .env
@@ -17,8 +18,24 @@ services:
       syncing_server_js: {}
     volumes:
       - .:/var/www
-    links:
-      - db
+
+  worker:
+    image: syncing-server-js-local
+    command: start-worker
+    env_file: .env
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_REPLICA_HOST: db
+      USER_SERVER_REGISTRATION_URL: http://website/admin/events/registration
+      USER_SERVER_AUTH_KEY: foo456
+    networks:
+      standardnotes_proxy:
+        aliases:
+          - syncing_server_js_worker
+      syncing_server_js: {}
+    volumes:
+      - .:/var/www
 
   db:
     image: mysql:5.6
