@@ -41,6 +41,7 @@
     "prettyjson": "^1.2.1",
     "reflect-metadata": "^0.1.13",
     "sqs-consumer": "^5.5.0",
+    "superagent": "^6.1.0",
     "typeorm": "^0.2.29",
     "uuid": "^8.3.2",
     "winston": "^3.3.3"
@@ -56,6 +57,7 @@
     "@types/jsonwebtoken": "^8.5.0",
     "@types/otplib": "^10.0.0",
     "@types/prettyjson": "^0.0.29",
+    "@types/superagent": "^4.1.10",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",

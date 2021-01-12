@@ -2,7 +2,7 @@ import * as zlib from 'zlib'
 
 import { inject, injectable } from 'inversify'
 import { EventMessageHandlerInterface } from '../../Domain/Event/EventMessageHandlerInterface'
-import { DomainEventHandlerInterface } from '../../Domain/Event/DomainEventHandlerInterface'
+import { DomainEventHandlerInterface } from '../../Domain/Handler/DomainEventHandlerInterface'
 import TYPES from '../../Bootstrap/Types'
 import { Logger } from 'winston'
 import { DomainEventInterface } from '../../Domain/Event/DomainEventInterface'

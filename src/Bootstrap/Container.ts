@@ -1,6 +1,7 @@
 import * as winston from 'winston'
 import * as IORedis from 'ioredis'
 import * as AWS from 'aws-sdk'
+import * as superagent from 'superagent'
 import { Container } from 'inversify'
 import { Env } from './Env'
 import TYPES from './Types'
@@ -55,7 +56,8 @@ import { DomainEventSubscriberFactoryInterface } from '../Domain/Event/DomainEve
 import { SQSDomainEventSubscriberFactory } from '../Infra/SQS/SQSDomainEventSubscriberFactory'
 import { RedisEventMessageHandler } from '../Infra/Redis/RedisEventMessageHandler'
 import { RedisDomainEventSubscriberFactory } from '../Infra/Redis/RedisDomainEventSubscriberFactory'
-import { DomainEventHandlerInterface } from '../Domain/Event/DomainEventHandlerInterface'
+import { DomainEventHandlerInterface } from '../Domain/Handler/DomainEventHandlerInterface'
+import { UserRegisteredEventHandler } from '../Domain/Handler/UserRegisteredEventHandler'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -170,7 +172,8 @@ export class ContainerConfigLoader {
         container.bind(TYPES.SNS_TOPIC_ARN).toConstantValue(env.get('SNS_TOPIC_ARN', true))
         container.bind(TYPES.SNS_AWS_REGION).toConstantValue(env.get('SNS_AWS_REGION', true))
         container.bind(TYPES.SQS_QUEUE_URL).toConstantValue(env.get('SQS_QUEUE_URL', true))
-        container.bind(TYPES.SQS_AWS_REGION).toConstantValue(env.get('SQS_AWS_REGION', true))
+        container.bind(TYPES.USER_SERVER_REGISTRATION_URL).toConstantValue(env.get('USER_SERVER_REGISTRATION_URL', true))
+        container.bind(TYPES.USER_SERVER_AUTH_KEY).toConstantValue(env.get('USER_SERVER_AUTH_KEY', true))
 
         // use cases
         container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
@@ -186,6 +189,9 @@ export class ContainerConfigLoader {
         container.bind<DeletePreviousSessionsForUser>(TYPES.DeletePreviousSessionsForUser).to(DeletePreviousSessionsForUser)
         container.bind<DeleteSessionForUser>(TYPES.DeleteSessionForUser).to(DeleteSessionForUser)
 
+        // Handlers
+        container.bind<UserRegisteredEventHandler>(TYPES.UserRegisteredEventHandler).to(UserRegisteredEventHandler)
+
         // Services
         container.bind<DeviceDetector>(TYPES.DeviceDetector).toConstantValue(new DeviceDetector())
         container.bind<SessionService>(TYPES.SessionService).to(SessionService)
@@ -198,6 +204,7 @@ export class ContainerConfigLoader {
         container.bind<TokenDecoder>(TYPES.TokenDecoder).to(TokenDecoder)
         container.bind<AuthenticationMethodResolver>(TYPES.AuthenticationMethodResolver).to(AuthenticationMethodResolver)
         container.bind<DomainEventFactory>(TYPES.DomainEventFactory).to(DomainEventFactory)
+        container.bind<superagent.SuperAgentStatic>(TYPES.HTTPClient).toConstantValue(superagent)
 
         if (env.get('SNS_TOPIC_ARN', true)) {
           container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).to(SNSDomainEventPublisher)
@@ -206,6 +213,7 @@ export class ContainerConfigLoader {
         }
 
         const eventHandlers: Map<string, DomainEventHandlerInterface> = new Map([
+          ['USER_REGISTERED', container.get(TYPES.UserRegisteredEventHandler)]
         ])
 
         if (env.get('SQS_QUEUE_URL', true)) {

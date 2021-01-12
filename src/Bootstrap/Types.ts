@@ -36,6 +36,8 @@ const TYPES = {
   SNS_AWS_REGION: Symbol.for('SNS_AWS_REGION'),
   SQS_QUEUE_URL: Symbol.for('SQS_QUEUE_URL'),
   SQS_AWS_REGION: Symbol.for('SQS_AWS_REGION'),
+  USER_SERVER_REGISTRATION_URL: Symbol.for('USER_SERVER_REGISTRATION_URL'),
+  USER_SERVER_AUTH_KEY: Symbol.for('USER_SERVER_AUTH_KEY'),
   // use cases
   AuthenticateUser: Symbol.for('AuthenticateUser'),
   RefreshSessionToken: Symbol.for('RefreshSessionToken'),
@@ -49,6 +51,8 @@ const TYPES = {
   GetActiveSessionsForUser: Symbol.for('GetActiveSessionsForUser'),
   DeletePreviousSessionsForUser: Symbol.for('DeletePreviousSessionsForUser'),
   DeleteSessionForUser: Symbol.for('DeleteSessionForUser'),
+  // Handlers
+  UserRegisteredEventHandler: Symbol.for('UserRegisteredEventHandler'),
   // Services
   DeviceDetector: Symbol.for('DeviceDetector'),
   SessionService: Symbol.for('SessionService'),
@@ -63,7 +67,8 @@ const TYPES = {
   DomainEventPublisher: Symbol.for('DomainEventPublisher'),
   DomainEventSubscriberFactory: Symbol.for('DomainEventSubscriberFactory'),
   DomainEventFactory: Symbol.for('DomainEventFactory'),
-  EventMessageHandler: Symbol.for('EventMessageHandler')
+  EventMessageHandler: Symbol.for('EventMessageHandler'),
+  HTTPClient: Symbol.for('HTTPClient')
 }
 
 export default TYPES

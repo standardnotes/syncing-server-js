@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import { Logger } from 'winston'
-import { DomainEventHandlerInterface } from '../../Domain/Event/DomainEventHandlerInterface'
+import { DomainEventHandlerInterface } from '../../Domain/Handler/DomainEventHandlerInterface'
 
 import { SQSEventMessageHandler } from './SQSEventMessageHandler'
 
