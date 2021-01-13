@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import * as dayjs from 'dayjs'
 
 import { Session } from '../Session/Session'
 import { SessionServiceInterace } from '../Session/SessionServiceInterface'
@@ -13,7 +14,7 @@ describe('RefreshSessionToken', () => {
   beforeEach(() => {
     session = {} as jest.Mocked<Session>
     session.uuid = '1-2-3'
-    session.refreshExpired = jest.fn().mockReturnValue(false)
+    session.refreshExpiration = dayjs.utc().add(1, 'day').toDate()
 
     sessionService = {} as jest.Mocked<SessionServiceInterace>
     sessionService.isRefreshTokenValid = jest.fn().mockReturnValue(true)
@@ -76,7 +77,7 @@ describe('RefreshSessionToken', () => {
   })
 
   it('should not refresh a session token if refresh token is expired', async () => {
-    session.refreshExpired = jest.fn().mockReturnValue(true)
+    session.refreshExpiration = dayjs.utc().subtract(1, 'day').toDate()
 
     const result = await createUseCase().execute({
       accessToken: '123',

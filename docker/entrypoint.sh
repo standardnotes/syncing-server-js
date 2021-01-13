@@ -16,6 +16,11 @@ case "$COMMAND" in
     yarn start
     ;;
 
+  'start-worker' )
+    echo "Starting Worker..."
+    yarn worker
+    ;;
+
    * )
     echo "Unknown command"
     ;;

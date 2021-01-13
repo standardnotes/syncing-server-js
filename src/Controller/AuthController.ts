@@ -9,7 +9,9 @@ import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
 import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { Logger } from 'winston'
 import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
-import { UpdateUser } from '../Domain/UseCase/UpdateUser'
+import { Register } from '../Domain/UseCase/Register'
+import { DomainEventPublisherInterface } from '../Domain/Event/DomainEventPublisherInterface'
+import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
 
 @controller('/auth')
 export class AuthController extends BaseHttpController {
@@ -20,7 +22,9 @@ export class AuthController extends BaseHttpController {
     @inject(TYPES.GetUserKeyParams) private getUserKeyParams: GetUserKeyParams,
     @inject(TYPES.ClearLoginAttempts) private clearLoginAttempts: ClearLoginAttempts,
     @inject(TYPES.IncreaseLoginAttempts) private increaseLoginAttempts: IncreaseLoginAttempts,
-    @inject(TYPES.UpdateUser) private updateUser: UpdateUser,
+    @inject(TYPES.Register) private registerUser: Register,
+    @inject(TYPES.DomainEventPublisher) private domainEventPublisher: DomainEventPublisherInterface,
+    @inject(TYPES.DomainEventFactory) private domainEventFactory: DomainEventFactoryInterface,
     @inject(TYPES.Logger) private logger: Logger
   ) {
     super()
@@ -99,7 +103,8 @@ export class AuthController extends BaseHttpController {
       apiVersion: request.body.api,
       userAgent: <string> request.headers['user-agent'],
       email: request.body.email,
-      password: request.body.password
+      password: request.body.password,
+      ephemeralSession: request.body.ephemeral ?? false
     })
 
     if (!signInResult.success) {
@@ -137,12 +142,22 @@ export class AuthController extends BaseHttpController {
     return this.statusCode(204)
   }
 
-  @httpPost('/update', TYPES.AuthMiddleware)
-  async update(request: Request, response: Response): Promise<results.JsonResult> {
-    const updateResult = await this.updateUser.execute({
-      user: response.locals.user,
+  @httpPost('/')
+  async register(request: Request): Promise<results.JsonResult> {
+    if (!request.body.email || !request.body.password) {
+      return this.json({
+        error: {
+          message: 'Please enter an email and a password to register.',
+        }
+      }, 400)
+    }
+
+    const registerResult = await this.registerUser.execute({
+      email: request.body.email,
+      password: request.body.password,
       updatedWithUserAgent: <string> request.headers['user-agent'],
       apiVersion: request.body.api,
+      ephemeralSession: request.body.ephemeral ?? false,
       pwFunc: request.body.pw_func,
       pwAlg: request.body.pw_alg,
       pwCost: request.body.pw_cost,
@@ -151,9 +166,25 @@ export class AuthController extends BaseHttpController {
       pwSalt: request.body.pw_salt,
       kpOrigination: request.body.origination,
       kpCreated: request.body.created,
-      version: request.body.version,
+      version: request.body.version ? request.body.version :
+        request.body.pw_nonce ? '001' : '002',
     })
 
-    return this.json(updateResult.authResponse)
+    if (!registerResult.success || !registerResult.authResponse) {
+      return this.json({
+        error: {
+          message: registerResult.errorMessage
+        }
+      }, 400)
+    }
+
+    await this.domainEventPublisher.publish(
+      this.domainEventFactory.createUserRegisteredEvent(
+        <string> registerResult.authResponse.user.uuid,
+        <string> registerResult.authResponse.user.email,
+      )
+    )
+
+    return this.json(registerResult.authResponse)
   }
 }

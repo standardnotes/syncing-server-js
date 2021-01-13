@@ -31,7 +31,7 @@ export class MySQLSessionRepository extends Repository<Session> implements Sessi
       .execute()
   }
 
-  async findActiveByUserUuid(userUuid: string): Promise<Session[]> {
+  async findAllByRefreshExpirationAndUserUuid(userUuid: string): Promise<Session[]> {
     return this.createQueryBuilder('session')
       .where(
         'session.refresh_expiration > :refresh_expiration AND session.user_uuid = :user_uuid',
@@ -59,7 +59,18 @@ export class MySQLSessionRepository extends Repository<Session> implements Sessi
       .getOne()
   }
 
-  async deleteAllByUserUuidExceptOne(userUuid: string, currentSessionUuid: string): Promise<void> {
+  async findAllByUserUuid(userUuid: string): Promise<Array<Session>> {
+    return this.createQueryBuilder('session')
+      .where(
+        'session.user_uuid = :user_uuid',
+        {
+          user_uuid: userUuid
+        }
+      )
+      .getMany()
+  }
+
+  async deleteAllByUserUuid(userUuid: string, currentSessionUuid: string): Promise<void> {
     await this.createQueryBuilder('session')
       .delete()
       .where(

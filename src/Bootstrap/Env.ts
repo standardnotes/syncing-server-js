@@ -10,12 +10,12 @@ export class Env {
     this.env = <DotenvParseOutput> output.parsed
   }
 
-  public get(key: string) :string {
+  public get(key: string, optional = false) :string {
     if (!this.env) {
       this.load()
     }
 
-    if (!process.env[key]) {
+    if (!process.env[key] && !optional) {
       throw new Error(`Environment variable ${key} not set`)
     }
 

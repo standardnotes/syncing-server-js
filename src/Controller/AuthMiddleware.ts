@@ -20,8 +20,6 @@ export class AuthMiddleware extends BaseMiddleware {
         const authorizationHeader = <string> request.headers.authorization
 
         if (!authorizationHeader) {
-            this.logger.warn('Missing authentication headers')
-
             return this.sendInvalidAuthResponse(response)
         }
 
@@ -40,6 +38,8 @@ export class AuthMiddleware extends BaseMiddleware {
               return this.sendExpiredTokenResponse(response)
             case 'INVALID_AUTH':
               return this.sendInvalidAuthResponse(response)
+            case 'REVOKED_SESSION':
+              return this.sendRevokedSessionResponse(response)
           }
         }
 
@@ -50,8 +50,6 @@ export class AuthMiddleware extends BaseMiddleware {
     }
 
     private sendInvalidAuthResponse(response: Response) {
-      this.logger.warn('Invalid login credentials supplied')
-
       response.status(401).send({
         error: {
           tag: 'invalid-auth',
@@ -61,12 +59,19 @@ export class AuthMiddleware extends BaseMiddleware {
     }
 
     private sendExpiredTokenResponse(response: Response) {
-      this.logger.warn('Expired token supplied')
-
       response.status(498).send({
         error: {
           tag: 'expired-access-token',
           message: 'The provided access token has expired.',
+        },
+      })
+    }
+
+    private sendRevokedSessionResponse(response: Response) {
+      response.status(401).send({
+        error: {
+          tag: 'revoked-session',
+          message: 'Your session has been revoked.',
         },
       })
     }

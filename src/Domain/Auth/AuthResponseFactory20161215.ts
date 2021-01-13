@@ -7,6 +7,8 @@ import TYPES from '../../Bootstrap/Types'
 import { ProjectorInterface } from '../../Projection/ProjectorInterface'
 
 import { User } from '../User/User'
+import { AuthResponse20161215 } from './AuthResponse20161215'
+import { AuthResponse20200115 } from './AuthResponse20200115'
 import { AuthResponseFactoryInterface } from './AuthResponseFactoryInterface'
 
 @injectable()
@@ -18,7 +20,7 @@ export class AuthResponseFactory20161215 implements AuthResponseFactoryInterface
   ) {
   }
 
-  async createResponse(user: User, ..._args: any[]): Promise<Record<string, unknown>> {
+  async createResponse(user: User, ..._args: any[]): Promise<AuthResponse20161215 | AuthResponse20200115> {
     this.logger.debug(`Creating JWT auth response for user ${user.uuid}`)
 
     const token = sign(

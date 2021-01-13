@@ -3,4 +3,5 @@ export type SignInDTO = {
   userAgent: string
   email: string
   password: string
+  ephemeralSession: boolean
 }

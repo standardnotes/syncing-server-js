@@ -1,10 +1,9 @@
-import * as dayjs from 'dayjs'
-
-import { Column, Entity, Index, PrimaryColumn } from 'typeorm'
+import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm'
+import { RevokedSession } from '../Session/RevokedSession'
 
 @Entity({ name: 'users' })
 export class User {
-  SESSIONS_PROTOCOL_VERSION = 4
+  private readonly SESSIONS_PROTOCOL_VERSION = 4
 
   @PrimaryColumn({
     length: 36
@@ -122,15 +121,15 @@ export class User {
   })
   updatedWithUserAgent: string | null
 
+  @OneToMany(
+    /* istanbul ignore next */
+    () => RevokedSession,
+    /* istanbul ignore next */
+    revokedSession => revokedSession.user
+  )
+  revokedSessions: Promise<RevokedSession[]>
+
   supportsSessions(): boolean {
     return parseInt(this.version) >= this.SESSIONS_PROTOCOL_VERSION
-  }
-
-  isLocked(): boolean {
-    if (!this.lockedUntil) {
-      return false
-    }
-
-    return dayjs.utc(this.lockedUntil).isAfter(dayjs.utc())
   }
 }

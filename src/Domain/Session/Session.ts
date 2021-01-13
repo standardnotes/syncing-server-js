@@ -1,7 +1,5 @@
 import { Column, Entity, Index, PrimaryColumn } from 'typeorm'
 
-import * as dayjs from 'dayjs'
-
 @Entity({ name: 'sessions' })
 export class Session {
   @PrimaryColumn({
@@ -70,12 +68,4 @@ export class Session {
   })
   @Index('index_sessions_on_updated_at')
   updatedAt: Date
-
-  accessExpired(): boolean {
-    return this.accessExpiration < dayjs.utc().toDate()
-  }
-
-  refreshExpired(): boolean {
-    return this.refreshExpiration < dayjs.utc().toDate()
-  }
 }

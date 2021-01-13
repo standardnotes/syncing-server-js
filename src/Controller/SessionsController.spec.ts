@@ -4,24 +4,24 @@ import * as express from 'express'
 
 import { SessionsController } from './SessionsController'
 import { results } from 'inversify-express-utils'
-import { SessionRepositoryInterface } from '../Domain/Session/SessionRepositoryInterface'
 import { Session } from '../Domain/Session/Session'
 import { ProjectorInterface } from '../Projection/ProjectorInterface'
+import { GetActiveSessionsForUser } from '../Domain/UseCase/GetActiveSessionsForUser'
 
 describe('SessionsController', () => {
-    let sessionsRepository: SessionRepositoryInterface
+    let getActiveSessionsForUser: GetActiveSessionsForUser
     let sessionProjector: ProjectorInterface<Session>
     let session: Session
     let request: express.Request
     let response: express.Response
 
-    const createController = () => new SessionsController(sessionsRepository, sessionProjector)
+    const createController = () => new SessionsController(getActiveSessionsForUser, sessionProjector)
 
     beforeEach(() => {
         session = {} as jest.Mocked<Session>
 
-        sessionsRepository = {} as jest.Mocked<SessionRepositoryInterface>
-        sessionsRepository.findActiveByUserUuid = jest.fn().mockReturnValue([session])
+        getActiveSessionsForUser = {} as jest.Mocked<GetActiveSessionsForUser>
+        getActiveSessionsForUser.execute = jest.fn().mockReturnValue({ sessions: [session] })
 
         sessionProjector = {} as jest.Mocked<ProjectorInterface<Session>>
         sessionProjector.projectCustom = jest.fn().mockReturnValue({ foo: 'bar' })

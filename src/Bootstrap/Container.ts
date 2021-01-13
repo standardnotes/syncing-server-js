@@ -1,4 +1,7 @@
 import * as winston from 'winston'
+import * as IORedis from 'ioredis'
+import * as AWS from 'aws-sdk'
+import * as superagent from 'superagent'
 import { Container } from 'inversify'
 import { Env } from './Env'
 import TYPES from './Types'
@@ -34,6 +37,27 @@ import { LockMiddleware } from '../Controller/LockMiddleware'
 import { AuthMiddlewareWithoutResponse } from '../Controller/AuthMiddlewareWithoutResponse'
 import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { UpdateUser } from '../Domain/UseCase/UpdateUser'
+import { RedisEphemeralSessionRepository } from '../Infra/Redis/RedisEphemeralSessionRepository'
+import { GetActiveSessionsForUser } from '../Domain/UseCase/GetActiveSessionsForUser'
+import { DeletePreviousSessionsForUser } from '../Domain/UseCase/DeletePreviousSessionsForUser'
+import { DeleteSessionForUser } from '../Domain/UseCase/DeleteSessionForUser'
+import { Register } from '../Domain/UseCase/Register'
+import { LockRepository } from '../Infra/Redis/LockRepository'
+import { MySQLRevokedSessionRepository } from '../Infra/MySQL/MySQLRevokedSessionRepository'
+import { TokenDecoder } from '../Domain/Auth/TokenDecoder'
+import { AuthenticationMethodResolver } from '../Domain/Auth/AuthenticationMethodResolver'
+import { RevokedSession } from '../Domain/Session/RevokedSession'
+import { SNSDomainEventPublisher } from '../Infra/SNS/SNSDomainEventPublisher'
+import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
+import { RedisDomainEventPublisher } from '../Infra/Redis/RedisDomainEventPublisher'
+import { EventMessageHandlerInterface } from '../Domain/Event/EventMessageHandlerInterface'
+import { SQSEventMessageHandler } from '../Infra/SQS/SQSEventMessageHandler'
+import { DomainEventSubscriberFactoryInterface } from '../Domain/Event/DomainEventSubscriberFactoryInterface'
+import { SQSDomainEventSubscriberFactory } from '../Infra/SQS/SQSDomainEventSubscriberFactory'
+import { RedisEventMessageHandler } from '../Infra/Redis/RedisEventMessageHandler'
+import { RedisDomainEventSubscriberFactory } from '../Infra/Redis/RedisDomainEventSubscriberFactory'
+import { DomainEventHandlerInterface } from '../Domain/Handler/DomainEventHandlerInterface'
+import { UserRegisteredEventHandler } from '../Domain/Handler/UserRegisteredEventHandler'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -65,6 +89,7 @@ export class ContainerConfigLoader {
           entities: [
             User,
             Session,
+            RevokedSession,
             Item,
             Revision
           ],
@@ -75,6 +100,17 @@ export class ContainerConfigLoader {
           logging: <LoggerOptions> env.get('DB_DEBUG_LEVEL'),
         })
         container.bind<Connection>(TYPES.DBConnection).toConstantValue(connection)
+
+        const redisUrl = env.get('REDIS_URL')
+        const isRedisInClusterMode = redisUrl.indexOf(',') > 0
+        let redis
+        if (isRedisInClusterMode) {
+          redis = new IORedis.Cluster(redisUrl.split(','))
+        } else {
+          redis = new IORedis(redisUrl)
+        }
+
+        container.bind(TYPES.Redis).toConstantValue(redis)
 
         const logger = winston.createLogger({
           level: env.get('LOG_LEVEL') || 'info',
@@ -88,11 +124,28 @@ export class ContainerConfigLoader {
         })
         container.bind<winston.Logger>(TYPES.Logger).toConstantValue(logger)
 
+        if (env.get('SNS_AWS_REGION', true)) {
+          container.bind<AWS.SNS>(TYPES.SNS).toConstantValue(new AWS.SNS({
+            apiVersion: 'latest',
+            region: env.get('SNS_AWS_REGION', true)
+          }))
+        }
+
+        if (env.get('SQS_AWS_REGION', true)) {
+          container.bind<AWS.SQS>(TYPES.SQS).toConstantValue(new AWS.SQS({
+            apiVersion: 'latest',
+            region: env.get('SQS_AWS_REGION', true)
+          }))
+        }
+
         // Repositories
         container.bind<MySQLSessionRepository>(TYPES.SessionRepository).toConstantValue(connection.getCustomRepository(MySQLSessionRepository))
+        container.bind<MySQLRevokedSessionRepository>(TYPES.RevokedSessionRepository).toConstantValue(connection.getCustomRepository(MySQLRevokedSessionRepository))
         container.bind<MySQLUserRepository>(TYPES.UserRepository).toConstantValue(connection.getCustomRepository(MySQLUserRepository))
         container.bind<MySQLRevisionRepository>(TYPES.RevisionRepository).toConstantValue(connection.getCustomRepository(MySQLRevisionRepository))
         container.bind<MySQLItemRepository>(TYPES.ItemRepository).toConstantValue(connection.getCustomRepository(MySQLItemRepository))
+        container.bind<RedisEphemeralSessionRepository>(TYPES.EphemeralSessionRepository).to(RedisEphemeralSessionRepository)
+        container.bind<LockRepository>(TYPES.LockRepository).to(LockRepository)
 
         // Middleware
         container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
@@ -113,6 +166,14 @@ export class ContainerConfigLoader {
         container.bind(TYPES.MAX_LOGIN_ATTEMPTS).toConstantValue(env.get('MAX_LOGIN_ATTEMPTS'))
         container.bind(TYPES.FAILED_LOGIN_LOCKOUT).toConstantValue(env.get('FAILED_LOGIN_LOCKOUT'))
         container.bind(TYPES.PSEUDO_KEY_PARAMS_KEY).toConstantValue(env.get('PSEUDO_KEY_PARAMS_KEY'))
+        container.bind(TYPES.EPHEMERAL_SESSION_AGE).toConstantValue(env.get('EPHEMERAL_SESSION_AGE'))
+        container.bind(TYPES.REDIS_URL).toConstantValue(env.get('REDIS_URL'))
+        container.bind(TYPES.DISABLE_USER_REGISTRATION).toConstantValue(env.get('DISABLE_USER_REGISTRATION') === 'true')
+        container.bind(TYPES.SNS_TOPIC_ARN).toConstantValue(env.get('SNS_TOPIC_ARN', true))
+        container.bind(TYPES.SNS_AWS_REGION).toConstantValue(env.get('SNS_AWS_REGION', true))
+        container.bind(TYPES.SQS_QUEUE_URL).toConstantValue(env.get('SQS_QUEUE_URL', true))
+        container.bind(TYPES.USER_SERVER_REGISTRATION_URL).toConstantValue(env.get('USER_SERVER_REGISTRATION_URL', true))
+        container.bind(TYPES.USER_SERVER_AUTH_KEY).toConstantValue(env.get('USER_SERVER_AUTH_KEY', true))
 
         // use cases
         container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
@@ -123,6 +184,13 @@ export class ContainerConfigLoader {
         container.bind<IncreaseLoginAttempts>(TYPES.IncreaseLoginAttempts).to(IncreaseLoginAttempts)
         container.bind<GetUserKeyParams>(TYPES.GetUserKeyParams).to(GetUserKeyParams)
         container.bind<UpdateUser>(TYPES.UpdateUser).to(UpdateUser)
+        container.bind<Register>(TYPES.Register).to(Register)
+        container.bind<GetActiveSessionsForUser>(TYPES.GetActiveSessionsForUser).to(GetActiveSessionsForUser)
+        container.bind<DeletePreviousSessionsForUser>(TYPES.DeletePreviousSessionsForUser).to(DeletePreviousSessionsForUser)
+        container.bind<DeleteSessionForUser>(TYPES.DeleteSessionForUser).to(DeleteSessionForUser)
+
+        // Handlers
+        container.bind<UserRegisteredEventHandler>(TYPES.UserRegisteredEventHandler).to(UserRegisteredEventHandler)
 
         // Services
         container.bind<DeviceDetector>(TYPES.DeviceDetector).toConstantValue(new DeviceDetector())
@@ -133,6 +201,32 @@ export class ContainerConfigLoader {
         container.bind<AuthResponseFactory20200115>(TYPES.AuthResponseFactory20200115).to(AuthResponseFactory20200115)
         container.bind<AuthResponseFactoryResolver>(TYPES.AuthResponseFactoryResolver).to(AuthResponseFactoryResolver)
         container.bind<KeyParamsFactory>(TYPES.KeyParamsFactory).to(KeyParamsFactory)
+        container.bind<TokenDecoder>(TYPES.TokenDecoder).to(TokenDecoder)
+        container.bind<AuthenticationMethodResolver>(TYPES.AuthenticationMethodResolver).to(AuthenticationMethodResolver)
+        container.bind<DomainEventFactory>(TYPES.DomainEventFactory).to(DomainEventFactory)
+        container.bind<superagent.SuperAgentStatic>(TYPES.HTTPClient).toConstantValue(superagent)
+
+        if (env.get('SNS_TOPIC_ARN', true)) {
+          container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).to(SNSDomainEventPublisher)
+        } else {
+          container.bind<RedisDomainEventPublisher>(TYPES.DomainEventPublisher).to(RedisDomainEventPublisher)
+        }
+
+        const eventHandlers: Map<string, DomainEventHandlerInterface> = new Map([
+          ['USER_REGISTERED', container.get(TYPES.UserRegisteredEventHandler)]
+        ])
+
+        if (env.get('SQS_QUEUE_URL', true)) {
+          container.bind<EventMessageHandlerInterface>(TYPES.EventMessageHandler).toConstantValue(
+            new SQSEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
+          )
+          container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).to(SQSDomainEventSubscriberFactory)
+        } else {
+          container.bind<EventMessageHandlerInterface>(TYPES.EventMessageHandler).toConstantValue(
+            new RedisEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
+          )
+          container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).to(RedisDomainEventSubscriberFactory)
+        }
 
         return container
     }

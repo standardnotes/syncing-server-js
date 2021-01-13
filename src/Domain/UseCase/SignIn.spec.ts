@@ -33,7 +33,8 @@ describe('SignIn', () => {
       email: 'test@test.te',
       password: 'qweqwe123123',
       userAgent: 'Google Chrome',
-      apiVersion: '20190520'
+      apiVersion: '20190520',
+      ephemeralSession: false
     })).toEqual({
       success: true,
       authResponse: { foo: 'bar' }
@@ -45,7 +46,8 @@ describe('SignIn', () => {
       email: 'test@test.te',
       password: 'asdasd123123',
       userAgent: 'Google Chrome',
-      apiVersion: '20190520'
+      apiVersion: '20190520',
+      ephemeralSession: false
     })).toEqual({
       success: false,
       errorMessage: 'Invalid email or password'
@@ -57,7 +59,8 @@ describe('SignIn', () => {
       email: 'test@test.te',
       password: 'asdasd123123',
       userAgent: 'Google Chrome',
-      apiVersion: '20190520'
+      apiVersion: '20190520',
+      ephemeralSession: false
     })).toEqual({
       success: false,
       errorMessage: 'Invalid email or password'

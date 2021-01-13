@@ -7,6 +7,7 @@ import '../src/Controller/RevisionsController'
 import '../src/Controller/SessionController'
 import '../src/Controller/SessionsController'
 import '../src/Controller/AuthController'
+import '../src/Controller/UsersController'
 
 import * as helmet from 'helmet'
 import * as cors from 'cors'
@@ -23,7 +24,7 @@ import TYPES from '../src/Bootstrap/Types'
 import { Env } from '../src/Bootstrap/Env'
 
 const container = new ContainerConfigLoader
-container.load().then(container => {
+void container.load().then(container => {
   dayjs.extend(utc)
 
   const server = new InversifyExpressServer(container)
@@ -65,7 +66,7 @@ container.load().then(container => {
           }),
       ],
       ignoreRoute: function (req, _res) { return ['/healthcheck', '/favicon.ico'].indexOf(req.path.replace(/\/$/, '')) >= 0 },
-  }))
+    }))
   })
 
   const serverInstance = server.build()

@@ -13,7 +13,10 @@ import { Logger } from 'winston'
 import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { User } from '../Domain/User/User'
 import { Session } from '../Domain/Session/Session'
-import { UpdateUser } from '../Domain/UseCase/UpdateUser'
+import { Register } from '../Domain/UseCase/Register'
+import { DomainEventPublisherInterface } from '../Domain/Event/DomainEventPublisherInterface'
+import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
+import { DomainEventInterface } from '../Domain/Event/DomainEventInterface'
 
 describe('AuthController', () => {
     let sessionService: SessionServiceInterace
@@ -22,7 +25,10 @@ describe('AuthController', () => {
     let getUserKeyParams: GetUserKeyParams
     let clearLoginAttempts: ClearLoginAttempts
     let increaseLoginAttempts: IncreaseLoginAttempts
-    let updateUser: UpdateUser
+    let register: Register
+    let domainEventPublisher: DomainEventPublisherInterface
+    let domainEventFactory: DomainEventFactoryInterface
+    let event: DomainEventInterface
     let request: express.Request
     let response: express.Response
     let user: User
@@ -36,7 +42,9 @@ describe('AuthController', () => {
       getUserKeyParams,
       clearLoginAttempts,
       increaseLoginAttempts,
-      updateUser,
+      register,
+      domainEventPublisher,
+      domainEventFactory,
       logger
     )
 
@@ -53,8 +61,8 @@ describe('AuthController', () => {
       signIn = {} as jest.Mocked<SignIn>
       signIn.execute = jest.fn()
 
-      updateUser = {} as jest.Mocked<UpdateUser>
-      updateUser.execute = jest.fn()
+      register = {} as jest.Mocked<Register>
+      register.execute = jest.fn()
 
       user = {} as jest.Mocked<User>
       user.email = 'test@test.te'
@@ -70,6 +78,14 @@ describe('AuthController', () => {
       increaseLoginAttempts = {} as jest.Mocked<IncreaseLoginAttempts>
       increaseLoginAttempts.execute = jest.fn()
 
+      event = {} as jest.Mocked<DomainEventInterface>
+
+      domainEventPublisher = {} as jest.Mocked<DomainEventPublisherInterface>
+      domainEventPublisher.publish = jest.fn()
+
+      domainEventFactory = {} as jest.Mocked<DomainEventFactoryInterface>
+      domainEventFactory.createUserRegisteredEvent = jest.fn().mockReturnValue(event)
+
       request = {
         headers: {},
         body: {},
@@ -81,26 +97,134 @@ describe('AuthController', () => {
       } as jest.Mocked<express.Response>
     })
 
-    it('should update user', async () => {
-      request.body.version = '002'
+    it('should register a user', async () => {
+      request.body.email = 'test@test.te'
+      request.body.password = 'asdzxc'
+      request.body.version = '003'
       request.body.api = '20190520'
       request.body.origination = 'test'
       request.headers['user-agent'] = 'Google Chrome'
 
-      updateUser.execute = jest.fn().mockReturnValue({ authResponse: { foo: 'bar' } })
+      register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { user } })
 
-      const httpResponse = <results.JsonResult> await createController().update(request, response)
+      const httpResponse = <results.JsonResult> await createController().register(request)
       const result = await httpResponse.executeAsync()
 
-      expect(updateUser.execute).toHaveBeenCalledWith({
+      expect(register.execute).toHaveBeenCalledWith({
         apiVersion: '20190520',
         kpOrigination: 'test',
         updatedWithUserAgent: 'Google Chrome',
-        version: '002',
+        ephemeralSession: false,
+        version: '003',
+        email: 'test@test.te',
+        password: 'asdzxc'
       })
 
+      expect(domainEventPublisher.publish).toHaveBeenCalledWith(event)
+
       expect(result.statusCode).toEqual(200)
-      expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
+      expect(await result.content.readAsStringAsync()).toEqual('{"user":{"email":"test@test.te"}}')
+    })
+
+    it('should register a user - with 001 version', async () => {
+      request.body.email = 'test@test.te'
+      request.body.password = 'asdzxc'
+      request.body.pw_nonce = 'test'
+      request.body.api = '20190520'
+      request.body.origination = 'test'
+      request.body.ephemeral = true
+      request.headers['user-agent'] = 'Google Chrome'
+
+      register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { user } })
+
+      const httpResponse = <results.JsonResult> await createController().register(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(register.execute).toHaveBeenCalledWith({
+        apiVersion: '20190520',
+        kpOrigination: 'test',
+        updatedWithUserAgent: 'Google Chrome',
+        ephemeralSession: true,
+        version: '001',
+        pwNonce: 'test',
+        email: 'test@test.te',
+        password: 'asdzxc'
+      })
+
+      expect(domainEventPublisher.publish).toHaveBeenCalledWith(event)
+
+      expect(result.statusCode).toEqual(200)
+      expect(await result.content.readAsStringAsync()).toEqual('{"user":{"email":"test@test.te"}}')
+    })
+
+    it('should register a user - with 002 version', async () => {
+      request.body.email = 'test@test.te'
+      request.body.password = 'asdzxc'
+      request.body.api = '20190520'
+      request.body.origination = 'test'
+      request.headers['user-agent'] = 'Google Chrome'
+
+      register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { user } })
+
+      const httpResponse = <results.JsonResult> await createController().register(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(register.execute).toHaveBeenCalledWith({
+        apiVersion: '20190520',
+        kpOrigination: 'test',
+        updatedWithUserAgent: 'Google Chrome',
+        ephemeralSession: false,
+        version: '002',
+        email: 'test@test.te',
+        password: 'asdzxc'
+      })
+
+      expect(domainEventPublisher.publish).toHaveBeenCalledWith(event)
+
+      expect(result.statusCode).toEqual(200)
+      expect(await result.content.readAsStringAsync()).toEqual('{"user":{"email":"test@test.te"}}')
+    })
+
+    it('should not register a user if auth response is missing', async () => {
+      register.execute = jest.fn().mockReturnValue({ success: true })
+
+      request.body.email = 'test@test.te'
+
+      const httpResponse = <results.JsonResult> await createController().register(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(domainEventPublisher.publish).not.toHaveBeenCalled()
+
+      expect(result.statusCode).toEqual(400)
+    })
+
+    it('should not register a user if request param is missing', async () => {
+      request.body.email = 'test@test.te'
+
+      const httpResponse = <results.JsonResult> await createController().register(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(domainEventPublisher.publish).not.toHaveBeenCalled()
+
+      expect(result.statusCode).toEqual(400)
+    })
+
+    it('should respond with error if registering a user fails', async () => {
+      request.body.email = 'test@test.te'
+      request.body.password = 'asdzxc'
+      request.body.version = '003'
+      request.body.api = '20190520'
+      request.body.origination = 'test'
+      request.headers['user-agent'] = 'Google Chrome'
+
+      register.execute = jest.fn().mockReturnValue({ success: false, errorMessage: 'Something bad happened' })
+
+      const httpResponse = <results.JsonResult> await createController().register(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(domainEventPublisher.publish).not.toHaveBeenCalled()
+
+      expect(result.statusCode).toEqual(400)
     })
 
     it('should get auth params for an authenticated user', async () => {
@@ -182,6 +306,7 @@ describe('AuthController', () => {
     })
 
     it('should sign in a user', async () => {
+      request.body.api = '20200115'
       request.headers['user-agent'] = 'Google Chrome'
       request.body.email = 'test@test.te'
       request.body.password = 'qwerty'
@@ -192,6 +317,41 @@ describe('AuthController', () => {
 
       const httpResponse = <results.JsonResult> await createController().signIn(request)
       const result = await httpResponse.executeAsync()
+
+      expect(signIn.execute).toHaveBeenCalledWith({
+        apiVersion: '20200115',
+        email: 'test@test.te',
+        ephemeralSession: false,
+        password: 'qwerty',
+        userAgent: 'Google Chrome',
+      })
+
+      expect(clearLoginAttempts.execute).toHaveBeenCalledWith({ email: 'test@test.te' })
+
+      expect(result.statusCode).toEqual(200)
+    })
+
+    it('should sign in a user with an ephemeral session', async () => {
+      request.body.api = '20200115'
+      request.headers['user-agent'] = 'Safari'
+      request.body.email = 'test@test.te'
+      request.body.password = 'qwerty'
+      request.body.ephemeral = true
+
+      verifyMFA.execute = jest.fn().mockReturnValue({ success: true })
+
+      signIn.execute = jest.fn().mockReturnValue({ success: true })
+
+      const httpResponse = <results.JsonResult> await createController().signIn(request)
+      const result = await httpResponse.executeAsync()
+
+      expect(signIn.execute).toHaveBeenCalledWith({
+        apiVersion: '20200115',
+        email: 'test@test.te',
+        ephemeralSession: true,
+        password: 'qwerty',
+        userAgent: 'Safari',
+      })
 
       expect(clearLoginAttempts.execute).toHaveBeenCalledWith({ email: 'test@test.te' })
 
