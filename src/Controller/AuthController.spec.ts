@@ -114,6 +114,7 @@ describe('AuthController', () => {
         apiVersion: '20190520',
         kpOrigination: 'test',
         updatedWithUserAgent: 'Google Chrome',
+        ephemeralSession: false,
         version: '003',
         email: 'test@test.te',
         password: 'asdzxc'
@@ -131,6 +132,7 @@ describe('AuthController', () => {
       request.body.pw_nonce = 'test'
       request.body.api = '20190520'
       request.body.origination = 'test'
+      request.body.ephemeral = true
       request.headers['user-agent'] = 'Google Chrome'
 
       register.execute = jest.fn().mockReturnValue({ success: true, authResponse: { user } })
@@ -142,6 +144,7 @@ describe('AuthController', () => {
         apiVersion: '20190520',
         kpOrigination: 'test',
         updatedWithUserAgent: 'Google Chrome',
+        ephemeralSession: true,
         version: '001',
         pwNonce: 'test',
         email: 'test@test.te',
@@ -170,6 +173,7 @@ describe('AuthController', () => {
         apiVersion: '20190520',
         kpOrigination: 'test',
         updatedWithUserAgent: 'Google Chrome',
+        ephemeralSession: false,
         version: '002',
         email: 'test@test.te',
         password: 'asdzxc'
