@@ -28,6 +28,8 @@ export class SQSEventMessageHandler implements EventMessageHandlerInterface {
       return
     }
 
+    this.logger.info(`Received event: ${domainEvent.type}`)
+
     await handler.handle(domainEvent)
   }
 
