@@ -30,7 +30,7 @@ export class Register implements UseCaseInterface {
       }
     }
 
-    const { email, password, apiVersion, ...registrationFields } = dto
+    const { email, password, apiVersion, ephemeralSession, ...registrationFields } = dto
 
     const existingUser = await this.userRepository.findOneByEmail(email)
     if (existingUser) {
@@ -59,7 +59,7 @@ export class Register implements UseCaseInterface {
         user,
         apiVersion,
         dto.updatedWithUserAgent,
-        false
+        ephemeralSession
       )
     }
   }

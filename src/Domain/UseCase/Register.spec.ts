@@ -34,6 +34,7 @@ describe('Register', () => {
       password: 'asdzxc',
       updatedWithUserAgent: 'Mozilla',
       apiVersion: '20190520',
+      ephemeralSession: false,
       version: '004',
       pwCost: 11,
       pwSalt: 'qweqwe',
@@ -63,6 +64,7 @@ describe('Register', () => {
       password: 'asdzxc',
       updatedWithUserAgent: 'Mozilla',
       apiVersion: '20190520',
+      ephemeralSession: false,
       version: '004',
       pwCost: 11,
       pwSalt: 'qweqwe',
@@ -84,6 +86,7 @@ describe('Register', () => {
       updatedWithUserAgent: 'Mozilla',
       apiVersion: '20190520',
       version: '004',
+      ephemeralSession: false,
       pwCost: 11,
       pwSalt: 'qweqwe',
       pwNonce: undefined

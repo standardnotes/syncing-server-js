@@ -157,6 +157,7 @@ export class AuthController extends BaseHttpController {
       password: request.body.password,
       updatedWithUserAgent: <string> request.headers['user-agent'],
       apiVersion: request.body.api,
+      ephemeralSession: request.body.ephemeral ?? false,
       pwFunc: request.body.pw_func,
       pwAlg: request.body.pw_alg,
       pwCost: request.body.pw_cost,
