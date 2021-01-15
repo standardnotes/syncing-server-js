@@ -16,6 +16,14 @@ export class RevokedSession {
   userUuid: string
 
   @Column({
+    type: 'tinyint',
+    width: 1,
+    nullable: false,
+    default: 0
+  })
+  retrieved: boolean
+
+  @Column({
     name: 'created_at',
     type: 'datetime',
   })

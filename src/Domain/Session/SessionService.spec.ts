@@ -57,6 +57,7 @@ describe('SessionService', () => {
 
     revokedSessionRepository = {} as jest.Mocked<RevokedSessionRepositoryInterface>
     revokedSessionRepository.save = jest.fn()
+    revokedSessionRepository.updateRetrieved = jest.fn()
 
     ephemeralSession = {} as jest.Mocked<EphemeralSession>
     ephemeralSession.uuid = '2-3-4'
@@ -90,6 +91,12 @@ describe('SessionService', () => {
     logger.warning = jest.fn()
     logger.error = jest.fn()
     logger.debug = jest.fn()
+  })
+
+  it('should mark a revoked session as retrieved', async () => {
+    await createService().markRevokedSessionAsRetrieved('1-2-3')
+
+    expect(revokedSessionRepository.updateRetrieved).toHaveBeenCalledWith('1-2-3', true)
   })
 
   it('should create access and refresh tokens for a session', async () => {

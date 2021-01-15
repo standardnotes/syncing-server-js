@@ -157,6 +157,10 @@ export class SessionService implements SessionServiceInterace {
     return this.revokedSessionRepository.findOneByUuid(sessionUuid)
   }
 
+  async markRevokedSessionAsRetrieved(uuid: string): Promise<void> {
+    await this.revokedSessionRepository.updateRetrieved(uuid, true)
+  }
+
   async deleteSessionByToken(token: string): Promise<void> {
     const session = await this.getSessionFromToken(token)
 
