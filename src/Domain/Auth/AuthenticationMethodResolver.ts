@@ -38,7 +38,7 @@ export class AuthenticationMethodResolver implements AuthenticationMethodResolve
     if (revokedSession) {
       return {
         type: 'revoked',
-        revokedSession
+        revokedSession: await this.sessionService.markRevokedSessionAsReceived(revokedSession)
       }
     }
 

@@ -21,7 +21,7 @@ export class RevokedSession {
     nullable: false,
     default: 0
   })
-  retrieved: boolean
+  received: boolean
 
   @Column({
     name: 'created_at',
