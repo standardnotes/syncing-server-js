@@ -20,7 +20,6 @@ describe('MySQLRevokedSessionRepository', () => {
     repository.createQueryBuilder = jest.fn().mockImplementation(() => queryBuilder)
   })
 
-
   it('should find one session by id', async () => {
     queryBuilder.where = jest.fn().mockReturnThis()
     queryBuilder.getOne = jest.fn().mockReturnValue(session)

@@ -92,6 +92,15 @@ describe('SessionService', () => {
     logger.debug = jest.fn()
   })
 
+  it('should mark a revoked session as received', async () => {
+    await createService().markRevokedSessionAsReceived(revokedSession)
+
+    expect(revokedSessionRepository.save).toHaveBeenCalledWith({
+      uuid: '2e1e43',
+      received: true
+    })
+  })
+
   it('should create access and refresh tokens for a session', async () => {
     expect(await createService().createTokens(session)).toEqual({
       access_expiration: expect.any(Number),
