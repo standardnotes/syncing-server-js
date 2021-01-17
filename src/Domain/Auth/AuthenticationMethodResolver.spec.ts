@@ -31,6 +31,7 @@ describe('AuthenticationMethodResolver', () => {
     sessionService = {} as jest.Mocked<SessionServiceInterace>
     sessionService.getSessionFromToken = jest.fn()
     sessionService.getRevokedSessionFromToken = jest.fn()
+    sessionService.markRevokedSessionAsReceived = jest.fn().mockReturnValue(revokedSession)
 
     tokenDecoder = {} as jest.Mocked<TokenDecoderInterface>
     tokenDecoder.decode = jest.fn()
@@ -65,6 +66,8 @@ describe('AuthenticationMethodResolver', () => {
       revokedSession,
       type: 'revoked'
     })
+
+    expect(sessionService.markRevokedSessionAsReceived).toHaveBeenCalled()
   })
 
   it('should indicated that authentication method cannot be resolved', async () => {
