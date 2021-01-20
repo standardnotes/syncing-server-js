@@ -4,6 +4,7 @@ import { RevokedSession } from '../Session/RevokedSession'
 @Entity({ name: 'users' })
 export class User {
   private readonly SESSIONS_PROTOCOL_VERSION = 4
+  static readonly PASSWORD_HASH_COST = 11
 
   @PrimaryColumn({
     length: 36

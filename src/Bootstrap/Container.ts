@@ -58,6 +58,7 @@ import { RedisEventMessageHandler } from '../Infra/Redis/RedisEventMessageHandle
 import { RedisDomainEventSubscriberFactory } from '../Infra/Redis/RedisDomainEventSubscriberFactory'
 import { DomainEventHandlerInterface } from '../Domain/Handler/DomainEventHandlerInterface'
 import { UserRegisteredEventHandler } from '../Domain/Handler/UserRegisteredEventHandler'
+import { ChangePassword } from '../Domain/UseCase/ChangePassword'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -188,6 +189,7 @@ export class ContainerConfigLoader {
         container.bind<GetActiveSessionsForUser>(TYPES.GetActiveSessionsForUser).to(GetActiveSessionsForUser)
         container.bind<DeletePreviousSessionsForUser>(TYPES.DeletePreviousSessionsForUser).to(DeletePreviousSessionsForUser)
         container.bind<DeleteSessionForUser>(TYPES.DeleteSessionForUser).to(DeleteSessionForUser)
+        container.bind<ChangePassword>(TYPES.ChangePassword).to(ChangePassword)
 
         // Handlers
         container.bind<UserRegisteredEventHandler>(TYPES.UserRegisteredEventHandler).to(UserRegisteredEventHandler)

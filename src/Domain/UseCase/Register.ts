@@ -13,8 +13,6 @@ import { AuthResponseFactoryResolverInterface } from '../Auth/AuthResponseFactor
 
 @injectable()
 export class Register implements UseCaseInterface {
-  private readonly PASSWORD_HASH_COST = 11
-
   constructor(
     @inject(TYPES.UserRepository) private userRepository: UserRepositoryInterface,
     @inject(TYPES.AuthResponseFactoryResolver) private authResponseFactoryResolver: AuthResponseFactoryResolverInterface,
@@ -45,7 +43,7 @@ export class Register implements UseCaseInterface {
     user.email = email
     user.createdAt = dayjs.utc().toDate()
     user.updatedAt = dayjs.utc().toDate()
-    user.encryptedPassword = await bcrypt.hash(password, this.PASSWORD_HASH_COST)
+    user.encryptedPassword = await bcrypt.hash(password, User.PASSWORD_HASH_COST)
 
     Object.assign(user, registrationFields)
 
