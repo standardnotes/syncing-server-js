@@ -622,6 +622,17 @@
   resolved "https://registry.yarnpkg.com/@sqltools/formatter/-/formatter-1.2.2.tgz#9390a8127c0dcba61ebd7fdcc748655e191bdd68"
   integrity sha512-/5O7Fq6Vnv8L6ucmPjaWbVG1XkP4FO+w5glqfkIsq3Xw4oyNAdJddbnYodNDAfjVUvo/rrSCTom4kAND7T1o5Q==
 
+"@standardnotes/domain-events@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@standardnotes/domain-events/-/domain-events-1.0.1.tgz#a5ce14e27acf8dca877e6d8b50dd7bd7cb671626"
+  integrity sha512-k6I0W0c3q8yEnC6ZR3dIHJmjyzDXtjSSNs7Ar/U6KTBEaSF6sNNUCgOQlfKsDyZRxZfO/UAFlNwJDtXYBd5rUA==
+  dependencies:
+    aws-sdk "^2.824.0"
+    ioredis "^4.19.4"
+    reflect-metadata "^0.1.13"
+    sqs-consumer "^5.5.0"
+    winston "^3.3.3"
+
 "@types/babel__core@^7.0.0", "@types/babel__core@^7.1.7":
   version "7.1.12"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.12.tgz#4d8e9e51eb265552a7e4f1ff2219ab6133bdfb2d"
