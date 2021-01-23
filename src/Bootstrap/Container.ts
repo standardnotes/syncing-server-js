@@ -3,6 +3,18 @@ import * as IORedis from 'ioredis'
 import * as AWS from 'aws-sdk'
 import * as superagent from 'superagent'
 import { Container } from 'inversify'
+import {
+  DomainEventHandlerInterface,
+  DomainEventMessageHandlerInterface,
+  DomainEventSubscriberFactoryInterface,
+  RedisDomainEventPublisher,
+  RedisDomainEventSubscriberFactory,
+  RedisEventMessageHandler,
+  SNSDomainEventPublisher,
+  SQSDomainEventSubscriberFactory,
+  SQSEventMessageHandler
+} from '@standardnotes/domain-events'
+
 import { Env } from './Env'
 import TYPES from './Types'
 import { AuthMiddleware } from '../Controller/AuthMiddleware'
@@ -50,7 +62,6 @@ import { RevokedSession } from '../Domain/Session/RevokedSession'
 import { UserRegisteredEventHandler } from '../Domain/Handler/UserRegisteredEventHandler'
 import { ChangePassword } from '../Domain/UseCase/ChangePassword'
 import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
-import { DomainEventHandlerInterface, DomainEventMessageHandlerInterface, DomainEventSubscriberFactoryInterface, RedisDomainEventPublisher, RedisDomainEventSubscriberFactory, RedisEventMessageHandler, SNSDomainEventPublisher, SQSDomainEventSubscriberFactory, SQSEventMessageHandler } from '@standardnotes/domain-events'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
