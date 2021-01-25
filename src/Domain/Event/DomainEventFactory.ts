@@ -1,8 +1,6 @@
+import { DomainEventFactoryInterface, UserRegisteredEvent } from '@standardnotes/domain-events'
 import * as dayjs from 'dayjs'
 import { injectable } from 'inversify'
-
-import { DomainEventFactoryInterface } from './DomainEventFactoryInterface'
-import { UserRegisteredEvent } from './UserRegisteredEvent'
 
 @injectable()
 export class DomainEventFactory implements DomainEventFactoryInterface {

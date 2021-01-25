@@ -1,8 +1,7 @@
+import { DomainEventHandlerInterface, UserRegisteredEvent } from '@standardnotes/domain-events'
 import { SuperAgentStatic } from 'superagent'
-
 import { inject, injectable } from 'inversify'
-import { UserRegisteredEvent } from '../Event/UserRegisteredEvent'
-import { DomainEventHandlerInterface } from './DomainEventHandlerInterface'
+
 import TYPES from '../../Bootstrap/Types'
 
 @injectable()

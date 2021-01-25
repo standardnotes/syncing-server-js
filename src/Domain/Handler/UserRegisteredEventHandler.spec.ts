@@ -1,6 +1,6 @@
 import 'reflect-metadata'
+import { UserRegisteredEvent } from '@standardnotes/domain-events'
 import { SuperAgentRequest, SuperAgentStatic } from 'superagent'
-import { UserRegisteredEvent } from '../Event/UserRegisteredEvent'
 
 import { UserRegisteredEventHandler } from './UserRegisteredEventHandler'
 
