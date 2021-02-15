@@ -6,15 +6,18 @@ import { AuthMiddleware } from './AuthMiddleware'
 import { AuthenticateUser } from '../Domain/UseCase/AuthenticateUser'
 import { NextFunction, Request, Response } from 'express'
 import { User } from '../Domain/User/User'
+import { sign } from 'jsonwebtoken'
+import { Session } from '../Domain/Session/Session'
 
 describe('AuthMiddleware', () => {
   let logger: winston.Logger
   let authenticateUser: AuthenticateUser
+  const jwtSecret = 'auth_jwt_secret'
   let request: Request
   let response: Response
   let next: NextFunction
 
-  const createMiddleware = () => new AuthMiddleware(authenticateUser, logger)
+  const createMiddleware = () => new AuthMiddleware(authenticateUser, jwtSecret, logger)
 
   beforeEach(() => {
     authenticateUser = {} as jest.Mocked<AuthenticateUser>
@@ -50,6 +53,28 @@ describe('AuthMiddleware', () => {
     expect(response.locals.user).toEqual(user)
 
     expect(next).toHaveBeenCalled()
+  })
+
+  it('should authorize user from an auth JWT token if present', async () => {
+    const user = {} as jest.Mocked<User>
+    const session = {} as jest.Mocked<Session>
+
+    const authToken = sign({
+      user,
+      session,
+      roles: [],
+      permissions: []
+    }, jwtSecret, { algorithm: 'HS256' })
+
+    request.headers['X-Auth-Token'] = authToken
+
+    await createMiddleware().handler(request, response, next)
+
+    expect(response.locals.user).toEqual(user)
+    expect(response.locals.session).toEqual(session)
+
+    expect(next).toHaveBeenCalled()
+    expect(authenticateUser.execute).not.toHaveBeenCalled()
   })
 
   it('should not authorize if authorization header is missing', async () => {

@@ -22,6 +22,7 @@
     "worker": "node dist/bin/worker.js"
   },
   "dependencies": {
+    "@standardnotes/auth": "^1.1.0",
     "@standardnotes/domain-events": "^1.0.1",
     "aws-sdk": "^2.824.0",
     "bcryptjs": "^2.4.3",
