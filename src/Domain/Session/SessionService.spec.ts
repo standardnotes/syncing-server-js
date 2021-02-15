@@ -1,6 +1,5 @@
 import 'reflect-metadata'
 import * as winston from 'winston'
-import DeviceDetector = require('device-detector-js')
 
 import { Session } from './Session'
 import { SessionRepositoryInterface } from './SessionRepositoryInterface'
@@ -18,7 +17,7 @@ describe('SessionService', () => {
   let session: Session
   let ephemeralSession: EphemeralSession
   let revokedSession: RevokedSession
-  let deviceDetector: DeviceDetector
+  let deviceDetector: UAParser
   let logger: winston.Logger
 
   const createService = () => new SessionService(
@@ -64,26 +63,17 @@ describe('SessionService', () => {
     ephemeralSession.hashedAccessToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
     ephemeralSession.hashedRefreshToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
 
-    deviceDetector = {} as jest.Mocked<DeviceDetector>
-    deviceDetector.parse = jest.fn().mockReturnValue({
-      'client': {
-        'type': 'browser',
+    deviceDetector = {} as jest.Mocked<UAParser>
+    deviceDetector.setUA = jest.fn().mockReturnThis()
+    deviceDetector.getResult = jest.fn().mockReturnValue({
+      'browser': {
         'name': 'Chrome',
-        'version': '69.0',
-        'engine': 'Blink',
-        'engineVersion': ''
+        'version': '69.0'
       },
       'os': {
         'name': 'Mac',
-        'version': '10.13',
-        'platform': ''
-      },
-      'device': {
-        'type': 'desktop',
-        'brand': 'Apple',
-        'model': ''
-      },
-      'bot': null
+        'version': '10.13'
+      }
     })
 
     logger = {} as jest.Mocked<winston.Logger>
@@ -174,110 +164,90 @@ describe('SessionService', () => {
   })
 
   it('should return device info based on undefined user agent', () => {
-    deviceDetector.parse = jest.fn().mockReturnValue({
-      'device': {
-        'type': 'desktop',
-        'brand': 'Apple',
-        'model': ''
-      },
-      'bot': null
+    deviceDetector.getResult = jest.fn().mockReturnValue({
+      browser: { name: '', version: '' },
+      os: { name: '', version: '' }
     })
     expect(createService().getDeviceInfo(session)).toEqual('Unknown Client on Unknown OS')
   })
 
   it('should return a shorter info based on lack of client in user agent', () => {
-    deviceDetector.parse = jest.fn().mockReturnValue({
-      client: null,
-      os: { name: 'iOS', version: '10.3', platform: '' },
-      device: { type: '', brand: 'Apple', model: '' },
-      bot: null
+    deviceDetector.getResult = jest.fn().mockReturnValue({
+      browser: { name: '', version: '' },
+      os: { name: 'iOS', version: '10.3' }
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('iOS 10.3')
   })
 
   it('should return a shorter info based on lack of os in user agent', () => {
-    deviceDetector.parse = jest.fn().mockReturnValue({
-      client: { name: 'Chrome', version: '69.0' },
-      os: { name: '', version: '', platform: '' },
-      device: { type: '', brand: 'Apple', model: '' },
-      bot: null
+    deviceDetector.getResult = jest.fn().mockReturnValue({
+      browser: { name: 'Chrome', version: '69.0' },
+      os: { name: '', version: '' },
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('Chrome 69.0')
   })
 
   it('should return a shorter info based on partial os in user agent', () => {
-    deviceDetector.parse = jest.fn().mockReturnValue({
-      client: { name: 'Chrome', version: '69.0' },
-      os: { name: 'Windows', version: '', platform: '' },
-      device: { type: '', brand: 'Apple', model: '' },
-      bot: null
+    deviceDetector.getResult = jest.fn().mockReturnValue({
+      browser: { name: 'Chrome', version: '69.0' },
+      os: { name: 'Windows', version: '' }
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('Chrome 69.0 on Windows')
 
-    deviceDetector.parse = jest.fn().mockReturnValue({
-      client: { name: 'Chrome', version: '69.0' },
-      os: { name: '', version: '7', platform: '' },
-      device: { type: '', brand: 'Apple', model: '' },
-      bot: null
+    deviceDetector.getResult = jest.fn().mockReturnValue({
+      browser: { name: 'Chrome', version: '69.0' },
+      os: { name: '', version: '7' }
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('Chrome 69.0 on 7')
-
-    deviceDetector.parse = jest.fn().mockReturnValue({
-      client: { name: 'Chrome', version: '69.0' },
-      os: { },
-      device: { type: '', brand: 'Apple', model: '' },
-      bot: null
-    })
-
-    expect(createService().getDeviceInfo(session)).toEqual('Chrome 69.0')
   })
 
   it('should return a shorter info based on partial client in user agent', () => {
-    deviceDetector.parse = jest.fn().mockReturnValue({
-      client: { name: '', version: '69.0' },
-      os: { name: 'Windows', version: '7', platform: '' },
-      device: { type: '', brand: 'Apple', model: '' },
-      bot: null
+    deviceDetector.getResult = jest.fn().mockReturnValue({
+      browser: { name: '', version: '69.0' },
+      os: { name: 'Windows', version: '7' }
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('69.0 on Windows 7')
 
-    deviceDetector.parse = jest.fn().mockReturnValue({
-      client: { name: 'Chrome', version: '' },
-      os: { name: 'Windows', version: '7', platform: '' },
-      device: { type: '', brand: 'Apple', model: '' },
-      bot: null
+    deviceDetector.getResult = jest.fn().mockReturnValue({
+      browser: { name: 'Chrome', version: '' },
+      os: { name: 'Windows', version: '7' }
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('Chrome on Windows 7')
+  })
 
-    deviceDetector.parse = jest.fn().mockReturnValue({
-      client: { },
-      os: { name: 'Windows', version: '7', platform: '' },
-      device: { type: '', brand: 'Apple', model: '' },
-      bot: null
+  it('should return a shorter info based on partial client and partial os in user agent', () => {
+    deviceDetector.getResult = jest.fn().mockReturnValue({
+      browser: { name: '', version: '69.0' },
+      os: { name: 'Windows', version: '' }
     })
 
-    expect(createService().getDeviceInfo(session)).toEqual('Windows 7')
+    expect(createService().getDeviceInfo(session)).toEqual('69.0 on Windows')
+
+    deviceDetector.getResult = jest.fn().mockReturnValue({
+      browser: { name: 'Chrome', version: '' },
+      os: { name: '', version: '7' }
+    })
+
+    expect(createService().getDeviceInfo(session)).toEqual('Chrome on 7')
   })
 
   it('should return only Android os for okHttp client', () => {
-    deviceDetector.parse = jest.fn().mockReturnValue({
-      client: { name: 'okHttp', version: '3.14' },
-      os: { name: 'Android', version: '', platform: '' },
-      device: { type: '', brand: '', model: '' },
-      bot: null
+    deviceDetector.getResult = jest.fn().mockReturnValue({
+      browser: { name: 'okHttp', version: '3.14' },
+      os: { name: 'Android', version: '' }
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('Android')
   })
 
   it('should return device info fallback to user agent', () => {
-    deviceDetector.parse = jest.fn().mockImplementation(() => {
+    deviceDetector.getResult = jest.fn().mockImplementation(() => {
       throw new Error('something bad happened')
     })
 
