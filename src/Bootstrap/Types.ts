@@ -39,6 +39,7 @@ const TYPES = {
   USER_SERVER_REGISTRATION_URL: Symbol.for('USER_SERVER_REGISTRATION_URL'),
   USER_SERVER_AUTH_KEY: Symbol.for('USER_SERVER_AUTH_KEY'),
   REDIS_EVENTS_CHANNEL: Symbol.for('REDIS_EVENTS_CHANNEL'),
+  AUTH_JWT_SECRET: Symbol.for('AUTH_JWT_SECRET'),
   // use cases
   AuthenticateUser: Symbol.for('AuthenticateUser'),
   RefreshSessionToken: Symbol.for('RefreshSessionToken'),

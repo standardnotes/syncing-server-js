@@ -622,6 +622,11 @@
   resolved "https://registry.yarnpkg.com/@sqltools/formatter/-/formatter-1.2.2.tgz#9390a8127c0dcba61ebd7fdcc748655e191bdd68"
   integrity sha512-/5O7Fq6Vnv8L6ucmPjaWbVG1XkP4FO+w5glqfkIsq3Xw4oyNAdJddbnYodNDAfjVUvo/rrSCTom4kAND7T1o5Q==
 
+"@standardnotes/auth@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@standardnotes/auth/-/auth-1.1.0.tgz#8342a056ea4e2ef6ecd3c6d1d7ef3f99668cb5bf"
+  integrity sha512-xRF26yaqtgtDA712Dy5Ga6i4txcMP7C/ziuzSMSc6OpgizlDacjbmB2PKnKmIeB6LuHzyJ3jXGK69EoDLoO/mg==
+
 "@standardnotes/config@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@standardnotes/config/-/config-1.0.0.tgz#11a63fc1af20c647347c7438e57f6a7fbb641f32"
