@@ -165,8 +165,8 @@ describe('SessionService', () => {
 
   it('should return device info based on undefined user agent', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
-      browser: { name: '', version: '' },
-      os: { name: '', version: '' }
+      browser: { name: undefined, version: undefined },
+      os: { name: undefined, version: undefined }
     })
     expect(createService().getDeviceInfo(session)).toEqual('Unknown Client on Unknown OS')
   })
@@ -219,6 +219,19 @@ describe('SessionService', () => {
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('Chrome on Windows 7')
+  })
+
+  it('should return a shorter info based on iOS agent', () => {
+    deviceDetector.getResult = jest.fn().mockReturnValue({
+      ua: 'StandardNotes/41 CFNetwork/1220.1 Darwin/20.3.0',
+      browser: { name: undefined, version: undefined, major: undefined },
+      engine: { name: undefined, version: undefined },
+      os: { name: 'iOS', version: undefined },
+      device: { vendor: undefined, model: undefined, type: undefined },
+      cpu: { architecture: undefined }
+    })
+
+    expect(createService().getDeviceInfo(session)).toEqual('iOS')
   })
 
   it('should return a shorter info based on partial client and partial os in user agent', () => {
