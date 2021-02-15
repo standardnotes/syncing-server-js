@@ -7,7 +7,7 @@ import { Logger } from 'winston'
 import { ContainerConfigLoader } from '../src/Bootstrap/Container'
 import TYPES from '../src/Bootstrap/Types'
 import { Env } from '../src/Bootstrap/Env'
-import { DomainEventSubscriberFactoryInterface } from '../src/Domain/Event/DomainEventSubscriberFactoryInterface'
+import { DomainEventSubscriberFactoryInterface } from '@standardnotes/domain-events'
 
 const container = new ContainerConfigLoader
 void container.load().then(container => {

@@ -38,6 +38,7 @@ const TYPES = {
   SQS_AWS_REGION: Symbol.for('SQS_AWS_REGION'),
   USER_SERVER_REGISTRATION_URL: Symbol.for('USER_SERVER_REGISTRATION_URL'),
   USER_SERVER_AUTH_KEY: Symbol.for('USER_SERVER_AUTH_KEY'),
+  REDIS_EVENTS_CHANNEL: Symbol.for('REDIS_EVENTS_CHANNEL'),
   // use cases
   AuthenticateUser: Symbol.for('AuthenticateUser'),
   RefreshSessionToken: Symbol.for('RefreshSessionToken'),
@@ -68,8 +69,9 @@ const TYPES = {
   DomainEventPublisher: Symbol.for('DomainEventPublisher'),
   DomainEventSubscriberFactory: Symbol.for('DomainEventSubscriberFactory'),
   DomainEventFactory: Symbol.for('DomainEventFactory'),
-  EventMessageHandler: Symbol.for('EventMessageHandler'),
-  HTTPClient: Symbol.for('HTTPClient')
+  DomainEventMessageHandler: Symbol.for('DomainEventMessageHandler'),
+  HTTPClient: Symbol.for('HTTPClient'),
+  ItemService: Symbol.for('ItemService')
 }
 
 export default TYPES

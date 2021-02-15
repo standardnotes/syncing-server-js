@@ -9,25 +9,25 @@
   "typings": "dist/src/index.d.ts",
   "repository": "git@github.com:standardnotes/syncing-server-js.git",
   "author": "Karol Sójko <karolsojko@gmail.com>",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "scripts": {
     "clean": "rm -fr dist",
     "prebuild": "yarn clean",
     "build": "tsc --rootDir ./",
     "lint": "eslint . --ext .ts",
-    "coverage": "jest --coverage --maxWorkers=2 --no-cache spec --reporters=\"default\" \"jest-junit\"",
+    "coverage": "jest --coverage",
     "pretest": "yarn lint && yarn build",
     "test": "jest spec",
     "start": "node dist/bin/server.js",
     "worker": "node dist/bin/worker.js"
   },
   "dependencies": {
+    "@standardnotes/domain-events": "^1.0.1",
     "aws-sdk": "^2.824.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "crypto-random-string": "^3.3.0",
     "dayjs": "^1.9.7",
-    "device-detector-js": "^2.2.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-winston": "^4.0.5",
@@ -43,10 +43,12 @@
     "sqs-consumer": "^5.5.0",
     "superagent": "^6.1.0",
     "typeorm": "^0.2.29",
+    "ua-parser-js": "^0.7.24",
     "uuid": "^8.3.2",
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "@standardnotes/config": "^1.0.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/cors": "^2.8.8",
     "@types/dotenv": "^8.2.0",
@@ -58,71 +60,31 @@
     "@types/otplib": "^10.0.0",
     "@types/prettyjson": "^0.0.29",
     "@types/superagent": "^4.1.10",
+    "@types/ua-parser-js": "^0.7.35",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
     "dd-trace": "^0.29.1",
     "eslint": "^7.13.0",
     "jest": "^26.6.3",
-    "jest-junit": "^12.0.0",
     "pre-push": "^0.1.1",
     "ts-jest": "^26.4.4",
-    "ts-node": "^9.0.0",
     "typescript": "^4.0.5"
   },
   "pre-push": [
     "lint",
     "coverage"
   ],
-  "jest-junit": {
-    "output": "./coverage/junit/junit.xml"
-  },
   "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "src/**/*.{ts,tsx}",
-      "!src/**/Types.ts"
-    ],
-    "coverageReporters": [
-      "text",
-      "lcov",
-      "html",
-      "json-summary"
-    ],
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(tsx?)$",
-    "testPathIgnorePatterns": [
-      "/node_modules/"
-    ],
+    "preset": "./node_modules/@standardnotes/config/src/jest.json",
     "coveragePathIgnorePatterns": [
       "/node_modules/",
       "/Bootstrap/",
       "HealthCheckController",
       "/InMemory/"
     ],
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json"
-    ],
-    "globals": {
-      "ts-jest": {
-        "diagnostics": false
-      }
-    },
     "setupFilesAfterEnv": [
       "<rootDir>/test-setup.ts"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 100,
-        "functions": 100,
-        "lines": 100,
-        "statements": 100
-      }
-    }
+    ]
   }
 }

@@ -1,6 +1,8 @@
 import { Request, Response } from 'express'
 import { inject } from 'inversify'
 import { BaseHttpController, controller, httpGet, httpPost, results } from 'inversify-express-utils'
+import { DomainEventFactoryInterface, DomainEventPublisherInterface } from '@standardnotes/domain-events'
+
 import TYPES from '../Bootstrap/Types'
 import { SessionServiceInterace } from '../Domain/Session/SessionServiceInterface'
 import { SignIn } from '../Domain/UseCase/SignIn'
@@ -10,8 +12,6 @@ import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { Logger } from 'winston'
 import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { Register } from '../Domain/UseCase/Register'
-import { DomainEventPublisherInterface } from '../Domain/Event/DomainEventPublisherInterface'
-import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
 import { ChangePassword } from '../Domain/UseCase/ChangePassword'
 
 @controller('/auth')

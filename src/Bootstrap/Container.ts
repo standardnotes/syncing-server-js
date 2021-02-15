@@ -3,6 +3,19 @@ import * as IORedis from 'ioredis'
 import * as AWS from 'aws-sdk'
 import * as superagent from 'superagent'
 import { Container } from 'inversify'
+import {
+  DomainEventHandlerInterface,
+  DomainEventMessageHandlerInterface,
+  DomainEventSubscriberFactoryInterface,
+  RedisDomainEventPublisher,
+  RedisDomainEventSubscriberFactory,
+  RedisEventMessageHandler,
+  SNSDomainEventPublisher,
+  SQSDomainEventSubscriberFactory,
+  SQSEventMessageHandler
+} from '@standardnotes/domain-events'
+import { UAParser } from 'ua-parser-js'
+
 import { Env } from './Env'
 import TYPES from './Types'
 import { AuthMiddleware } from '../Controller/AuthMiddleware'
@@ -17,7 +30,6 @@ import { MySQLRevisionRepository } from '../Infra/MySQL/MySQLRevisionRepository'
 import { Item } from '../Domain/Item/Item'
 import { Revision } from '../Domain/Revision/Revision'
 import { RevisionProjector } from '../Projection/RevisionProjector'
-import DeviceDetector = require('device-detector-js')
 import { SessionProjector } from '../Projection/SessionProjector'
 import { SessionMiddleware } from '../Controller/SessionMiddleware'
 import { RefreshSessionToken } from '../Domain/UseCase/RefreshSessionToken'
@@ -47,18 +59,9 @@ import { MySQLRevokedSessionRepository } from '../Infra/MySQL/MySQLRevokedSessio
 import { TokenDecoder } from '../Domain/Auth/TokenDecoder'
 import { AuthenticationMethodResolver } from '../Domain/Auth/AuthenticationMethodResolver'
 import { RevokedSession } from '../Domain/Session/RevokedSession'
-import { SNSDomainEventPublisher } from '../Infra/SNS/SNSDomainEventPublisher'
-import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
-import { RedisDomainEventPublisher } from '../Infra/Redis/RedisDomainEventPublisher'
-import { EventMessageHandlerInterface } from '../Domain/Event/EventMessageHandlerInterface'
-import { SQSEventMessageHandler } from '../Infra/SQS/SQSEventMessageHandler'
-import { DomainEventSubscriberFactoryInterface } from '../Domain/Event/DomainEventSubscriberFactoryInterface'
-import { SQSDomainEventSubscriberFactory } from '../Infra/SQS/SQSDomainEventSubscriberFactory'
-import { RedisEventMessageHandler } from '../Infra/Redis/RedisEventMessageHandler'
-import { RedisDomainEventSubscriberFactory } from '../Infra/Redis/RedisDomainEventSubscriberFactory'
-import { DomainEventHandlerInterface } from '../Domain/Handler/DomainEventHandlerInterface'
 import { UserRegisteredEventHandler } from '../Domain/Handler/UserRegisteredEventHandler'
 import { ChangePassword } from '../Domain/UseCase/ChangePassword'
+import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
 
 export class ContainerConfigLoader {
     async load(): Promise<Container> {
@@ -175,6 +178,7 @@ export class ContainerConfigLoader {
         container.bind(TYPES.SQS_QUEUE_URL).toConstantValue(env.get('SQS_QUEUE_URL', true))
         container.bind(TYPES.USER_SERVER_REGISTRATION_URL).toConstantValue(env.get('USER_SERVER_REGISTRATION_URL', true))
         container.bind(TYPES.USER_SERVER_AUTH_KEY).toConstantValue(env.get('USER_SERVER_AUTH_KEY', true))
+        container.bind(TYPES.REDIS_EVENTS_CHANNEL).toConstantValue(env.get('REDIS_EVENTS_CHANNEL'))
 
         // use cases
         container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
@@ -195,7 +199,7 @@ export class ContainerConfigLoader {
         container.bind<UserRegisteredEventHandler>(TYPES.UserRegisteredEventHandler).to(UserRegisteredEventHandler)
 
         // Services
-        container.bind<DeviceDetector>(TYPES.DeviceDetector).toConstantValue(new DeviceDetector())
+        container.bind<UAParser>(TYPES.DeviceDetector).toConstantValue(new UAParser())
         container.bind<SessionService>(TYPES.SessionService).to(SessionService)
         container.bind<ContentDecoder>(TYPES.ContentDecoder).to(ContentDecoder)
         container.bind<AuthResponseFactory20161215>(TYPES.AuthResponseFactory20161215).to(AuthResponseFactory20161215)
@@ -209,9 +213,19 @@ export class ContainerConfigLoader {
         container.bind<superagent.SuperAgentStatic>(TYPES.HTTPClient).toConstantValue(superagent)
 
         if (env.get('SNS_TOPIC_ARN', true)) {
-          container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).to(SNSDomainEventPublisher)
+          container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
+            new SNSDomainEventPublisher(
+              container.get(TYPES.SNS),
+              container.get(TYPES.SNS_TOPIC_ARN)
+            )
+          )
         } else {
-          container.bind<RedisDomainEventPublisher>(TYPES.DomainEventPublisher).to(RedisDomainEventPublisher)
+          container.bind<RedisDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
+            new RedisDomainEventPublisher(
+              container.get(TYPES.Redis),
+              container.get(TYPES.REDIS_EVENTS_CHANNEL)
+            )
+          )
         }
 
         const eventHandlers: Map<string, DomainEventHandlerInterface> = new Map([
@@ -219,15 +233,27 @@ export class ContainerConfigLoader {
         ])
 
         if (env.get('SQS_QUEUE_URL', true)) {
-          container.bind<EventMessageHandlerInterface>(TYPES.EventMessageHandler).toConstantValue(
+          container.bind<DomainEventMessageHandlerInterface>(TYPES.DomainEventMessageHandler).toConstantValue(
             new SQSEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
           )
-          container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).to(SQSDomainEventSubscriberFactory)
+          container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).toConstantValue(
+            new SQSDomainEventSubscriberFactory(
+              container.get(TYPES.SQS),
+              container.get(TYPES.SQS_QUEUE_URL),
+              container.get(TYPES.DomainEventMessageHandler)
+            )
+          )
         } else {
-          container.bind<EventMessageHandlerInterface>(TYPES.EventMessageHandler).toConstantValue(
+          container.bind<DomainEventMessageHandlerInterface>(TYPES.DomainEventMessageHandler).toConstantValue(
             new RedisEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
           )
-          container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).to(RedisDomainEventSubscriberFactory)
+          container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).toConstantValue(
+            new RedisDomainEventSubscriberFactory(
+              container.get(TYPES.Redis),
+              container.get(TYPES.DomainEventMessageHandler),
+              container.get(TYPES.REDIS_EVENTS_CHANNEL)
+            )
+          )
         }
 
         return container
