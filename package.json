@@ -28,7 +28,6 @@
     "cors": "^2.8.5",
     "crypto-random-string": "^3.3.0",
     "dayjs": "^1.9.7",
-    "device-detector-js": "^2.2.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-winston": "^4.0.5",
@@ -44,6 +43,7 @@
     "sqs-consumer": "^5.5.0",
     "superagent": "^6.1.0",
     "typeorm": "^0.2.29",
+    "ua-parser-js": "^0.7.24",
     "uuid": "^8.3.2",
     "winston": "^3.3.3"
   },
@@ -60,6 +60,7 @@
     "@types/otplib": "^10.0.0",
     "@types/prettyjson": "^0.0.29",
     "@types/superagent": "^4.1.10",
+    "@types/ua-parser-js": "^0.7.35",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
