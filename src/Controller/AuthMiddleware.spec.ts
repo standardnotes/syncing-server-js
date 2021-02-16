@@ -25,12 +25,14 @@ describe('AuthMiddleware', () => {
 
     logger = {} as jest.Mocked<winston.Logger>
     logger.info = jest.fn()
+    logger.debug = jest.fn()
     logger.warn = jest.fn()
     logger.error = jest.fn()
 
     request = {
       headers: {}
     } as jest.Mocked<Request>
+    request.header = jest.fn()
     response = {
       locals: {}
     } as jest.Mocked<Response>
@@ -66,7 +68,7 @@ describe('AuthMiddleware', () => {
       permissions: []
     }, jwtSecret, { algorithm: 'HS256' })
 
-    request.headers['X-Auth-Token'] = authToken
+    request.header = jest.fn().mockReturnValue(authToken)
 
     await createMiddleware().handler(request, response, next)
 

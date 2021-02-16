@@ -26,6 +26,8 @@ export class AuthMiddleware extends BaseMiddleware {
       return next()
     }
 
+    this.logger.debug('Attempting authorization from Authorization Header.')
+
     const authorizationHeader = <string> request.headers.authorization
 
     if (!authorizationHeader) {
@@ -59,8 +61,10 @@ export class AuthMiddleware extends BaseMiddleware {
   }
 
   private handleAuthServiceProxy(request: Request, response: Response) {
-    if (request.headers['X-Auth-Token']) {
-      const authToken = <string> request.headers['X-Auth-Token']
+    if (request.header('X-Auth-Token')) {
+      this.logger.debug('X-Auth-Token present in the request. Attempting authorization from JWT.')
+
+      const authToken = <string> request.header('X-Auth-Token')
 
       const decodedToken = <Token> verify(authToken, this.jwtSecret, { algorithms: [ 'HS256' ] })
 
