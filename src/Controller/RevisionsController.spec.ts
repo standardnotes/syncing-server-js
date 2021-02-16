@@ -10,48 +10,48 @@ import { results } from 'inversify-express-utils'
 import { ProjectorInterface } from '../Projection/ProjectorInterface'
 
 describe('RevisionsController', () => {
-    let revisionsRepository: RevisionRepositoryInterface
-    let revisionProjector: ProjectorInterface<Revision>
-    let revision: Revision
-    let request: express.Request
+  let revisionsRepository: RevisionRepositoryInterface
+  let revisionProjector: ProjectorInterface<Revision>
+  let revision: Revision
+  let request: express.Request
 
-    const createController = () => new RevisionsController(revisionsRepository, revisionProjector)
+  const createController = () => new RevisionsController(revisionsRepository, revisionProjector)
 
-    beforeEach(() => {
-        revisionsRepository = {} as jest.Mocked<RevisionRepositoryInterface>
+  beforeEach(() => {
+    revisionsRepository = {} as jest.Mocked<RevisionRepositoryInterface>
 
-        revision = {} as jest.Mocked<Revision>
+    revision = {} as jest.Mocked<Revision>
 
-        revisionProjector = {} as jest.Mocked<ProjectorInterface<Revision>>
+    revisionProjector = {} as jest.Mocked<ProjectorInterface<Revision>>
 
-        request = {
-          params: {},
-        } as jest.Mocked<express.Request>
-    })
+    request = {
+      params: {},
+    } as jest.Mocked<express.Request>
+  })
 
-    it('should return revisions for an item', async () => {
-        revisionsRepository.findByItemId = jest.fn().mockReturnValue([revision])
-        revisionProjector.projectSimple = jest.fn().mockReturnValue({ foo: 'bar' })
+  it('should return revisions for an item', async () => {
+    revisionsRepository.findByItemId = jest.fn().mockReturnValue([revision])
+    revisionProjector.projectSimple = jest.fn().mockReturnValue({ foo: 'bar' })
 
-        const response = await createController().getRevisions(request)
+    const response = await createController().getRevisions(request)
 
-        expect(response.json).toEqual([{ foo: 'bar' }])
-    })
+    expect(response.json).toEqual([{ foo: 'bar' }])
+  })
 
-    it('should return a specific revision for an item', async () => {
-      revisionsRepository.findOneById = jest.fn().mockReturnValue(revision)
-      revisionProjector.projectFull = jest.fn().mockReturnValue({ foo: 'bar' })
+  it('should return a specific revision for an item', async () => {
+    revisionsRepository.findOneById = jest.fn().mockReturnValue(revision)
+    revisionProjector.projectFull = jest.fn().mockReturnValue({ foo: 'bar' })
 
-      const response = <results.JsonResult> await createController().getRevision(request)
+    const response = <results.JsonResult> await createController().getRevision(request)
 
-      expect(response.json).toEqual({ foo: 'bar' })
-    })
+    expect(response.json).toEqual({ foo: 'bar' })
+  })
 
-    it('should return a 404 for a not found specific revision in an item', async () => {
-      revisionsRepository.findOneById = jest.fn().mockReturnValue(undefined)
+  it('should return a 404 for a not found specific revision in an item', async () => {
+    revisionsRepository.findOneById = jest.fn().mockReturnValue(undefined)
 
-      const response = await createController().getRevision(request)
+    const response = await createController().getRevision(request)
 
-      expect(response).toBeInstanceOf(results.NotFoundResult)
-    })
+    expect(response).toBeInstanceOf(results.NotFoundResult)
+  })
 })

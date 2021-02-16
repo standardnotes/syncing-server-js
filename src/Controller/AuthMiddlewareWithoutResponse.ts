@@ -11,54 +11,54 @@ import { AuthenticateUserResponse } from '../Domain/UseCase/AuthenticateUserResp
 
 @injectable()
 export class AuthMiddlewareWithoutResponse extends BaseMiddleware {
-    constructor (
-        @inject(TYPES.AuthenticateUser) private authenticateUser: AuthenticateUser,
-        @inject(TYPES.AUTH_JWT_SECRET) private jwtSecret: string,
-        @inject(TYPES.Logger) private logger: winston.Logger,
-    ) {
-      super()
+  constructor (
+    @inject(TYPES.AuthenticateUser) private authenticateUser: AuthenticateUser,
+    @inject(TYPES.AUTH_JWT_SECRET) private jwtSecret: string,
+    @inject(TYPES.Logger) private logger: winston.Logger,
+  ) {
+    super()
+  }
+
+  async handler (request: Request, response: Response, next: NextFunction): Promise<void> {
+    this.handleAuthServiceProxy(request, response)
+
+    if (response.locals.user && response.locals.session) {
+      return next()
     }
 
-    async handler (request: Request, response: Response, next: NextFunction): Promise<void> {
-        this.handleAuthServiceProxy(request, response)
+    const authorizationHeader = <string> request.headers.authorization
 
-        if (response.locals.user && response.locals.session) {
-          return next()
-        }
-
-        const authorizationHeader = <string> request.headers.authorization
-
-        if (!authorizationHeader) {
-            return next()
-        }
-
-        let authenticateResponse: AuthenticateUserResponse
-        try {
-            authenticateResponse = await this.authenticateUser.execute({ token: authorizationHeader.replace('Bearer ', '') })
-        } catch (error) {
-            this.logger.error('Error occurred during authentication of a user %o', error)
-
-            return next()
-        }
-
-        if (!authenticateResponse.success) {
-          return next()
-        }
-
-        response.locals.user = authenticateResponse.user
-        response.locals.session = authenticateResponse.session
-
-        return next()
+    if (!authorizationHeader) {
+      return next()
     }
 
-    private handleAuthServiceProxy(request: Request, response: Response) {
-        if (request.headers['X-Auth-Token']) {
-          const authToken = <string> request.headers['X-Auth-Token']
+    let authenticateResponse: AuthenticateUserResponse
+    try {
+      authenticateResponse = await this.authenticateUser.execute({ token: authorizationHeader.replace('Bearer ', '') })
+    } catch (error) {
+      this.logger.error('Error occurred during authentication of a user %o', error)
 
-          const decodedToken = <Token> verify(authToken, this.jwtSecret, { algorithms: [ 'HS256' ] })
+      return next()
+    }
 
-          response.locals.user = decodedToken.user
-          response.locals.session = decodedToken.session
-        }
-      }
+    if (!authenticateResponse.success) {
+      return next()
+    }
+
+    response.locals.user = authenticateResponse.user
+    response.locals.session = authenticateResponse.session
+
+    return next()
+  }
+
+  private handleAuthServiceProxy(request: Request, response: Response) {
+    if (request.headers['X-Auth-Token']) {
+      const authToken = <string> request.headers['X-Auth-Token']
+
+      const decodedToken = <Token> verify(authToken, this.jwtSecret, { algorithms: [ 'HS256' ] })
+
+      response.locals.user = decodedToken.user
+      response.locals.session = decodedToken.session
+    }
+  }
 }

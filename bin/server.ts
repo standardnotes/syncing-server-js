@@ -61,9 +61,9 @@ void container.load().then(container => {
 
     app.use(expressWinston.logger({
       transports: [
-          new winston.transports.Console({
-              format: winston.format.json(),
-          }),
+        new winston.transports.Console({
+          format: winston.format.json(),
+        }),
       ],
       ignoreRoute: function (req, _res) { return ['/healthcheck', '/favicon.ico'].indexOf(req.path.replace(/\/$/, '')) >= 0 },
     }))

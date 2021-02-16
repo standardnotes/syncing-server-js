@@ -27,17 +27,17 @@ export class SessionProjector implements ProjectorInterface<Session> {
 
   projectCustom(projectionType: string, session: Session, currentSession: Session): Record<string, unknown> {
     switch(projectionType) {
-      case SessionProjector.CURRENT_SESSION_PROJECTION.toString():
-        return {
-          uuid: session.uuid,
-          api_version: session.apiVersion,
-          created_at: dayjs.utc(session.createdAt).toISOString(),
-          updated_at: dayjs.utc(session.updatedAt).toISOString(),
-          device_info: this.sessionService.getDeviceInfo(session),
-          current: session.uuid === currentSession.uuid
-        }
-      default:
-        throw new Error(`Not supported projection type: ${projectionType}`)
+    case SessionProjector.CURRENT_SESSION_PROJECTION.toString():
+      return {
+        uuid: session.uuid,
+        api_version: session.apiVersion,
+        created_at: dayjs.utc(session.createdAt).toISOString(),
+        updated_at: dayjs.utc(session.updatedAt).toISOString(),
+        device_info: this.sessionService.getDeviceInfo(session),
+        current: session.uuid === currentSession.uuid
+      }
+    default:
+      throw new Error(`Not supported projection type: ${projectionType}`)
     }
   }
 
