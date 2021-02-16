@@ -20,11 +20,19 @@ export class AuthMiddlewareWithoutResponse extends BaseMiddleware {
   }
 
   async handler (request: Request, response: Response, next: NextFunction): Promise<void> {
-    this.handleAuthServiceProxy(request, response)
+    try {
+      this.handleAuthServiceProxy(request, response)
+    } catch (error) {
+      this.logger.error(`Could not verify JWT Auth Token ${error.message}`)
+
+      return next()
+    }
 
     if (response.locals.user && response.locals.session) {
       return next()
     }
+
+    this.logger.debug('Attempting authorization from Authorization Header.')
 
     const authorizationHeader = <string> request.headers.authorization
 
@@ -52,8 +60,10 @@ export class AuthMiddlewareWithoutResponse extends BaseMiddleware {
   }
 
   private handleAuthServiceProxy(request: Request, response: Response) {
-    if (request.headers['X-Auth-Token']) {
-      const authToken = <string> request.headers['X-Auth-Token']
+    if (request.header('X-Auth-Token')) {
+      this.logger.debug('X-Auth-Token present in the request. Attempting authorization from JWT.')
+
+      const authToken = <string> request.header('X-Auth-Token')
 
       const decodedToken = <Token> verify(authToken, this.jwtSecret, { algorithms: [ 'HS256' ] })
 

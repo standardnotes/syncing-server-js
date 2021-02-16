@@ -20,7 +20,13 @@ export class AuthMiddleware extends BaseMiddleware {
   }
 
   async handler (request: Request, response: Response, next: NextFunction): Promise<void> {
-    this.handleAuthServiceProxy(request, response)
+    try {
+      this.handleAuthServiceProxy(request, response)
+    } catch (error) {
+      this.logger.error(`Could not verify JWT Auth Token ${error.message}`)
+
+      return this.sendInvalidAuthResponse(response)
+    }
 
     if (response.locals.user && response.locals.session) {
       return next()

@@ -79,6 +79,25 @@ describe('AuthMiddleware', () => {
     expect(authenticateUser.execute).not.toHaveBeenCalled()
   })
 
+  it('should not authorize user from an auth JWT token if it is invalid', async () => {
+    const user = {} as jest.Mocked<User>
+    const session = {} as jest.Mocked<Session>
+
+    const authToken = sign({
+      user,
+      session,
+      roles: [],
+      permissions: []
+    }, jwtSecret, { algorithm: 'HS256', notBefore: '2 days' })
+
+    request.header = jest.fn().mockReturnValue(authToken)
+
+    await createMiddleware().handler(request, response, next)
+
+    expect(response.status).toHaveBeenCalledWith(401)
+    expect(next).not.toHaveBeenCalled()
+  })
+
   it('should not authorize if authorization header is missing', async () => {
     await createMiddleware().handler(request, response, next)
 
