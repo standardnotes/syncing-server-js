@@ -1,9 +1,9 @@
 version: '3.8'
 services:
-  app:
+  web:
     image: syncing-server-js-local
     build: .
-    command: start-local
+    entrypoint: ["./wait-for.sh", "db", "3306", "./wait-for.sh", "cache", "6379", "./docker/entrypoint.sh", "start-local"]
     env_file: .env
     restart: unless-stopped
     environment:
@@ -21,7 +21,7 @@ services:
 
   worker:
     image: syncing-server-js-local
-    command: start-worker
+    entrypoint: ["./wait-for.sh", "web", "3000", "./docker/entrypoint.sh", "start-worker"]
     env_file: .env
     restart: unless-stopped
     environment:
