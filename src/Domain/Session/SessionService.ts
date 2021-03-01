@@ -99,7 +99,7 @@ export class SessionService implements SessionServiceInterace {
 
       const desktopAppMatches = [...userAgentParsed.ua.matchAll(/(.*)StandardNotes\/((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))/g)]
       if (desktopAppMatches[0] && desktopAppMatches[0][2]) {
-        clientInfo = `Standard Notes Desktop App ${desktopAppMatches[0][2]}`
+        clientInfo = `Standard Notes Desktop ${desktopAppMatches[0][2]}`
       }
 
       if (osInfo && clientInfo) {
