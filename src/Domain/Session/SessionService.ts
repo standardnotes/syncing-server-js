@@ -90,6 +90,8 @@ export class SessionService implements SessionServiceInterace {
     try {
       const userAgentParsed = this.deviceDetector.setUA(session.userAgent).getResult()
 
+      this.logger.debug('User-Agent parsed: %O', userAgentParsed)
+
       const osInfo = `${userAgentParsed.os.name ?? ''} ${userAgentParsed.os.version ?? ''}`.trim()
       const clientInfo = `${userAgentParsed.browser.name ?? ''} ${userAgentParsed.browser.version ?? ''}`.trim()
 
