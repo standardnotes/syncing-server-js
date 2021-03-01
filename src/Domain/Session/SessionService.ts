@@ -90,13 +90,16 @@ export class SessionService implements SessionServiceInterace {
     try {
       const userAgentParsed = this.deviceDetector.setUA(session.userAgent).getResult()
 
-      this.logger.debug('User-Agent parsed: %O', userAgentParsed)
-
       const osInfo = `${userAgentParsed.os.name ?? ''} ${userAgentParsed.os.version ?? ''}`.trim()
-      const clientInfo = `${userAgentParsed.browser.name ?? ''} ${userAgentParsed.browser.version ?? ''}`.trim()
+      let clientInfo = `${userAgentParsed.browser.name ?? ''} ${userAgentParsed.browser.version ?? ''}`.trim()
 
       if (clientInfo.indexOf('okHttp') >= 0) {
         return osInfo
+      }
+
+      const desktopAppMatches = [...userAgentParsed.ua.matchAll(/(.*)StandardNotes\/((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))/g)]
+      if (desktopAppMatches[0] && desktopAppMatches[0][2]) {
+        clientInfo = `StandardNotes Desktop App ${desktopAppMatches[0][2]}`
       }
 
       if (osInfo && clientInfo) {

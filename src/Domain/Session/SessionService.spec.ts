@@ -66,13 +66,14 @@ describe('SessionService', () => {
     deviceDetector = {} as jest.Mocked<UAParser>
     deviceDetector.setUA = jest.fn().mockReturnThis()
     deviceDetector.getResult = jest.fn().mockReturnValue({
-      'browser': {
-        'name': 'Chrome',
-        'version': '69.0'
+      ua: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36',
+      browser: {
+        name: 'Chrome',
+        version: '69.0'
       },
-      'os': {
-        'name': 'Mac',
-        'version': '10.13'
+      os: {
+        name: 'Mac',
+        version: '10.13'
       }
     })
 
@@ -165,6 +166,7 @@ describe('SessionService', () => {
 
   it('should return device info based on undefined user agent', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
+      ua: '',
       browser: { name: undefined, version: undefined },
       os: { name: undefined, version: undefined }
     })
@@ -173,6 +175,7 @@ describe('SessionService', () => {
 
   it('should return a shorter info based on lack of client in user agent', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
+      ua: 'dummy-data',
       browser: { name: '', version: '' },
       os: { name: 'iOS', version: '10.3' }
     })
@@ -182,6 +185,7 @@ describe('SessionService', () => {
 
   it('should return a shorter info based on lack of os in user agent', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
+      ua: 'dummy-data',
       browser: { name: 'Chrome', version: '69.0' },
       os: { name: '', version: '' },
     })
@@ -191,6 +195,7 @@ describe('SessionService', () => {
 
   it('should return a shorter info based on partial os in user agent', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
+      ua: 'dummy-data',
       browser: { name: 'Chrome', version: '69.0' },
       os: { name: 'Windows', version: '' }
     })
@@ -198,6 +203,7 @@ describe('SessionService', () => {
     expect(createService().getDeviceInfo(session)).toEqual('Chrome 69.0 on Windows')
 
     deviceDetector.getResult = jest.fn().mockReturnValue({
+      ua: 'dummy-data',
       browser: { name: 'Chrome', version: '69.0' },
       os: { name: '', version: '7' }
     })
@@ -207,6 +213,7 @@ describe('SessionService', () => {
 
   it('should return a shorter info based on partial client in user agent', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
+      ua: 'dummy-data',
       browser: { name: '', version: '69.0' },
       os: { name: 'Windows', version: '7' }
     })
@@ -214,6 +221,7 @@ describe('SessionService', () => {
     expect(createService().getDeviceInfo(session)).toEqual('69.0 on Windows 7')
 
     deviceDetector.getResult = jest.fn().mockReturnValue({
+      ua: 'dummy-data',
       browser: { name: 'Chrome', version: '' },
       os: { name: 'Windows', version: '7' }
     })
@@ -236,6 +244,7 @@ describe('SessionService', () => {
 
   it('should return a shorter info based on partial client and partial os in user agent', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
+      ua: 'dummy-data',
       browser: { name: '', version: '69.0' },
       os: { name: 'Windows', version: '' }
     })
@@ -243,6 +252,7 @@ describe('SessionService', () => {
     expect(createService().getDeviceInfo(session)).toEqual('69.0 on Windows')
 
     deviceDetector.getResult = jest.fn().mockReturnValue({
+      ua: 'dummy-data',
       browser: { name: 'Chrome', version: '' },
       os: { name: '', version: '7' }
     })
@@ -252,11 +262,25 @@ describe('SessionService', () => {
 
   it('should return only Android os for okHttp client', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
+      ua: 'dummy-data',
       browser: { name: 'okHttp', version: '3.14' },
       os: { name: 'Android', version: '' }
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('Android')
+  })
+
+  it('should detect the StandardNotes app in user agent', () => {
+    deviceDetector.getResult = jest.fn().mockReturnValue({
+      ua: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) StandardNotes/3.5.18 Chrome/83.0.4103.122 Electron/9.2.1 Safari/537.36',
+      browser: { name: 'Chrome', version: '83.0.4103.122', major: '83' },
+      engine: { name: 'Blink', version: '83.0.4103.122' },
+      os: { name: 'Mac OS', version: '10.16.0' },
+      device: { vendor: undefined, model: undefined, type: undefined },
+      cpu: { architecture: undefined }
+    })
+
+    expect(createService().getDeviceInfo(session)).toEqual('StandardNotes Desktop App 3.5.18 on Mac OS 10.16.0')
   })
 
   it('should return device info fallback to user agent', () => {
