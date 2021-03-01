@@ -280,7 +280,7 @@ describe('SessionService', () => {
       cpu: { architecture: undefined }
     })
 
-    expect(createService().getDeviceInfo(session)).toEqual('StandardNotes Desktop App 3.5.18 on Mac OS 10.16.0')
+    expect(createService().getDeviceInfo(session)).toEqual('Standard Notes Desktop App 3.5.18 on Mac OS 10.16.0')
   })
 
   it('should return device info fallback to user agent', () => {
