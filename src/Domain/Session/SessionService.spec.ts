@@ -262,9 +262,12 @@ describe('SessionService', () => {
 
   it('should return only Android os for okHttp client', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
-      ua: 'dummy-data',
-      browser: { name: 'okHttp', version: '3.14' },
-      os: { name: 'Android', version: '' }
+      ua: 'okhttp/3.12.12',
+      browser: { name: undefined, version: undefined, major: undefined },
+      engine: { name: undefined, version: undefined },
+      os: { name: undefined, version: undefined },
+      device: { vendor: undefined, model: undefined, type: undefined },
+      cpu: { architecture: undefined }
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('Android')
