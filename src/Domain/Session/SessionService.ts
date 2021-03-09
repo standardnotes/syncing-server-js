@@ -93,8 +93,8 @@ export class SessionService implements SessionServiceInterace {
       const osInfo = `${userAgentParsed.os.name ?? ''} ${userAgentParsed.os.version ?? ''}`.trim()
       let clientInfo = `${userAgentParsed.browser.name ?? ''} ${userAgentParsed.browser.version ?? ''}`.trim()
 
-      if (clientInfo.indexOf('okHttp') >= 0) {
-        return osInfo
+      if (userAgentParsed.ua.toLowerCase().indexOf('okhttp') >= 0) {
+        return 'Android'
       }
 
       const desktopAppMatches = [...userAgentParsed.ua.matchAll(/(.*)StandardNotes\/((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))/g)]
