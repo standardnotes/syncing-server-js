@@ -15,7 +15,9 @@ describe('ItemService', () => {
 
   beforeEach(() => {
     item1 = {} as jest.Mocked<Item>
-    item2 = {} as jest.Mocked<Item>
+    item2 = {
+      updatedAt: new Date('2021-03-15 10:00:00')
+    } as jest.Mocked<Item>
 
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
     itemRepository.findAll = jest.fn().mockReturnValue([item1, item2])
@@ -35,7 +37,7 @@ describe('ItemService', () => {
         contentType: Item.CONTENT_TYPE_NOTE
       })
     ).toEqual({
-      cursorToken: 'MjpOYU4=',
+      cursorToken: 'MjoxNjE1Nzk4ODAwMDAwLjAwMQ==',
       items: [ item1, item2 ]
     })
 
@@ -57,7 +59,7 @@ describe('ItemService', () => {
         contentType: Item.CONTENT_TYPE_NOTE
       })
     ).toEqual({
-      cursorToken: 'MjpOYU4=',
+      cursorToken: 'MjoxNjE1Nzk4ODAwMDAwLjAwMQ==',
       items: [ item1, item2 ]
     })
 
@@ -83,7 +85,7 @@ describe('ItemService', () => {
         contentType: Item.CONTENT_TYPE_NOTE
       })
     ).toEqual({
-      cursorToken: 'MjpOYU4=',
+      cursorToken: 'MjoxNjE1Nzk4ODAwMDAwLjAwMQ==',
       items: [ item1, item2 ]
     })
 
@@ -104,7 +106,7 @@ describe('ItemService', () => {
         contentType: Item.CONTENT_TYPE_NOTE
       })
     ).toEqual({
-      cursorToken: 'MjpOYU4=',
+      cursorToken: 'MjoxNjE1Nzk4ODAwMDAwLjAwMQ==',
       items: [ item1, item2 ]
     })
 
