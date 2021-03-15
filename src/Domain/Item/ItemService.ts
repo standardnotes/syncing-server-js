@@ -35,7 +35,7 @@ export class ItemService implements ItemServiceInterface {
     const items = await this.itemRepository.findAll(itemQuery)
 
     lastSyncTime = items[items.length - 1].updatedAt
-    const cursorToken = Buffer.from(`${this.SYNC_TOKEN_VERSION}:${+lastSyncTime}`, 'utf-8').toString('base64')
+    const cursorToken = Buffer.from(`${this.SYNC_TOKEN_VERSION}:${+lastSyncTime + 1/1000}`, 'utf-8').toString('base64')
 
     return {
       items,
