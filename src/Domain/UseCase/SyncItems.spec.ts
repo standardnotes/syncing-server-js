@@ -30,6 +30,7 @@ describe('SyncItems', () => {
 
   it('should sync items', async() => {
     expect(await createUseCase().execute({
+      userUuid: '1-2-3',
       itemHashes: [ 'asdzxc123' ],
       syncToken: 'foo',
       cursorToken: 'bar',
@@ -48,7 +49,13 @@ describe('SyncItems', () => {
       syncToken: 'qwerty',
     })
 
-    expect(itemService.getItems).toHaveBeenCalledWith('foo', 'bar', 10, 'Note')
+    expect(itemService.getItems).toHaveBeenCalledWith({
+      contentType: 'Note',
+      cursorToken: 'bar',
+      limit: 10,
+      syncToken: 'foo',
+      userUuid: '1-2-3'
+    })
     expect(itemService.saveItems).toHaveBeenCalledWith([ 'asdzxc123' ], 'Google Chrome', [ item1 ])
   })
 })
