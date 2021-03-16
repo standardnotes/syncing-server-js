@@ -82,12 +82,12 @@ export class Revision {
   @JoinTable({
     name: 'item_revisions',
     joinColumn: {
-        name: 'revision_uuid',
-        referencedColumnName: 'uuid'
+      name: 'revision_uuid',
+      referencedColumnName: 'uuid'
     },
     inverseJoinColumn: {
-        name: 'item_uuid',
-        referencedColumnName: 'uuid'
+      name: 'item_uuid',
+      referencedColumnName: 'uuid'
     }
   })
   items: Promise<Item[]>

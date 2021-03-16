@@ -1,42 +1,76 @@
-# syncing-server-js
-Standard Notes server
+# Standard Notes Syncing Server
 
-## Setting Up
+You can run your own Standard Notes server and use it with any Standard Notes app. This allows you to have 100% control of your data. This server is built with TypeScript and can be deployed in minutes.
+
+**Requirements**
+
+- Docker
+
+**Data persistency**
+
+Your MySQL Data will be written to your local disk in the `data` folder to keep it persistent between server runs.
+
+### Getting started
+
+1. Clone the project:
+
+	```
+	git clone --branch main https://github.com/standardnotes/syncing-server-js.git
+	```
+
+1. Setup the server by running:
+```
+./server.sh setup
+```
+
+1. Run the server by typing:
+```
+./server.sh start
+```
+
+Your server should now be available under http://localhost:3000
+
+### Logs
+
+You can check the logs of the running server by typing:
 
 ```
-yarn install --pure-lockfile
+./server.sh logs
 ```
 
-## Configure
+### Stopping the Server
 
-Copy the sample configuration file and apply changes if needed:
+In order to stop the server type:
 ```
-cp .env.sample .env
-```
-
-## Building
-
-```
-yarn build
+./server.sh stop
 ```
 
-## Testing
+### Updating to latest version
 
-You can run test by typing:
+In order to update to the latest version of our software please first stop the server and then type:
+
 ```
+./server.sh update
+```
+
+### Checking Status
+
+You can check the status of running services by typing:
+```
+./server.sh status
+```
+
+### Cleanup Data
+
+Please use this step with caution. In order to remove all your data and start with a fresh environment please type:
+```
+./server.sh cleanup
+```
+
+### Tests
+
+To execute all of the test specs, run the following command at the root of the project directory:
+
+```bash
 yarn test
 ```
-
-If you'd like to see the code coverage please type
-```
-yarn coverage
-```
-
-## Running
-
-To run the server make sure it is built then run:
-```
-yarn start
-```
-
-Your server should be available at http://localhost:3000

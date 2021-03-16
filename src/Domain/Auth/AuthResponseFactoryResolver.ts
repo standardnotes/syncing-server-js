@@ -21,14 +21,14 @@ export class AuthResponseFactoryResolver implements AuthResponseFactoryResolverI
     this.logger.debug(`Resolving auth response factory for api version: ${apiVersion}`)
 
     switch(apiVersion) {
-      case '20161215':
-        return this.authResponseFactory20161215
-      case '20190520':
-        return this.authResponseFactory20190520
-      case '20200115':
-        return this.authResponseFactory20200115
-      default:
-        throw Error(`Not supported api version: ${apiVersion}`)
+    case '20161215':
+      return this.authResponseFactory20161215
+    case '20190520':
+      return this.authResponseFactory20190520
+    case '20200115':
+      return this.authResponseFactory20200115
+    default:
+      throw Error(`Not supported api version: ${apiVersion}`)
     }
   }
 }

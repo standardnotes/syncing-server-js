@@ -48,43 +48,43 @@ export class AuthenticateUser implements UseCaseInterface {
     }
 
     switch(authenticationMethod.type) {
-      case 'jwt': {
-        const pwHash = <string> (<Record<string, unknown>> authenticationMethod.claims).pw_hash
-        const encryptedPasswordDigest = crypto.createHash('sha256').update(user.encryptedPassword).digest('hex')
+    case 'jwt': {
+      const pwHash = <string> (<Record<string, unknown>> authenticationMethod.claims).pw_hash
+      const encryptedPasswordDigest = crypto.createHash('sha256').update(user.encryptedPassword).digest('hex')
 
-        if (!pwHash || !crypto.timingSafeEqual(Buffer.from(pwHash), Buffer.from(encryptedPasswordDigest))) {
-          return {
-            success: false,
-            failureType: 'INVALID_AUTH'
-          }
+      if (!pwHash || !crypto.timingSafeEqual(Buffer.from(pwHash), Buffer.from(encryptedPasswordDigest))) {
+        return {
+          success: false,
+          failureType: 'INVALID_AUTH'
         }
-        break
       }
-      case 'session_token': {
-        const session = authenticationMethod.session
-        if (!session) {
-          return {
-            success: false,
-            failureType: 'INVALID_AUTH'
-          }
+      break
+    }
+    case 'session_token': {
+      const session = authenticationMethod.session
+      if (!session) {
+        return {
+          success: false,
+          failureType: 'INVALID_AUTH'
         }
-
-        if (session.refreshExpiration < dayjs.utc().toDate()) {
-          return {
-            success: false,
-            failureType: 'INVALID_AUTH'
-          }
-        }
-
-        if (session.accessExpiration < dayjs.utc().toDate()) {
-          return {
-            success: false,
-            failureType: 'EXPIRED_TOKEN'
-          }
-        }
-
-        break
       }
+
+      if (session.refreshExpiration < dayjs.utc().toDate()) {
+        return {
+          success: false,
+          failureType: 'INVALID_AUTH'
+        }
+      }
+
+      if (session.accessExpiration < dayjs.utc().toDate()) {
+        return {
+          success: false,
+          failureType: 'EXPIRED_TOKEN'
+        }
+      }
+
+      break
+    }
     }
 
     return {

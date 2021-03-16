@@ -1,5 +1,4 @@
 node_modules
-.env
 dist
 
 yarn-error.log
@@ -12,3 +11,9 @@ junit.xml
 
 # MySQL data
 data
+
+# Ignore ENV variables config
+.env
+auth.env
+api-gateway.env
+syncing-server.env

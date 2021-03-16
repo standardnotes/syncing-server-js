@@ -6,15 +6,18 @@ import { AuthMiddlewareWithoutResponse } from './AuthMiddlewareWithoutResponse'
 import { AuthenticateUser } from '../Domain/UseCase/AuthenticateUser'
 import { NextFunction, Request, Response } from 'express'
 import { User } from '../Domain/User/User'
+import { Session } from '../Domain/Session/Session'
+import { sign } from 'jsonwebtoken'
 
 describe('AuthMiddlewareWithoutResponse', () => {
   let logger: winston.Logger
   let authenticateUser: AuthenticateUser
+  const jwtSecret = 'auth_jwt_secret'
   let request: Request
   let response: Response
   let next: NextFunction
 
-  const createMiddleware = () => new AuthMiddlewareWithoutResponse(authenticateUser, logger)
+  const createMiddleware = () => new AuthMiddlewareWithoutResponse(authenticateUser, jwtSecret, logger)
 
   beforeEach(() => {
     authenticateUser = {} as jest.Mocked<AuthenticateUser>
@@ -22,12 +25,14 @@ describe('AuthMiddlewareWithoutResponse', () => {
 
     logger = {} as jest.Mocked<winston.Logger>
     logger.info = jest.fn()
+    logger.debug = jest.fn()
     logger.warn = jest.fn()
     logger.error = jest.fn()
 
     request = {
       headers: {}
     } as jest.Mocked<Request>
+    request.header = jest.fn()
     response = {
       locals: {}
     } as jest.Mocked<Response>
@@ -48,6 +53,46 @@ describe('AuthMiddlewareWithoutResponse', () => {
     await createMiddleware().handler(request, response, next)
 
     expect(response.locals.user).toEqual(user)
+
+    expect(next).toHaveBeenCalled()
+  })
+
+  it('should authorize user from an auth JWT token if present', async () => {
+    const user = {} as jest.Mocked<User>
+    const session = {} as jest.Mocked<Session>
+
+    const authToken = sign({
+      user,
+      session,
+      roles: [],
+      permissions: []
+    }, jwtSecret, { algorithm: 'HS256' })
+
+    request.header = jest.fn().mockReturnValue(authToken)
+
+    await createMiddleware().handler(request, response, next)
+
+    expect(response.locals.user).toEqual(user)
+    expect(response.locals.session).toEqual(session)
+
+    expect(next).toHaveBeenCalled()
+    expect(authenticateUser.execute).not.toHaveBeenCalled()
+  })
+
+  it('should not authorize user from an auth JWT token if it is invalid', async () => {
+    const user = {} as jest.Mocked<User>
+    const session = {} as jest.Mocked<Session>
+
+    const authToken = sign({
+      user,
+      session,
+      roles: [],
+      permissions: []
+    }, jwtSecret, { algorithm: 'HS256', notBefore: '2 days' })
+
+    request.header = jest.fn().mockReturnValue(authToken)
+
+    await createMiddleware().handler(request, response, next)
 
     expect(next).toHaveBeenCalled()
   })

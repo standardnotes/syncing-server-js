@@ -13,7 +13,7 @@ export class SessionsController extends BaseHttpController {
     @inject(TYPES.GetActiveSessionsForUser) private getActiveSessionsForUser: GetActiveSessionsForUser,
     @inject(TYPES.SessionProjector) private sessionProjector: ProjectorInterface<Session>
   ) {
-      super()
+    super()
   }
 
   @httpGet('/')
