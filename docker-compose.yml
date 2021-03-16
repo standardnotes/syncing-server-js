@@ -44,8 +44,6 @@ services:
       MYSQL_USER: '${DB_USERNAME}'
       MYSQL_PASSWORD: '${DB_PASSWORD}'
       MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
-    expose:
-      - 3306
     ports:
       - 32789:3306
     restart: unless-stopped
@@ -59,8 +57,6 @@ services:
     image: redis:6.0-alpine
     volumes:
       - ./data/redis/:/data
-    expose:
-      - 6379
     ports:
       - 6380:6379
     networks:
