@@ -2,7 +2,7 @@ export type ItemQuery = {
   userUuid: string
   sortBy: string
   limit: number
-  lastSyncTime?: Date
+  lastSyncTime?: number
   contentType?: string
   deleted?: boolean
 }

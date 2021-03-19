@@ -1,4 +1,3 @@
-import dayjs = require('dayjs')
 import 'reflect-metadata'
 import { Item } from './Item'
 
@@ -16,14 +15,13 @@ describe('ItemService', () => {
   beforeEach(() => {
     item1 = {} as jest.Mocked<Item>
     item2 = {
-      updatedAt: new Date('2021-03-15 10:00:00')
+      updatedAt: 1616164633241312
     } as jest.Mocked<Item>
 
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
     itemRepository.findAll = jest.fn().mockReturnValue([item1, item2])
 
-    const timestamp = +dayjs.utc('2021-03-15 07:00:00').toDate() / 1000
-    syncToken = Buffer.from(`2:${timestamp}`, 'utf-8').toString('base64')
+    syncToken = Buffer.from('2:1616164633.241564', 'utf-8').toString('base64')
   })
 
   it('should retrieve all items for a user from last sync with sync token version 1', async () => {
@@ -37,13 +35,13 @@ describe('ItemService', () => {
         contentType: Item.CONTENT_TYPE_NOTE
       })
     ).toEqual({
-      cursorToken: 'MjoxNjE1Nzk4ODAwMDAwLjAwMQ==',
+      cursorToken: 'MjoxNjE2MTY0NjMzLjI0MTMxMw==',
       items: [ item1, item2 ]
     })
 
     expect(itemRepository.findAll).toHaveBeenCalledWith({
       contentType: 'Note',
-      lastSyncTime: dayjs.utc('2021-03-15 07:00:00').toDate(),
+      lastSyncTime: 1615791600000000,
       sortBy: 'updatedAt',
       userUuid: '1-2-3',
       limit: 100
@@ -59,13 +57,13 @@ describe('ItemService', () => {
         contentType: Item.CONTENT_TYPE_NOTE
       })
     ).toEqual({
-      cursorToken: 'MjoxNjE1Nzk4ODAwMDAwLjAwMQ==',
+      cursorToken: 'MjoxNjE2MTY0NjMzLjI0MTMxMw==',
       items: [ item1, item2 ]
     })
 
     expect(itemRepository.findAll).toHaveBeenCalledWith({
       contentType: 'Note',
-      lastSyncTime: dayjs.utc('2021-03-15 07:00:00').toDate(),
+      lastSyncTime: 1616164633241564,
       sortBy: 'updatedAt',
       userUuid: '1-2-3',
       limit: 100
@@ -73,8 +71,7 @@ describe('ItemService', () => {
   })
 
   it('should retrieve all items for a user from cursor token', async () => {
-    const timestamp = +dayjs.utc('2020-03-12 07:00:00').toDate() / 1000
-    const cursorToken = Buffer.from(`2:${timestamp}`, 'utf-8').toString('base64')
+    const cursorToken = Buffer.from('2:1616164633.241123', 'utf-8').toString('base64')
 
     expect(
       await createService().getItems({
@@ -85,13 +82,13 @@ describe('ItemService', () => {
         contentType: Item.CONTENT_TYPE_NOTE
       })
     ).toEqual({
-      cursorToken: 'MjoxNjE1Nzk4ODAwMDAwLjAwMQ==',
+      cursorToken: 'MjoxNjE2MTY0NjMzLjI0MTMxMw==',
       items: [ item1, item2 ]
     })
 
     expect(itemRepository.findAll).toHaveBeenCalledWith({
       contentType: 'Note',
-      lastSyncTime: dayjs.utc('2020-03-12 07:00:00').toDate(),
+      lastSyncTime: 1616164633241123,
       sortBy: 'updatedAt',
       userUuid: '1-2-3',
       limit: 100
@@ -106,7 +103,7 @@ describe('ItemService', () => {
         contentType: Item.CONTENT_TYPE_NOTE
       })
     ).toEqual({
-      cursorToken: 'MjoxNjE1Nzk4ODAwMDAwLjAwMQ==',
+      cursorToken: 'MjoxNjE2MTY0NjMzLjI0MTMxMw==',
       items: [ item1, item2 ]
     })
 
@@ -128,7 +125,7 @@ describe('ItemService', () => {
 
     expect(itemRepository.findAll).toHaveBeenCalledWith({
       contentType: 'Note',
-      lastSyncTime: dayjs.utc('2021-03-15 07:00:00').toDate(),
+      lastSyncTime: 1616164633241564,
       sortBy: 'updatedAt',
       userUuid: '1-2-3',
       limit: 100000
@@ -145,7 +142,7 @@ describe('ItemService', () => {
 
     expect(itemRepository.findAll).toHaveBeenCalledWith({
       contentType: 'Note',
-      lastSyncTime: dayjs.utc('2021-03-15 07:00:00').toDate(),
+      lastSyncTime: 1616164633241564,
       sortBy: 'updatedAt',
       userUuid: '1-2-3',
       limit: 100000

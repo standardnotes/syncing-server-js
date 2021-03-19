@@ -21,7 +21,7 @@ export class ItemService implements ItemServiceInterface {
   }
 
   async getItems(dto: GetItemsDTO): Promise<GetItemsResult> {
-    let lastSyncTime = this.getLastSyncTime(dto)
+    const lastSyncTime = this.getLastSyncTime(dto)
 
     const itemQuery: ItemQuery = {
       userUuid: dto.userUuid,
@@ -34,8 +34,8 @@ export class ItemService implements ItemServiceInterface {
 
     const items = await this.itemRepository.findAll(itemQuery)
 
-    lastSyncTime = items[items.length - 1].updatedAt
-    const cursorToken = Buffer.from(`${this.SYNC_TOKEN_VERSION}:${+lastSyncTime + 1/1000}`, 'utf-8').toString('base64')
+    const lastSyncTimeWithPrecautiousMicrosecond = (items[items.length - 1].updatedAt + 1) / 1000000
+    const cursorToken = Buffer.from(`${this.SYNC_TOKEN_VERSION}:${lastSyncTimeWithPrecautiousMicrosecond}`, 'utf-8').toString('base64')
 
     return {
       items,
@@ -47,7 +47,7 @@ export class ItemService implements ItemServiceInterface {
     throw new Error('Method not implemented.')
   }
 
-  private getLastSyncTime(dto: GetItemsDTO): Date | undefined {
+  private getLastSyncTime(dto: GetItemsDTO): number | undefined {
     let token = dto.syncToken
     if (dto.cursorToken) {
       token = dto.cursorToken
@@ -64,9 +64,9 @@ export class ItemService implements ItemServiceInterface {
 
     switch(version) {
     case '1':
-      return dayjs.utc(tokenParts.join(':')).toDate()
+      return dayjs.utc(tokenParts.join(':')).valueOf() * 1000
     case '2':
-      return dayjs.unix(+tokenParts[0]).toDate()
+      return +tokenParts[0] * 1000000
     default:
       throw Error('Sync token is missing version part')
     }
