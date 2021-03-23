@@ -13,12 +13,13 @@ export class SyncItems implements UseCaseInterface {
   }
 
   async execute(dto: SyncItemsDTO): Promise<SyncItemsResponse> {
-    const getItemsResult = await this.itemService.getItems(
-      dto.syncToken,
-      dto.cursorToken,
-      dto.limit,
-      dto.contentType
-    )
+    const getItemsResult = await this.itemService.getItems({
+      userUuid: dto.userUuid,
+      syncToken: dto.syncToken,
+      cursorToken: dto.cursorToken,
+      limit: dto.limit,
+      contentType: dto.contentType
+    })
 
     const saveItemsResult = await this.itemService.saveItems(
       dto.itemHashes,

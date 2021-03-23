@@ -1,11 +1,16 @@
 import { injectable } from 'inversify'
 import { EntityRepository, Repository } from 'typeorm'
 import { Item } from '../../Domain/Item/Item'
+import { ItemQuery } from '../../Domain/Item/ItemQuery'
 import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterface'
 
 @injectable()
 @EntityRepository(Item)
 export class MySQLItemRepository extends Repository<Item> implements ItemRepositoryInterface {
+  async findAll(_query: ItemQuery): Promise<Item[]> {
+    throw new Error('Method not implemented.')
+  }
+
   async findMFAExtensionByUserUuid(userUuid: string): Promise<Item | undefined> {
     return this.createQueryBuilder('item')
       .where(

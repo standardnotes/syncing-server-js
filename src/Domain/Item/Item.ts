@@ -3,8 +3,10 @@ import { Revision } from '../Revision/Revision'
 
 @Entity({ name: 'items' })
 @Index('index_items_on_user_uuid_and_content_type', ['userUuid', 'contentType'])
-@Index('index_items_on_user_uuid_and_updated_at_and_created_at', ['userUuid', 'updatedAt', 'createdAt'])
+@Index('user_uuid_and_updated_at_timestamp_and_created_at_timestamp', ['userUuid', 'updatedAt', 'createdAt'])
 export class Item {
+  static readonly CONTENT_TYPE_NOTE = 'Note'
+
   @PrimaryColumn({
     length: 36
   })
@@ -77,19 +79,17 @@ export class Item {
   lastUserAgent: string
 
   @Column({
-    name: 'created_at',
-    type: 'datetime',
-    precision: 6
+    name: 'created_at_timestamp',
+    type: 'bigint'
   })
-  createdAt: Date
+  createdAt: number
 
   @Column({
-    name: 'updated_at',
-    type: 'datetime',
-    precision: 6
+    name: 'updated_at_timestamp',
+    type: 'bigint'
   })
-  @Index('index_items_on_updated_at')
-  updatedAt: Date
+  @Index('updated_at_timestamp')
+  updatedAt: number
 
   @ManyToMany(
     /* istanbul ignore next */

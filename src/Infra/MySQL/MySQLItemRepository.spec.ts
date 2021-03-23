@@ -36,4 +36,18 @@ describe('MySQLItemRepository', () => {
     )
     expect(result).toEqual(item)
   })
+
+  it('should have finding items not implemented yet', async () => {
+    let error = null
+    try {
+      await repository.findAll({
+        userUuid: '1-2-3',
+        sortBy: 'updatedAt'
+      })
+    } catch (e) {
+      error = e
+    }
+
+    expect(error.message).toEqual('Method not implemented.')
+  })
 })
