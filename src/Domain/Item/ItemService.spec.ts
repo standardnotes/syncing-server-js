@@ -13,7 +13,9 @@ describe('ItemService', () => {
   const createService = () => new ItemService(itemRepository)
 
   beforeEach(() => {
-    item1 = {} as jest.Mocked<Item>
+    item1 = {
+      updatedAt: 1616164633241311
+    } as jest.Mocked<Item>
     item2 = {
       updatedAt: 1616164633241312
     } as jest.Mocked<Item>
@@ -35,7 +37,6 @@ describe('ItemService', () => {
         contentType: Item.CONTENT_TYPE_NOTE
       })
     ).toEqual({
-      cursorToken: 'MjoxNjE2MTY0NjMzLjI0MTMxMw==',
       items: [ item1, item2 ]
     })
 
@@ -43,8 +44,7 @@ describe('ItemService', () => {
       contentType: 'Note',
       lastSyncTime: 1615791600000000,
       sortBy: 'updatedAt',
-      userUuid: '1-2-3',
-      limit: 100
+      userUuid: '1-2-3'
     })
   })
 
@@ -57,7 +57,6 @@ describe('ItemService', () => {
         contentType: Item.CONTENT_TYPE_NOTE
       })
     ).toEqual({
-      cursorToken: 'MjoxNjE2MTY0NjMzLjI0MTMxMw==',
       items: [ item1, item2 ]
     })
 
@@ -65,8 +64,30 @@ describe('ItemService', () => {
       contentType: 'Note',
       lastSyncTime: 1616164633241564,
       sortBy: 'updatedAt',
+      userUuid: '1-2-3'
+    })
+  })
+
+  it('should return a cursor token if there are more items than requested with limit', async () => {
+    const itemsResponse = await createService().getItems({
       userUuid: '1-2-3',
-      limit: 100
+      syncToken,
+      limit: 1,
+      contentType: Item.CONTENT_TYPE_NOTE
+    })
+
+    expect(itemsResponse).toEqual({
+      cursorToken: 'MjoxNjE2MTY0NjMzLjI0MTMxMQ==',
+      items: [ item1 ]
+    })
+
+    expect(Buffer.from(<string> itemsResponse.cursorToken, 'base64').toString('utf-8')).toEqual('2:1616164633.241311')
+
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      contentType: 'Note',
+      lastSyncTime: 1616164633241564,
+      sortBy: 'updatedAt',
+      userUuid: '1-2-3'
     })
   })
 
@@ -82,7 +103,6 @@ describe('ItemService', () => {
         contentType: Item.CONTENT_TYPE_NOTE
       })
     ).toEqual({
-      cursorToken: 'MjoxNjE2MTY0NjMzLjI0MTMxMw==',
       items: [ item1, item2 ]
     })
 
@@ -90,8 +110,7 @@ describe('ItemService', () => {
       contentType: 'Note',
       lastSyncTime: 1616164633241123,
       sortBy: 'updatedAt',
-      userUuid: '1-2-3',
-      limit: 100
+      userUuid: '1-2-3'
     })
   })
 
@@ -103,7 +122,6 @@ describe('ItemService', () => {
         contentType: Item.CONTENT_TYPE_NOTE
       })
     ).toEqual({
-      cursorToken: 'MjoxNjE2MTY0NjMzLjI0MTMxMw==',
       items: [ item1, item2 ]
     })
 
@@ -111,8 +129,7 @@ describe('ItemService', () => {
       contentType: 'Note',
       deleted: false,
       sortBy: 'updatedAt',
-      userUuid: '1-2-3',
-      limit: 100
+      userUuid: '1-2-3'
     })
   })
 
@@ -127,8 +144,7 @@ describe('ItemService', () => {
       contentType: 'Note',
       lastSyncTime: 1616164633241564,
       sortBy: 'updatedAt',
-      userUuid: '1-2-3',
-      limit: 100000
+      userUuid: '1-2-3'
     })
   })
 
@@ -144,8 +160,7 @@ describe('ItemService', () => {
       contentType: 'Note',
       lastSyncTime: 1616164633241564,
       sortBy: 'updatedAt',
-      userUuid: '1-2-3',
-      limit: 100000
+      userUuid: '1-2-3'
     })
   })
 

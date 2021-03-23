@@ -28,14 +28,18 @@ export class ItemService implements ItemServiceInterface {
       lastSyncTime,
       contentType: dto.contentType,
       deleted: lastSyncTime ? undefined : false,
-      sortBy: 'updatedAt',
-      limit: !dto.limit || dto.limit < 1 ? this.DEFAULT_ITEMS_LIMIT : dto.limit
+      sortBy: 'updatedAt'
     }
 
-    const items = await this.itemRepository.findAll(itemQuery)
+    let items = await this.itemRepository.findAll(itemQuery)
 
-    const lastSyncTimeWithPrecautiousMicrosecond = (items[items.length - 1].updatedAt + 1) / 1000000
-    const cursorToken = Buffer.from(`${this.SYNC_TOKEN_VERSION}:${lastSyncTimeWithPrecautiousMicrosecond}`, 'utf-8').toString('base64')
+    let cursorToken = undefined
+    const limit = !dto.limit || dto.limit < 1 ? this.DEFAULT_ITEMS_LIMIT : dto.limit
+    if (items.length > limit) {
+      items = items.slice(0, limit)
+      const lastSyncTime = (items[items.length - 1].updatedAt) / 1000000
+      cursorToken = Buffer.from(`${this.SYNC_TOKEN_VERSION}:${lastSyncTime}`, 'utf-8').toString('base64')
+    }
 
     return {
       items,

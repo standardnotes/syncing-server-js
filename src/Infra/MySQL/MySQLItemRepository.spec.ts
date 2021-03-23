@@ -42,8 +42,7 @@ describe('MySQLItemRepository', () => {
     try {
       await repository.findAll({
         userUuid: '1-2-3',
-        sortBy: 'updatedAt',
-        limit: 100
+        sortBy: 'updatedAt'
       })
     } catch (e) {
       error = e
