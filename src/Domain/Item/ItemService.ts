@@ -17,6 +17,7 @@ import { SaveItemsResult } from './SaveItemsResult'
 export class ItemService implements ItemServiceInterface {
   private readonly DEFAULT_ITEMS_LIMIT = 100000
   private readonly SYNC_TOKEN_VERSION = 2
+  private readonly MIN_CONFLICT_INTERVAL_MICROSECONDS = 1000000
 
   constructor (
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
@@ -56,10 +57,16 @@ export class ItemService implements ItemServiceInterface {
     const savedItems: Array<Item> = []
     const conflicts: Array<ItemConflict> = []
 
-    await Promise.all(dto.items.map(async (item: ItemHash) => {
+    await Promise.all(dto.itemHashes.map(async (item: ItemHash) => {
       const existingItem = await this.itemRepository.findByUuidAndUserUuid(item.uuid, dto.userUuid)
 
-
+      if (existingItem && this.itemShouldNotBeSaved(item, existingItem)) {
+        conflicts.push({
+          serverItem: existingItem,
+          type: 'sync_conflict'
+        })
+        // dto.retrievedItems.delete
+      }
     }))
 
     return {
@@ -68,15 +75,19 @@ export class ItemService implements ItemServiceInterface {
     }
   }
 
-  private async shouldItemBeSaved(incomingItem: ItemHash, existingItem: Item): Promise<boolean> {
+  private async itemShouldNotBeSaved(incomingItem: ItemHash, existingItem: Item): Promise<boolean> {
     const incomingUpdatedAtTimestamp = incomingItem.updated_at ?
       dayjs.utc(incomingItem.updated_at).valueOf() * 1000 :
       dayjs.utc().valueOf() * 1000
 
-      const ourUpdatedAtTimestamp = existingItem.updatedAt
-      const difference = incomingUpdatedAtTimestamp - ourUpdatedAtTimestamp
+    const ourUpdatedAtTimestamp = existingItem.updatedAt
+    const difference = incomingUpdatedAtTimestamp - ourUpdatedAtTimestamp
 
+    if (difference == 0) {
+      return true
+    }
 
+    return Math.abs(difference) < this.MIN_CONFLICT_INTERVAL_MICROSECONDS
   }
 
   private getLastSyncTime(dto: GetItemsDTO): number | undefined {

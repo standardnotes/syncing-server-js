@@ -31,7 +31,11 @@ describe('SyncItems', () => {
   it('should sync items', async() => {
     expect(await createUseCase().execute({
       userUuid: '1-2-3',
-      itemHashes: [ 'asdzxc123' ],
+      itemHashes: [
+        {
+          uuid: '2-3-4'
+        }
+      ],
       syncToken: 'foo',
       cursorToken: 'bar',
       limit: 10,
@@ -45,8 +49,7 @@ describe('SyncItems', () => {
       ],
       savedItems: [
         item2,
-      ],
-      syncToken: 'qwerty',
+      ]
     })
 
     expect(itemService.getItems).toHaveBeenCalledWith({

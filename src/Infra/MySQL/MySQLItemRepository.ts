@@ -7,6 +7,10 @@ import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterfa
 @injectable()
 @EntityRepository(Item)
 export class MySQLItemRepository extends Repository<Item> implements ItemRepositoryInterface {
+  async findByUuidAndUserUuid(_uuid: string, _userUuid: string): Promise<Item | undefined> {
+    throw new Error('Method not implemented.')
+  }
+
   async findAll(query: ItemQuery): Promise<Item[]> {
     const queryBuilder = this.createQueryBuilder('item')
     queryBuilder.where('item.user_uuid = :userUuid', { userUuid: query.userUuid })

@@ -21,17 +21,21 @@ export class SyncItems implements UseCaseInterface {
       contentType: dto.contentType
     })
 
-    const saveItemsResult = await this.itemService.saveItems(
-      dto.itemHashes,
-      dto.userAgent,
-      getItemsResult.items
-    )
+    const saveItemsResult = await this.itemService.saveItems({
+      itemHashes: dto.itemHashes,
+      userAgent: dto.userAgent,
+      userUuid: dto.userUuid,
+      retrievedItems: getItemsResult.items
+    })
+
+    // calculate sync token
+    const syncToken = ''
 
     return {
       retrievedItems: getItemsResult.items,
       savedItems: saveItemsResult.savedItems,
       conflicts: saveItemsResult.conflicts,
-      syncToken: saveItemsResult.syncToken,
+      syncToken: syncToken,
       cursorToken: getItemsResult.cursorToken
     }
   }

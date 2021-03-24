@@ -211,15 +211,4 @@ describe('ItemService', () => {
 
     expect(error).not.toBeNull()
   })
-
-  it('should have saving items not implemented yet', async () => {
-    let error = null
-    try {
-      await createService().saveItems([], '', [])
-    } catch (e) {
-      error = e
-    }
-
-    expect(error.message).toEqual('Method not implemented.')
-  })
 })
