@@ -7,8 +7,21 @@ import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterfa
 @injectable()
 @EntityRepository(Item)
 export class MySQLItemRepository extends Repository<Item> implements ItemRepositoryInterface {
-  async findAll(_query: ItemQuery): Promise<Item[]> {
-    throw new Error('Method not implemented.')
+  async findAll(query: ItemQuery): Promise<Item[]> {
+    const queryBuilder = this.createQueryBuilder('item')
+    queryBuilder.where('item.user_uuid = :userUuid', { userUuid: query.userUuid })
+    queryBuilder.orderBy(`item.${query.sortBy}`, query.sortOrder)
+    if (query.deleted !== undefined) {
+      queryBuilder.where('item.deleted = :deleted', { deleted: query.deleted })
+    }
+    if (query.contentType) {
+      queryBuilder.where('item.content_type = :contentType', { contentType: query.contentType })
+    }
+    if (query.lastSyncTime && query.syncTimeComparison) {
+      queryBuilder.where(`item.updated_at_timestamp ${query.syncTimeComparison} :lastSyncTime`, { lastSyncTime: query.lastSyncTime })
+    }
+
+    return queryBuilder.getMany()
   }
 
   async findMFAExtensionByUserUuid(userUuid: string): Promise<Item | undefined> {

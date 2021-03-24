@@ -37,17 +37,48 @@ describe('MySQLItemRepository', () => {
     expect(result).toEqual(item)
   })
 
-  it('should have finding items not implemented yet', async () => {
-    let error = null
-    try {
-      await repository.findAll({
-        userUuid: '1-2-3',
-        sortBy: 'updatedAt'
-      })
-    } catch (e) {
-      error = e
-    }
+  it('should find items by all query criteria filled in', async () => {
+    queryBuilder.getMany = jest.fn().mockReturnValue([ item ])
+    queryBuilder.where = jest.fn()
+    queryBuilder.orderBy = jest.fn()
 
-    expect(error.message).toEqual('Method not implemented.')
+    const result = await repository.findAll({
+      userUuid: '1-2-3',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'DESC',
+      deleted: false,
+      contentType: Item.CONTENT_TYPE_NOTE,
+      lastSyncTime: 123,
+      syncTimeComparison: '>='
+    })
+
+    expect(queryBuilder.where).toHaveBeenCalledTimes(4)
+    expect(queryBuilder.where).toHaveBeenNthCalledWith(1, 'item.user_uuid = :userUuid', { userUuid: '1-2-3' })
+    expect(queryBuilder.where).toHaveBeenNthCalledWith(2, 'item.deleted = :deleted', { deleted: false })
+    expect(queryBuilder.where).toHaveBeenNthCalledWith(3, 'item.content_type = :contentType', { contentType: 'Note' })
+    expect(queryBuilder.where).toHaveBeenNthCalledWith(4, 'item.updated_at_timestamp >= :lastSyncTime', { lastSyncTime: 123 })
+
+    expect(queryBuilder.orderBy).toHaveBeenCalledWith('item.updated_at_timestamp', 'DESC')
+
+    expect(result).toEqual([ item ])
+  })
+
+  it('should find items by only mandatory query criteria', async () => {
+    queryBuilder.getMany = jest.fn().mockReturnValue([ item ])
+    queryBuilder.where = jest.fn()
+    queryBuilder.orderBy = jest.fn()
+
+    const result = await repository.findAll({
+      userUuid: '1-2-3',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'DESC'
+    })
+
+    expect(queryBuilder.where).toHaveBeenCalledTimes(1)
+    expect(queryBuilder.where).toHaveBeenNthCalledWith(1, 'item.user_uuid = :userUuid', { userUuid: '1-2-3' })
+
+    expect(queryBuilder.orderBy).toHaveBeenCalledWith('item.updated_at_timestamp', 'DESC')
+
+    expect(result).toEqual([ item ])
   })
 })
