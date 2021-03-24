@@ -29,7 +29,7 @@ export class SyncItems implements UseCaseInterface {
 
     return {
       retrievedItems: getItemsResult.items,
-      savedItems: saveItemsResult.items,
+      savedItems: saveItemsResult.savedItems,
       conflicts: saveItemsResult.conflicts,
       syncToken: saveItemsResult.syncToken,
       cursorToken: getItemsResult.cursorToken

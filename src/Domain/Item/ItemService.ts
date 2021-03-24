@@ -5,9 +5,12 @@ import { GetItemsDTO } from './GetItemsDTO'
 
 import { GetItemsResult } from './GetItemsResult'
 import { Item } from './Item'
+import { ItemConflict } from './ItemConflict'
+import { ItemHash } from './ItemHash'
 import { ItemQuery } from './ItemQuery'
 import { ItemRepositoryInterface } from './ItemRepositoryInterface'
 import { ItemServiceInterface } from './ItemServiceInterface'
+import { SaveItemsDTO } from './SaveItemsDTO'
 import { SaveItemsResult } from './SaveItemsResult'
 
 @injectable()
@@ -49,8 +52,31 @@ export class ItemService implements ItemServiceInterface {
     }
   }
 
-  async saveItems(_itemHashes: string[], _userAgent: string, _retrievedItems: Item[]): Promise<SaveItemsResult> {
-    throw new Error('Method not implemented.')
+  async saveItems(dto: SaveItemsDTO): Promise<SaveItemsResult> {
+    const savedItems: Array<Item> = []
+    const conflicts: Array<ItemConflict> = []
+
+    await Promise.all(dto.items.map(async (item: ItemHash) => {
+      const existingItem = await this.itemRepository.findByUuidAndUserUuid(item.uuid, dto.userUuid)
+
+
+    }))
+
+    return {
+      savedItems,
+      conflicts
+    }
+  }
+
+  private async shouldItemBeSaved(incomingItem: ItemHash, existingItem: Item): Promise<boolean> {
+    const incomingUpdatedAtTimestamp = incomingItem.updated_at ?
+      dayjs.utc(incomingItem.updated_at).valueOf() * 1000 :
+      dayjs.utc().valueOf() * 1000
+
+      const ourUpdatedAtTimestamp = existingItem.updatedAt
+      const difference = incomingUpdatedAtTimestamp - ourUpdatedAtTimestamp
+
+
   }
 
   private getLastSyncTime(dto: GetItemsDTO): number | undefined {
