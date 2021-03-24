@@ -28,7 +28,7 @@ export class VerifyMFA implements UseCaseInterface {
 
     const mfaExtension = await this.itemsRepository.findMFAExtensionByUserUuid(user.uuid)
 
-    if (!mfaExtension) {
+    if (!mfaExtension || !mfaExtension.content) {
       return {
         success: true
       }

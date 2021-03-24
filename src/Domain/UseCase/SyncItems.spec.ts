@@ -1,5 +1,6 @@
 import 'reflect-metadata'
 import { Item } from '../Item/Item'
+import { ItemHash } from '../Item/ItemHash'
 import { ItemServiceInterface } from '../Item/ItemServiceInterface'
 
 import { SyncItems } from './SyncItems'
@@ -8,13 +9,32 @@ describe('SyncItems', () => {
   let itemService: ItemServiceInterface
   let item1: Item
   let item2: Item
+  let item3: Item
+  let itemHash: ItemHash
 
   const createUseCase = () => new SyncItems(itemService)
 
   beforeEach(() => {
-    item1 = {} as jest.Mocked<Item>
+    item1 = {
+      uuid: '1-2-3'
+    } as jest.Mocked<Item>
+    item2 = {
+      uuid: '2-3-4'
+    } as jest.Mocked<Item>
+    item3 = {
+      uuid: '3-4-5'
+    } as jest.Mocked<Item>
 
-    item2 = {} as jest.Mocked<Item>
+    itemHash = {
+      uuid: '2-3-4',
+      content: 'asdqwe',
+      content_type: Item.CONTENT_TYPE_NOTE,
+      duplicate_of: null,
+      enc_item_key: 'qweqwe',
+      items_key_id: 'asdasd',
+      created_at: '2021-02-19T11:35:45.655Z',
+      updated_at: '2021-03-25T09:37:37.944Z'
+    }
 
     itemService = {} as jest.Mocked<ItemServiceInterface>
     itemService.getItems = jest.fn().mockReturnValue({
@@ -22,16 +42,17 @@ describe('SyncItems', () => {
       cursorToken: 'asdzxc'
     })
     itemService.saveItems = jest.fn().mockReturnValue({
-      items: [ item2 ],
+      savedItems: [ item2 ],
       conflicts: [],
       syncToken: 'qwerty'
     })
+    itemService.frontLoadKeysItemsToTop = jest.fn().mockReturnValue([ item3, item1 ])
   })
 
-  it('should sync items', async() => {
+  it('should sync items with items keys on top for first sync', async() => {
     expect(await createUseCase().execute({
       userUuid: '1-2-3',
-      itemHashes: [ 'asdzxc123' ],
+      itemHashes: [ itemHash ],
       syncToken: 'foo',
       cursorToken: 'bar',
       limit: 10,
@@ -46,9 +67,10 @@ describe('SyncItems', () => {
       savedItems: [
         item2,
       ],
-      syncToken: 'qwerty',
+      syncToken: 'qwerty'
     })
 
+    expect(itemService.frontLoadKeysItemsToTop).not.toHaveBeenCalled()
     expect(itemService.getItems).toHaveBeenCalledWith({
       contentType: 'Note',
       cursorToken: 'bar',
@@ -56,6 +78,66 @@ describe('SyncItems', () => {
       syncToken: 'foo',
       userUuid: '1-2-3'
     })
-    expect(itemService.saveItems).toHaveBeenCalledWith([ 'asdzxc123' ], 'Google Chrome', [ item1 ])
+    expect(itemService.saveItems).toHaveBeenCalledWith({
+      itemHashes: [ itemHash ],
+      userAgent: 'Google Chrome',
+      userUuid: '1-2-3'
+    })
+  })
+
+  it('should sync items and return items keys on top for first sync', async() => {
+    expect(await createUseCase().execute({
+      userUuid: '1-2-3',
+      itemHashes: [ itemHash ],
+      limit: 10,
+      userAgent: 'Google Chrome',
+      contentType: 'Note'
+    })).toEqual({
+      conflicts: [],
+      cursorToken: 'asdzxc',
+      retrievedItems: [
+        item3,
+        item1
+      ],
+      savedItems: [
+        item2,
+      ],
+      syncToken: 'qwerty'
+    })
+  })
+
+  it('should sync items and return filtered out sync conflicts for consecutive sync operations', async() => {
+    itemService.getItems = jest.fn().mockReturnValue({
+      items: [ item1, item2 ],
+      cursorToken: 'asdzxc'
+    })
+
+    itemService.saveItems = jest.fn().mockReturnValue({
+      savedItems: [],
+      conflicts: [
+        {
+          serverItem: item2,
+          type: 'sync_conflict'
+        },
+        {
+          serverItem: undefined,
+          type: 'sync_conflict'
+        }
+      ],
+      syncToken: 'qwerty'
+    })
+
+    const result = await createUseCase().execute({
+      userUuid: '1-2-3',
+      itemHashes: [ itemHash ],
+      syncToken: 'foo',
+      cursorToken: 'bar',
+      limit: 10,
+      userAgent: 'Google Chrome',
+      contentType: 'Note'
+    })
+
+    expect(result.retrievedItems).toEqual([ item1 ])
+    expect(result.savedItems).toEqual([])
   })
 })

@@ -22,6 +22,7 @@ describe('VerifyMFA', () => {
 
     item = {} as jest.Mocked<Item>
     item.uuid = '1-2-3'
+    item.content = 'test-data'
 
     userRepository = {} as jest.Mocked<UserRepositoryInterface>
     userRepository.findOneByEmail = jest.fn().mockReturnValue(user)

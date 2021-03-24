@@ -72,7 +72,8 @@ const TYPES = {
   DomainEventFactory: Symbol.for('DomainEventFactory'),
   DomainEventMessageHandler: Symbol.for('DomainEventMessageHandler'),
   HTTPClient: Symbol.for('HTTPClient'),
-  ItemService: Symbol.for('ItemService')
+  ItemService: Symbol.for('ItemService'),
+  Timer: Symbol.for('Timer')
 }
 
 export default TYPES

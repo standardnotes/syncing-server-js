@@ -6,6 +6,7 @@ import { Revision } from '../Revision/Revision'
 @Index('user_uuid_and_updated_at_timestamp_and_created_at_timestamp', ['userUuid', 'updatedAt', 'createdAt'])
 export class Item {
   static readonly CONTENT_TYPE_NOTE = 'Note'
+  static readonly CONTENT_TYPE_ITEMS_KEYS = 'SN|ItemsKey'
 
   @PrimaryColumn({
     length: 36
@@ -17,7 +18,7 @@ export class Item {
     length: 36,
     nullable: true
   })
-  duplicateOf: string
+  duplicateOf: string | null
 
   @Column({
     name: 'items_key_id',
@@ -30,7 +31,7 @@ export class Item {
     type: 'mediumtext',
     nullable: true,
   })
-  content: string
+  content: string | null
 
   @Column({
     name: 'content_type',
@@ -45,14 +46,14 @@ export class Item {
     type: 'text',
     nullable: true
   })
-  encItemKey: string
+  encItemKey: string | null
 
   @Column({
     name: 'auth_hash',
     length: 255,
     nullable: true
   })
-  authHash: string
+  authHash: string | null
 
   @Column({
     name: 'user_uuid',
@@ -69,7 +70,7 @@ export class Item {
     default: 0
   })
   @Index('index_items_on_deleted')
-  deleted: number
+  deleted: boolean
 
   @Column({
     name: 'last_user_agent',

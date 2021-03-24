@@ -1,5 +1,7 @@
 import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
+import { Item } from '../Item/Item'
+import { ItemConflict } from '../Item/ItemConflict'
 import { ItemServiceInterface } from '../Item/ItemServiceInterface'
 import { SyncItemsDTO } from './SyncItemsDTO'
 import { SyncItemsResponse } from './SyncItemsResponse'
@@ -21,18 +23,38 @@ export class SyncItems implements UseCaseInterface {
       contentType: dto.contentType
     })
 
-    const saveItemsResult = await this.itemService.saveItems(
-      dto.itemHashes,
-      dto.userAgent,
-      getItemsResult.items
-    )
+    const saveItemsResult = await this.itemService.saveItems({
+      itemHashes: dto.itemHashes,
+      userAgent: dto.userAgent,
+      userUuid: dto.userUuid
+    })
+
+    let retrievedItems = this.filterOutSyncConflictsForConsecutiveSyncs(getItemsResult.items, saveItemsResult.conflicts)
+    if (this.isFirstSync(dto)) {
+      retrievedItems = await this.itemService.frontLoadKeysItemsToTop(dto.userUuid, retrievedItems)
+    }
 
     return {
-      retrievedItems: getItemsResult.items,
-      savedItems: saveItemsResult.items,
-      conflicts: saveItemsResult.conflicts,
+      retrievedItems,
       syncToken: saveItemsResult.syncToken,
+      savedItems: saveItemsResult.savedItems,
+      conflicts: saveItemsResult.conflicts,
       cursorToken: getItemsResult.cursorToken
     }
+  }
+
+  private isFirstSync(dto: SyncItemsDTO): boolean {
+    return dto.syncToken === undefined
+  }
+
+  private filterOutSyncConflictsForConsecutiveSyncs(retrievedItems: Array<Item>, conflicts: Array<ItemConflict>): Array<Item> {
+    const syncConflictIds: Array<string> = []
+    conflicts.map((conflict: ItemConflict) => {
+      if (conflict.type === 'sync_conflict' && conflict.serverItem) {
+        syncConflictIds.push(conflict.serverItem.uuid)
+      }
+    })
+
+    return retrievedItems.filter((item: Item) => syncConflictIds.indexOf(item.uuid) === -1)
   }
 }

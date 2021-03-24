@@ -7,6 +7,18 @@ import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterfa
 @injectable()
 @EntityRepository(Item)
 export class MySQLItemRepository extends Repository<Item> implements ItemRepositoryInterface {
+  async findByUuidAndUserUuid(uuid: string, userUuid: string): Promise<Item | undefined> {
+    return this.createQueryBuilder('item')
+      .where(
+        'item.uuid = :uuid AND item.user_uuid = :userUuid',
+        {
+          uuid,
+          userUuid
+        }
+      )
+      .getOne()
+  }
+
   async findAll(query: ItemQuery): Promise<Item[]> {
     const queryBuilder = this.createQueryBuilder('item')
     queryBuilder.where('item.user_uuid = :userUuid', { userUuid: query.userUuid })
