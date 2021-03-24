@@ -13,7 +13,7 @@ services:
   syncing-server-js:
     image: syncing-server-js-local
     build: .
-    entrypoint: ["./wait-for.sh", "syncing-server-ruby", "3000", "./docker/entrypoint.sh", "start-web"]
+    entrypoint: ["./wait-for.sh", "syncing-server-ruby", "3000", "./docker/entrypoint.sh", "start-local"]
     env_file: .env
     restart: unless-stopped
     ports:

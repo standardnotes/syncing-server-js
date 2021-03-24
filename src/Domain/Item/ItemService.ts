@@ -26,9 +26,11 @@ export class ItemService implements ItemServiceInterface {
     const itemQuery: ItemQuery = {
       userUuid: dto.userUuid,
       lastSyncTime,
+      syncTimeComparison: dto.cursorToken ? '>=' : '>',
       contentType: dto.contentType,
       deleted: lastSyncTime ? undefined : false,
-      sortBy: 'updatedAt'
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'DESC'
     }
 
     let items = await this.itemRepository.findAll(itemQuery)

@@ -43,7 +43,9 @@ describe('ItemService', () => {
     expect(itemRepository.findAll).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1615791600000000,
-      sortBy: 'updatedAt',
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'DESC',
       userUuid: '1-2-3'
     })
   })
@@ -63,7 +65,9 @@ describe('ItemService', () => {
     expect(itemRepository.findAll).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1616164633241564,
-      sortBy: 'updatedAt',
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'DESC',
       userUuid: '1-2-3'
     })
   })
@@ -86,7 +90,9 @@ describe('ItemService', () => {
     expect(itemRepository.findAll).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1616164633241564,
-      sortBy: 'updatedAt',
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'DESC',
       userUuid: '1-2-3'
     })
   })
@@ -109,7 +115,9 @@ describe('ItemService', () => {
     expect(itemRepository.findAll).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1616164633241123,
-      sortBy: 'updatedAt',
+      syncTimeComparison: '>=',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'DESC',
       userUuid: '1-2-3'
     })
   })
@@ -128,7 +136,9 @@ describe('ItemService', () => {
     expect(itemRepository.findAll).toHaveBeenCalledWith({
       contentType: 'Note',
       deleted: false,
-      sortBy: 'updatedAt',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'DESC',
+      syncTimeComparison: '>',
       userUuid: '1-2-3'
     })
   })
@@ -143,7 +153,9 @@ describe('ItemService', () => {
     expect(itemRepository.findAll).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1616164633241564,
-      sortBy: 'updatedAt',
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'DESC',
       userUuid: '1-2-3'
     })
   })
@@ -159,7 +171,9 @@ describe('ItemService', () => {
     expect(itemRepository.findAll).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1616164633241564,
-      sortBy: 'updatedAt',
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'DESC',
       userUuid: '1-2-3'
     })
   })
