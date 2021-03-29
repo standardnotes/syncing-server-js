@@ -8,6 +8,7 @@ import { ItemHash } from './ItemHash'
 import { ItemRepositoryInterface } from './ItemRepositoryInterface'
 import { ItemService } from './ItemService'
 import { ContentType } from './ContentType'
+import { Time } from '../Time/Time'
 
 describe('ItemService', () => {
   let itemRepository: ItemRepositoryInterface
@@ -449,7 +450,7 @@ describe('ItemService', () => {
       .mockReturnValueOnce(item1)
       .mockReturnValueOnce(item2)
 
-    item2.updatedAt = dayjs.utc('2021-03-19T14:37:13.942Z').valueOf() * 1000
+    item2.updatedAt = dayjs.utc('2021-03-19T14:37:13.942Z').valueOf() * Time.MicrosecondsInAMillisecond
     itemHash2.updated_at = '2021-03-19T14:37:13.942Z'
 
     const result = await createService().saveItems({

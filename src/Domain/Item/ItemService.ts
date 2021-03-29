@@ -1,6 +1,7 @@
 import * as dayjs from 'dayjs'
 import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
+import { Time } from '../Time/Time'
 import { TimerInterface } from '../Time/TimerInterface'
 import { ContentType } from './ContentType'
 import { GetItemsDTO } from './GetItemsDTO'
@@ -19,7 +20,7 @@ import { SaveItemsResult } from './SaveItemsResult'
 export class ItemService implements ItemServiceInterface {
   private readonly DEFAULT_ITEMS_LIMIT = 100000
   private readonly SYNC_TOKEN_VERSION = 2
-  private readonly MIN_CONFLICT_INTERVAL_MICROSECONDS = 1000000
+  private readonly MIN_CONFLICT_INTERVAL_MICROSECONDS = Time.MicrosecondsInASecond
 
   constructor (
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
@@ -46,7 +47,7 @@ export class ItemService implements ItemServiceInterface {
     const limit = !dto.limit || dto.limit < 1 ? this.DEFAULT_ITEMS_LIMIT : dto.limit
     if (items.length > limit) {
       items = items.slice(0, limit)
-      const lastSyncTime = (items[items.length - 1].updatedAt) / 1000000
+      const lastSyncTime = (items[items.length - 1].updatedAt) / Time.MicrosecondsInASecond
       cursorToken = Buffer.from(`${this.SYNC_TOKEN_VERSION}:${lastSyncTime}`, 'utf-8').toString('base64')
     }
 
@@ -129,7 +130,7 @@ export class ItemService implements ItemServiceInterface {
     const lastUpdatedTimestampWithMicrosecondPreventingSyncDoubles = lastUpdatedTimestamp + 1
 
     return Buffer.from(
-      `${this.SYNC_TOKEN_VERSION}:${lastUpdatedTimestampWithMicrosecondPreventingSyncDoubles / 1000000}`,
+      `${this.SYNC_TOKEN_VERSION}:${lastUpdatedTimestampWithMicrosecondPreventingSyncDoubles / Time.MicrosecondsInASecond}`,
       'utf-8'
     ).toString('base64')
   }
@@ -154,7 +155,7 @@ export class ItemService implements ItemServiceInterface {
       existingItem.authHash = null
     }
 
-    existingItem.createdAt = dayjs.utc(itemHash.created_at).valueOf() * 1000
+    existingItem.createdAt = dayjs.utc(itemHash.created_at).valueOf() * Time.MicrosecondsInAMillisecond
     existingItem.updatedAt = this.timer.getTimestampInMicroseconds()
 
     return this.itemRepository.save(existingItem)
@@ -181,7 +182,7 @@ export class ItemService implements ItemServiceInterface {
     }
 
     const incomingUpdatedAtTimestamp = itemHash.updated_at ?
-      dayjs.utc(itemHash.updated_at).valueOf() * 1000 :
+      dayjs.utc(itemHash.updated_at).valueOf() * Time.MicrosecondsInAMillisecond :
       this.timer.getTimestampInMicroseconds()
 
     const ourUpdatedAtTimestamp = existingItem.updatedAt
@@ -207,9 +208,9 @@ export class ItemService implements ItemServiceInterface {
 
     switch(version) {
     case '1':
-      return dayjs.utc(tokenParts.join(':')).valueOf() * 1000
+      return dayjs.utc(tokenParts.join(':')).valueOf() * Time.MicrosecondsInAMillisecond
     case '2':
-      return +tokenParts[0] * 1000000
+      return +tokenParts[0] * Time.MicrosecondsInASecond
     default:
       throw Error('Sync token is missing version part')
     }
