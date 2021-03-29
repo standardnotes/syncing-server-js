@@ -9,6 +9,7 @@ import { EphemeralSessionRepositoryInterface } from './EphemeralSessionRepositor
 import { EphemeralSession } from './EphemeralSession'
 import { RevokedSessionRepositoryInterface } from './RevokedSessionRepositoryInterface'
 import { RevokedSession } from './RevokedSession'
+import { TimerInterface } from '../Time/TimerInterface'
 
 describe('SessionService', () => {
   let sessionRepository: SessionRepositoryInterface
@@ -18,6 +19,7 @@ describe('SessionService', () => {
   let ephemeralSession: EphemeralSession
   let revokedSession: RevokedSession
   let deviceDetector: UAParser
+  let timer: TimerInterface
   let logger: winston.Logger
 
   const createService = () => new SessionService(
@@ -25,6 +27,7 @@ describe('SessionService', () => {
     ephemeralSessionRepository,
     revokedSessionRepository,
     deviceDetector,
+    timer,
     logger,
     123,
     234
@@ -63,6 +66,9 @@ describe('SessionService', () => {
     ephemeralSession.hashedAccessToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
     ephemeralSession.hashedRefreshToken = '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce'
 
+    timer = {} as jest.Mocked<TimerInterface>
+    timer.convertStringDateToMilliseconds = jest.fn().mockReturnValue(123)
+
     deviceDetector = {} as jest.Mocked<UAParser>
     deviceDetector.setUA = jest.fn().mockReturnThis()
     deviceDetector.getResult = jest.fn().mockReturnValue({
@@ -94,10 +100,10 @@ describe('SessionService', () => {
 
   it('should create access and refresh tokens for a session', async () => {
     expect(await createService().createTokens(session)).toEqual({
-      access_expiration: expect.any(Number),
+      access_expiration: 123,
       access_token: expect.any(String),
       refresh_token: expect.any(String),
-      refresh_expiration: expect.any(Number),
+      refresh_expiration: 123,
     })
 
     expect(sessionRepository.updateHashedTokens).toHaveBeenCalled()

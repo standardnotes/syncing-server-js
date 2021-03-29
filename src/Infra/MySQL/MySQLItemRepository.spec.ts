@@ -1,6 +1,7 @@
 import 'reflect-metadata'
 
 import { SelectQueryBuilder } from 'typeorm'
+import { ContentType } from '../../Domain/Item/ContentType'
 import { Item } from '../../Domain/Item/Item'
 
 import { MySQLItemRepository } from './MySQLItemRepository'
@@ -37,6 +38,22 @@ describe('MySQLItemRepository', () => {
     expect(result).toEqual(item)
   })
 
+  it('should find one item by uuid and user uuid', async () => {
+    queryBuilder.where = jest.fn().mockReturnThis()
+    queryBuilder.getOne = jest.fn().mockReturnValue(item)
+
+    const result = await repository.findByUuidAndUserUuid('1-2-3', '2-3-4')
+
+    expect(queryBuilder.where).toHaveBeenCalledWith(
+      'item.uuid = :uuid AND item.user_uuid = :userUuid',
+      {
+        uuid: '1-2-3',
+        userUuid: '2-3-4'
+      }
+    )
+    expect(result).toEqual(item)
+  })
+
   it('should find items by all query criteria filled in', async () => {
     queryBuilder.getMany = jest.fn().mockReturnValue([ item ])
     queryBuilder.where = jest.fn()
@@ -47,7 +64,7 @@ describe('MySQLItemRepository', () => {
       sortBy: 'updated_at_timestamp',
       sortOrder: 'DESC',
       deleted: false,
-      contentType: Item.CONTENT_TYPE_NOTE,
+      contentType: ContentType.Note,
       lastSyncTime: 123,
       syncTimeComparison: '>='
     })

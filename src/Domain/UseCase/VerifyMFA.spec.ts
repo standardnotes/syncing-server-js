@@ -22,6 +22,7 @@ describe('VerifyMFA', () => {
 
     item = {} as jest.Mocked<Item>
     item.uuid = '1-2-3'
+    item.content = 'test-data'
 
     userRepository = {} as jest.Mocked<UserRepositoryInterface>
     userRepository.findOneByEmail = jest.fn().mockReturnValue(user)
@@ -34,6 +35,15 @@ describe('VerifyMFA', () => {
   })
 
   it('should pass MFA verification if user has no MFA enabled', async () => {
+    expect(await createVerifyMFA().execute({ email: 'test@test.te', requestParams: {} })).toEqual({
+      success: true
+    })
+  })
+
+  it('should pass MFA verification if user has MFA deleted', async () => {
+    item.deleted = true
+    itemRepository.findMFAExtensionByUserUuid = jest.fn().mockReturnValue(item)
+
     expect(await createVerifyMFA().execute({ email: 'test@test.te', requestParams: {} })).toEqual({
       success: true
     })

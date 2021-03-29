@@ -62,6 +62,8 @@ import { RevokedSession } from '../Domain/Session/RevokedSession'
 import { UserRegisteredEventHandler } from '../Domain/Handler/UserRegisteredEventHandler'
 import { ChangePassword } from '../Domain/UseCase/ChangePassword'
 import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
+import { TimerInterface } from '../Domain/Time/TimerInterface'
+import { Timer } from '../Domain/Time/Timer'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -212,6 +214,7 @@ export class ContainerConfigLoader {
     container.bind<AuthenticationMethodResolver>(TYPES.AuthenticationMethodResolver).to(AuthenticationMethodResolver)
     container.bind<DomainEventFactory>(TYPES.DomainEventFactory).to(DomainEventFactory)
     container.bind<superagent.SuperAgentStatic>(TYPES.HTTPClient).toConstantValue(superagent)
+    container.bind<TimerInterface>(TYPES.Timer).to(Timer)
 
     if (env.get('SNS_TOPIC_ARN', true)) {
       container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
