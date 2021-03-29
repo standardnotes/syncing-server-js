@@ -2,6 +2,7 @@ import * as dayjs from 'dayjs'
 import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
 import { TimerInterface } from '../Time/TimerInterface'
+import { ContentType } from './ContentType'
 import { GetItemsDTO } from './GetItemsDTO'
 
 import { GetItemsResult } from './GetItemsResult'
@@ -103,7 +104,7 @@ export class ItemService implements ItemServiceInterface {
   async frontLoadKeysItemsToTop(userUuid: string, retrievedItems: Array<Item>): Promise<Array<Item>> {
     const itemsKeys = await this.itemRepository.findAll({
       userUuid,
-      contentType: Item.CONTENT_TYPE_ITEMS_KEYS,
+      contentType: ContentType.ItemsKey,
       sortBy: 'updated_at_timestamp',
       sortOrder: 'DESC'
     })

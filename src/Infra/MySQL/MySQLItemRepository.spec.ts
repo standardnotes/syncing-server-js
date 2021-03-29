@@ -1,6 +1,7 @@
 import 'reflect-metadata'
 
 import { SelectQueryBuilder } from 'typeorm'
+import { ContentType } from '../../Domain/Item/ContentType'
 import { Item } from '../../Domain/Item/Item'
 
 import { MySQLItemRepository } from './MySQLItemRepository'
@@ -63,7 +64,7 @@ describe('MySQLItemRepository', () => {
       sortBy: 'updated_at_timestamp',
       sortOrder: 'DESC',
       deleted: false,
-      contentType: Item.CONTENT_TYPE_NOTE,
+      contentType: ContentType.Note,
       lastSyncTime: 123,
       syncTimeComparison: '>='
     })

@@ -5,9 +5,6 @@ import { Revision } from '../Revision/Revision'
 @Index('index_items_on_user_uuid_and_content_type', ['userUuid', 'contentType'])
 @Index('user_uuid_and_updated_at_timestamp_and_created_at_timestamp', ['userUuid', 'updatedAt', 'createdAt'])
 export class Item {
-  static readonly CONTENT_TYPE_NOTE = 'Note'
-  static readonly CONTENT_TYPE_ITEMS_KEYS = 'SN|ItemsKey'
-
   @PrimaryColumn({
     length: 36
   })

@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import { ContentType } from '../Item/ContentType'
 import { Item } from '../Item/Item'
 import { ItemHash } from '../Item/ItemHash'
 import { ItemServiceInterface } from '../Item/ItemServiceInterface'
@@ -28,7 +29,7 @@ describe('SyncItems', () => {
     itemHash = {
       uuid: '2-3-4',
       content: 'asdqwe',
-      content_type: Item.CONTENT_TYPE_NOTE,
+      content_type: ContentType.Note,
       duplicate_of: null,
       enc_item_key: 'qweqwe',
       items_key_id: 'asdasd',

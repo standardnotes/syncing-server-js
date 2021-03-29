@@ -7,6 +7,7 @@ import { ItemHash } from './ItemHash'
 
 import { ItemRepositoryInterface } from './ItemRepositoryInterface'
 import { ItemService } from './ItemService'
+import { ContentType } from './ContentType'
 
 describe('ItemService', () => {
   let itemRepository: ItemRepositoryInterface
@@ -32,7 +33,7 @@ describe('ItemService', () => {
     itemHash1 = {
       uuid: '1-2-3',
       content: 'asdqwe1',
-      content_type: Item.CONTENT_TYPE_NOTE,
+      content_type: ContentType.Note,
       duplicate_of: null,
       enc_item_key: 'qweqwe1',
       items_key_id: 'asdasd1',
@@ -43,7 +44,7 @@ describe('ItemService', () => {
     itemHash2 = {
       uuid: '2-3-4',
       content: 'asdqwe2',
-      content_type: Item.CONTENT_TYPE_NOTE,
+      content_type: ContentType.Note,
       duplicate_of: null,
       enc_item_key: 'qweqwe2',
       items_key_id: 'asdasd2',
@@ -69,7 +70,7 @@ describe('ItemService', () => {
         userUuid: '1-2-3',
         syncToken,
         limit: 100,
-        contentType: Item.CONTENT_TYPE_NOTE
+        contentType: ContentType.Note
       })
     ).toEqual({
       items: [ item1, item2 ]
@@ -91,7 +92,7 @@ describe('ItemService', () => {
         userUuid: '1-2-3',
         syncToken,
         limit: 100,
-        contentType: Item.CONTENT_TYPE_NOTE
+        contentType: ContentType.Note
       })
     ).toEqual({
       items: [ item1, item2 ]
@@ -112,7 +113,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       syncToken,
       limit: 1,
-      contentType: Item.CONTENT_TYPE_NOTE
+      contentType: ContentType.Note
     })
 
     expect(itemsResponse).toEqual({
@@ -141,7 +142,7 @@ describe('ItemService', () => {
         syncToken,
         cursorToken,
         limit: 100,
-        contentType: Item.CONTENT_TYPE_NOTE
+        contentType: ContentType.Note
       })
     ).toEqual({
       items: [ item1, item2 ]
@@ -162,7 +163,7 @@ describe('ItemService', () => {
       await createService().getItems({
         userUuid: '1-2-3',
         limit: 100,
-        contentType: Item.CONTENT_TYPE_NOTE
+        contentType: ContentType.Note
       })
     ).toEqual({
       items: [ item1, item2 ]
@@ -182,7 +183,7 @@ describe('ItemService', () => {
     await createService().getItems({
       userUuid: '1-2-3',
       syncToken,
-      contentType: Item.CONTENT_TYPE_NOTE
+      contentType: ContentType.Note
     })
 
     expect(itemRepository.findAll).toHaveBeenCalledWith({
@@ -200,7 +201,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       syncToken,
       limit: 0,
-      contentType: Item.CONTENT_TYPE_NOTE
+      contentType: ContentType.Note
     })
 
     expect(itemRepository.findAll).toHaveBeenCalledWith({
@@ -221,7 +222,7 @@ describe('ItemService', () => {
         userUuid: '1-2-3',
         syncToken: '2:',
         limit: 0,
-        contentType: Item.CONTENT_TYPE_NOTE
+        contentType: ContentType.Note
       })
     } catch (e) {
       error = e
@@ -238,7 +239,7 @@ describe('ItemService', () => {
         userUuid: '1-2-3',
         syncToken: '1234567890',
         limit: 0,
-        contentType: Item.CONTENT_TYPE_NOTE
+        contentType: ContentType.Note
       })
     } catch (e) {
       error = e
@@ -293,7 +294,7 @@ describe('ItemService', () => {
     const itemHash3 = {
       uuid: '3-4-5',
       content: 'asdqwe3',
-      content_type: Item.CONTENT_TYPE_NOTE,
+      content_type: ContentType.Note,
       duplicate_of: null,
       enc_item_key: 'qweqwe3',
       items_key_id: 'asdasd3',
