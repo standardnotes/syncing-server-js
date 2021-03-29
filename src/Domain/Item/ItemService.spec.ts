@@ -423,11 +423,9 @@ describe('ItemService', () => {
       .mockReturnValueOnce(item1)
       .mockReturnValueOnce(item2)
 
-    itemHash2.updated_at = '2021-03-19T14:37:13.942Z'
-
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
-      .mockReturnValueOnce(dayjs.utc(itemHash2.updated_at).valueOf() * 1000)
+      .mockReturnValueOnce(item2.updatedAt + 1)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1, itemHash2 ],

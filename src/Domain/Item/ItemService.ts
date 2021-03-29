@@ -19,7 +19,7 @@ import { SaveItemsResult } from './SaveItemsResult'
 export class ItemService implements ItemServiceInterface {
   private readonly DEFAULT_ITEMS_LIMIT = 100000
   private readonly SYNC_TOKEN_VERSION = 2
-  private readonly MIN_CONFLICT_INTERVAL_MICROSECONDS = Time.MicrosecondsInASecond
+  private readonly MIN_CONFLICT_INTERVAL_MICROSECONDS = Time.MicrosecondsInAMillisecond
 
   constructor (
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
