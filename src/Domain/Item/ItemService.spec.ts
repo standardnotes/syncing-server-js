@@ -65,6 +65,7 @@ describe('ItemService', () => {
 
   it('should retrieve all items for a user from last sync with sync token version 1', async () => {
     syncToken = Buffer.from('1:2021-03-15 07:00:00', 'utf-8').toString('base64')
+    timer.convertStringDateToMicroseconds = jest.fn().mockReturnValue(dayjs.utc('2021-03-15 07:00:00').valueOf() * 1000)
 
     expect(
       await createService().getItems({
@@ -325,6 +326,7 @@ describe('ItemService', () => {
 
   it('should update existing items', async () => {
     itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
+    timer.convertStringDateToMicroseconds = jest.fn().mockReturnValue(dayjs.utc(itemHash1.created_at).valueOf() * 1000)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
@@ -352,6 +354,7 @@ describe('ItemService', () => {
 
   it('should mark existing item as deleted', async () => {
     itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
+    timer.convertStringDateToMicroseconds = jest.fn().mockReturnValue(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
 
     itemHash1.deleted = true
     const result = await createService().saveItems({
@@ -382,6 +385,7 @@ describe('ItemService', () => {
 
   it('should mark existing item as duplicate', async () => {
     itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
+    timer.convertStringDateToMicroseconds = jest.fn().mockReturnValue(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
 
     itemHash1.duplicate_of = '1-2-3'
     const result = await createService().saveItems({
@@ -415,6 +419,10 @@ describe('ItemService', () => {
       .mockReturnValueOnce(item2)
 
     itemHash2.updated_at = '2021-03-19T14:37:13.942Z'
+
+    timer.convertStringDateToMicroseconds = jest.fn()
+      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
+      .mockReturnValueOnce(dayjs.utc(itemHash2.updated_at).valueOf() * 1000)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1, itemHash2 ],
@@ -453,6 +461,10 @@ describe('ItemService', () => {
     item2.updatedAt = dayjs.utc('2021-03-19T14:37:13.942Z').valueOf() * Time.MicrosecondsInAMillisecond
     itemHash2.updated_at = '2021-03-19T14:37:13.942Z'
 
+    timer.convertStringDateToMicroseconds = jest.fn()
+      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
+      .mockReturnValueOnce(dayjs.utc(itemHash2.updated_at).valueOf() * 1000)
+
     const result = await createService().saveItems({
       itemHashes: [ itemHash1, itemHash2 ],
       userAgent: 'Brave',
@@ -488,6 +500,11 @@ describe('ItemService', () => {
       .mockReturnValueOnce(item2)
 
     itemHash2.updated_at = undefined
+
+    timer.convertStringDateToMicroseconds = jest.fn()
+      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
+      .mockReturnValueOnce(dayjs.utc(itemHash2.updated_at).valueOf() * 1000)
+      .mockReturnValueOnce(dayjs.utc(itemHash2.created_at).valueOf() * 1000)
 
     timer.getTimestampInMicroseconds = jest.fn().mockReturnValue(1616164634241568)
 

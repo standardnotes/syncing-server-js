@@ -1,4 +1,3 @@
-import * as dayjs from 'dayjs'
 import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
 import { Time } from '../Time/Time'
@@ -155,7 +154,7 @@ export class ItemService implements ItemServiceInterface {
       existingItem.authHash = null
     }
 
-    existingItem.createdAt = dayjs.utc(itemHash.created_at).valueOf() * Time.MicrosecondsInAMillisecond
+    existingItem.createdAt = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
     existingItem.updatedAt = this.timer.getTimestampInMicroseconds()
 
     return this.itemRepository.save(existingItem)
@@ -182,7 +181,7 @@ export class ItemService implements ItemServiceInterface {
     }
 
     const incomingUpdatedAtTimestamp = itemHash.updated_at ?
-      dayjs.utc(itemHash.updated_at).valueOf() * Time.MicrosecondsInAMillisecond :
+      this.timer.convertStringDateToMicroseconds(itemHash.updated_at) :
       this.timer.getTimestampInMicroseconds()
 
     const ourUpdatedAtTimestamp = existingItem.updatedAt
@@ -208,7 +207,7 @@ export class ItemService implements ItemServiceInterface {
 
     switch(version) {
     case '1':
-      return dayjs.utc(tokenParts.join(':')).valueOf() * Time.MicrosecondsInAMillisecond
+      return this.timer.convertStringDateToMicroseconds(tokenParts.join(':'))
     case '2':
       return +tokenParts[0] * Time.MicrosecondsInASecond
     default:

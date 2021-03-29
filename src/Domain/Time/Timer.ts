@@ -9,4 +9,12 @@ export class Timer implements TimerInterface {
     const hrTime = process.hrtime()
     return dayjs.utc().valueOf() * Time.MicrosecondsInAMillisecond + Math.floor(hrTime[1] / Time.MicrosecondsInAMillisecond)
   }
+
+  convertStringDateToMicroseconds(date: string): number {
+    return this.convertStringDateToMilliseconds(date) * Time.MicrosecondsInAMillisecond
+  }
+
+  convertStringDateToMilliseconds(date: string): number {
+    return dayjs.utc(date).valueOf()
+  }
 }
