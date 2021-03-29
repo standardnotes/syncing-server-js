@@ -24,10 +24,12 @@ describe('ItemService', () => {
   beforeEach(() => {
     item1 = {
       uuid: '1-2-3',
+      createdAt: 1616164633241311,
       updatedAt: 1616164633241311
     } as jest.Mocked<Item>
     item2 = {
       uuid: '2-3-4',
+      createdAt: 1616164633241312,
       updatedAt: 1616164633241312
     } as jest.Mocked<Item>
 
@@ -328,7 +330,6 @@ describe('ItemService', () => {
     itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
-      .mockReturnValueOnce(dayjs.utc(itemHash1.created_at).valueOf() * 1000)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
@@ -358,7 +359,6 @@ describe('ItemService', () => {
     itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
-      .mockReturnValueOnce(dayjs.utc(itemHash1.created_at).valueOf() * 1000)
 
     itemHash1.deleted = true
     const result = await createService().saveItems({
@@ -391,7 +391,6 @@ describe('ItemService', () => {
     itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
-      .mockReturnValueOnce(dayjs.utc(itemHash1.created_at).valueOf() * 1000)
 
     itemHash1.duplicate_of = '1-2-3'
     const result = await createService().saveItems({
@@ -428,9 +427,7 @@ describe('ItemService', () => {
 
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
-      .mockReturnValueOnce(dayjs.utc(itemHash1.created_at).valueOf() * 1000)
       .mockReturnValueOnce(dayjs.utc(itemHash2.updated_at).valueOf() * 1000)
-      .mockReturnValueOnce(dayjs.utc(itemHash2.created_at).valueOf() * 1000)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1, itemHash2 ],
@@ -471,9 +468,7 @@ describe('ItemService', () => {
 
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
-      .mockReturnValueOnce(dayjs.utc(itemHash1.created_at).valueOf() * 1000)
       .mockReturnValueOnce(dayjs.utc(itemHash2.updated_at).valueOf() * 1000)
-      .mockReturnValueOnce(dayjs.utc(itemHash2.created_at).valueOf() * 1000)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1, itemHash2 ],
@@ -513,9 +508,7 @@ describe('ItemService', () => {
 
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
-      .mockReturnValueOnce(dayjs.utc(itemHash1.created_at).valueOf() * 1000)
       .mockReturnValueOnce(dayjs.utc(new Date(0).toString()).valueOf() * 1000)
-      .mockReturnValueOnce(dayjs.utc(itemHash2.created_at).valueOf() * 1000)
 
     timer.getTimestampInMicroseconds = jest.fn().mockReturnValue(1616164634241568)
 

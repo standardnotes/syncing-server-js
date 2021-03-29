@@ -154,7 +154,6 @@ export class ItemService implements ItemServiceInterface {
       existingItem.authHash = null
     }
 
-    existingItem.createdAt = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
     existingItem.updatedAt = this.timer.getTimestampInMicroseconds()
 
     return this.itemRepository.save(existingItem)
