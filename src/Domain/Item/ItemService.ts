@@ -81,7 +81,7 @@ export class ItemService implements ItemServiceInterface {
         try {
           const newItem = await this.saveNewItem(itemHash, dto.userAgent)
           savedItems.push(newItem)
-        } catch (error) {
+        } catch (_error) {
           conflicts.push({
             unsavedItem: itemHash,
             type: 'uuid_conflict',
