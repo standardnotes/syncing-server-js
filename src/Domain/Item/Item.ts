@@ -11,6 +11,7 @@ export class Item {
   uuid: string
 
   @Column({
+    type: 'varchar',
     name: 'duplicate_of',
     length: 36,
     nullable: true
@@ -47,6 +48,7 @@ export class Item {
 
   @Column({
     name: 'auth_hash',
+    type: 'varchar',
     length: 255,
     nullable: true
   })
