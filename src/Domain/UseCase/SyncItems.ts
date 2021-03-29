@@ -49,7 +49,7 @@ export class SyncItems implements UseCaseInterface {
 
   private filterOutSyncConflictsForConsecutiveSyncs(retrievedItems: Array<Item>, conflicts: Array<ItemConflict>): Array<Item> {
     const syncConflictIds: Array<string> = []
-    conflicts.map((conflict: ItemConflict) => {
+    conflicts.forEach((conflict: ItemConflict) => {
       if (conflict.type === 'sync_conflict' && conflict.serverItem) {
         syncConflictIds.push(conflict.serverItem.uuid)
       }
