@@ -182,7 +182,7 @@ export class ItemService implements ItemServiceInterface {
 
     const incomingUpdatedAtTimestamp = itemHash.updated_at ?
       this.timer.convertStringDateToMicroseconds(itemHash.updated_at) :
-      this.timer.getTimestampInMicroseconds()
+      this.timer.convertStringDateToMicroseconds(new Date(0).toString())
 
     const ourUpdatedAtTimestamp = existingItem.updatedAt
     const difference = incomingUpdatedAtTimestamp - ourUpdatedAtTimestamp
