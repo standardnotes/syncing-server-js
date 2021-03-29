@@ -28,7 +28,7 @@ export class VerifyMFA implements UseCaseInterface {
 
     const mfaExtension = await this.itemsRepository.findMFAExtensionByUserUuid(user.uuid)
 
-    if (!mfaExtension || !mfaExtension.content) {
+    if (!mfaExtension || mfaExtension.deleted) {
       return {
         success: true
       }
@@ -44,7 +44,7 @@ export class VerifyMFA implements UseCaseInterface {
       }
     }
 
-    const mfaContent = this.contentDecoder.decode(mfaExtension.content)
+    const mfaContent = this.contentDecoder.decode(<string> mfaExtension.content)
 
     if (!authenticator.verify({ token: <string> dto.requestParams[mfaParamKey], secret: <string> mfaContent.secret })) {
       return {
