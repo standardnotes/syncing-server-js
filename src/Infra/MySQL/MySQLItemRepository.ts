@@ -7,6 +7,19 @@ import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterfa
 @injectable()
 @EntityRepository(Item)
 export class MySQLItemRepository extends Repository<Item> implements ItemRepositoryInterface {
+  async findDatesForComputingIntegrityHash(userUuid: string): Promise<number[]> {
+    const queryBuilder = this.createQueryBuilder('item')
+    queryBuilder.select('item.updated_at_timestamp')
+    queryBuilder.where('item.user_uuid = :userUuid', { userUuid: userUuid })
+    queryBuilder.where('item.deleted = :deleted', { deleted: false })
+    queryBuilder.where('item.content_type IS NOT NULL')
+    queryBuilder.orderBy('item.updated_at_timestamp', 'DESC')
+
+    const items = await queryBuilder.getRawMany()
+
+    return items.map(item => item.updated_at_timestamp)
+  }
+
   async findByUuidAndUserUuid(uuid: string, userUuid: string): Promise<Item | undefined> {
     return this.createQueryBuilder('item')
       .where(

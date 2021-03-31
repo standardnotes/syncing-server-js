@@ -98,4 +98,22 @@ describe('MySQLItemRepository', () => {
 
     expect(result).toEqual([ item ])
   })
+
+  it('should find dates for computing integrity hash', async () => {
+    queryBuilder.getRawMany = jest.fn().mockReturnValue([ { updated_at_timestamp: 123 } ])
+    queryBuilder.select = jest.fn()
+    queryBuilder.where = jest.fn()
+    queryBuilder.orderBy = jest.fn()
+
+    const result = await repository.findDatesForComputingIntegrityHash('1-2-3')
+
+    expect(queryBuilder.select).toHaveBeenCalledWith('item.updated_at_timestamp')
+    expect(queryBuilder.where).toHaveBeenCalledTimes(3)
+    expect(queryBuilder.where).toHaveBeenNthCalledWith(1, 'item.user_uuid = :userUuid', { userUuid: '1-2-3' })
+    expect(queryBuilder.where).toHaveBeenNthCalledWith(2, 'item.deleted = :deleted', { deleted: false })
+    expect(queryBuilder.where).toHaveBeenNthCalledWith(3, 'item.content_type IS NOT NULL')
+    expect(queryBuilder.orderBy).toHaveBeenCalledWith('item.updated_at_timestamp', 'DESC')
+
+    expect(result).toEqual([ 123 ])
+  })
 })

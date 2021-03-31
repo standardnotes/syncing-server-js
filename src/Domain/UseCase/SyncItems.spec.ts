@@ -3,17 +3,23 @@ import { ContentType } from '../Item/ContentType'
 import { Item } from '../Item/Item'
 import { ItemHash } from '../Item/ItemHash'
 import { ItemServiceInterface } from '../Item/ItemServiceInterface'
+import { SyncResponse20200115 } from '../Item/SyncResponse/SyncResponse20200115'
+import { SyncResponseFactoryInterface } from '../Item/SyncResponse/SyncResponseFactoryInterface'
+import { SyncResponseFactoryResolverInterface } from '../Item/SyncResponse/SyncResponseFactoryResolverInterface'
 
 import { SyncItems } from './SyncItems'
 
 describe('SyncItems', () => {
   let itemService: ItemServiceInterface
+  let syncResponceFactoryResolver: SyncResponseFactoryResolverInterface
+  let syncResponseFactory: SyncResponseFactoryInterface
+  let syncResponse: SyncResponse20200115
   let item1: Item
   let item2: Item
   let item3: Item
   let itemHash: ItemHash
 
-  const createUseCase = () => new SyncItems(itemService)
+  const createUseCase = () => new SyncItems(itemService, syncResponceFactoryResolver)
 
   beforeEach(() => {
     item1 = {
@@ -48,18 +54,30 @@ describe('SyncItems', () => {
       syncToken: 'qwerty'
     })
     itemService.frontLoadKeysItemsToTop = jest.fn().mockReturnValue([ item3, item1 ])
+
+    syncResponse = {} as jest.Mocked<SyncResponse20200115>
+
+    syncResponseFactory = {} as jest.Mocked<SyncResponseFactoryInterface>
+    syncResponseFactory.createResponse = jest.fn().mockReturnValue(syncResponse)
+
+    syncResponceFactoryResolver = {} as jest.Mocked<SyncResponseFactoryResolverInterface>
+    syncResponceFactoryResolver.resolveSyncResponseFactoryVersion = jest.fn().mockReturnValue(syncResponseFactory)
   })
 
-  it('should sync items with items keys on top for first sync', async() => {
+  it('should sync items', async() => {
     expect(await createUseCase().execute({
       userUuid: '1-2-3',
       itemHashes: [ itemHash ],
+      computeIntegrityHash: false,
       syncToken: 'foo',
       cursorToken: 'bar',
       limit: 10,
       userAgent: 'Google Chrome',
       contentType: 'Note'
-    })).toEqual({
+    })).toEqual(syncResponse)
+
+
+    expect(syncResponseFactory.createResponse).toHaveBeenCalledWith({
       conflicts: [],
       cursorToken: 'asdzxc',
       retrievedItems: [
@@ -70,7 +88,6 @@ describe('SyncItems', () => {
       ],
       syncToken: 'qwerty'
     })
-
     expect(itemService.frontLoadKeysItemsToTop).not.toHaveBeenCalled()
     expect(itemService.getItems).toHaveBeenCalledWith({
       contentType: 'Note',
@@ -90,12 +107,41 @@ describe('SyncItems', () => {
     expect(await createUseCase().execute({
       userUuid: '1-2-3',
       itemHashes: [ itemHash ],
+      computeIntegrityHash: false,
       limit: 10,
       userAgent: 'Google Chrome',
       contentType: 'Note'
-    })).toEqual({
+    })).toEqual(syncResponse)
+
+    expect(syncResponseFactory.createResponse).toHaveBeenCalledWith({
       conflicts: [],
       cursorToken: 'asdzxc',
+      retrievedItems: [
+        item3,
+        item1
+      ],
+      savedItems: [
+        item2,
+      ],
+      syncToken: 'qwerty'
+    })
+  })
+
+  it('should sync items and compute an integrity hash if prompted', async() => {
+    itemService.computeIntegrityHash = jest.fn().mockReturnValue('test-hash')
+    expect(await createUseCase().execute({
+      userUuid: '1-2-3',
+      itemHashes: [ itemHash ],
+      computeIntegrityHash: true,
+      limit: 10,
+      userAgent: 'Google Chrome',
+      contentType: 'Note'
+    })).toEqual(syncResponse)
+
+    expect(syncResponseFactory.createResponse).toHaveBeenCalledWith({
+      conflicts: [],
+      cursorToken: 'asdzxc',
+      integrityHash: 'test-hash',
       retrievedItems: [
         item3,
         item1
@@ -128,9 +174,10 @@ describe('SyncItems', () => {
       syncToken: 'qwerty'
     })
 
-    const result = await createUseCase().execute({
+    await createUseCase().execute({
       userUuid: '1-2-3',
       itemHashes: [ itemHash ],
+      computeIntegrityHash: false,
       syncToken: 'foo',
       cursorToken: 'bar',
       limit: 10,
@@ -138,7 +185,24 @@ describe('SyncItems', () => {
       contentType: 'Note'
     })
 
-    expect(result.retrievedItems).toEqual([ item1 ])
-    expect(result.savedItems).toEqual([])
+    expect(syncResponseFactory.createResponse).toHaveBeenCalledWith({
+      conflicts: [
+        {
+          serverItem: item2,
+          type: 'sync_conflict'
+        },
+        {
+          serverItem: undefined,
+          type: 'sync_conflict'
+        }
+      ],
+      cursorToken: 'asdzxc',
+      retrievedItems: [
+        item1
+      ],
+      savedItems: [
+      ],
+      syncToken: 'qwerty'
+    })
   })
 })

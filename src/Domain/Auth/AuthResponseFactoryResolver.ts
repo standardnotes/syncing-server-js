@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
+import { ApiVersion } from '../Api/ApiVersion'
 import { AuthResponseFactory20161215 } from './AuthResponseFactory20161215'
 import { AuthResponseFactory20190520 } from './AuthResponseFactory20190520'
 import { AuthResponseFactory20200115 } from './AuthResponseFactory20200115'
@@ -21,11 +22,11 @@ export class AuthResponseFactoryResolver implements AuthResponseFactoryResolverI
     this.logger.debug(`Resolving auth response factory for api version: ${apiVersion}`)
 
     switch(apiVersion) {
-    case '20161215':
+    case ApiVersion.v20161215:
       return this.authResponseFactory20161215
-    case '20190520':
+    case ApiVersion.v20190520:
       return this.authResponseFactory20190520
-    case '20200115':
+    case ApiVersion.v20200115:
       return this.authResponseFactory20200115
     default:
       throw Error(`Not supported api version: ${apiVersion}`)

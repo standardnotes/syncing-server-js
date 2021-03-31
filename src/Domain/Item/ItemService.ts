@@ -1,5 +1,7 @@
+import * as crypto from 'crypto'
 import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
+import { ApiVersion } from '../Api/ApiVersion'
 import { Time } from '../Time/Time'
 import { TimerInterface } from '../Time/TimerInterface'
 import { ContentType } from './ContentType'
@@ -19,12 +21,21 @@ import { SaveItemsResult } from './SaveItemsResult'
 export class ItemService implements ItemServiceInterface {
   private readonly DEFAULT_ITEMS_LIMIT = 100000
   private readonly SYNC_TOKEN_VERSION = 2
-  private readonly MIN_CONFLICT_INTERVAL_MICROSECONDS = Time.MicrosecondsInAMillisecond
 
   constructor (
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.Timer) private timer: TimerInterface
   ) {
+  }
+
+  async computeIntegrityHash(userUuid: string): Promise<string> {
+    const timestampsInMicroseconds = await this.itemRepository.findDatesForComputingIntegrityHash(userUuid)
+
+    const timestampsInMilliseconds = timestampsInMicroseconds.map(timestampsInMicrosecond => Math.floor(timestampsInMicrosecond / Time.MicrosecondsInAMillisecond))
+
+    const stringToHash = timestampsInMilliseconds.join(',')
+
+    return crypto.createHash('sha256').update(stringToHash).digest('hex')
   }
 
   async getItems(dto: GetItemsDTO): Promise<GetItemsResult> {
@@ -65,7 +76,7 @@ export class ItemService implements ItemServiceInterface {
     for (const itemHash of dto.itemHashes) {
       const existingItem = await this.itemRepository.findByUuidAndUserUuid(itemHash.uuid, dto.userUuid)
 
-      if (!this.itemShouldBeSaved(itemHash, existingItem)) {
+      if (!this.itemShouldBeSaved(itemHash, dto.apiVersion, existingItem)) {
         conflicts.push({
           serverItem: existingItem,
           type: 'sync_conflict'
@@ -143,6 +154,9 @@ export class ItemService implements ItemServiceInterface {
     if (itemHash.duplicate_of) {
       existingItem.duplicateOf = itemHash.duplicate_of
     }
+    if (itemHash.auth_hash) {
+      existingItem.authHash = itemHash.auth_hash
+    }
     existingItem.encItemKey = itemHash.enc_item_key
     existingItem.itemsKeyId = itemHash.items_key_id
     existingItem.lastUserAgent = userAgent
@@ -166,6 +180,9 @@ export class ItemService implements ItemServiceInterface {
     newItem.contentType = itemHash.content_type
     newItem.encItemKey = itemHash.enc_item_key
     newItem.itemsKeyId = itemHash.items_key_id
+    if (itemHash.auth_hash) {
+      newItem.authHash = itemHash.auth_hash
+    }
     newItem.lastUserAgent = userAgent
     const now = this.timer.getTimestampInMicroseconds()
     newItem.createdAt = now
@@ -174,7 +191,7 @@ export class ItemService implements ItemServiceInterface {
     return this.itemRepository.save(newItem)
   }
 
-  private itemShouldBeSaved(itemHash: ItemHash, existingItem?: Item): boolean {
+  private itemShouldBeSaved(itemHash: ItemHash, apiVersion?: string, existingItem?: Item): boolean {
     if (!existingItem) {
       return true
     }
@@ -186,7 +203,17 @@ export class ItemService implements ItemServiceInterface {
     const ourUpdatedAtTimestamp = existingItem.updatedAt
     const difference = incomingUpdatedAtTimestamp - ourUpdatedAtTimestamp
 
-    return Math.abs(difference) > this.MIN_CONFLICT_INTERVAL_MICROSECONDS
+    return Math.abs(difference) > this.getMinimalConflictIntervalMicroseconds(apiVersion)
+  }
+
+  private getMinimalConflictIntervalMicroseconds(apiVersion?: string): number {
+    switch(apiVersion) {
+    case ApiVersion.v20200115:
+    case ApiVersion.v20190520:
+      return Time.MicrosecondsInAMillisecond
+    default:
+      return Time.MicrosecondsInASecond
+    }
   }
 
   private getLastSyncTime(dto: GetItemsDTO): number | undefined {

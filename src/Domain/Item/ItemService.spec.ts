@@ -1,5 +1,6 @@
 import 'reflect-metadata'
 
+import * as crypto from 'crypto'
 import * as dayjs from 'dayjs'
 import { TimerInterface } from '../Time/TimerInterface'
 import { Item } from './Item'
@@ -9,6 +10,7 @@ import { ItemRepositoryInterface } from './ItemRepositoryInterface'
 import { ItemService } from './ItemService'
 import { ContentType } from './ContentType'
 import { Time } from '../Time/Time'
+import { ApiVersion } from '../Api/ApiVersion'
 
 describe('ItemService', () => {
   let itemRepository: ItemRepositoryInterface
@@ -292,6 +294,35 @@ describe('ItemService', () => {
     })
   })
 
+  it('should save new items with auth hash', async () => {
+    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(null)
+
+    itemHash1.auth_hash = 'test'
+    const result = await createService().saveItems({
+      itemHashes: [ itemHash1 ],
+      userAgent: 'Brave',
+      userUuid: '1-2-3'
+    })
+
+    expect(result).toEqual({
+      conflicts: [],
+      savedItems: [
+        {
+          content: 'asdqwe1',
+          contentType: 'Note',
+          createdAt: expect.any(Number),
+          encItemKey: 'qweqwe1',
+          itemsKeyId: 'asdasd1',
+          lastUserAgent: 'Brave',
+          authHash: 'test',
+          updatedAt: expect.any(Number),
+          uuid: '1-2-3',
+        },
+      ],
+      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
+    })
+  })
+
   it('should calculate the sync token based on last updated date of saved items incremented with 1 microsecond to avoid returning same object in subsequent sync', async () => {
     itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(null)
 
@@ -346,6 +377,38 @@ describe('ItemService', () => {
           createdAt: expect.any(Number),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
+          lastUserAgent: 'Brave',
+          updatedAt: expect.any(Number),
+          uuid: '1-2-3',
+        },
+      ],
+      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
+    })
+  })
+
+  it('should update existing items with auth hash', async () => {
+    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
+    timer.convertStringDateToMicroseconds = jest.fn()
+      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
+
+    itemHash1.auth_hash = 'test'
+
+    const result = await createService().saveItems({
+      itemHashes: [ itemHash1 ],
+      userAgent: 'Brave',
+      userUuid: '1-2-3'
+    })
+
+    expect(result).toEqual({
+      conflicts: [],
+      savedItems: [
+        {
+          content: 'asdqwe1',
+          contentType: 'Note',
+          createdAt: expect.any(Number),
+          encItemKey: 'qweqwe1',
+          itemsKeyId: 'asdasd1',
+          authHash: 'test',
           lastUserAgent: 'Brave',
           updatedAt: expect.any(Number),
           uuid: '1-2-3',
@@ -425,12 +488,52 @@ describe('ItemService', () => {
 
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
-      .mockReturnValueOnce(item2.updatedAt + 1)
+      .mockReturnValueOnce(item2.updatedAt + 999)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1, itemHash2 ],
       userAgent: 'Brave',
-      userUuid: '1-2-3'
+      userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115
+    })
+
+    expect(result).toEqual({
+      conflicts: [
+        {
+          type: 'sync_conflict',
+          serverItem: item2
+        }
+      ],
+      savedItems: [
+        {
+          content: 'asdqwe1',
+          contentType: 'Note',
+          createdAt: expect.any(Number),
+          encItemKey: 'qweqwe1',
+          itemsKeyId: 'asdasd1',
+          lastUserAgent: 'Brave',
+          updatedAt: expect.any(Number),
+          uuid: '1-2-3',
+        },
+      ],
+      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
+    })
+  })
+
+  it('should skip sync conflicting items and mark them as sync conflicts when the incoming updated at time is too close to the stored value for legacy api', async () => {
+    itemRepository.findByUuidAndUserUuid = jest.fn()
+      .mockReturnValueOnce(item1)
+      .mockReturnValueOnce(item2)
+
+    timer.convertStringDateToMicroseconds = jest.fn()
+      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
+      .mockReturnValueOnce(item2.updatedAt + 999_999)
+
+    const result = await createService().saveItems({
+      itemHashes: [ itemHash1, itemHash2 ],
+      userAgent: 'Brave',
+      userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20161215
     })
 
     expect(result).toEqual({
@@ -570,5 +673,16 @@ describe('ItemService', () => {
       savedItems: [],
       syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
     })
+  })
+
+  it('should compute an integrity hash', async () => {
+    itemRepository.findDatesForComputingIntegrityHash = jest.fn().mockReturnValue([
+      1616164633242313,
+      1616164633241312
+    ])
+
+    const expected = crypto.createHash('sha256').update('1616164633242,1616164633241').digest('hex')
+
+    expect(await createService().computeIntegrityHash('1-2-3')).toEqual(expected)
   })
 })

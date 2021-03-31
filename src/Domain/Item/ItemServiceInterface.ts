@@ -8,4 +8,5 @@ export interface ItemServiceInterface {
   getItems(dto: GetItemsDTO): Promise<GetItemsResult>
   saveItems(dto: SaveItemsDTO): Promise<SaveItemsResult>
   frontLoadKeysItemsToTop(userUuid: string, retrievedItems: Array<Item>): Promise<Array<Item>>
+  computeIntegrityHash(userUuid: string): Promise<string>
 }
