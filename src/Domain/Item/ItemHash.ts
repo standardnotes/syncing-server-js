@@ -4,6 +4,7 @@ export type ItemHash = {
   content_type: string
   deleted?: boolean
   duplicate_of?: string | null
+  auth_hash?: string
   enc_item_key: string
   items_key_id: string
   created_at: string

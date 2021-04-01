@@ -19,4 +19,8 @@ describe('Timer', () => {
     const timestamp = createTimer().convertStringDateToMilliseconds('Mon Mar 29 2021 12:13:45 GMT+0200')
     expect(timestamp).toEqual(1617012825000)
   })
+
+  it('should convert microseconds to milliseconds', () => {
+    expect(createTimer().convertMicrosecondsToMilliseconds(1616164633241312)).toEqual(1616164633241)
+  })
 })

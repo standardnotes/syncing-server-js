@@ -17,4 +17,8 @@ export class Timer implements TimerInterface {
   convertStringDateToMilliseconds(date: string): number {
     return dayjs.utc(date).valueOf()
   }
+
+  convertMicrosecondsToMilliseconds(microseconds: number): number {
+    return Math.floor(microseconds / Time.MicrosecondsInAMillisecond)
+  }
 }

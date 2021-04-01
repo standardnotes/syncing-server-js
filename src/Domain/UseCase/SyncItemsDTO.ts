@@ -3,9 +3,11 @@ import { ItemHash } from '../Item/ItemHash'
 export type SyncItemsDTO = {
   userUuid: string
   itemHashes: Array<ItemHash>
+  computeIntegrityHash: boolean
+  limit: number
+  userAgent?: string,
   syncToken?: string
   cursorToken?: string
-  limit: number
-  userAgent: string,
   contentType?: string
+  apiVersion?: string
 }

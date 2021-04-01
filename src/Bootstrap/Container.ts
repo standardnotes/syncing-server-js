@@ -64,6 +64,10 @@ import { ChangePassword } from '../Domain/UseCase/ChangePassword'
 import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
 import { TimerInterface } from '../Domain/Time/TimerInterface'
 import { Timer } from '../Domain/Time/Timer'
+import { SyncResponseFactory20161215 } from '../Domain/Item/SyncResponse/SyncResponseFactory20161215'
+import { SyncResponseFactory20200115 } from '../Domain/Item/SyncResponse/SyncResponseFactory20200115'
+import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
+import { SyncResponseFactoryResolver } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolver'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -215,6 +219,9 @@ export class ContainerConfigLoader {
     container.bind<DomainEventFactory>(TYPES.DomainEventFactory).to(DomainEventFactory)
     container.bind<superagent.SuperAgentStatic>(TYPES.HTTPClient).toConstantValue(superagent)
     container.bind<TimerInterface>(TYPES.Timer).to(Timer)
+    container.bind<SyncResponseFactory20161215>(TYPES.SyncResponseFactory20161215).to(SyncResponseFactory20161215)
+    container.bind<SyncResponseFactory20200115>(TYPES.SyncResponseFactory20200115).to(SyncResponseFactory20200115)
+    container.bind<SyncResponseFactoryResolverInterface>(TYPES.SyncResponseFactoryResolver).to(SyncResponseFactoryResolver)
 
     if (env.get('SNS_TOPIC_ARN', true)) {
       container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
