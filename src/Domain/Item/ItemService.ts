@@ -145,7 +145,7 @@ export class ItemService implements ItemServiceInterface {
     ).toString('base64')
   }
 
-  private async updateExistingItem(existingItem: Item, itemHash: ItemHash, userAgent: string): Promise<Item> {
+  private async updateExistingItem(existingItem: Item, itemHash: ItemHash, userAgent?: string): Promise<Item> {
     existingItem.content = itemHash.content
     existingItem.contentType = itemHash.content_type
     if (itemHash.deleted !== undefined) {
@@ -159,7 +159,7 @@ export class ItemService implements ItemServiceInterface {
     }
     existingItem.encItemKey = itemHash.enc_item_key
     existingItem.itemsKeyId = itemHash.items_key_id
-    existingItem.lastUserAgent = userAgent
+    existingItem.lastUserAgent = userAgent ?? null
 
     if (itemHash.deleted === true) {
       existingItem.deleted = true
@@ -173,7 +173,7 @@ export class ItemService implements ItemServiceInterface {
     return this.itemRepository.save(existingItem)
   }
 
-  private async saveNewItem(itemHash: ItemHash, userAgent: string): Promise<Item> {
+  private async saveNewItem(itemHash: ItemHash, userAgent?: string): Promise<Item> {
     const newItem = new Item()
     newItem.uuid = itemHash.uuid
     newItem.content = itemHash.content
@@ -183,7 +183,7 @@ export class ItemService implements ItemServiceInterface {
     if (itemHash.auth_hash) {
       newItem.authHash = itemHash.auth_hash
     }
-    newItem.lastUserAgent = userAgent
+    newItem.lastUserAgent = userAgent ?? null
     const now = this.timer.getTimestampInMicroseconds()
     newItem.createdAt = now
     newItem.updatedAt = now

@@ -21,7 +21,7 @@ export class ItemsController extends BaseHttpController {
       syncToken: request.body.sync_token,
       cursorToken: request.body.cursor_token,
       limit: request.body.limit,
-      userAgent: <string> request.headers['user-agent'],
+      userAgent: request.headers['user-agent'],
       contentType: request.body.content_type,
       apiVersion: request.body.api
     })

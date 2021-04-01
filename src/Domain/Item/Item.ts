@@ -76,7 +76,7 @@ export class Item {
     type: 'text',
     nullable: true
   })
-  lastUserAgent: string
+  lastUserAgent: string | null
 
   @Column({
     name: 'created_at_timestamp',

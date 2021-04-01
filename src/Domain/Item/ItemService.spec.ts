@@ -294,6 +294,32 @@ describe('ItemService', () => {
     })
   })
 
+  it('should save new items with empty user-agent', async () => {
+    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(null)
+
+    const result = await createService().saveItems({
+      itemHashes: [ itemHash1 ],
+      userUuid: '1-2-3'
+    })
+
+    expect(result).toEqual({
+      conflicts: [],
+      savedItems: [
+        {
+          content: 'asdqwe1',
+          contentType: 'Note',
+          createdAt: expect.any(Number),
+          encItemKey: 'qweqwe1',
+          itemsKeyId: 'asdasd1',
+          lastUserAgent: null,
+          updatedAt: expect.any(Number),
+          uuid: '1-2-3',
+        },
+      ],
+      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
+    })
+  })
+
   it('should save new items with auth hash', async () => {
     itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(null)
 
@@ -378,6 +404,34 @@ describe('ItemService', () => {
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           lastUserAgent: 'Brave',
+          updatedAt: expect.any(Number),
+          uuid: '1-2-3',
+        },
+      ],
+      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
+    })
+  })
+
+  it('should update existing items with empty user-agent', async () => {
+    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
+    timer.convertStringDateToMicroseconds = jest.fn()
+      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
+
+    const result = await createService().saveItems({
+      itemHashes: [ itemHash1 ],
+      userUuid: '1-2-3'
+    })
+
+    expect(result).toEqual({
+      conflicts: [],
+      savedItems: [
+        {
+          content: 'asdqwe1',
+          contentType: 'Note',
+          createdAt: expect.any(Number),
+          encItemKey: 'qweqwe1',
+          itemsKeyId: 'asdasd1',
+          lastUserAgent: null,
           updatedAt: expect.any(Number),
           uuid: '1-2-3',
         },
