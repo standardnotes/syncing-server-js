@@ -208,11 +208,10 @@ export class ItemService implements ItemServiceInterface {
 
   private getMinimalConflictIntervalMicroseconds(apiVersion?: string): number {
     switch(apiVersion) {
-    case ApiVersion.v20200115:
-    case ApiVersion.v20190520:
-      return Time.MicrosecondsInAMillisecond
-    default:
+    case ApiVersion.v20161215:
       return Time.MicrosecondsInASecond
+    default:
+      return Time.MicrosecondsInAMillisecond
     }
   }
 
