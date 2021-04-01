@@ -17,7 +17,7 @@ export class ItemsController extends BaseHttpController {
     const syncResult = await this.syncItems.execute({
       userUuid: response.locals.user.uuid,
       itemHashes: request.body.items,
-      computeIntegrityHash: request.body.compute_integrity == true,
+      computeIntegrityHash: request.body.compute_integrity === true,
       syncToken: request.body.sync_token,
       cursorToken: request.body.cursor_token,
       limit: request.body.limit,
