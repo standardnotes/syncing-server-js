@@ -11,8 +11,8 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
     const queryBuilder = this.createQueryBuilder('item')
     queryBuilder.select('item.updated_at_timestamp')
     queryBuilder.where('item.user_uuid = :userUuid', { userUuid: userUuid })
-    queryBuilder.where('item.deleted = :deleted', { deleted: false })
-    queryBuilder.where('item.content_type IS NOT NULL')
+    queryBuilder.andWhere('item.deleted = :deleted', { deleted: false })
+    queryBuilder.andWhere('item.content_type IS NOT NULL')
     queryBuilder.orderBy('item.updated_at_timestamp', 'DESC')
 
     const items = await queryBuilder.getRawMany()
@@ -37,13 +37,13 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
     queryBuilder.where('item.user_uuid = :userUuid', { userUuid: query.userUuid })
     queryBuilder.orderBy(`item.${query.sortBy}`, query.sortOrder)
     if (query.deleted !== undefined) {
-      queryBuilder.where('item.deleted = :deleted', { deleted: query.deleted })
+      queryBuilder.andWhere('item.deleted = :deleted', { deleted: query.deleted })
     }
     if (query.contentType) {
-      queryBuilder.where('item.content_type = :contentType', { contentType: query.contentType })
+      queryBuilder.andWhere('item.content_type = :contentType', { contentType: query.contentType })
     }
     if (query.lastSyncTime && query.syncTimeComparison) {
-      queryBuilder.where(`item.updated_at_timestamp ${query.syncTimeComparison} :lastSyncTime`, { lastSyncTime: query.lastSyncTime })
+      queryBuilder.andWhere(`item.updated_at_timestamp ${query.syncTimeComparison} :lastSyncTime`, { lastSyncTime: query.lastSyncTime })
     }
 
     return queryBuilder.getMany()

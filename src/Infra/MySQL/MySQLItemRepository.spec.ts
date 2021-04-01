@@ -57,6 +57,7 @@ describe('MySQLItemRepository', () => {
   it('should find items by all query criteria filled in', async () => {
     queryBuilder.getMany = jest.fn().mockReturnValue([ item ])
     queryBuilder.where = jest.fn()
+    queryBuilder.andWhere = jest.fn()
     queryBuilder.orderBy = jest.fn()
 
     const result = await repository.findAll({
@@ -69,11 +70,12 @@ describe('MySQLItemRepository', () => {
       syncTimeComparison: '>='
     })
 
-    expect(queryBuilder.where).toHaveBeenCalledTimes(4)
+    expect(queryBuilder.where).toHaveBeenCalledTimes(1)
+    expect(queryBuilder.andWhere).toHaveBeenCalledTimes(3)
     expect(queryBuilder.where).toHaveBeenNthCalledWith(1, 'item.user_uuid = :userUuid', { userUuid: '1-2-3' })
-    expect(queryBuilder.where).toHaveBeenNthCalledWith(2, 'item.deleted = :deleted', { deleted: false })
-    expect(queryBuilder.where).toHaveBeenNthCalledWith(3, 'item.content_type = :contentType', { contentType: 'Note' })
-    expect(queryBuilder.where).toHaveBeenNthCalledWith(4, 'item.updated_at_timestamp >= :lastSyncTime', { lastSyncTime: 123 })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(1, 'item.deleted = :deleted', { deleted: false })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(2, 'item.content_type = :contentType', { contentType: 'Note' })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(3, 'item.updated_at_timestamp >= :lastSyncTime', { lastSyncTime: 123 })
 
     expect(queryBuilder.orderBy).toHaveBeenCalledWith('item.updated_at_timestamp', 'DESC')
 
@@ -103,15 +105,17 @@ describe('MySQLItemRepository', () => {
     queryBuilder.getRawMany = jest.fn().mockReturnValue([ { updated_at_timestamp: 123 } ])
     queryBuilder.select = jest.fn()
     queryBuilder.where = jest.fn()
+    queryBuilder.andWhere = jest.fn()
     queryBuilder.orderBy = jest.fn()
 
     const result = await repository.findDatesForComputingIntegrityHash('1-2-3')
 
     expect(queryBuilder.select).toHaveBeenCalledWith('item.updated_at_timestamp')
-    expect(queryBuilder.where).toHaveBeenCalledTimes(3)
+    expect(queryBuilder.where).toHaveBeenCalledTimes(1)
     expect(queryBuilder.where).toHaveBeenNthCalledWith(1, 'item.user_uuid = :userUuid', { userUuid: '1-2-3' })
-    expect(queryBuilder.where).toHaveBeenNthCalledWith(2, 'item.deleted = :deleted', { deleted: false })
-    expect(queryBuilder.where).toHaveBeenNthCalledWith(3, 'item.content_type IS NOT NULL')
+    expect(queryBuilder.andWhere).toHaveBeenCalledTimes(2)
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(1, 'item.deleted = :deleted', { deleted: false })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(2, 'item.content_type IS NOT NULL')
     expect(queryBuilder.orderBy).toHaveBeenCalledWith('item.updated_at_timestamp', 'DESC')
 
     expect(result).toEqual([ 123 ])
