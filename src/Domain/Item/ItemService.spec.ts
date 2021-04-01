@@ -735,6 +735,10 @@ describe('ItemService', () => {
       1616164633241312
     ])
 
+    timer.convertMicrosecondsToMilliseconds = jest.fn()
+      .mockReturnValueOnce(1616164633242)
+      .mockReturnValueOnce(1616164633241)
+
     const expected = crypto.createHash('sha256').update('1616164633242,1616164633241').digest('hex')
 
     expect(await createService().computeIntegrityHash('1-2-3')).toEqual(expected)
