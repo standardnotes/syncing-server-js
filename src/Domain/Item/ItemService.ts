@@ -31,7 +31,7 @@ export class ItemService implements ItemServiceInterface {
   async computeIntegrityHash(userUuid: string): Promise<string> {
     const timestampsInMicroseconds = await this.itemRepository.findDatesForComputingIntegrityHash(userUuid)
 
-    const timestampsInMilliseconds = timestampsInMicroseconds.map(timestampsInMicrosecond => Math.floor(timestampsInMicrosecond / Time.MicrosecondsInAMillisecond))
+    const timestampsInMilliseconds = timestampsInMicroseconds.map(timestampsInMicroseconds => Math.floor(timestampsInMicroseconds / Time.MicrosecondsInAMillisecond))
 
     const stringToHash = timestampsInMilliseconds.join(',')
 
