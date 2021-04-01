@@ -33,7 +33,6 @@ import { RevisionProjector } from '../Projection/RevisionProjector'
 import { SessionProjector } from '../Projection/SessionProjector'
 import { SessionMiddleware } from '../Controller/SessionMiddleware'
 import { RefreshSessionToken } from '../Domain/UseCase/RefreshSessionToken'
-import { KeyParamsFactory } from '../Domain/User/KeyParamsFactory'
 import { MySQLItemRepository } from '../Infra/MySQL/MySQLItemRepository'
 import { SignIn } from '../Domain/UseCase/SignIn'
 import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
@@ -47,7 +46,6 @@ import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
 import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { LockMiddleware } from '../Controller/LockMiddleware'
 import { AuthMiddlewareWithoutResponse } from '../Controller/AuthMiddlewareWithoutResponse'
-import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { UpdateUser } from '../Domain/UseCase/UpdateUser'
 import { RedisEphemeralSessionRepository } from '../Infra/Redis/RedisEphemeralSessionRepository'
 import { GetActiveSessionsForUser } from '../Domain/UseCase/GetActiveSessionsForUser'
@@ -70,6 +68,13 @@ import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncRespons
 import { SyncResponseFactoryResolver } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolver'
 import { ItemServiceInterface } from '../Domain/Item/ItemServiceInterface'
 import { ItemService } from '../Domain/Item/ItemService'
+import { ExtensionSettingRepositoryInterface } from '../Domain/ExtensionSetting/ExtensionSettingRepositoryInterface'
+import { MySQLExtensionSettingRepository } from '../Infra/MySQL/MySQLExtensionSettingRepository'
+import { AuthHttpServiceInterface } from '../Domain/Auth/AuthHttpServiceInterface'
+import { AuthHttpService } from '../Infra/HTTP/AuthHttpService'
+import { ExtensionSetting } from '../Domain/ExtensionSetting/ExtensionSetting'
+import { SyncItems } from '../Domain/UseCase/SyncItems'
+import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -104,6 +109,7 @@ export class ContainerConfigLoader {
         RevokedSession,
         Item,
         Revision,
+        ExtensionSetting,
       ],
       migrations: [
         env.get('DB_MIGRATIONS_PATH'),
@@ -158,6 +164,7 @@ export class ContainerConfigLoader {
     container.bind<MySQLItemRepository>(TYPES.ItemRepository).toConstantValue(connection.getCustomRepository(MySQLItemRepository))
     container.bind<RedisEphemeralSessionRepository>(TYPES.EphemeralSessionRepository).to(RedisEphemeralSessionRepository)
     container.bind<LockRepository>(TYPES.LockRepository).to(LockRepository)
+    container.bind<ExtensionSettingRepositoryInterface>(TYPES.ExtensionSettingRepository).toConstantValue(connection.getCustomRepository(MySQLExtensionSettingRepository))
 
     // Middleware
     container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
@@ -188,6 +195,9 @@ export class ContainerConfigLoader {
     container.bind(TYPES.USER_SERVER_AUTH_KEY).toConstantValue(env.get('USER_SERVER_AUTH_KEY', true))
     container.bind(TYPES.REDIS_EVENTS_CHANNEL).toConstantValue(env.get('REDIS_EVENTS_CHANNEL'))
     container.bind(TYPES.AUTH_JWT_SECRET).toConstantValue(env.get('AUTH_JWT_SECRET'))
+    container.bind(TYPES.INTERNAL_DNS_REROUTE_ENABLED).toConstantValue(env.get('INTERNAL_DNS_REROUTE_ENABLED'))
+    container.bind(TYPES.EXTENSIONS_SERVER_URL).toConstantValue(env.get('EXTENSIONS_SERVER_URL'))
+    container.bind(TYPES.AUTH_SERVER_URL).toConstantValue(env.get('AUTH_SERVER_URL'))
 
     // use cases
     container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
@@ -196,13 +206,14 @@ export class ContainerConfigLoader {
     container.bind<VerifyMFA>(TYPES.VerifyMFA).to(VerifyMFA)
     container.bind<ClearLoginAttempts>(TYPES.ClearLoginAttempts).to(ClearLoginAttempts)
     container.bind<IncreaseLoginAttempts>(TYPES.IncreaseLoginAttempts).to(IncreaseLoginAttempts)
-    container.bind<GetUserKeyParams>(TYPES.GetUserKeyParams).to(GetUserKeyParams)
     container.bind<UpdateUser>(TYPES.UpdateUser).to(UpdateUser)
     container.bind<Register>(TYPES.Register).to(Register)
     container.bind<GetActiveSessionsForUser>(TYPES.GetActiveSessionsForUser).to(GetActiveSessionsForUser)
     container.bind<DeletePreviousSessionsForUser>(TYPES.DeletePreviousSessionsForUser).to(DeletePreviousSessionsForUser)
     container.bind<DeleteSessionForUser>(TYPES.DeleteSessionForUser).to(DeleteSessionForUser)
     container.bind<ChangePassword>(TYPES.ChangePassword).to(ChangePassword)
+    container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
+    container.bind<PostToRealtimeExtensions>(TYPES.PostToRealtimeExtensions).to(PostToRealtimeExtensions)
 
     // Handlers
     container.bind<UserRegisteredEventHandler>(TYPES.UserRegisteredEventHandler).to(UserRegisteredEventHandler)
@@ -215,7 +226,6 @@ export class ContainerConfigLoader {
     container.bind<AuthResponseFactory20190520>(TYPES.AuthResponseFactory20190520).to(AuthResponseFactory20190520)
     container.bind<AuthResponseFactory20200115>(TYPES.AuthResponseFactory20200115).to(AuthResponseFactory20200115)
     container.bind<AuthResponseFactoryResolver>(TYPES.AuthResponseFactoryResolver).to(AuthResponseFactoryResolver)
-    container.bind<KeyParamsFactory>(TYPES.KeyParamsFactory).to(KeyParamsFactory)
     container.bind<TokenDecoder>(TYPES.TokenDecoder).to(TokenDecoder)
     container.bind<AuthenticationMethodResolver>(TYPES.AuthenticationMethodResolver).to(AuthenticationMethodResolver)
     container.bind<DomainEventFactory>(TYPES.DomainEventFactory).to(DomainEventFactory)
@@ -225,6 +235,7 @@ export class ContainerConfigLoader {
     container.bind<SyncResponseFactory20161215>(TYPES.SyncResponseFactory20161215).to(SyncResponseFactory20161215)
     container.bind<SyncResponseFactory20200115>(TYPES.SyncResponseFactory20200115).to(SyncResponseFactory20200115)
     container.bind<SyncResponseFactoryResolverInterface>(TYPES.SyncResponseFactoryResolver).to(SyncResponseFactoryResolver)
+    container.bind<AuthHttpServiceInterface>(TYPES.AuthHttpService).to(AuthHttpService)
 
     if (env.get('SNS_TOPIC_ARN', true)) {
       container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(

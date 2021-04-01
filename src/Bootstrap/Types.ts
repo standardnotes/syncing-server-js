@@ -12,6 +12,7 @@ const TYPES = {
   RevokedSessionRepository: Symbol.for('RevokedSessionRepository'),
   ItemRepository: Symbol.for('ItemRepository'),
   LockRepository: Symbol.for('LockRepository'),
+  ExtensionSettingRepository: Symbol.for('ExtensionSettingRepository'),
   // Middleware
   AuthMiddleware: Symbol.for('AuthMiddleware'),
   AuthMiddlewareWithoutResponse: Symbol.for('AuthMiddlewareWithoutResponse'),
@@ -40,6 +41,9 @@ const TYPES = {
   USER_SERVER_AUTH_KEY: Symbol.for('USER_SERVER_AUTH_KEY'),
   REDIS_EVENTS_CHANNEL: Symbol.for('REDIS_EVENTS_CHANNEL'),
   AUTH_JWT_SECRET: Symbol.for('AUTH_JWT_SECRET'),
+  INTERNAL_DNS_REROUTE_ENABLED: Symbol.for('INTERNAL_DNS_REROUTE_ENABLED'),
+  EXTENSIONS_SERVER_URL: Symbol.for('EXTENSIONS_SERVER_URL'),
+  AUTH_SERVER_URL: Symbol.for('AUTH_SERVER_URL'),
   // use cases
   AuthenticateUser: Symbol.for('AuthenticateUser'),
   RefreshSessionToken: Symbol.for('RefreshSessionToken'),
@@ -47,13 +51,14 @@ const TYPES = {
   SignIn: Symbol.for('SignIn'),
   ClearLoginAttempts: Symbol.for('ClearLoginAttempts'),
   IncreaseLoginAttempts: Symbol.for('IncreaseLoginAttempts'),
-  GetUserKeyParams: Symbol.for('GetUserKeyParams'),
   UpdateUser: Symbol.for('UpdateUser'),
   Register: Symbol.for('Register'),
   GetActiveSessionsForUser: Symbol.for('GetActiveSessionsForUser'),
   DeletePreviousSessionsForUser: Symbol.for('DeletePreviousSessionsForUser'),
   DeleteSessionForUser: Symbol.for('DeleteSessionForUser'),
   ChangePassword: Symbol.for('ChangePassword'),
+  SyncItems: Symbol.for('SyncItems'),
+  PostToRealtimeExtensions: Symbol.for('PostToRealtimeExtensions'),
   // Handlers
   UserRegisteredEventHandler: Symbol.for('UserRegisteredEventHandler'),
   // Services
@@ -64,7 +69,6 @@ const TYPES = {
   AuthResponseFactory20190520: Symbol.for('AuthResponseFactory20190520'),
   AuthResponseFactory20200115: Symbol.for('AuthResponseFactory20200115'),
   AuthResponseFactoryResolver: Symbol.for('AuthResponseFactoryResolver'),
-  KeyParamsFactory: Symbol.for('KeyParamsFactory'),
   TokenDecoder: Symbol.for('TokenDecoder'),
   AuthenticationMethodResolver: Symbol.for('AuthenticationMethodResolver'),
   DomainEventPublisher: Symbol.for('DomainEventPublisher'),
@@ -77,6 +81,7 @@ const TYPES = {
   SyncResponseFactory20161215: Symbol.for('SyncResponseFactory20161215'),
   SyncResponseFactory20200115: Symbol.for('SyncResponseFactory20200115'),
   SyncResponseFactoryResolver: Symbol.for('SyncResponseFactoryResolver'),
+  AuthHttpService: Symbol.for('AuthHttpService'),
 }
 
 export default TYPES

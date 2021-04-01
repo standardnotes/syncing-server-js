@@ -36,6 +36,9 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
     const queryBuilder = this.createQueryBuilder('item')
     queryBuilder.where('item.user_uuid = :userUuid', { userUuid: query.userUuid })
     queryBuilder.orderBy(`item.${query.sortBy}`, query.sortOrder)
+    if (query.uuids) {
+      queryBuilder.andWhere('item.uuid IN (:...uuids)', { uuids: query.uuids })
+    }
     if (query.deleted !== undefined) {
       queryBuilder.andWhere('item.deleted = :deleted', { deleted: query.deleted })
     }

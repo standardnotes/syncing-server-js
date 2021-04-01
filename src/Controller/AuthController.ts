@@ -10,9 +10,9 @@ import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
 import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
 import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { Logger } from 'winston'
-import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { Register } from '../Domain/UseCase/Register'
 import { ChangePassword } from '../Domain/UseCase/ChangePassword'
+import { AuthHttpServiceInterface } from '../Domain/Auth/AuthHttpServiceInterface'
 
 @controller('/auth')
 export class AuthController extends BaseHttpController {
@@ -20,7 +20,7 @@ export class AuthController extends BaseHttpController {
     @inject(TYPES.SessionService) private sessionService: SessionServiceInterace,
     @inject(TYPES.VerifyMFA) private verifyMFA: VerifyMFA,
     @inject(TYPES.SignIn) private signInUseCase: SignIn,
-    @inject(TYPES.GetUserKeyParams) private getUserKeyParams: GetUserKeyParams,
+    @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
     @inject(TYPES.ClearLoginAttempts) private clearLoginAttempts: ClearLoginAttempts,
     @inject(TYPES.IncreaseLoginAttempts) private increaseLoginAttempts: IncreaseLoginAttempts,
     @inject(TYPES.Register) private registerUser: Register,
@@ -35,12 +35,12 @@ export class AuthController extends BaseHttpController {
   @httpGet('/params', TYPES.AuthMiddlewareWithoutResponse)
   async params(request: Request, response: Response): Promise<results.JsonResult> {
     if (response.locals.session) {
-      const result = await this.getUserKeyParams.execute({
-        email: response.locals.user.email,
-        authenticatedUser: response.locals.user,
-      })
+      const keyParams = await this.authHttpService.getUserKeyParams(
+        response.locals.user.email,
+        true
+      )
 
-      return this.json(result.keyParams)
+      return this.json(keyParams)
     }
 
     if (!request.query.email) {
@@ -66,11 +66,9 @@ export class AuthController extends BaseHttpController {
       }, 401)
     }
 
-    const result = await this.getUserKeyParams.execute({
-      email: <string> request.query.email,
-    })
+    const keyParams = await this.authHttpService.getUserKeyParams(<string> request.query.email, false)
 
-    return this.json(result.keyParams)
+    return this.json(keyParams)
   }
 
   @httpPost('/sign_in', TYPES.LockMiddleware)

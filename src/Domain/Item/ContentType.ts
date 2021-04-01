@@ -1,4 +1,5 @@
 export enum ContentType {
   Note = 'Note',
-  ItemsKey = 'SN|ItemsKey'
+  ItemsKey = 'SN|ItemsKey',
+  Extension = 'SF|Extension',
 }

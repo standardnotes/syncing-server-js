@@ -4,8 +4,8 @@ import TYPES from '../../Bootstrap/Types'
 import { ProjectorInterface } from '../../Projection/ProjectorInterface'
 import { Session } from '../Session/Session'
 import { SessionServiceInterace } from '../Session/SessionServiceInterface'
-import { KeyParamsFactoryInterface } from '../User/KeyParamsFactoryInterface'
 import { User } from '../User/User'
+import { AuthHttpServiceInterface } from './AuthHttpServiceInterface'
 import { AuthResponse20161215 } from './AuthResponse20161215'
 import { AuthResponse20200115 } from './AuthResponse20200115'
 import { AuthResponseFactory20190520 } from './AuthResponseFactory20190520'
@@ -14,7 +14,7 @@ import { AuthResponseFactory20190520 } from './AuthResponseFactory20190520'
 export class AuthResponseFactory20200115 extends AuthResponseFactory20190520 {
   constructor(
     @inject(TYPES.SessionService) private sessionService: SessionServiceInterace,
-    @inject(TYPES.KeyParamsFactory) private keyParamsFactory: KeyParamsFactoryInterface,
+    @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
     @inject(TYPES.UserProjector) userProjector: ProjectorInterface<User>,
     @inject(TYPES.JWT_SECRET) jwtSecret: string,
     @inject(TYPES.Logger) logger: Logger
@@ -41,9 +41,11 @@ export class AuthResponseFactory20200115 extends AuthResponseFactory20190520 {
 
     this.logger.debug(`Created session payload for user ${user.uuid}: %O`, sessionPayload)
 
+    const keyParams = await this.authHttpService.getUserKeyParams(user.email, true)
+
     return {
       session: sessionPayload,
-      key_params: this.keyParamsFactory.create(user, true),
+      key_params: keyParams,
       user: this.userProjector.projectSimple(user),
     }
   }
