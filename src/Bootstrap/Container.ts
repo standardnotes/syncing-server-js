@@ -68,6 +68,8 @@ import { SyncResponseFactory20161215 } from '../Domain/Item/SyncResponse/SyncRes
 import { SyncResponseFactory20200115 } from '../Domain/Item/SyncResponse/SyncResponseFactory20200115'
 import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
 import { SyncResponseFactoryResolver } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolver'
+import { ItemServiceInterface } from '../Domain/Item/ItemServiceInterface'
+import { ItemService } from '../Domain/Item/ItemService'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -218,6 +220,7 @@ export class ContainerConfigLoader {
     container.bind<AuthenticationMethodResolver>(TYPES.AuthenticationMethodResolver).to(AuthenticationMethodResolver)
     container.bind<DomainEventFactory>(TYPES.DomainEventFactory).to(DomainEventFactory)
     container.bind<superagent.SuperAgentStatic>(TYPES.HTTPClient).toConstantValue(superagent)
+    container.bind<ItemServiceInterface>(TYPES.ItemService).to(ItemService)
     container.bind<TimerInterface>(TYPES.Timer).to(Timer)
     container.bind<SyncResponseFactory20161215>(TYPES.SyncResponseFactory20161215).to(SyncResponseFactory20161215)
     container.bind<SyncResponseFactory20200115>(TYPES.SyncResponseFactory20200115).to(SyncResponseFactory20200115)
