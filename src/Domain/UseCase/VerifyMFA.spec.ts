@@ -36,7 +36,7 @@ describe('VerifyMFA', () => {
 
   it('should pass MFA verification if user has no MFA enabled', async () => {
     expect(await createVerifyMFA().execute({ email: 'test@test.te', requestParams: {} })).toEqual({
-      success: true
+      success: true,
     })
   })
 
@@ -45,7 +45,7 @@ describe('VerifyMFA', () => {
     itemRepository.findMFAExtensionByUserUuid = jest.fn().mockReturnValue(item)
 
     expect(await createVerifyMFA().execute({ email: 'test@test.te', requestParams: {} })).toEqual({
-      success: true
+      success: true,
     })
   })
 
@@ -53,7 +53,7 @@ describe('VerifyMFA', () => {
     userRepository.findOneByEmail = jest.fn().mockReturnValue(null)
     expect(await createVerifyMFA().execute({ email: 'test@test.te', requestParams: {} })).toEqual({
       success: false,
-      errorMessage: 'Invalid email or password'
+      errorMessage: 'Invalid email or password',
     })
   })
 
@@ -64,13 +64,13 @@ describe('VerifyMFA', () => {
       success: false,
       errorTag: 'mfa-required',
       errorMessage: 'Please enter your two-factor authentication code.',
-      errorPayload: { mfa_key: 'mfa_1-2-3' }
+      errorPayload: { mfa_key: 'mfa_1-2-3' },
     })
   })
 
   it('should not pass MFA verification if mfa is not correct', async () => {
     contentDecoder.decode = jest.fn().mockReturnValue({
-      secret: 'shhhh'
+      secret: 'shhhh',
     })
     itemRepository.findMFAExtensionByUserUuid = jest.fn().mockReturnValue(item)
 
@@ -78,13 +78,13 @@ describe('VerifyMFA', () => {
       success: false,
       errorTag: 'mfa-invalid',
       errorMessage: 'The two-factor authentication code you entered is incorrect. Please try again.',
-      errorPayload: { mfa_key: 'mfa_1-2-3' }
+      errorPayload: { mfa_key: 'mfa_1-2-3' },
     })
   })
 
   it('should pass MFA verification if mfa key is correct', async () => {
     contentDecoder.decode = jest.fn().mockReturnValue({
-      secret: 'shhhh'
+      secret: 'shhhh',
     })
 
     itemRepository.findMFAExtensionByUserUuid = jest.fn().mockReturnValue(item)

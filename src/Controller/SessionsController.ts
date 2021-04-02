@@ -19,7 +19,7 @@ export class SessionsController extends BaseHttpController {
   @httpGet('/')
   async getSessions(_request: Request, response: Response): Promise<results.JsonResult> {
     const useCaseResponse = await this.getActiveSessionsForUser.execute({
-      userUuid: response.locals.user.uuid
+      userUuid: response.locals.user.uuid,
     })
 
     return this.json(

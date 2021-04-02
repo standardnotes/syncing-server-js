@@ -32,7 +32,7 @@ describe('MySQLItemRepository', () => {
       {
         user_uuid: '123',
         content_type: 'SF|MFA',
-        deleted: false
+        deleted: false,
       }
     )
     expect(result).toEqual(item)
@@ -48,7 +48,7 @@ describe('MySQLItemRepository', () => {
       'item.uuid = :uuid AND item.user_uuid = :userUuid',
       {
         uuid: '1-2-3',
-        userUuid: '2-3-4'
+        userUuid: '2-3-4',
       }
     )
     expect(result).toEqual(item)
@@ -67,7 +67,7 @@ describe('MySQLItemRepository', () => {
       deleted: false,
       contentType: ContentType.Note,
       lastSyncTime: 123,
-      syncTimeComparison: '>='
+      syncTimeComparison: '>=',
     })
 
     expect(queryBuilder.where).toHaveBeenCalledTimes(1)
@@ -90,7 +90,7 @@ describe('MySQLItemRepository', () => {
     const result = await repository.findAll({
       userUuid: '1-2-3',
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC'
+      sortOrder: 'DESC',
     })
 
     expect(queryBuilder.where).toHaveBeenCalledTimes(1)

@@ -75,12 +75,12 @@ describe('SessionService', () => {
       ua: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36',
       browser: {
         name: 'Chrome',
-        version: '69.0'
+        version: '69.0',
       },
       os: {
         name: 'Mac',
-        version: '10.13'
-      }
+        version: '10.13',
+      },
     })
 
     logger = {} as jest.Mocked<winston.Logger>
@@ -94,7 +94,7 @@ describe('SessionService', () => {
 
     expect(revokedSessionRepository.save).toHaveBeenCalledWith({
       uuid: '2e1e43',
-      received: true
+      received: true,
     })
   })
 
@@ -174,7 +174,7 @@ describe('SessionService', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
       ua: '',
       browser: { name: undefined, version: undefined },
-      os: { name: undefined, version: undefined }
+      os: { name: undefined, version: undefined },
     })
     expect(createService().getDeviceInfo(session)).toEqual('Unknown Client on Unknown OS')
   })
@@ -183,7 +183,7 @@ describe('SessionService', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
       ua: 'dummy-data',
       browser: { name: '', version: '' },
-      os: { name: 'iOS', version: '10.3' }
+      os: { name: 'iOS', version: '10.3' },
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('iOS 10.3')
@@ -203,7 +203,7 @@ describe('SessionService', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
       ua: 'dummy-data',
       browser: { name: 'Chrome', version: '69.0' },
-      os: { name: 'Windows', version: '' }
+      os: { name: 'Windows', version: '' },
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('Chrome 69.0 on Windows')
@@ -211,7 +211,7 @@ describe('SessionService', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
       ua: 'dummy-data',
       browser: { name: 'Chrome', version: '69.0' },
-      os: { name: '', version: '7' }
+      os: { name: '', version: '7' },
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('Chrome 69.0 on 7')
@@ -221,7 +221,7 @@ describe('SessionService', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
       ua: 'dummy-data',
       browser: { name: '', version: '69.0' },
-      os: { name: 'Windows', version: '7' }
+      os: { name: 'Windows', version: '7' },
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('69.0 on Windows 7')
@@ -229,7 +229,7 @@ describe('SessionService', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
       ua: 'dummy-data',
       browser: { name: 'Chrome', version: '' },
-      os: { name: 'Windows', version: '7' }
+      os: { name: 'Windows', version: '7' },
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('Chrome on Windows 7')
@@ -242,7 +242,7 @@ describe('SessionService', () => {
       engine: { name: undefined, version: undefined },
       os: { name: 'iOS', version: undefined },
       device: { vendor: undefined, model: undefined, type: undefined },
-      cpu: { architecture: undefined }
+      cpu: { architecture: undefined },
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('iOS')
@@ -252,7 +252,7 @@ describe('SessionService', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
       ua: 'dummy-data',
       browser: { name: '', version: '69.0' },
-      os: { name: 'Windows', version: '' }
+      os: { name: 'Windows', version: '' },
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('69.0 on Windows')
@@ -260,7 +260,7 @@ describe('SessionService', () => {
     deviceDetector.getResult = jest.fn().mockReturnValue({
       ua: 'dummy-data',
       browser: { name: 'Chrome', version: '' },
-      os: { name: '', version: '7' }
+      os: { name: '', version: '7' },
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('Chrome on 7')
@@ -273,7 +273,7 @@ describe('SessionService', () => {
       engine: { name: undefined, version: undefined },
       os: { name: undefined, version: undefined },
       device: { vendor: undefined, model: undefined, type: undefined },
-      cpu: { architecture: undefined }
+      cpu: { architecture: undefined },
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('Android')
@@ -286,7 +286,7 @@ describe('SessionService', () => {
       engine: { name: 'Blink', version: '83.0.4103.122' },
       os: { name: 'Mac OS', version: '10.16.0' },
       device: { vendor: undefined, model: undefined, type: undefined },
-      cpu: { architecture: undefined }
+      cpu: { architecture: undefined },
     })
 
     expect(createService().getDeviceInfo(session)).toEqual('Standard Notes Desktop 3.5.18 on Mac OS 10.16.0')
@@ -365,7 +365,7 @@ describe('SessionService', () => {
     expect(revokedSessionRepository.save).toHaveBeenCalledWith({
       uuid: '2e1e43',
       userUuid: '1-2-3',
-      createdAt: expect.any(Date)
+      createdAt: expect.any(Date),
     })
   })
 

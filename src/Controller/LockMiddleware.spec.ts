@@ -26,7 +26,7 @@ describe('LockMiddleware', () => {
     userRepository.findOneByEmail = jest.fn().mockReturnValue(user)
 
     request = {
-      body: {}
+      body: {},
     } as jest.Mocked<Request>
     response = {} as jest.Mocked<Response>
     response.status = jest.fn().mockReturnThis()

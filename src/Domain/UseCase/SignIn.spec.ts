@@ -34,10 +34,10 @@ describe('SignIn', () => {
       password: 'qweqwe123123',
       userAgent: 'Google Chrome',
       apiVersion: '20190520',
-      ephemeralSession: false
+      ephemeralSession: false,
     })).toEqual({
       success: true,
-      authResponse: { foo: 'bar' }
+      authResponse: { foo: 'bar' },
     })
   })
 
@@ -47,10 +47,10 @@ describe('SignIn', () => {
       password: 'asdasd123123',
       userAgent: 'Google Chrome',
       apiVersion: '20190520',
-      ephemeralSession: false
+      ephemeralSession: false,
     })).toEqual({
       success: false,
-      errorMessage: 'Invalid email or password'
+      errorMessage: 'Invalid email or password',
     })
   })
 
@@ -60,10 +60,10 @@ describe('SignIn', () => {
       password: 'asdasd123123',
       userAgent: 'Google Chrome',
       apiVersion: '20190520',
-      ephemeralSession: false
+      ephemeralSession: false,
     })).toEqual({
       success: false,
-      errorMessage: 'Invalid email or password'
+      errorMessage: 'Invalid email or password',
     })
   })
 })

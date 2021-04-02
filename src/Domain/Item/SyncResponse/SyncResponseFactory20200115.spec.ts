@@ -10,14 +10,14 @@ describe('SyncResponseFactory20200115', () => {
       conflicts: [],
       syncToken: 'sync-test',
       integrityHash: 'test-hash',
-      cursorToken: 'cursor-test'
+      cursorToken: 'cursor-test',
     })).toEqual({
       retrieved_items: [],
       saved_items: [],
       conflicts: [],
       sync_token: 'sync-test',
       integrity_hash: 'test-hash',
-      cursor_token: 'cursor-test'
+      cursor_token: 'cursor-test',
     })
   })
 })

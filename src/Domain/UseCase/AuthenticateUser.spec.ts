@@ -37,9 +37,9 @@ describe('AuthenticateUser', () => {
     authenticationMethodResolver.resolve = jest.fn().mockReturnValue({
       type: 'jwt',
       claims: {
-        pw_hash: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'
+        pw_hash: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
       },
-      user
+      user,
     })
 
     const response = await createUseCase().execute({ token: 'test' })
@@ -53,9 +53,9 @@ describe('AuthenticateUser', () => {
     authenticationMethodResolver.resolve = jest.fn().mockReturnValue({
       type: 'jwt',
       claims: {
-        pw_hash: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'
+        pw_hash: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
       },
-      user
+      user,
     })
 
     const response = await createUseCase().execute({ token: 'test' })
@@ -67,7 +67,7 @@ describe('AuthenticateUser', () => {
     authenticationMethodResolver.resolve = jest.fn().mockReturnValue({
       type: 'jwt',
       claims: {
-        pw_hash: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'
+        pw_hash: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
       },
     })
 
@@ -82,9 +82,9 @@ describe('AuthenticateUser', () => {
     authenticationMethodResolver.resolve = jest.fn().mockReturnValue({
       type: 'jwt',
       claims: {
-        pw_hash: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'
+        pw_hash: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
       },
-      user
+      user,
     })
 
     const response = await createUseCase().execute({ token: 'test' })
@@ -98,7 +98,7 @@ describe('AuthenticateUser', () => {
     authenticationMethodResolver.resolve = jest.fn().mockReturnValue({
       type: 'session_token',
       session,
-      user
+      user,
     })
 
     const response = await createUseCase().execute({ token: 'test' })
@@ -113,7 +113,7 @@ describe('AuthenticateUser', () => {
     authenticationMethodResolver.resolve = jest.fn().mockReturnValue({
       type: 'session_token',
       session,
-      user
+      user,
     })
 
     const response = await createUseCase().execute({ token: 'test' })
@@ -128,7 +128,7 @@ describe('AuthenticateUser', () => {
     authenticationMethodResolver.resolve = jest.fn().mockReturnValue({
       type: 'session_token',
       session,
-      user
+      user,
     })
 
     const response = await createUseCase().execute({ token: 'test' })
@@ -141,7 +141,7 @@ describe('AuthenticateUser', () => {
 
     authenticationMethodResolver.resolve = jest.fn().mockReturnValue({
       type: 'session_token',
-      user
+      user,
     })
 
     const response = await createUseCase().execute({ token: 'test' })
@@ -152,7 +152,7 @@ describe('AuthenticateUser', () => {
   it('should not authenticate a user if a session is revoked', async () => {
     authenticationMethodResolver.resolve = jest.fn().mockReturnValue({
       type: 'revoked',
-      revokedSession
+      revokedSession,
     })
 
     const response = await createUseCase().execute({ token: 'test' })

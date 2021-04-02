@@ -27,11 +27,11 @@ describe('ItemsController', () => {
     request = {
       headers: {},
       body: {},
-      params: {}
+      params: {},
     } as jest.Mocked<express.Request>
 
     response = {
-      locals: {}
+      locals: {},
     } as jest.Mocked<express.Response>
   })
 
@@ -51,8 +51,8 @@ describe('ItemsController', () => {
         enc_item_key: 'test',
         items_key_id: 'test',
         updated_at: '2021-02-19T11:35:45.655Z',
-        uuid: '1-2-3'
-      }
+        uuid: '1-2-3',
+      },
     ]
 
     response.locals.user = user
@@ -76,12 +76,12 @@ describe('ItemsController', () => {
           items_key_id: 'test',
           updated_at: '2021-02-19T11:35:45.655Z',
           uuid: '1-2-3',
-        }
+        },
       ],
       limit: 150,
       syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
       userAgent: 'Google Chrome',
-      userUuid: '123'
+      userUuid: '123',
     })
 
     expect(result.statusCode).toEqual(200)

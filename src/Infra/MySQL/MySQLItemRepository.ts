@@ -26,7 +26,7 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
         'item.uuid = :uuid AND item.user_uuid = :userUuid',
         {
           uuid,
-          userUuid
+          userUuid,
         }
       )
       .getOne()
@@ -56,7 +56,7 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
         {
           user_uuid: userUuid,
           content_type: 'SF|MFA',
-          deleted: false
+          deleted: false,
         }
       )
       .getOne()

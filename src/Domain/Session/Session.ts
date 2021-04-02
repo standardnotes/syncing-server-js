@@ -3,27 +3,27 @@ import { Column, Entity, Index, PrimaryColumn } from 'typeorm'
 @Entity({ name: 'sessions' })
 export class Session {
   @PrimaryColumn({
-    length: 36
+    length: 36,
   })
   uuid: string
 
   @Column({
     name: 'user_uuid',
     length: 255,
-    nullable: true
+    nullable: true,
   })
   @Index('index_sessions_on_user_uuid')
   userUuid: string
 
   @Column({
     name: 'hashed_access_token',
-    length: 255
+    length: 255,
   })
   hashedAccessToken: string
 
   @Column({
     name: 'hashed_refresh_token',
-    length: 255
+    length: 255,
   })
   hashedRefreshToken: string
 
@@ -32,27 +32,27 @@ export class Session {
     type: 'datetime',
     default:
       /* istanbul ignore next */
-      () => 'CURRENT_TIMESTAMP'
+      () => 'CURRENT_TIMESTAMP',
   })
   accessExpiration: Date
 
   @Column({
     name: 'refresh_expiration',
-    type: 'datetime'
+    type: 'datetime',
   })
   refreshExpiration: Date
 
   @Column({
     name: 'api_version',
     length: 255,
-    nullable: true
+    nullable: true,
   })
   apiVersion: string
 
   @Column({
     name: 'user_agent',
     type: 'text',
-    nullable: true
+    nullable: true,
   })
   userAgent: string
 

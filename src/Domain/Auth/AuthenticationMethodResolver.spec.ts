@@ -45,7 +45,7 @@ describe('AuthenticationMethodResolver', () => {
         user_uuid: '123',
       },
       type: 'jwt',
-      user
+      user,
     })
   })
 
@@ -55,7 +55,7 @@ describe('AuthenticationMethodResolver', () => {
     expect(await createResolver().resolve('test')).toEqual({
       session,
       type: 'session_token',
-      user
+      user,
     })
   })
 
@@ -64,7 +64,7 @@ describe('AuthenticationMethodResolver', () => {
 
     expect(await createResolver().resolve('test')).toEqual({
       revokedSession,
-      type: 'revoked'
+      type: 'revoked',
     })
 
     expect(sessionService.markRevokedSessionAsReceived).toHaveBeenCalled()

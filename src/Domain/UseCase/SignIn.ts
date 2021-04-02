@@ -29,13 +29,13 @@ export class SignIn implements UseCaseInterface {
           dto.apiVersion,
           dto.userAgent,
           dto.ephemeralSession
-        )
+        ),
       }
     }
 
     return {
       success: false,
-      errorMessage: 'Invalid email or password'
+      errorMessage: 'Invalid email or password',
     }
   }
 }

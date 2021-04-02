@@ -26,8 +26,8 @@ describe('GetUserKeyParams', () => {
   it('should get key params for an authenticated user', async () => {
     expect(await createUseCase().execute({ email: 'test@test.te', authenticatedUser: user })).toEqual({
       keyParams: {
-        foo: 'bar'
-      }
+        foo: 'bar',
+      },
     })
 
     expect(keyParamsFactory.create).toHaveBeenCalledWith(user, true)
@@ -36,8 +36,8 @@ describe('GetUserKeyParams', () => {
   it('should get key params for an unauthenticated user', async () => {
     expect(await createUseCase().execute({ email: 'test@test.te' })).toEqual({
       keyParams: {
-        foo: 'bar'
-      }
+        foo: 'bar',
+      },
     })
 
     expect(keyParamsFactory.create).toHaveBeenCalledWith(user, false)
@@ -48,8 +48,8 @@ describe('GetUserKeyParams', () => {
 
     expect(await createUseCase().execute({ email: 'test@test.te' })).toEqual({
       keyParams: {
-        bar: 'baz'
-      }
+        bar: 'baz',
+      },
     })
 
     expect(keyParamsFactory.createPseudoParams).toHaveBeenCalledWith('test@test.te')

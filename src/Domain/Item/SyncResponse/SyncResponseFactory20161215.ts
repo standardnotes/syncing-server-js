@@ -9,8 +9,8 @@ export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface
     const unsaved = syncItemsResponse.conflicts.map((conflict: ItemConflict) => ({
       item: conflict.serverItem ?? <ItemHash> conflict.unsavedItem,
       error: {
-        tag: conflict.type
-      }
+        tag: conflict.type,
+      },
     }))
 
     return {
@@ -19,7 +19,7 @@ export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface
       unsaved,
       sync_token: syncItemsResponse.syncToken,
       cursor_token: syncItemsResponse.cursorToken,
-      integrity_hash: syncItemsResponse.integrityHash
+      integrity_hash: syncItemsResponse.integrityHash,
     }
   }
 }

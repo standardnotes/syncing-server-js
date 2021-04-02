@@ -12,10 +12,10 @@ describe('SessionMiddleware', () => {
 
   beforeEach(() => {
     request = {
-      headers: {}
+      headers: {},
     } as jest.Mocked<Request>
     response = {
-      locals: {}
+      locals: {},
     } as jest.Mocked<Response>
     response.status = jest.fn().mockReturnThis()
     response.send = jest.fn()

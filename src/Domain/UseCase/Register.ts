@@ -24,7 +24,7 @@ export class Register implements UseCaseInterface {
     if (this.disableUserRegistration) {
       return {
         success: false,
-        errorMessage: 'User registration is currently not allowed.'
+        errorMessage: 'User registration is currently not allowed.',
       }
     }
 
@@ -34,7 +34,7 @@ export class Register implements UseCaseInterface {
     if (existingUser) {
       return {
         success: false,
-        errorMessage: 'This email is already registered.'
+        errorMessage: 'This email is already registered.',
       }
     }
 
@@ -58,7 +58,7 @@ export class Register implements UseCaseInterface {
         apiVersion,
         dto.updatedWithUserAgent,
         ephemeralSession
-      )
+      ),
     }
   }
 }

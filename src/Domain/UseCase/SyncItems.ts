@@ -24,14 +24,14 @@ export class SyncItems implements UseCaseInterface {
       syncToken: dto.syncToken,
       cursorToken: dto.cursorToken,
       limit: dto.limit,
-      contentType: dto.contentType
+      contentType: dto.contentType,
     })
 
     const saveItemsResult = await this.itemService.saveItems({
       itemHashes: dto.itemHashes,
       userAgent: dto.userAgent,
       userUuid: dto.userUuid,
-      apiVersion: dto.apiVersion
+      apiVersion: dto.apiVersion,
     })
 
     let retrievedItems = this.filterOutSyncConflictsForConsecutiveSyncs(getItemsResult.items, saveItemsResult.conflicts)
@@ -44,7 +44,7 @@ export class SyncItems implements UseCaseInterface {
       syncToken: saveItemsResult.syncToken,
       savedItems: saveItemsResult.savedItems,
       conflicts: saveItemsResult.conflicts,
-      cursorToken: getItemsResult.cursorToken
+      cursorToken: getItemsResult.cursorToken,
     }
 
     if (dto.computeIntegrityHash) {

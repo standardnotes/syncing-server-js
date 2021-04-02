@@ -7,19 +7,19 @@ export class User {
   static readonly PASSWORD_HASH_COST = 11
 
   @PrimaryColumn({
-    length: 36
+    length: 36,
   })
   uuid: string
 
   @Column({
     length: 255,
-    nullable: true
+    nullable: true,
   })
   version: string
 
   @Column({
     length: 255,
-    nullable: true
+    nullable: true,
   })
   @Index('index_users_on_email')
   email: string
@@ -27,21 +27,21 @@ export class User {
   @Column({
     name: 'pw_nonce',
     length: 255,
-    nullable: true
+    nullable: true,
   })
   pwNonce: string
 
   @Column({
     name: 'kp_created',
     length: 255,
-    nullable: true
+    nullable: true,
   })
   kpCreated: string
 
   @Column({
     name: 'kp_origination',
     length: 255,
-    nullable: true
+    nullable: true,
   })
   kpOrigination: string
 
@@ -49,7 +49,7 @@ export class User {
     name: 'pw_cost',
     width: 11,
     type: 'int',
-    nullable: true
+    nullable: true,
   })
   pwCost: number
 
@@ -57,34 +57,34 @@ export class User {
     name: 'pw_key_size',
     width: 11,
     type: 'int',
-    nullable: true
+    nullable: true,
   })
   pwKeySize: number
 
   @Column({
     name: 'pw_salt',
     length: 255,
-    nullable: true
+    nullable: true,
   })
   pwSalt: string
 
   @Column({
     name: 'pw_alg',
     length: 255,
-    nullable: true
+    nullable: true,
   })
   pwAlg: string
 
   @Column({
     name: 'pw_func',
     length: 255,
-    nullable: true
+    nullable: true,
   })
   pwFunc: string
 
   @Column({
     name: 'encrypted_password',
-    length: 255
+    length: 255,
   })
   encryptedPassword: string
 
@@ -103,7 +103,7 @@ export class User {
   @Column({
     name: 'locked_until',
     type: 'datetime',
-    nullable: true
+    nullable: true,
   })
   lockedUntil: Date | null
 
@@ -111,14 +111,14 @@ export class User {
     name: 'num_failed_attempts',
     type: 'int',
     width: 11,
-    nullable: true
+    nullable: true,
   })
   numberOfFailedAttempts: number | null
 
   @Column({
     name: 'updated_with_user_agent',
     type: 'text',
-    nullable: true
+    nullable: true,
   })
   updatedWithUserAgent: string | null
 

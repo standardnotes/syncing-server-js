@@ -26,7 +26,7 @@ export class GetActiveSessionsForUser implements UseCaseInterface {
           const dateB = b.refreshExpiration instanceof Date ? b.refreshExpiration : new Date(b.refreshExpiration)
 
           return dateB.getTime() - dateA.getTime()
-        })
+        }),
     }
   }
 }

@@ -25,7 +25,7 @@ describe('KeyParamsFactory', () => {
   it('should create a basic key params structure', () => {
     expect(createFactory().create(user, true)).toEqual({
       identifier: 'test@test.te',
-      version: 'test'
+      version: 'test',
     })
   })
 

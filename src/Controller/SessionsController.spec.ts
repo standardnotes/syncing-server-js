@@ -31,7 +31,7 @@ describe('SessionsController', () => {
     } as jest.Mocked<express.Request>
 
     response = {
-      locals: {}
+      locals: {},
     } as jest.Mocked<express.Response>
   })
 

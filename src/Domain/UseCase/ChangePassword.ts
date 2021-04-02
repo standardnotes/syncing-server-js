@@ -21,7 +21,7 @@ export class ChangePassword implements UseCaseInterface {
     if (!await bcrypt.compare(dto.currentPassword, dto.user.encryptedPassword)) {
       return {
         success: false,
-        errorMessage: 'The current password you entered is incorrect. Please try again.'
+        errorMessage: 'The current password you entered is incorrect. Please try again.',
       }
     }
 
@@ -38,7 +38,7 @@ export class ChangePassword implements UseCaseInterface {
 
     return {
       success: true,
-      authResponse: await authResponseFactory.createResponse(updatedUser, dto.apiVersion, dto.updatedWithUserAgent)
+      authResponse: await authResponseFactory.createResponse(updatedUser, dto.apiVersion, dto.updatedWithUserAgent),
     }
   }
 }

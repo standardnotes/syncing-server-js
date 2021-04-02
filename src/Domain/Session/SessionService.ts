@@ -72,7 +72,7 @@ export class SessionService implements SessionServiceInterace {
       access_token: `${SessionService.SESSION_TOKEN_VERSION}:${session.uuid}:${accessToken}`,
       refresh_token: `${SessionService.SESSION_TOKEN_VERSION}:${session.uuid}:${refreshToken}`,
       access_expiration: this.timer.convertStringDateToMilliseconds(accessTokenExpiration.toString()),
-      refresh_expiration: this.timer.convertStringDateToMilliseconds(refreshTokenExpiration.toString())
+      refresh_expiration: this.timer.convertStringDateToMilliseconds(refreshTokenExpiration.toString()),
     }
   }
 

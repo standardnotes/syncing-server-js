@@ -10,8 +10,8 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
       createdAt: dayjs.utc().toDate(),
       payload: {
         userUuid,
-        email
-      }
+        email,
+      },
     }
   }
 }

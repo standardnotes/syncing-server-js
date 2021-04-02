@@ -23,7 +23,7 @@ export class ItemsController extends BaseHttpController {
       limit: request.body.limit,
       userAgent: request.headers['user-agent'],
       contentType: request.body.content_type,
-      apiVersion: request.body.api
+      apiVersion: request.body.api,
     })
 
     return this.json(syncResult)

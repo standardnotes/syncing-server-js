@@ -14,7 +14,7 @@ export class MySQLSessionRepository extends Repository<Session> implements Sessi
       .update()
       .set({
         hashedAccessToken,
-        hashedRefreshToken
+        hashedRefreshToken,
       })
       .where('uuid = :uuid', { uuid })
       .execute()
@@ -25,7 +25,7 @@ export class MySQLSessionRepository extends Repository<Session> implements Sessi
       .update()
       .set({
         accessExpiration,
-        refreshExpiration
+        refreshExpiration,
       })
       .where('uuid = :uuid', { uuid })
       .execute()
@@ -64,7 +64,7 @@ export class MySQLSessionRepository extends Repository<Session> implements Sessi
       .where(
         'session.user_uuid = :user_uuid',
         {
-          user_uuid: userUuid
+          user_uuid: userUuid,
         }
       )
       .getMany()
@@ -77,7 +77,7 @@ export class MySQLSessionRepository extends Repository<Session> implements Sessi
         'user_uuid = :user_uuid AND uuid != :current_session_uuid',
         {
           user_uuid: userUuid,
-          current_session_uuid: currentSessionUuid
+          current_session_uuid: currentSessionUuid,
         }
       )
       .execute()

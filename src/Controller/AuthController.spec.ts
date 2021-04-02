@@ -94,11 +94,11 @@ describe('AuthController', () => {
     request = {
       headers: {},
       body: {},
-      query: {}
+      query: {},
     } as jest.Mocked<express.Request>
 
     response = {
-      locals: {}
+      locals: {},
     } as jest.Mocked<express.Response>
   })
 
@@ -122,7 +122,7 @@ describe('AuthController', () => {
       ephemeralSession: false,
       version: '003',
       email: 'test@test.te',
-      password: 'asdzxc'
+      password: 'asdzxc',
     })
 
     expect(domainEventPublisher.publish).toHaveBeenCalledWith(event)
@@ -153,8 +153,8 @@ describe('AuthController', () => {
       pwNonce: 'asdzxc',
       protocolVersion: '004',
       user: {
-        email: 'test@test.te'
-      }
+        email: 'test@test.te',
+      },
     })
 
     expect(clearLoginAttempts.execute).toHaveBeenCalled()
@@ -256,7 +256,7 @@ describe('AuthController', () => {
       version: '001',
       pwNonce: 'test',
       email: 'test@test.te',
-      password: 'asdzxc'
+      password: 'asdzxc',
     })
 
     expect(domainEventPublisher.publish).toHaveBeenCalledWith(event)
@@ -284,7 +284,7 @@ describe('AuthController', () => {
       ephemeralSession: false,
       version: '002',
       email: 'test@test.te',
-      password: 'asdzxc'
+      password: 'asdzxc',
     })
 
     expect(domainEventPublisher.publish).toHaveBeenCalledWith(event)
@@ -341,8 +341,8 @@ describe('AuthController', () => {
 
     getUserKeyParams.execute = jest.fn().mockReturnValue({
       keyParams: {
-        foo: 'bar'
-      }
+        foo: 'bar',
+      },
     })
 
     const httpResponse = <results.JsonResult> await createController().params(request, response)
@@ -350,9 +350,9 @@ describe('AuthController', () => {
 
     expect(getUserKeyParams.execute).toHaveBeenCalledWith({
       authenticatedUser: {
-        email: 'test@test.te'
+        email: 'test@test.te',
       },
-      email: 'test@test.te'
+      email: 'test@test.te',
     })
 
     expect(result.statusCode).toEqual(200)
@@ -362,8 +362,8 @@ describe('AuthController', () => {
   it('should get auth params for unauthenticated user', async () => {
     getUserKeyParams.execute = jest.fn().mockReturnValue({
       keyParams: {
-        foo: 'bar'
-      }
+        foo: 'bar',
+      },
     })
 
     verifyMFA.execute = jest.fn().mockReturnValue({ success: true })
@@ -374,7 +374,7 @@ describe('AuthController', () => {
     const result = await httpResponse.executeAsync()
 
     expect(getUserKeyParams.execute).toHaveBeenCalledWith({
-      email: 'test2@test.te'
+      email: 'test2@test.te',
     })
 
     expect(result.statusCode).toEqual(200)
@@ -384,8 +384,8 @@ describe('AuthController', () => {
   it('should not get auth params for invalid MFA authentication', async () => {
     getUserKeyParams.execute = jest.fn().mockReturnValue({
       keyParams: {
-        foo: 'bar'
-      }
+        foo: 'bar',
+      },
     })
 
     request.query.email = 'test2@test.te'
@@ -401,8 +401,8 @@ describe('AuthController', () => {
   it('should not get auth params for missing email parameter', async () => {
     getUserKeyParams.execute = jest.fn().mockReturnValue({
       keyParams: {
-        foo: 'bar'
-      }
+        foo: 'bar',
+      },
     })
 
     verifyMFA.execute = jest.fn().mockReturnValue({ success: true })

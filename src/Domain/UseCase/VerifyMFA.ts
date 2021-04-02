@@ -22,7 +22,7 @@ export class VerifyMFA implements UseCaseInterface {
     if(!user) {
       return {
         success: false,
-        errorMessage: 'Invalid email or password'
+        errorMessage: 'Invalid email or password',
       }
     }
 
@@ -30,7 +30,7 @@ export class VerifyMFA implements UseCaseInterface {
 
     if (!mfaExtension || mfaExtension.deleted) {
       return {
-        success: true
+        success: true,
       }
     }
 
@@ -40,7 +40,7 @@ export class VerifyMFA implements UseCaseInterface {
         success: false,
         errorTag: 'mfa-required',
         errorMessage: 'Please enter your two-factor authentication code.',
-        errorPayload: { mfa_key: mfaParamKey }
+        errorPayload: { mfa_key: mfaParamKey },
       }
     }
 
@@ -56,7 +56,7 @@ export class VerifyMFA implements UseCaseInterface {
     }
 
     return {
-      success: true
+      success: true,
     }
   }
 }

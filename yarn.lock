@@ -627,10 +627,10 @@
   resolved "https://registry.yarnpkg.com/@standardnotes/auth/-/auth-1.1.0.tgz#8342a056ea4e2ef6ecd3c6d1d7ef3f99668cb5bf"
   integrity sha512-xRF26yaqtgtDA712Dy5Ga6i4txcMP7C/ziuzSMSc6OpgizlDacjbmB2PKnKmIeB6LuHzyJ3jXGK69EoDLoO/mg==
 
-"@standardnotes/config@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@standardnotes/config/-/config-1.1.1.tgz#a337e179d7073aa67b70099940cc4092b6d85550"
-  integrity sha512-Hw4JieeRs8Fjwz85RCsBS//gRasVX2PmcUdltEKLuywayB+xvRsSuu6LeD3NTA3iq2JpcuO2g1XDD7WG3QQEig==
+"@standardnotes/config@1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@standardnotes/config/-/config-1.3.0.tgz#2c4bed8d266ca8e8ea2d8fb2e2d5d000d50289e8"
+  integrity sha512-WIqXThzcMcNW5N/J3jsNF/D31//IXcvLcvRS9li+lVZCiuuVMns4/GR/T4a7zIeL0jl22RpuM3FVQjr5ZycARw==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^4.14.0"
     "@typescript-eslint/parser" "^4.14.0"

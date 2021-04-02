@@ -14,16 +14,16 @@ describe('SyncResponseFactory20161215', () => {
       conflicts: [
         {
           serverItem: item1,
-          type: 'sync_conflict'
+          type: 'sync_conflict',
         },
         {
           unsavedItem: itemHash1,
-          type: 'uuid_conflict'
-        }
+          type: 'uuid_conflict',
+        },
       ],
       syncToken: 'sync-test',
       integrityHash: 'test-hash',
-      cursorToken: 'cursor-test'
+      cursorToken: 'cursor-test',
     })).toEqual({
       retrieved_items: [],
       saved_items: [],
@@ -31,19 +31,19 @@ describe('SyncResponseFactory20161215', () => {
         {
           item: item1,
           error: {
-            tag: 'sync_conflict'
-          }
+            tag: 'sync_conflict',
+          },
         },
         {
           item: itemHash1,
           error: {
-            tag: 'uuid_conflict'
-          }
-        }
+            tag: 'uuid_conflict',
+          },
+        },
       ],
       sync_token: 'sync-test',
       integrity_hash: 'test-hash',
-      cursor_token: 'cursor-test'
+      cursor_token: 'cursor-test',
     })
   })
 })

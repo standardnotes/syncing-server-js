@@ -21,14 +21,14 @@ export class AuthenticateUser implements UseCaseInterface {
     if (!authenticationMethod) {
       return {
         success: false,
-        failureType: 'INVALID_AUTH'
+        failureType: 'INVALID_AUTH',
       }
     }
 
     if (authenticationMethod.type === 'revoked') {
       return {
         success: false,
-        failureType: 'REVOKED_SESSION'
+        failureType: 'REVOKED_SESSION',
       }
     }
 
@@ -36,14 +36,14 @@ export class AuthenticateUser implements UseCaseInterface {
     if (!user) {
       return {
         success: false,
-        failureType: 'INVALID_AUTH'
+        failureType: 'INVALID_AUTH',
       }
     }
 
     if(authenticationMethod.type == 'jwt' && user.supportsSessions()) {
       return {
         success: false,
-        failureType: 'INVALID_AUTH'
+        failureType: 'INVALID_AUTH',
       }
     }
 
@@ -55,7 +55,7 @@ export class AuthenticateUser implements UseCaseInterface {
       if (!pwHash || !crypto.timingSafeEqual(Buffer.from(pwHash), Buffer.from(encryptedPasswordDigest))) {
         return {
           success: false,
-          failureType: 'INVALID_AUTH'
+          failureType: 'INVALID_AUTH',
         }
       }
       break
@@ -65,21 +65,21 @@ export class AuthenticateUser implements UseCaseInterface {
       if (!session) {
         return {
           success: false,
-          failureType: 'INVALID_AUTH'
+          failureType: 'INVALID_AUTH',
         }
       }
 
       if (session.refreshExpiration < dayjs.utc().toDate()) {
         return {
           success: false,
-          failureType: 'INVALID_AUTH'
+          failureType: 'INVALID_AUTH',
         }
       }
 
       if (session.accessExpiration < dayjs.utc().toDate()) {
         return {
           success: false,
-          failureType: 'EXPIRED_TOKEN'
+          failureType: 'EXPIRED_TOKEN',
         }
       }
 
@@ -90,7 +90,7 @@ export class AuthenticateUser implements UseCaseInterface {
     return {
       success: true,
       user,
-      session: authenticationMethod.session
+      session: authenticationMethod.session,
     }
   }
 }

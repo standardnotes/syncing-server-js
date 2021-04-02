@@ -23,13 +23,13 @@ describe('SyncItems', () => {
 
   beforeEach(() => {
     item1 = {
-      uuid: '1-2-3'
+      uuid: '1-2-3',
     } as jest.Mocked<Item>
     item2 = {
-      uuid: '2-3-4'
+      uuid: '2-3-4',
     } as jest.Mocked<Item>
     item3 = {
-      uuid: '3-4-5'
+      uuid: '3-4-5',
     } as jest.Mocked<Item>
 
     itemHash = {
@@ -40,18 +40,18 @@ describe('SyncItems', () => {
       enc_item_key: 'qweqwe',
       items_key_id: 'asdasd',
       created_at: '2021-02-19T11:35:45.655Z',
-      updated_at: '2021-03-25T09:37:37.944Z'
+      updated_at: '2021-03-25T09:37:37.944Z',
     }
 
     itemService = {} as jest.Mocked<ItemServiceInterface>
     itemService.getItems = jest.fn().mockReturnValue({
       items: [ item1 ],
-      cursorToken: 'asdzxc'
+      cursorToken: 'asdzxc',
     })
     itemService.saveItems = jest.fn().mockReturnValue({
       savedItems: [ item2 ],
       conflicts: [],
-      syncToken: 'qwerty'
+      syncToken: 'qwerty',
     })
     itemService.frontLoadKeysItemsToTop = jest.fn().mockReturnValue([ item3, item1 ])
 
@@ -73,7 +73,7 @@ describe('SyncItems', () => {
       cursorToken: 'bar',
       limit: 10,
       userAgent: 'Google Chrome',
-      contentType: 'Note'
+      contentType: 'Note',
     })).toEqual(syncResponse)
 
 
@@ -86,7 +86,7 @@ describe('SyncItems', () => {
       savedItems: [
         item2,
       ],
-      syncToken: 'qwerty'
+      syncToken: 'qwerty',
     })
     expect(itemService.frontLoadKeysItemsToTop).not.toHaveBeenCalled()
     expect(itemService.getItems).toHaveBeenCalledWith({
@@ -94,12 +94,12 @@ describe('SyncItems', () => {
       cursorToken: 'bar',
       limit: 10,
       syncToken: 'foo',
-      userUuid: '1-2-3'
+      userUuid: '1-2-3',
     })
     expect(itemService.saveItems).toHaveBeenCalledWith({
       itemHashes: [ itemHash ],
       userAgent: 'Google Chrome',
-      userUuid: '1-2-3'
+      userUuid: '1-2-3',
     })
   })
 
@@ -110,7 +110,7 @@ describe('SyncItems', () => {
       computeIntegrityHash: false,
       limit: 10,
       userAgent: 'Google Chrome',
-      contentType: 'Note'
+      contentType: 'Note',
     })).toEqual(syncResponse)
 
     expect(syncResponseFactory.createResponse).toHaveBeenCalledWith({
@@ -118,12 +118,12 @@ describe('SyncItems', () => {
       cursorToken: 'asdzxc',
       retrievedItems: [
         item3,
-        item1
+        item1,
       ],
       savedItems: [
         item2,
       ],
-      syncToken: 'qwerty'
+      syncToken: 'qwerty',
     })
   })
 
@@ -135,7 +135,7 @@ describe('SyncItems', () => {
       computeIntegrityHash: true,
       limit: 10,
       userAgent: 'Google Chrome',
-      contentType: 'Note'
+      contentType: 'Note',
     })).toEqual(syncResponse)
 
     expect(syncResponseFactory.createResponse).toHaveBeenCalledWith({
@@ -144,19 +144,19 @@ describe('SyncItems', () => {
       integrityHash: 'test-hash',
       retrievedItems: [
         item3,
-        item1
+        item1,
       ],
       savedItems: [
         item2,
       ],
-      syncToken: 'qwerty'
+      syncToken: 'qwerty',
     })
   })
 
   it('should sync items and return filtered out sync conflicts for consecutive sync operations', async() => {
     itemService.getItems = jest.fn().mockReturnValue({
       items: [ item1, item2 ],
-      cursorToken: 'asdzxc'
+      cursorToken: 'asdzxc',
     })
 
     itemService.saveItems = jest.fn().mockReturnValue({
@@ -164,14 +164,14 @@ describe('SyncItems', () => {
       conflicts: [
         {
           serverItem: item2,
-          type: 'sync_conflict'
+          type: 'sync_conflict',
         },
         {
           serverItem: undefined,
-          type: 'sync_conflict'
-        }
+          type: 'sync_conflict',
+        },
       ],
-      syncToken: 'qwerty'
+      syncToken: 'qwerty',
     })
 
     await createUseCase().execute({
@@ -182,27 +182,27 @@ describe('SyncItems', () => {
       cursorToken: 'bar',
       limit: 10,
       userAgent: 'Google Chrome',
-      contentType: 'Note'
+      contentType: 'Note',
     })
 
     expect(syncResponseFactory.createResponse).toHaveBeenCalledWith({
       conflicts: [
         {
           serverItem: item2,
-          type: 'sync_conflict'
+          type: 'sync_conflict',
         },
         {
           serverItem: undefined,
-          type: 'sync_conflict'
-        }
+          type: 'sync_conflict',
+        },
       ],
       cursorToken: 'asdzxc',
       retrievedItems: [
-        item1
+        item1,
       ],
       savedItems: [
       ],
-      syncToken: 'qwerty'
+      syncToken: 'qwerty',
     })
   })
 })

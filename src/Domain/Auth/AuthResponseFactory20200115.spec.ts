@@ -41,7 +41,7 @@ describe('AuthResponseFactory20200115', () => {
       access_token: 'access_token',
       refresh_token: 'refresh_token',
       access_expiration: 123,
-      refresh_expiration: 234
+      refresh_expiration: 234,
     })
 
     keyParamsFactory = {} as jest.Mocked<KeyParamsFactoryInterface>
@@ -64,7 +64,7 @@ describe('AuthResponseFactory20200115', () => {
 
     expect(response).toEqual({
       user: { foo: 'bar' },
-      token: expect.any(String)
+      token: expect.any(String),
     })
   })
 
@@ -82,11 +82,11 @@ describe('AuthResponseFactory20200115', () => {
         access_token: 'access_token',
         refresh_token: 'refresh_token',
         access_expiration: 123,
-        refresh_expiration: 234
+        refresh_expiration: 234,
       },
       user: {
-        foo: 'bar'
-      }
+        foo: 'bar',
+      },
     })
   })
 
@@ -104,11 +104,11 @@ describe('AuthResponseFactory20200115', () => {
         access_token: 'access_token',
         refresh_token: 'refresh_token',
         access_expiration: 123,
-        refresh_expiration: 234
+        refresh_expiration: 234,
       },
       user: {
-        foo: 'bar'
-      }
+        foo: 'bar',
+      },
     })
   })
 })

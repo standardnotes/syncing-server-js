@@ -32,7 +32,7 @@ describe('AuthResponseFactory20161215', () => {
 
     expect(response).toEqual({
       user: { foo: 'bar' },
-      token: expect.any(String)
+      token: expect.any(String),
     })
   })
 })

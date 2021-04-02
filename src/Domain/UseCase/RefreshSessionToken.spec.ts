@@ -23,14 +23,14 @@ describe('RefreshSessionToken', () => {
       access_token: 'token1',
       refresh_token: 'token2',
       access_expiration: 123,
-      refresh_expiration: 234
+      refresh_expiration: 234,
     })
   })
 
   it('should refresh session token', async () => {
     const result = await createUseCase().execute({
       accessToken: '123',
-      refreshToken: '234'
+      refreshToken: '234',
     })
 
     expect(sessionService.createTokens).toHaveBeenCalledWith(session)
@@ -41,8 +41,8 @@ describe('RefreshSessionToken', () => {
         access_token: 'token1',
         refresh_token: 'token2',
         access_expiration: 123,
-        refresh_expiration: 234
-      }
+        refresh_expiration: 234,
+      },
     })
   })
 
@@ -51,13 +51,13 @@ describe('RefreshSessionToken', () => {
 
     const result = await createUseCase().execute({
       accessToken: '123',
-      refreshToken: '234'
+      refreshToken: '234',
     })
 
     expect(result).toEqual({
       success: false,
       errorTag: 'invalid-parameters',
-      errorMessage: 'The provided parameters are not valid.'
+      errorMessage: 'The provided parameters are not valid.',
     })
   })
 
@@ -66,13 +66,13 @@ describe('RefreshSessionToken', () => {
 
     const result = await createUseCase().execute({
       accessToken: '123',
-      refreshToken: '234'
+      refreshToken: '234',
     })
 
     expect(result).toEqual({
       success: false,
       errorTag: 'invalid-refresh-token',
-      errorMessage: 'The refresh token is not valid.'
+      errorMessage: 'The refresh token is not valid.',
     })
   })
 
@@ -81,7 +81,7 @@ describe('RefreshSessionToken', () => {
 
     const result = await createUseCase().execute({
       accessToken: '123',
-      refreshToken: '234'
+      refreshToken: '234',
     })
 
     expect(result).toEqual({

@@ -38,7 +38,7 @@ describe('MySQLSessionRepository', () => {
     expect(updateQueryBuilder.set).toHaveBeenCalledWith(
       {
         hashedAccessToken: '234',
-        hashedRefreshToken: '345'
+        hashedRefreshToken: '345',
       }
     )
     expect(updateQueryBuilder.where).toHaveBeenCalledWith(
@@ -66,7 +66,7 @@ describe('MySQLSessionRepository', () => {
     expect(updateQueryBuilder.set).toHaveBeenCalledWith(
       {
         accessExpiration: dayjs.utc('2020-11-26T13:34:00.000Z').toDate(),
-        refreshExpiration: dayjs.utc('2020-11-26T14:34:00.000Z').toDate()
+        refreshExpiration: dayjs.utc('2020-11-26T14:34:00.000Z').toDate(),
       }
     )
     expect(updateQueryBuilder.where).toHaveBeenCalledWith(
@@ -134,7 +134,7 @@ describe('MySQLSessionRepository', () => {
       'user_uuid = :user_uuid AND uuid != :current_session_uuid',
       {
         user_uuid: '123',
-        current_session_uuid: '234'
+        current_session_uuid: '234',
       }
     )
     expect(queryBuilder.execute).toHaveBeenCalled()

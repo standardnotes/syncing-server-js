@@ -38,7 +38,7 @@ describe('UpdateUser', () => {
       version: '004',
       pwCost: 11,
       pwSalt: 'qweqwe',
-      pwNonce: undefined
+      pwNonce: undefined,
     })).toEqual({ success: true, authResponse: { foo: 'bar' } })
 
     expect(userRepository.save).toHaveBeenCalledWith({

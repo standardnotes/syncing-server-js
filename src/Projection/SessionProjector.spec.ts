@@ -35,7 +35,7 @@ describe('SessionProjector', () => {
       api_version: '004',
       created_at: '2020-11-26T13:34:00.000Z',
       updated_at: '2020-11-26T13:34:00.000Z',
-      device_info: 'Some Device Info'
+      device_info: 'Some Device Info',
     })
   })
 
@@ -52,7 +52,7 @@ describe('SessionProjector', () => {
       created_at: '2020-11-26T13:34:00.000Z',
       updated_at: '2020-11-26T13:34:00.000Z',
       device_info: 'Some Device Info',
-      current: false
+      current: false,
     })
   })
 
@@ -71,7 +71,7 @@ describe('SessionProjector', () => {
       created_at: '2020-11-26T13:34:00.000Z',
       updated_at: '2020-11-26T13:34:00.000Z',
       device_info: 'Some Device Info',
-      current: true
+      current: true,
     })
   })
 

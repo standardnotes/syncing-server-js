@@ -12,7 +12,7 @@ import {
   RedisEventMessageHandler,
   SNSDomainEventPublisher,
   SQSDomainEventSubscriberFactory,
-  SQSEventMessageHandler
+  SQSEventMessageHandler,
 } from '@standardnotes/domain-events'
 import { UAParser } from 'ua-parser-js'
 
@@ -95,18 +95,18 @@ export class ContainerConfigLoader {
             username: env.get('DB_USERNAME'),
             password: env.get('DB_PASSWORD'),
             database: env.get('DB_DATABASE'),
-          }
-        ]
+          },
+        ],
       },
       entities: [
         User,
         Session,
         RevokedSession,
         Item,
-        Revision
+        Revision,
       ],
       migrations: [
-        env.get('DB_MIGRATIONS_PATH')
+        env.get('DB_MIGRATIONS_PATH'),
       ],
       migrationsRun: true,
       logging: <LoggerOptions> env.get('DB_DEBUG_LEVEL'),
@@ -139,14 +139,14 @@ export class ContainerConfigLoader {
     if (env.get('SNS_AWS_REGION', true)) {
       container.bind<AWS.SNS>(TYPES.SNS).toConstantValue(new AWS.SNS({
         apiVersion: 'latest',
-        region: env.get('SNS_AWS_REGION', true)
+        region: env.get('SNS_AWS_REGION', true),
       }))
     }
 
     if (env.get('SQS_AWS_REGION', true)) {
       container.bind<AWS.SQS>(TYPES.SQS).toConstantValue(new AWS.SQS({
         apiVersion: 'latest',
-        region: env.get('SQS_AWS_REGION', true)
+        region: env.get('SQS_AWS_REGION', true),
       }))
     }
 
@@ -243,7 +243,7 @@ export class ContainerConfigLoader {
     }
 
     const eventHandlers: Map<string, DomainEventHandlerInterface> = new Map([
-      ['USER_REGISTERED', container.get(TYPES.UserRegisteredEventHandler)]
+      ['USER_REGISTERED', container.get(TYPES.UserRegisteredEventHandler)],
     ])
 
     if (env.get('SQS_QUEUE_URL', true)) {

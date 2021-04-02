@@ -24,7 +24,7 @@ export class KeyParamsFactory implements KeyParamsFactoryInterface {
   create(user: User, authenticated: boolean): KeyParams {
     const keyParams: KeyParams = {
       version: user.version,
-      identifier: user.email
+      identifier: user.email,
     }
 
     switch (user.version) {

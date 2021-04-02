@@ -48,7 +48,7 @@ export class ItemService implements ItemServiceInterface {
       contentType: dto.contentType,
       deleted: lastSyncTime ? undefined : false,
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC'
+      sortOrder: 'DESC',
     }
 
     let items = await this.itemRepository.findAll(itemQuery)
@@ -79,7 +79,7 @@ export class ItemService implements ItemServiceInterface {
       if (!this.itemShouldBeSaved(itemHash, dto.apiVersion, existingItem)) {
         conflicts.push({
           serverItem: existingItem,
-          type: 'sync_conflict'
+          type: 'sync_conflict',
         })
 
         continue
@@ -108,7 +108,7 @@ export class ItemService implements ItemServiceInterface {
     return {
       savedItems,
       conflicts,
-      syncToken
+      syncToken,
     }
   }
 
@@ -117,7 +117,7 @@ export class ItemService implements ItemServiceInterface {
       userUuid,
       contentType: ContentType.ItemsKey,
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC'
+      sortOrder: 'DESC',
     })
 
     const retrievedItemsIds: Array<string> = retrievedItems.map((item: Item) => item.uuid)

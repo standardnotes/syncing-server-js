@@ -28,8 +28,8 @@ export class UserRegisteredEventHandler implements DomainEventHandlerInterface {
         key: this.userServerAuthKey,
         user: {
           email: event.payload.email,
-          created_at: event.createdAt
-        }
+          created_at: event.createdAt,
+        },
       })
   }
 }

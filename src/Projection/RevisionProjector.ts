@@ -11,7 +11,7 @@ export class RevisionProjector implements ProjectorInterface<Revision> {
       'uuid': revision.uuid,
       'content_type': revision.contentType,
       'created_at': dayjs.utc(revision.createdAt).toISOString(),
-      'updated_at': dayjs.utc(revision.updatedAt).toISOString()
+      'updated_at': dayjs.utc(revision.updatedAt).toISOString(),
     }
   }
 
@@ -26,7 +26,7 @@ export class RevisionProjector implements ProjectorInterface<Revision> {
       'auth_hash': revision.authHash,
       'creation_date': dayjs.utc(revision.creationDate).format('YYYY-MM-DD'),
       'created_at': dayjs.utc(revision.createdAt).toISOString(),
-      'updated_at': dayjs.utc(revision.updatedAt).toISOString()
+      'updated_at': dayjs.utc(revision.updatedAt).toISOString(),
     }
   }
 
