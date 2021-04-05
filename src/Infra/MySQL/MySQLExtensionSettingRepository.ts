@@ -1,8 +1,10 @@
-import { Repository } from 'typeorm'
+import { injectable } from 'inversify'
+import { EntityRepository, Repository } from 'typeorm'
 
 import { ExtensionSetting } from '../../Domain/ExtensionSetting/ExtensionSetting'
 import { ExtensionSettingRepositoryInterface } from '../../Domain/ExtensionSetting/ExtensionSettingRepositoryInterface'
-
+@injectable()
+@EntityRepository(ExtensionSetting)
 export class MySQLExtensionSettingRepository extends Repository<ExtensionSetting> implements ExtensionSettingRepositoryInterface {
   async findOneByExtensionId(extensionId: string): Promise<ExtensionSetting | undefined> {
     return this.createQueryBuilder('extension_setting')
