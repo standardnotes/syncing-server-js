@@ -22,7 +22,7 @@ export class PostToRealtimeExtensions implements UseCaseInterface {
 
   async execute(dto: PostToRealtimeExtensionsDTO): Promise<PostToRealtimeExtensionsResponse> {
     const extensions = await this.itemRepository.findAll({
-      contentType: ContentType.Extension,
+      contentType: ContentType.ServerExtension,
       deleted: false,
       userUuid: dto.userUuid,
       sortBy: 'updated_at_timestamp',
