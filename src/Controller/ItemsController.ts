@@ -2,12 +2,14 @@ import { Request, Response } from 'express'
 import { inject } from 'inversify'
 import { BaseHttpController, controller, httpPost, results } from 'inversify-express-utils'
 import TYPES from '../Bootstrap/Types'
+import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
 
 @controller('/items', TYPES.AuthMiddleware)
 export class ItemsController extends BaseHttpController {
   constructor(
-    @inject(TYPES.ItemService) private syncItems: SyncItems
+    @inject(TYPES.SyncItems) private syncItems: SyncItems,
+    @inject(TYPES.PostToRealtimeExtensions) private postToRealtimeExtensions: PostToRealtimeExtensions
   ) {
     super()
   }
@@ -24,6 +26,11 @@ export class ItemsController extends BaseHttpController {
       userAgent: request.headers['user-agent'],
       contentType: request.body.content_type,
       apiVersion: request.body.api,
+    })
+
+    await this.postToRealtimeExtensions.execute({
+      userUuid: response.locals.user.uuid,
+      itemHashes: request.body.items,
     })
 
     return this.json(syncResult)

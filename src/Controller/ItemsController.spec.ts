@@ -8,18 +8,23 @@ import { User } from '../Domain/User/User'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
 import { ApiVersion } from '../Domain/Api/ApiVersion'
 import { ContentType } from '../Domain/Item/ContentType'
+import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
 
 describe('ItemsController', () => {
   let syncItems: SyncItems
+  let postToRealtimeExtensions: PostToRealtimeExtensions
   let request: express.Request
   let response: express.Response
   let user: User
 
-  const createController = () => new ItemsController(syncItems)
+  const createController = () => new ItemsController(syncItems, postToRealtimeExtensions)
 
   beforeEach(() => {
     syncItems = {} as jest.Mocked<SyncItems>
     syncItems.execute = jest.fn()
+
+    postToRealtimeExtensions = {} as jest.Mocked<PostToRealtimeExtensions>
+    postToRealtimeExtensions.execute = jest.fn()
 
     user = {} as jest.Mocked<User>
     user.uuid = '123'
@@ -81,6 +86,23 @@ describe('ItemsController', () => {
       limit: 150,
       syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
       userAgent: 'Google Chrome',
+      userUuid: '123',
+    })
+
+    expect(postToRealtimeExtensions.execute).toHaveBeenCalledWith({
+      itemHashes: [
+        {
+          content: 'test',
+          content_type: 'Note',
+          created_at: '2021-02-19T11:35:45.655Z',
+          deleted: false,
+          duplicate_of: null,
+          enc_item_key: 'test',
+          items_key_id: 'test',
+          updated_at: '2021-02-19T11:35:45.655Z',
+          uuid: '1-2-3',
+        },
+      ],
       userUuid: '123',
     })
 

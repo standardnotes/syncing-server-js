@@ -12,17 +12,17 @@ import { SignIn } from '../Domain/UseCase/SignIn'
 import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
 import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { Logger } from 'winston'
-import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { User } from '../Domain/User/User'
 import { Session } from '../Domain/Session/Session'
 import { Register } from '../Domain/UseCase/Register'
 import { ChangePassword } from '../Domain/UseCase/ChangePassword'
+import { AuthHttpServiceInterface } from '../Domain/Auth/AuthHttpServiceInterface'
 
 describe('AuthController', () => {
   let sessionService: SessionServiceInterace
   let verifyMFA: VerifyMFA
   let signIn: SignIn
-  let getUserKeyParams: GetUserKeyParams
+  let authHttpService: AuthHttpServiceInterface
   let clearLoginAttempts: ClearLoginAttempts
   let increaseLoginAttempts: IncreaseLoginAttempts
   let register: Register
@@ -40,7 +40,7 @@ describe('AuthController', () => {
     sessionService,
     verifyMFA,
     signIn,
-    getUserKeyParams,
+    authHttpService,
     clearLoginAttempts,
     increaseLoginAttempts,
     register,
@@ -74,8 +74,8 @@ describe('AuthController', () => {
 
     session = {} as jest.Mocked<Session>
 
-    getUserKeyParams = {} as jest.Mocked<GetUserKeyParams>
-    getUserKeyParams.execute = jest.fn()
+    authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
+    authHttpService.getUserKeyParams = jest.fn()
 
     clearLoginAttempts = {} as jest.Mocked<ClearLoginAttempts>
     clearLoginAttempts.execute = jest.fn()
@@ -339,31 +339,22 @@ describe('AuthController', () => {
     response.locals.user = user
     response.locals.session = session
 
-    getUserKeyParams.execute = jest.fn().mockReturnValue({
-      keyParams: {
-        foo: 'bar',
-      },
+    authHttpService.getUserKeyParams = jest.fn().mockReturnValue({
+      foo: 'bar',
     })
 
     const httpResponse = <results.JsonResult> await createController().params(request, response)
     const result = await httpResponse.executeAsync()
 
-    expect(getUserKeyParams.execute).toHaveBeenCalledWith({
-      authenticatedUser: {
-        email: 'test@test.te',
-      },
-      email: 'test@test.te',
-    })
+    expect(authHttpService.getUserKeyParams).toHaveBeenCalledWith('test@test.te', true)
 
     expect(result.statusCode).toEqual(200)
     expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
   })
 
   it('should get auth params for unauthenticated user', async () => {
-    getUserKeyParams.execute = jest.fn().mockReturnValue({
-      keyParams: {
-        foo: 'bar',
-      },
+    authHttpService.getUserKeyParams = jest.fn().mockReturnValue({
+      foo: 'bar',
     })
 
     verifyMFA.execute = jest.fn().mockReturnValue({ success: true })
@@ -373,19 +364,15 @@ describe('AuthController', () => {
     const httpResponse = <results.JsonResult> await createController().params(request, response)
     const result = await httpResponse.executeAsync()
 
-    expect(getUserKeyParams.execute).toHaveBeenCalledWith({
-      email: 'test2@test.te',
-    })
+    expect(authHttpService.getUserKeyParams).toHaveBeenCalledWith('test2@test.te', false)
 
     expect(result.statusCode).toEqual(200)
     expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
   })
 
   it('should not get auth params for invalid MFA authentication', async () => {
-    getUserKeyParams.execute = jest.fn().mockReturnValue({
-      keyParams: {
-        foo: 'bar',
-      },
+    authHttpService.getUserKeyParams = jest.fn().mockReturnValue({
+      foo: 'bar',
     })
 
     request.query.email = 'test2@test.te'
@@ -399,10 +386,8 @@ describe('AuthController', () => {
   })
 
   it('should not get auth params for missing email parameter', async () => {
-    getUserKeyParams.execute = jest.fn().mockReturnValue({
-      keyParams: {
-        foo: 'bar',
-      },
+    authHttpService.getUserKeyParams = jest.fn().mockReturnValue({
+      foo: 'bar',
     })
 
     verifyMFA.execute = jest.fn().mockReturnValue({ success: true })

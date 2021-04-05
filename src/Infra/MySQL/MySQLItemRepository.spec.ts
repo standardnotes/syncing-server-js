@@ -68,14 +68,16 @@ describe('MySQLItemRepository', () => {
       contentType: ContentType.Note,
       lastSyncTime: 123,
       syncTimeComparison: '>=',
+      uuids: [ '2-3-4' ],
     })
 
     expect(queryBuilder.where).toHaveBeenCalledTimes(1)
-    expect(queryBuilder.andWhere).toHaveBeenCalledTimes(3)
+    expect(queryBuilder.andWhere).toHaveBeenCalledTimes(4)
     expect(queryBuilder.where).toHaveBeenNthCalledWith(1, 'item.user_uuid = :userUuid', { userUuid: '1-2-3' })
-    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(1, 'item.deleted = :deleted', { deleted: false })
-    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(2, 'item.content_type = :contentType', { contentType: 'Note' })
-    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(3, 'item.updated_at_timestamp >= :lastSyncTime', { lastSyncTime: 123 })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(1, 'item.uuid IN (:...uuids)', { uuids: [ '2-3-4' ] })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(2, 'item.deleted = :deleted', { deleted: false })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(3, 'item.content_type = :contentType', { contentType: 'Note' })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(4, 'item.updated_at_timestamp >= :lastSyncTime', { lastSyncTime: 123 })
 
     expect(queryBuilder.orderBy).toHaveBeenCalledWith('item.updated_at_timestamp', 'DESC')
 
