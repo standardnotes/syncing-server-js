@@ -1,3 +1,5 @@
+import * as uuid from 'uuid'
+import { S3 } from 'aws-sdk'
 import { DomainEventHandlerInterface, ItemsSyncedEvent } from '@standardnotes/domain-events'
 import { SuperAgentStatic } from 'superagent'
 import { inject, injectable } from 'inversify'
@@ -9,6 +11,7 @@ import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
 import { ExtensionSettingRepositoryInterface } from '../ExtensionSetting/ExtensionSettingRepositoryInterface'
 import { ExtensionSetting } from '../ExtensionSetting/ExtensionSetting'
 import { Item } from '../Item/Item'
+import { KeyParams } from '@standardnotes/auth'
 
 @injectable()
 export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
@@ -17,6 +20,8 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
     @inject(TYPES.ExtensionSettingRepository) private extensionSettingRepository: ExtensionSettingRepositoryInterface,
+    @inject(TYPES.S3) private s3Client: S3,
+    @inject(TYPES.S3_BACKUP_BUCKET_NAME) private s3BackupBucketName: string,
     @inject(TYPES.INTERNAL_DNS_REROUTE_ENABLED) private internalDNSRerouteEnabled: boolean,
     @inject(TYPES.EXTENSIONS_SERVER_URL) private extensionsServerUrl: string
   ) {
@@ -27,6 +32,8 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
 
     const authParams = await this.authHttpService.getUserKeyParams(event.payload.userUuid, false)
 
+    const backupFilename = this.uploadItemsAsATemporaryFileToS3(items, authParams)
+
     const emailMuteSettings = await this.shouldEmailsBeMuted(event)
 
     await this.httpClient
@@ -34,6 +41,7 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
       .set('Content-Type', 'application/json')
       .send({
         items,
+        backup_filename: backupFilename,
         auth_params: authParams,
         silent: emailMuteSettings.muteEmails,
         user_uuid: event.payload.userUuid,
@@ -80,5 +88,20 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
       muteEmails: event.payload.forceMute || extensionSetting.muteEmails,
       extensionSetting,
     }
+  }
+
+  private uploadItemsAsATemporaryFileToS3(items: Array<Item>, authParams: KeyParams): string {
+    const fileName = uuid.v4()
+
+    this.s3Client.upload({
+      Bucket: this.s3BackupBucketName,
+      Key: fileName,
+      Body: JSON.stringify({
+        items,
+        auth_params: authParams,
+      }),
+    })
+
+    return fileName
   }
 }
