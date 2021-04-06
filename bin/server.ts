@@ -9,6 +9,7 @@ import '../src/Controller/SessionsController'
 import '../src/Controller/AuthController'
 import '../src/Controller/UsersController'
 import '../src/Controller/ItemsController'
+import '../src/Controller/ExtensionSettingsController'
 
 import * as helmet from 'helmet'
 import * as cors from 'cors'

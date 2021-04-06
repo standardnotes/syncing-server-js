@@ -74,6 +74,7 @@ import { AuthHttpServiceInterface } from '../Domain/Auth/AuthHttpServiceInterfac
 import { AuthHttpService } from '../Infra/HTTP/AuthHttpService'
 import { ExtensionSetting } from '../Domain/ExtensionSetting/ExtensionSetting'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
+import { MuteNotifications } from '../Domain/UseCase/MuteNotifications/MuteNotifications'
 import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
 
 export class ContainerConfigLoader {
@@ -214,6 +215,7 @@ export class ContainerConfigLoader {
     container.bind<ChangePassword>(TYPES.ChangePassword).to(ChangePassword)
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
     container.bind<PostToRealtimeExtensions>(TYPES.PostToRealtimeExtensions).to(PostToRealtimeExtensions)
+    container.bind<MuteNotifications>(TYPES.MuteNotifications).to(MuteNotifications)
 
     // Handlers
     container.bind<UserRegisteredEventHandler>(TYPES.UserRegisteredEventHandler).to(UserRegisteredEventHandler)
