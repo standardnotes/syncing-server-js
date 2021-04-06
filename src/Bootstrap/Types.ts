@@ -59,6 +59,7 @@ const TYPES = {
   ChangePassword: Symbol.for('ChangePassword'),
   SyncItems: Symbol.for('SyncItems'),
   PostToRealtimeExtensions: Symbol.for('PostToRealtimeExtensions'),
+  MuteNotifications: Symbol.for('MuteNotifications'),
   // Handlers
   UserRegisteredEventHandler: Symbol.for('UserRegisteredEventHandler'),
   // Services
