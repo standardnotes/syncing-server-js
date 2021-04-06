@@ -4,6 +4,7 @@ const TYPES = {
   Redis: Symbol.for('Redis'),
   SNS: Symbol.for('SNS'),
   SQS: Symbol.for('SQS'),
+  S3: Symbol.for('S3'),
   // Repositories
   RevisionRepository: Symbol.for('RevisionRepository'),
   UserRepository: Symbol.for('UserRepository'),
@@ -44,6 +45,8 @@ const TYPES = {
   INTERNAL_DNS_REROUTE_ENABLED: Symbol.for('INTERNAL_DNS_REROUTE_ENABLED'),
   EXTENSIONS_SERVER_URL: Symbol.for('EXTENSIONS_SERVER_URL'),
   AUTH_SERVER_URL: Symbol.for('AUTH_SERVER_URL'),
+  S3_AWS_REGION: Symbol.for('S3_AWS_REGION'),
+  S3_BACKUP_BUCKET_NAME: Symbol.for('S3_BACKUP_BUCKET_NAME'),
   // use cases
   AuthenticateUser: Symbol.for('AuthenticateUser'),
   RefreshSessionToken: Symbol.for('RefreshSessionToken'),

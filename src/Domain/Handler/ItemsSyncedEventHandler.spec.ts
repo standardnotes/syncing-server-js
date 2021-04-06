@@ -1,3 +1,6 @@
+import 'reflect-metadata'
+
+import { S3 } from 'aws-sdk'
 import { ItemsSyncedEvent } from '@standardnotes/domain-events'
 import { SuperAgentRequest, SuperAgentStatic } from 'superagent'
 import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
@@ -13,6 +16,8 @@ describe('ItemsSyncedEventHandler', () => {
   let itemRepository: ItemRepositoryInterface
   let authHttpService: AuthHttpServiceInterface
   let extensionSetting: ExtensionSetting
+  let s3Client: S3
+  const s3BackupBucketName = 'TempBucket'
   let extensionSettingRepository: ExtensionSettingRepositoryInterface
   let internalDNSRerouteEnabled = false
   let extensionsServerUrl = 'https://extensions-server'
@@ -24,6 +29,8 @@ describe('ItemsSyncedEventHandler', () => {
     itemRepository,
     authHttpService,
     extensionSettingRepository,
+    s3Client,
+    s3BackupBucketName,
     internalDNSRerouteEnabled,
     extensionsServerUrl,
   )
@@ -62,6 +69,9 @@ describe('ItemsSyncedEventHandler', () => {
       forceMute: false,
       itemUuids: [ '4-5-6' ],
     }
+
+    s3Client = {} as jest.Mocked<S3>
+    s3Client.upload = jest.fn()
   })
 
   it('should send synced items to extensions server', async () => {
@@ -81,10 +91,16 @@ describe('ItemsSyncedEventHandler', () => {
       auth_params: {
         foo: 'bar',
       },
+      backup_filename: expect.any(String),
       items: [ item ],
       settings_id: '3-4-5',
       silent: false,
       user_uuid: '1-2-3',
+    })
+    expect(s3Client.upload).toHaveBeenCalledWith({
+      Body: '{"items":[{}],"auth_params":{"foo":"bar"}}',
+      Bucket: 'TempBucket',
+      Key: expect.any(String),
     })
   })
 
@@ -96,6 +112,7 @@ describe('ItemsSyncedEventHandler', () => {
       auth_params: {
         foo: 'bar',
       },
+      backup_filename: expect.any(String),
       items: [ item ],
       settings_id: '3-4-5',
       silent: true,
@@ -128,6 +145,7 @@ describe('ItemsSyncedEventHandler', () => {
       auth_params: {
         foo: 'bar',
       },
+      backup_filename: expect.any(String),
       items: [ item ],
       settings_id: '3-4-5',
       silent: false,
