@@ -1,3 +1,5 @@
+import 'reflect-metadata'
+
 import { Item } from '../Item'
 import { ItemHash } from '../ItemHash'
 import { SyncResponseFactory20161215 } from './SyncResponseFactory20161215'

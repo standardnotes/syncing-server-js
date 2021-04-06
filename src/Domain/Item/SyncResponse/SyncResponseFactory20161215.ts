@@ -1,9 +1,11 @@
+import { injectable } from 'inversify'
 import { SyncItemsResponse } from '../../UseCase/SyncItemsResponse'
 import { ItemConflict } from '../ItemConflict'
 import { ItemHash } from '../ItemHash'
 import { SyncResponse20161215 } from './SyncResponse20161215'
 import { SyncResponseFactoryInterface } from './SyncResponseFactoryInterface'
 
+@injectable()
 export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface {
   createResponse(syncItemsResponse: SyncItemsResponse): SyncResponse20161215 {
     const unsaved = syncItemsResponse.conflicts.map((conflict: ItemConflict) => ({

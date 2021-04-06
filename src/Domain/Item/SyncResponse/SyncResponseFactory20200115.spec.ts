@@ -1,3 +1,5 @@
+import 'reflect-metadata'
+
 import { SyncResponseFactory20200115 } from './SyncResponseFactory20200115'
 
 describe('SyncResponseFactory20200115', () => {

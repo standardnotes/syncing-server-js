@@ -1,7 +1,9 @@
+import { injectable } from 'inversify'
 import { SyncItemsResponse } from '../../UseCase/SyncItemsResponse'
 import { SyncResponse20200115 } from './SyncResponse20200115'
 import { SyncResponseFactoryInterface } from './SyncResponseFactoryInterface'
 
+@injectable()
 export class SyncResponseFactory20200115 implements SyncResponseFactoryInterface {
   createResponse(syncItemsResponse: SyncItemsResponse): SyncResponse20200115 {
     return {
