@@ -76,6 +76,10 @@ import { ExtensionSetting } from '../Domain/ExtensionSetting/ExtensionSetting'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
 import { MuteNotifications } from '../Domain/UseCase/MuteNotifications/MuteNotifications'
 import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
+import { ExtensionsHttpServiceInterface } from '../Domain/Extension/ExtensionsHttpServiceInterface'
+import { ExtensionsHttpService } from '../Domain/Extension/ExtensionsHttpService'
+import { ItemBackupServiceInterface } from '../Domain/Item/ItemBackupServiceInterface'
+import { S3ItemBackupService } from '../Infra/S3/S3ItemBackupService'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -247,6 +251,8 @@ export class ContainerConfigLoader {
     container.bind<SyncResponseFactory20200115>(TYPES.SyncResponseFactory20200115).to(SyncResponseFactory20200115)
     container.bind<SyncResponseFactoryResolverInterface>(TYPES.SyncResponseFactoryResolver).to(SyncResponseFactoryResolver)
     container.bind<AuthHttpServiceInterface>(TYPES.AuthHttpService).to(AuthHttpService)
+    container.bind<ExtensionsHttpServiceInterface>(TYPES.ExtensionsHttpService).to(ExtensionsHttpService)
+    container.bind<ItemBackupServiceInterface>(TYPES.ItemBackupService).to(S3ItemBackupService)
 
     if (env.get('SNS_TOPIC_ARN', true)) {
       container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
