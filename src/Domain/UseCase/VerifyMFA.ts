@@ -21,7 +21,7 @@ export class VerifyMFA implements UseCaseInterface {
     const user = await this.userRepository.findOneByEmail(dto.email)
     if(!user) {
       return {
-        success: true
+        success: true,
       }
     }
 
