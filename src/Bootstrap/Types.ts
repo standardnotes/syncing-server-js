@@ -86,6 +86,8 @@ const TYPES = {
   SyncResponseFactory20200115: Symbol.for('SyncResponseFactory20200115'),
   SyncResponseFactoryResolver: Symbol.for('SyncResponseFactoryResolver'),
   AuthHttpService: Symbol.for('AuthHttpService'),
+  ExtensionsHttpService: Symbol.for('ExtensionsHttpService'),
+  ItemBackupService: Symbol.for('ItemBackupService'),
 }
 
 export default TYPES
