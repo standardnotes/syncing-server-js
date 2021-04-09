@@ -80,6 +80,9 @@ import { ExtensionsHttpServiceInterface } from '../Domain/Extension/ExtensionsHt
 import { ExtensionsHttpService } from '../Domain/Extension/ExtensionsHttpService'
 import { ItemBackupServiceInterface } from '../Domain/Item/ItemBackupServiceInterface'
 import { S3ItemBackupService } from '../Infra/S3/S3ItemBackupService'
+import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
+import { ItemsSyncedEventHandler } from '../Domain/Handler/ItemsSyncedEventHandler'
+import { EmailArchiveExtensionSyncedEventHandler } from '../Domain/Handler/EmailArchiveExtensionSyncedEventHandler'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -212,6 +215,7 @@ export class ContainerConfigLoader {
     container.bind(TYPES.AUTH_SERVER_URL).toConstantValue(env.get('AUTH_SERVER_URL'))
     container.bind(TYPES.S3_AWS_REGION).toConstantValue(env.get('S3_AWS_REGION', true))
     container.bind(TYPES.S3_BACKUP_BUCKET_NAME).toConstantValue(env.get('S3_BACKUP_BUCKET_NAME', true))
+    container.bind(TYPES.EMAIL_ATTACHMENT_MAX_BYTE_SIZE).toConstantValue(env.get('EMAIL_ATTACHMENT_MAX_BYTE_SIZE'))
 
     // use cases
     container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
@@ -232,6 +236,8 @@ export class ContainerConfigLoader {
 
     // Handlers
     container.bind<UserRegisteredEventHandler>(TYPES.UserRegisteredEventHandler).to(UserRegisteredEventHandler)
+    container.bind<ItemsSyncedEventHandler>(TYPES.ItemsSyncedEventHandler).to(ItemsSyncedEventHandler)
+    container.bind<EmailArchiveExtensionSyncedEventHandler>(TYPES.EmailArchiveExtensionSyncedEventHandler).to(EmailArchiveExtensionSyncedEventHandler)
 
     // Services
     container.bind<UAParser>(TYPES.DeviceDetector).toConstantValue(new UAParser())
@@ -243,7 +249,7 @@ export class ContainerConfigLoader {
     container.bind<AuthResponseFactoryResolver>(TYPES.AuthResponseFactoryResolver).to(AuthResponseFactoryResolver)
     container.bind<TokenDecoder>(TYPES.TokenDecoder).to(TokenDecoder)
     container.bind<AuthenticationMethodResolver>(TYPES.AuthenticationMethodResolver).to(AuthenticationMethodResolver)
-    container.bind<DomainEventFactory>(TYPES.DomainEventFactory).to(DomainEventFactory)
+    container.bind<DomainEventFactoryInterface>(TYPES.DomainEventFactory).to(DomainEventFactory)
     container.bind<superagent.SuperAgentStatic>(TYPES.HTTPClient).toConstantValue(superagent)
     container.bind<ItemServiceInterface>(TYPES.ItemService).to(ItemService)
     container.bind<TimerInterface>(TYPES.Timer).to(Timer)
@@ -272,6 +278,8 @@ export class ContainerConfigLoader {
 
     const eventHandlers: Map<string, DomainEventHandlerInterface> = new Map([
       ['USER_REGISTERED', container.get(TYPES.UserRegisteredEventHandler)],
+      ['ITEMS_SYNCED', container.get(TYPES.ItemsSyncedEventHandler)],
+      ['EMAIL_ARCHIVE_EXTENSION_SYNCED', container.get(TYPES.EmailArchiveExtensionSyncedEventHandler)],
     ])
 
     if (env.get('SQS_QUEUE_URL', true)) {

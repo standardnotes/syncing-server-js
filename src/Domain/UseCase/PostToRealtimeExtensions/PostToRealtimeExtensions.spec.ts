@@ -1,12 +1,13 @@
 import 'reflect-metadata'
 
-import { DomainEventFactoryInterface, DomainEventPublisherInterface, ItemsSyncedEvent } from '@standardnotes/domain-events'
+import { DomainEventPublisherInterface, ItemsSyncedEvent } from '@standardnotes/domain-events'
 import { ContentDecoderInterface } from '../../Item/ContentDecoderInterface'
 import { ContentType } from '../../Item/ContentType'
 import { Item } from '../../Item/Item'
 import { ItemHash } from '../../Item/ItemHash'
 import { ItemRepositoryInterface } from '../../Item/ItemRepositoryInterface'
 import { PostToRealtimeExtensions } from './PostToRealtimeExtensions'
+import { DomainEventFactoryInterface } from '../../Event/DomainEventFactoryInterface'
 
 describe('PostToRealtimeExtensions', () => {
   let itemRepository: ItemRepositoryInterface
@@ -60,7 +61,13 @@ describe('PostToRealtimeExtensions', () => {
     })
 
     expect(domainEventPublisher.publish).toHaveBeenCalled()
-    expect(domainEventFactory.createItemsSyncedEvent).toHaveBeenCalledWith('1-2-3', 'http://test-server/extension1', '4-5-6', ['2-3-4'], true)
+    expect(domainEventFactory.createItemsSyncedEvent).toHaveBeenCalledWith({
+      userUuid: '1-2-3',
+      extensionUrl: 'http://test-server/extension1',
+      extensionId: '4-5-6',
+      itemUuids: ['2-3-4'],
+      forceMute: true,
+    })
   })
 
   it('should skip extensions that are lacking content', async () => {

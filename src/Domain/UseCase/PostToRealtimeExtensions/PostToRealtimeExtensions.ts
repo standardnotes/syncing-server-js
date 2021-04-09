@@ -1,6 +1,7 @@
-import { DomainEventFactoryInterface, DomainEventPublisherInterface } from '@standardnotes/domain-events'
+import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import { inject, injectable } from 'inversify'
 import TYPES from '../../../Bootstrap/Types'
+import { DomainEventFactoryInterface } from '../../Event/DomainEventFactoryInterface'
 import { Frequency } from '../../ExtensionSetting/Frequency'
 import { ContentDecoderInterface } from '../../Item/ContentDecoderInterface'
 import { ContentType } from '../../Item/ContentType'
@@ -41,13 +42,13 @@ export class PostToRealtimeExtensions implements UseCaseInterface {
 
       if (decodedContent.frequency === Frequency.Realtime) {
         await this.domainEventPublisher.publish(
-          this.domainEventFactory.createItemsSyncedEvent(
-            dto.userUuid,
-            <string> decodedContent.url,
-            extension.uuid,
-            dto.itemHashes.map((itemHash: ItemHash) => itemHash.uuid),
-            true
-          )
+          this.domainEventFactory.createItemsSyncedEvent({
+            userUuid: dto.userUuid,
+            extensionUrl: <string> decodedContent.url,
+            extensionId: extension.uuid,
+            itemUuids: dto.itemHashes.map((itemHash: ItemHash) => itemHash.uuid),
+            forceMute: true,
+          })
         )
       }
     }

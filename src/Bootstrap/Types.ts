@@ -47,6 +47,7 @@ const TYPES = {
   AUTH_SERVER_URL: Symbol.for('AUTH_SERVER_URL'),
   S3_AWS_REGION: Symbol.for('S3_AWS_REGION'),
   S3_BACKUP_BUCKET_NAME: Symbol.for('S3_BACKUP_BUCKET_NAME'),
+  EMAIL_ATTACHMENT_MAX_BYTE_SIZE: Symbol.for('EMAIL_ATTACHMENT_MAX_BYTE_SIZE'),
   // use cases
   AuthenticateUser: Symbol.for('AuthenticateUser'),
   RefreshSessionToken: Symbol.for('RefreshSessionToken'),
@@ -65,6 +66,8 @@ const TYPES = {
   MuteNotifications: Symbol.for('MuteNotifications'),
   // Handlers
   UserRegisteredEventHandler: Symbol.for('UserRegisteredEventHandler'),
+  ItemsSyncedEventHandler: Symbol.for('ItemsSyncedEventHandler'),
+  EmailArchiveExtensionSyncedEventHandler: Symbol.for('EmailArchiveExtensionSyncedEventHandler'),
   // Services
   DeviceDetector: Symbol.for('DeviceDetector'),
   SessionService: Symbol.for('SessionService'),

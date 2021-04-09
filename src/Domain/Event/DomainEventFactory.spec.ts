@@ -18,7 +18,13 @@ describe('DomainEventFactory', () => {
   })
 
   it('should create a ITEMS_SYNCED event', () => {
-    expect(createFactory().createItemsSyncedEvent('1-2-3', 'https://test.com', '2-3-4', ['3-4-5'], false))
+    expect(createFactory().createItemsSyncedEvent({
+      userUuid: '1-2-3',
+      extensionUrl: 'https://test.com',
+      extensionId: '2-3-4',
+      itemUuids: ['3-4-5'],
+      forceMute: false,
+    }))
       .toEqual({
         createdAt: expect.any(Date),
         payload: {
@@ -69,7 +75,12 @@ describe('DomainEventFactory', () => {
   })
 
   it('should create a MAIL_BACKUP_ATTACHMENT_TOO_BIG event', () => {
-    expect(createFactory().createMailBackupAttachmentTooBigEvent('1000', '1500', '1-2-3', 'test@test.com'))
+    expect(createFactory().createMailBackupAttachmentTooBigEvent({
+      allowedSize: '1000',
+      attachmentSize: '1500',
+      extensionSettingUuid: '1-2-3',
+      email: 'test@test.com',
+    }))
       .toEqual({
         createdAt: expect.any(Date),
         payload: {
@@ -79,6 +90,30 @@ describe('DomainEventFactory', () => {
           attachmentSize: '1500',
         },
         type: 'MAIL_BACKUP_ATTACHMENT_TOO_BIG',
+      })
+  })
+
+  it('should create a EMAIL_ARCHIVE_EXTENSION_SYNCED event', () => {
+    expect(createFactory().createEmailArchiveExtensionSyncedEvent('1-2-3', '2-3-4'))
+      .toEqual({
+        createdAt: expect.any(Date),
+        payload: {
+          userUuid: '1-2-3',
+          extensionId: '2-3-4',
+        },
+        type: 'EMAIL_ARCHIVE_EXTENSION_SYNCED',
+      })
+  })
+
+  it('should create a EMAIL_BACKUP_ATTACHMENT_CREATED event', () => {
+    expect(createFactory().createEmailBackupAttachmentCreatedEvent('backup-file', 'test@test.com'))
+      .toEqual({
+        createdAt: expect.any(Date),
+        payload: {
+          backupFileName: 'backup-file',
+          email: 'test@test.com',
+        },
+        type: 'EMAIL_BACKUP_ATTACHMENT_CREATED',
       })
   })
 })

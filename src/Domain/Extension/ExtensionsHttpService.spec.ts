@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 
 import { KeyParams } from '@standardnotes/auth'
-import { DomainEventFactoryInterface, DomainEventPublisherInterface } from '@standardnotes/domain-events'
+import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import { SuperAgentRequest, SuperAgentStatic } from 'superagent'
 import { Logger } from 'winston'
 import { ExtensionSetting } from '../ExtensionSetting/ExtensionSetting'
@@ -10,6 +10,7 @@ import { ContentDecoderInterface } from '../Item/ContentDecoderInterface'
 import { Item } from '../Item/Item'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
 import { ExtensionsHttpService } from './ExtensionsHttpService'
+import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
 
 describe('ExtensionsHttpService', () => {
   let httpClient: SuperAgentStatic
