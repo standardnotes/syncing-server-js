@@ -2,7 +2,7 @@ import 'reflect-metadata'
 
 import * as express from 'express'
 
-import { DomainEventFactoryInterface, DomainEventInterface, DomainEventPublisherInterface } from '@standardnotes/domain-events'
+import { DomainEventInterface, DomainEventPublisherInterface } from '@standardnotes/domain-events'
 
 import { AuthController } from './AuthController'
 import { results } from 'inversify-express-utils'
@@ -17,6 +17,7 @@ import { Session } from '../Domain/Session/Session'
 import { Register } from '../Domain/UseCase/Register'
 import { ChangePassword } from '../Domain/UseCase/ChangePassword'
 import { AuthHttpServiceInterface } from '../Domain/Auth/AuthHttpServiceInterface'
+import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
 
 describe('AuthController', () => {
   let sessionService: SessionServiceInterace
