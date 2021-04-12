@@ -2,6 +2,7 @@ import * as crypto from 'crypto'
 import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
 import { ApiVersion } from '../Api/ApiVersion'
+import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 import { Time } from '../Time/Time'
 import { TimerInterface } from '../Time/TimerInterface'
 import { ContentType } from './ContentType'
@@ -24,6 +25,8 @@ export class ItemService implements ItemServiceInterface {
 
   constructor (
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
+    @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
+    @inject(TYPES.REVISIONS_FREQUENCY) private revisionFrequency: number,
     @inject(TYPES.Timer) private timer: TimerInterface
   ) {
   }
@@ -168,9 +171,18 @@ export class ItemService implements ItemServiceInterface {
       existingItem.authHash = null
     }
 
-    existingItem.updatedAt = this.timer.getTimestampInMicroseconds()
+    const updatedAt = this.timer.getTimestampInMicroseconds()
+    const secondsFromLastUpdate = this.timer.convertMicrosecondsToSeconds(updatedAt - existingItem.updatedAt)
 
-    return this.itemRepository.save(existingItem)
+    existingItem.updatedAt = updatedAt
+
+    const savedItem = await this.itemRepository.save(existingItem)
+
+    if (secondsFromLastUpdate >= this.revisionFrequency) {
+      await this.revisionService.createRevision(savedItem)
+    }
+
+    return savedItem
   }
 
   private async saveNewItem(itemHash: ItemHash, userAgent?: string): Promise<Item> {
@@ -188,7 +200,11 @@ export class ItemService implements ItemServiceInterface {
     newItem.createdAt = now
     newItem.updatedAt = now
 
-    return this.itemRepository.save(newItem)
+    const savedItem = await this.itemRepository.save(newItem)
+
+    await this.revisionService.createRevision(savedItem)
+
+    return savedItem
   }
 
   private itemShouldBeSaved(itemHash: ItemHash, apiVersion?: string, existingItem?: Item): boolean {

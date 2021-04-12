@@ -11,9 +11,12 @@ import { ItemService } from './ItemService'
 import { ContentType } from './ContentType'
 import { Time } from '../Time/Time'
 import { ApiVersion } from '../Api/ApiVersion'
+import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 
 describe('ItemService', () => {
   let itemRepository: ItemRepositoryInterface
+  let revisionService: RevisionServiceInterface
+  const revisionFrequency = 300
   let timer: TimerInterface
   let item1: Item
   let item2: Item
@@ -21,7 +24,7 @@ describe('ItemService', () => {
   let itemHash2: ItemHash
   let syncToken: string
 
-  const createService = () => new ItemService(itemRepository, timer)
+  const createService = () => new ItemService(itemRepository, revisionService, revisionFrequency, timer)
 
   beforeEach(() => {
     item1 = {
@@ -61,8 +64,12 @@ describe('ItemService', () => {
     itemRepository.findAll = jest.fn().mockReturnValue([item1, item2])
     itemRepository.save = jest.fn().mockImplementation((item: Item) => item)
 
+    revisionService = {} as jest.Mocked<RevisionServiceInterface>
+    revisionService.createRevision = jest.fn()
+
     timer = {} as jest.Mocked<TimerInterface>
     timer.getTimestampInMicroseconds = jest.fn().mockReturnValue(1616164633241568)
+    timer.convertMicrosecondsToSeconds = jest.fn().mockReturnValue(600)
 
     syncToken = Buffer.from('2:1616164633.241564', 'utf-8').toString('base64')
   })
@@ -292,6 +299,8 @@ describe('ItemService', () => {
       ],
       syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
     })
+
+    expect(revisionService.createRevision).toHaveBeenCalledTimes(1)
   })
 
   it('should save new items with empty user-agent', async () => {
@@ -384,6 +393,36 @@ describe('ItemService', () => {
   })
 
   it('should update existing items', async () => {
+    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
+    timer.convertStringDateToMicroseconds = jest.fn()
+      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
+
+    const result = await createService().saveItems({
+      itemHashes: [ itemHash1 ],
+      userAgent: 'Brave',
+      userUuid: '1-2-3',
+    })
+
+    expect(result).toEqual({
+      conflicts: [],
+      savedItems: [
+        {
+          content: 'asdqwe1',
+          contentType: 'Note',
+          createdAt: expect.any(Number),
+          encItemKey: 'qweqwe1',
+          itemsKeyId: 'asdasd1',
+          lastUserAgent: 'Brave',
+          updatedAt: expect.any(Number),
+          uuid: '1-2-3',
+        },
+      ],
+      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
+    })
+  })
+
+  it('should create a revision for existing item if revisions frequency is matched', async () => {
+    timer.convertMicrosecondsToSeconds =
     itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)

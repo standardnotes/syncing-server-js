@@ -23,4 +23,8 @@ describe('Timer', () => {
   it('should convert microseconds to milliseconds', () => {
     expect(createTimer().convertMicrosecondsToMilliseconds(1616164633241312)).toEqual(1616164633241)
   })
+
+  it('should convert microseconds to seconds', () => {
+    expect(createTimer().convertMicrosecondsToSeconds(1616164633241312)).toEqual(1616164633)
+  })
 })

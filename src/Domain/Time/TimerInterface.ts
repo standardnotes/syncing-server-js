@@ -3,4 +3,5 @@ export interface TimerInterface {
   convertStringDateToMicroseconds(date: string): number
   convertStringDateToMilliseconds(date: string): number
   convertMicrosecondsToMilliseconds(microseconds: number): number
+  convertMicrosecondsToSeconds(microseconds: number): number
 }

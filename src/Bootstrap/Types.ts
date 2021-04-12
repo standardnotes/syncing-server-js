@@ -48,6 +48,7 @@ const TYPES = {
   S3_AWS_REGION: Symbol.for('S3_AWS_REGION'),
   S3_BACKUP_BUCKET_NAME: Symbol.for('S3_BACKUP_BUCKET_NAME'),
   EMAIL_ATTACHMENT_MAX_BYTE_SIZE: Symbol.for('EMAIL_ATTACHMENT_MAX_BYTE_SIZE'),
+  REVISIONS_FREQUENCY: Symbol.for('REVISIONS_FREQUENCY'),
   // use cases
   AuthenticateUser: Symbol.for('AuthenticateUser'),
   RefreshSessionToken: Symbol.for('RefreshSessionToken'),
@@ -91,6 +92,7 @@ const TYPES = {
   AuthHttpService: Symbol.for('AuthHttpService'),
   ExtensionsHttpService: Symbol.for('ExtensionsHttpService'),
   ItemBackupService: Symbol.for('ItemBackupService'),
+  RevisionService: Symbol.for('RevisionService'),
 }
 
 export default TYPES

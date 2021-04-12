@@ -20,7 +20,7 @@ export class Revision {
     type: 'mediumtext',
     nullable: true,
   })
-  content: string
+  content: string | null
 
   @Column({
     name: 'content_type',
@@ -41,14 +41,15 @@ export class Revision {
     type: 'text',
     nullable: true,
   })
-  encItemKey: string
+  encItemKey: string | null
 
   @Column({
     name: 'auth_hash',
+    type: 'varchar',
     length: 255,
     nullable: true,
   })
-  authHash: string
+  authHash: string | null
 
   @Column({
     name: 'creation_date',
