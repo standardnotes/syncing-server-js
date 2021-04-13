@@ -83,6 +83,8 @@ import { S3ItemBackupService } from '../Infra/S3/S3ItemBackupService'
 import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
 import { ItemsSyncedEventHandler } from '../Domain/Handler/ItemsSyncedEventHandler'
 import { EmailArchiveExtensionSyncedEventHandler } from '../Domain/Handler/EmailArchiveExtensionSyncedEventHandler'
+import { RevisionServiceInterface } from '../Domain/Revision/RevisionServiceInterface'
+import { RevisionService } from '../Domain/Revision/RevisionService'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -259,6 +261,7 @@ export class ContainerConfigLoader {
     container.bind<AuthHttpServiceInterface>(TYPES.AuthHttpService).to(AuthHttpService)
     container.bind<ExtensionsHttpServiceInterface>(TYPES.ExtensionsHttpService).to(ExtensionsHttpService)
     container.bind<ItemBackupServiceInterface>(TYPES.ItemBackupService).to(S3ItemBackupService)
+    container.bind<RevisionServiceInterface>(TYPES.RevisionService).to(RevisionService)
 
     if (env.get('SNS_TOPIC_ARN', true)) {
       container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
