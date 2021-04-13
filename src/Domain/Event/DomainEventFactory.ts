@@ -1,10 +1,21 @@
-import { DropboxBackupFailedEvent, EmailArchiveExtensionSyncedEvent, EmailBackupAttachmentCreatedEvent, GoogleDriveBackupFailedEvent, ItemsSyncedEvent, MailBackupAttachmentTooBigEvent, OneDriveBackupFailedEvent, UserRegisteredEvent } from '@standardnotes/domain-events'
+import { DropboxBackupFailedEvent, DuplicateItemSyncedEvent, EmailArchiveExtensionSyncedEvent, EmailBackupAttachmentCreatedEvent, GoogleDriveBackupFailedEvent, ItemsSyncedEvent, MailBackupAttachmentTooBigEvent, OneDriveBackupFailedEvent, UserRegisteredEvent } from '@standardnotes/domain-events'
 import * as dayjs from 'dayjs'
 import { injectable } from 'inversify'
 import { DomainEventFactoryInterface } from './DomainEventFactoryInterface'
 
 @injectable()
 export class DomainEventFactory implements DomainEventFactoryInterface {
+  createDuplicateItemSyncedEvent(itemUuid: string, userUuid: string): DuplicateItemSyncedEvent {
+    return {
+      type: 'DUPLICATE_ITEM_SYNCED',
+      createdAt: dayjs.utc().toDate(),
+      payload: {
+        itemUuid,
+        userUuid,
+      },
+    }
+  }
+
   createDropboxBackupFailedEvent(extensionSettingUuid: string, email: string): DropboxBackupFailedEvent {
     return {
       type: 'DROPBOX_BACKUP_FAILED',
