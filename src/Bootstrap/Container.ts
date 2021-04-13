@@ -85,6 +85,7 @@ import { ItemsSyncedEventHandler } from '../Domain/Handler/ItemsSyncedEventHandl
 import { EmailArchiveExtensionSyncedEventHandler } from '../Domain/Handler/EmailArchiveExtensionSyncedEventHandler'
 import { RevisionServiceInterface } from '../Domain/Revision/RevisionServiceInterface'
 import { RevisionService } from '../Domain/Revision/RevisionService'
+import { DuplicateItemSyncedEventHandler } from '../Domain/Handler/DuplicateItemSyncedEventHandler'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -241,6 +242,7 @@ export class ContainerConfigLoader {
     container.bind<UserRegisteredEventHandler>(TYPES.UserRegisteredEventHandler).to(UserRegisteredEventHandler)
     container.bind<ItemsSyncedEventHandler>(TYPES.ItemsSyncedEventHandler).to(ItemsSyncedEventHandler)
     container.bind<EmailArchiveExtensionSyncedEventHandler>(TYPES.EmailArchiveExtensionSyncedEventHandler).to(EmailArchiveExtensionSyncedEventHandler)
+    container.bind<DuplicateItemSyncedEventHandler>(TYPES.DuplicateItemSyncedEventHandler).to(DuplicateItemSyncedEventHandler)
 
     // Services
     container.bind<UAParser>(TYPES.DeviceDetector).toConstantValue(new UAParser())
@@ -281,6 +283,7 @@ export class ContainerConfigLoader {
     }
 
     const eventHandlers: Map<string, DomainEventHandlerInterface> = new Map([
+      ['DUPLICATE_ITEM_SYNCED', container.get(TYPES.DuplicateItemSyncedEventHandler)],
       ['USER_REGISTERED', container.get(TYPES.UserRegisteredEventHandler)],
       ['ITEMS_SYNCED', container.get(TYPES.ItemsSyncedEventHandler)],
       ['EMAIL_ARCHIVE_EXTENSION_SYNCED', container.get(TYPES.EmailArchiveExtensionSyncedEventHandler)],

@@ -116,4 +116,16 @@ describe('DomainEventFactory', () => {
         type: 'EMAIL_BACKUP_ATTACHMENT_CREATED',
       })
   })
+
+  it('should create a DUPLICATE_ITEM_SYNCED event', () => {
+    expect(createFactory().createDuplicateItemSyncedEvent('1-2-3', '2-3-4'))
+      .toEqual({
+        createdAt: expect.any(Date),
+        payload: {
+          itemUuid: '1-2-3',
+          userUuid: '2-3-4',
+        },
+        type: 'DUPLICATE_ITEM_SYNCED',
+      })
+  })
 })

@@ -12,10 +12,14 @@ import { ContentType } from './ContentType'
 import { Time } from '../Time/Time'
 import { ApiVersion } from '../Api/ApiVersion'
 import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
+import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
+import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
 
 describe('ItemService', () => {
   let itemRepository: ItemRepositoryInterface
   let revisionService: RevisionServiceInterface
+  let domainEventPublisher: DomainEventPublisherInterface
+  let domainEventFactory: DomainEventFactoryInterface
   const revisionFrequency = 300
   let timer: TimerInterface
   let item1: Item
@@ -24,7 +28,7 @@ describe('ItemService', () => {
   let itemHash2: ItemHash
   let syncToken: string
 
-  const createService = () => new ItemService(itemRepository, revisionService, revisionFrequency, timer)
+  const createService = () => new ItemService(itemRepository, revisionService, domainEventPublisher, domainEventFactory, revisionFrequency, timer)
 
   beforeEach(() => {
     item1 = {
@@ -70,6 +74,12 @@ describe('ItemService', () => {
     timer = {} as jest.Mocked<TimerInterface>
     timer.getTimestampInMicroseconds = jest.fn().mockReturnValue(1616164633241568)
     timer.convertMicrosecondsToSeconds = jest.fn().mockReturnValue(600)
+
+    domainEventPublisher = {} as jest.Mocked<DomainEventPublisherInterface>
+    domainEventPublisher.publish = jest.fn()
+
+    domainEventFactory = {} as jest.Mocked<DomainEventFactoryInterface>
+    domainEventFactory.createDuplicateItemSyncedEvent = jest.fn()
 
     syncToken = Buffer.from('2:1616164633.241564', 'utf-8').toString('base64')
   })
@@ -301,6 +311,39 @@ describe('ItemService', () => {
     })
 
     expect(revisionService.createRevision).toHaveBeenCalledTimes(1)
+  })
+
+  it('should save new items that are duplicates', async () => {
+    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(null)
+    itemHash1.duplicate_of = '1-2-3'
+
+    const result = await createService().saveItems({
+      itemHashes: [ itemHash1 ],
+      userAgent: 'Brave',
+      userUuid: '1-2-3',
+    })
+
+    expect(result).toEqual({
+      conflicts: [],
+      savedItems: [
+        {
+          content: 'asdqwe1',
+          contentType: 'Note',
+          createdAt: expect.any(Number),
+          encItemKey: 'qweqwe1',
+          itemsKeyId: 'asdasd1',
+          lastUserAgent: 'Brave',
+          duplicateOf: '1-2-3',
+          updatedAt: expect.any(Number),
+          uuid: '1-2-3',
+        },
+      ],
+      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
+    })
+
+    expect(revisionService.createRevision).toHaveBeenCalledTimes(1)
+    expect(domainEventPublisher.publish).toHaveBeenCalledTimes(1)
+    expect(domainEventFactory.createDuplicateItemSyncedEvent).toHaveBeenCalledTimes(1)
   })
 
   it('should save new items with empty user-agent', async () => {
@@ -572,6 +615,8 @@ describe('ItemService', () => {
       ],
       syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
     })
+    expect(domainEventPublisher.publish).toHaveBeenCalledTimes(1)
+    expect(domainEventFactory.createDuplicateItemSyncedEvent).toHaveBeenCalledTimes(1)
   })
 
   it('should skip sync conflicting items and mark them as sync conflicts when the incoming updated at time is too close to the stored value', async () => {

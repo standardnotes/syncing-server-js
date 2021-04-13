@@ -1,7 +1,9 @@
+import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import * as crypto from 'crypto'
 import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
 import { ApiVersion } from '../Api/ApiVersion'
+import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
 import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 import { Time } from '../Time/Time'
 import { TimerInterface } from '../Time/TimerInterface'
@@ -26,6 +28,8 @@ export class ItemService implements ItemServiceInterface {
   constructor (
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
+    @inject(TYPES.DomainEventPublisher) private domainEventPublisher: DomainEventPublisherInterface,
+    @inject(TYPES.DomainEventFactory) private domainEventFactory: DomainEventFactoryInterface,
     @inject(TYPES.REVISIONS_FREQUENCY) private revisionFrequency: number,
     @inject(TYPES.Timer) private timer: TimerInterface
   ) {
@@ -154,7 +158,9 @@ export class ItemService implements ItemServiceInterface {
     if (itemHash.deleted !== undefined) {
       existingItem.deleted = itemHash.deleted
     }
+    let wasMarkedAsDuplicate = false
     if (itemHash.duplicate_of) {
+      wasMarkedAsDuplicate = !existingItem.duplicateOf
       existingItem.duplicateOf = itemHash.duplicate_of
     }
     if (itemHash.auth_hash) {
@@ -182,6 +188,12 @@ export class ItemService implements ItemServiceInterface {
       await this.revisionService.createRevision(savedItem)
     }
 
+    if (wasMarkedAsDuplicate) {
+      await this.domainEventPublisher.publish(
+        this.domainEventFactory.createDuplicateItemSyncedEvent(savedItem.uuid, savedItem.userUuid)
+      )
+    }
+
     return savedItem
   }
 
@@ -192,6 +204,9 @@ export class ItemService implements ItemServiceInterface {
     newItem.contentType = itemHash.content_type
     newItem.encItemKey = itemHash.enc_item_key
     newItem.itemsKeyId = itemHash.items_key_id
+    if (itemHash.duplicate_of) {
+      newItem.duplicateOf = itemHash.duplicate_of
+    }
     if (itemHash.auth_hash) {
       newItem.authHash = itemHash.auth_hash
     }
@@ -203,6 +218,12 @@ export class ItemService implements ItemServiceInterface {
     const savedItem = await this.itemRepository.save(newItem)
 
     await this.revisionService.createRevision(savedItem)
+
+    if (savedItem.duplicateOf) {
+      await this.domainEventPublisher.publish(
+        this.domainEventFactory.createDuplicateItemSyncedEvent(savedItem.uuid, savedItem.userUuid)
+      )
+    }
 
     return savedItem
   }

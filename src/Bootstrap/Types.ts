@@ -66,6 +66,7 @@ const TYPES = {
   PostToRealtimeExtensions: Symbol.for('PostToRealtimeExtensions'),
   MuteNotifications: Symbol.for('MuteNotifications'),
   // Handlers
+  DuplicateItemSyncedEventHandler: Symbol.for('DuplicateItemSyncedEventHandler'),
   UserRegisteredEventHandler: Symbol.for('UserRegisteredEventHandler'),
   ItemsSyncedEventHandler: Symbol.for('ItemsSyncedEventHandler'),
   EmailArchiveExtensionSyncedEventHandler: Symbol.for('EmailArchiveExtensionSyncedEventHandler'),
