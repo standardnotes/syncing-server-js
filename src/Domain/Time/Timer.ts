@@ -5,6 +5,10 @@ import { TimerInterface } from './TimerInterface'
 
 @injectable()
 export class Timer implements TimerInterface {
+  convertMicrosecondsToSeconds(microseconds: number): number {
+    return Math.floor(microseconds / Time.MicrosecondsInASecond)
+  }
+
   getTimestampInMicroseconds(): number {
     const hrTime = process.hrtime()
     return dayjs.utc().valueOf() * Time.MicrosecondsInAMillisecond + Math.floor(hrTime[1] / Time.MicrosecondsInAMillisecond)
