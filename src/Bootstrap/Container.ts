@@ -86,6 +86,7 @@ import { EmailArchiveExtensionSyncedEventHandler } from '../Domain/Handler/Email
 import { RevisionServiceInterface } from '../Domain/Revision/RevisionServiceInterface'
 import { RevisionService } from '../Domain/Revision/RevisionService'
 import { DuplicateItemSyncedEventHandler } from '../Domain/Handler/DuplicateItemSyncedEventHandler'
+import { AccountDeletionRequestedEventHandler } from '../Domain/Handler/AccountDeletionRequestedEventHandler'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -243,6 +244,7 @@ export class ContainerConfigLoader {
     container.bind<ItemsSyncedEventHandler>(TYPES.ItemsSyncedEventHandler).to(ItemsSyncedEventHandler)
     container.bind<EmailArchiveExtensionSyncedEventHandler>(TYPES.EmailArchiveExtensionSyncedEventHandler).to(EmailArchiveExtensionSyncedEventHandler)
     container.bind<DuplicateItemSyncedEventHandler>(TYPES.DuplicateItemSyncedEventHandler).to(DuplicateItemSyncedEventHandler)
+    container.bind<AccountDeletionRequestedEventHandler>(TYPES.AccountDeletionRequestedEventHandler).to(AccountDeletionRequestedEventHandler)
 
     // Services
     container.bind<UAParser>(TYPES.DeviceDetector).toConstantValue(new UAParser())
@@ -287,6 +289,7 @@ export class ContainerConfigLoader {
       ['USER_REGISTERED', container.get(TYPES.UserRegisteredEventHandler)],
       ['ITEMS_SYNCED', container.get(TYPES.ItemsSyncedEventHandler)],
       ['EMAIL_ARCHIVE_EXTENSION_SYNCED', container.get(TYPES.EmailArchiveExtensionSyncedEventHandler)],
+      ['ACCOUNT_DELETION_REQUESTED', container.get(TYPES.AccountDeletionRequestedEventHandler)],
     ])
 
     if (env.get('SQS_QUEUE_URL', true)) {
