@@ -27,6 +27,7 @@ describe('RevisionService', () => {
     await createService().createRevision(item)
 
     expect(revisionRepository.save).toHaveBeenCalledWith({
+      uuid: expect.any(String),
       authHash: 'test-hash',
       content: 'test-content',
       contentType: 'Note',

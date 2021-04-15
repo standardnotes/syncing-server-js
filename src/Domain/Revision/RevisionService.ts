@@ -1,3 +1,4 @@
+import * as uuid from 'uuid'
 import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
 import { ContentType } from '../Item/ContentType'
@@ -21,6 +22,7 @@ export class RevisionService implements RevisionServiceInterface {
     const now = new Date()
 
     const revision = new Revision()
+    revision.uuid = uuid.v4()
     revision.authHash = item.authHash
     revision.content = item.content
     revision.contentType = item.contentType
