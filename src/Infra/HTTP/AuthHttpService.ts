@@ -20,4 +20,13 @@ export class AuthHttpService implements AuthHttpServiceInterface {
 
     return keyParamsResponse.body
   }
+
+  async getAuthMethods(email: string): Promise<unknown> {
+    const keyParamsResponse = await this.httpClient
+      .get(`${this.authServerUrl}/auth/methods`)
+      .query({ email })
+      .send()
+
+    return keyParamsResponse.body
+  }
 }

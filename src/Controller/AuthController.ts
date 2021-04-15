@@ -239,4 +239,20 @@ export class AuthController extends BaseHttpController {
 
     return this.json(registerResult.authResponse)
   }
+
+  @httpGet('/methods')
+  async methods(request: Request): Promise<results.JsonResult> {
+    const email = request.query.email
+    if (typeof email !== 'string') {
+      return this.json({
+        error: {
+          message: 'Please provide an email address.',
+        },
+      }, 400)
+    }
+
+    const response = await this.authHttpService.getAuthMethods(email)
+
+    return this.json(response)
+  }
 }
