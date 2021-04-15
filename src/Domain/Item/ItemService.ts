@@ -1,6 +1,7 @@
 import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import * as crypto from 'crypto'
 import { inject, injectable } from 'inversify'
+import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
 import { ApiVersion } from '../Api/ApiVersion'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
@@ -31,7 +32,8 @@ export class ItemService implements ItemServiceInterface {
     @inject(TYPES.DomainEventPublisher) private domainEventPublisher: DomainEventPublisherInterface,
     @inject(TYPES.DomainEventFactory) private domainEventFactory: DomainEventFactoryInterface,
     @inject(TYPES.REVISIONS_FREQUENCY) private revisionFrequency: number,
-    @inject(TYPES.Timer) private timer: TimerInterface
+    @inject(TYPES.Timer) private timer: TimerInterface,
+    @inject(TYPES.Logger) private logger: Logger
   ) {
   }
 
@@ -84,6 +86,8 @@ export class ItemService implements ItemServiceInterface {
       const existingItem = await this.itemRepository.findByUuidAndUserUuid(itemHash.uuid, dto.userUuid)
 
       if (!this.itemShouldBeSaved(itemHash, dto.apiVersion, existingItem)) {
+        this.logger.debug(`Item ${itemHash.uuid} should not be saved. Sync conflict.`)
+
         conflicts.push({
           serverItem: existingItem,
           type: 'sync_conflict',
@@ -93,13 +97,19 @@ export class ItemService implements ItemServiceInterface {
       }
 
       if(existingItem) {
+        this.logger.debug(`Updating existing item ${existingItem.uuid}`)
+
         const updatedItem = await this.updateExistingItem(existingItem, itemHash, dto.userAgent)
         savedItems.push(updatedItem)
       } else {
+        this.logger.debug(`Saving new item ${itemHash.uuid}`)
+
         try {
           const newItem = await this.saveNewItem(itemHash, dto.userAgent)
           savedItems.push(newItem)
-        } catch (_error) {
+        } catch (error) {
+          this.logger.debug(`Item ${itemHash.uuid} should not be saved. Conflict: ${error.message}`)
+
           conflicts.push({
             unsavedItem: itemHash,
             type: 'uuid_conflict',
@@ -230,6 +240,8 @@ export class ItemService implements ItemServiceInterface {
 
   private itemShouldBeSaved(itemHash: ItemHash, apiVersion?: string, existingItem?: Item): boolean {
     if (!existingItem) {
+      this.logger.debug(`No previously existing item with uuid ${itemHash.uuid} . Item should be saved`)
+
       return true
     }
 
@@ -237,8 +249,15 @@ export class ItemService implements ItemServiceInterface {
       this.timer.convertStringDateToMicroseconds(itemHash.updated_at) :
       this.timer.convertStringDateToMicroseconds(new Date(0).toString())
 
+    this.logger.debug(`Incoming updated at timestamp for item ${itemHash.uuid}: ${incomingUpdatedAtTimestamp}`)
+
     const ourUpdatedAtTimestamp = existingItem.updatedAt
+
+    this.logger.debug(`Our updated at timestamp for item ${itemHash.uuid}: ${ourUpdatedAtTimestamp}`)
+
     const difference = incomingUpdatedAtTimestamp - ourUpdatedAtTimestamp
+
+    this.logger.debug(`Difference in timestamps for item ${itemHash.uuid}: ${Math.abs(difference)}`)
 
     return Math.abs(difference) > this.getMinimalConflictIntervalMicroseconds(apiVersion)
   }

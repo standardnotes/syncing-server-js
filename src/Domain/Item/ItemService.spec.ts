@@ -14,6 +14,7 @@ import { ApiVersion } from '../Api/ApiVersion'
 import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
+import { Logger } from 'winston'
 
 describe('ItemService', () => {
   let itemRepository: ItemRepositoryInterface
@@ -27,8 +28,17 @@ describe('ItemService', () => {
   let itemHash1: ItemHash
   let itemHash2: ItemHash
   let syncToken: string
+  let logger: Logger
 
-  const createService = () => new ItemService(itemRepository, revisionService, domainEventPublisher, domainEventFactory, revisionFrequency, timer)
+  const createService = () => new ItemService(
+    itemRepository,
+    revisionService,
+    domainEventPublisher,
+    domainEventFactory,
+    revisionFrequency,
+    timer,
+    logger
+  )
 
   beforeEach(() => {
     item1 = {
@@ -80,6 +90,9 @@ describe('ItemService', () => {
 
     domainEventFactory = {} as jest.Mocked<DomainEventFactoryInterface>
     domainEventFactory.createDuplicateItemSyncedEvent = jest.fn()
+
+    logger = {} as jest.Mocked<Logger>
+    logger.debug = jest.fn()
 
     syncToken = Buffer.from('2:1616164633.241564', 'utf-8').toString('base64')
   })
