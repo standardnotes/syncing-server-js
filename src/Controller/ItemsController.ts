@@ -14,7 +14,7 @@ export class ItemsController extends BaseHttpController {
     super()
   }
 
-  @httpPost('/')
+  @httpPost('/sync')
   public async sync(request: Request, response: Response): Promise<results.JsonResult> {
     const syncResult = await this.syncItems.execute({
       userUuid: response.locals.user.uuid,
