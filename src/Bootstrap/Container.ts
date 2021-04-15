@@ -87,6 +87,8 @@ import { RevisionServiceInterface } from '../Domain/Revision/RevisionServiceInte
 import { RevisionService } from '../Domain/Revision/RevisionService'
 import { DuplicateItemSyncedEventHandler } from '../Domain/Handler/DuplicateItemSyncedEventHandler'
 import { AccountDeletionRequestedEventHandler } from '../Domain/Handler/AccountDeletionRequestedEventHandler'
+import { ItemProjector } from '../Domain/Item/ItemProjector'
+import { ItemConflictProjector } from '../Domain/Item/ItemConflictProjector'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -195,6 +197,8 @@ export class ContainerConfigLoader {
     container.bind<RevisionProjector>(TYPES.RevisionProjector).to(RevisionProjector)
     container.bind<SessionProjector>(TYPES.SessionProjector).to(SessionProjector)
     container.bind<UserProjector>(TYPES.UserProjector).to(UserProjector)
+    container.bind<ItemProjector>(TYPES.ItemProjector).to(ItemProjector)
+    container.bind<ItemConflictProjector>(TYPES.ItemConflictProjector).to(ItemConflictProjector)
 
     // env vars
     container.bind(TYPES.JWT_SECRET).toConstantValue(env.get('JWT_SECRET'))

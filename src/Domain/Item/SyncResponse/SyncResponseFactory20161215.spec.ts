@@ -1,18 +1,33 @@
 import 'reflect-metadata'
+import { ProjectorInterface } from '../../../Projection/ProjectorInterface'
 
 import { Item } from '../Item'
 import { ItemHash } from '../ItemHash'
+import { ItemProjection } from '../ItemProjection'
 import { SyncResponseFactory20161215 } from './SyncResponseFactory20161215'
 
 describe('SyncResponseFactory20161215', () => {
-  const createFactory = () => new SyncResponseFactory20161215()
+  let itemProjector: ProjectorInterface<Item>
+  let itemProjection: ItemProjection
+  let item1: Item
+  let item2: Item
+
+  const createFactory = () => new SyncResponseFactory20161215(itemProjector)
+
+  beforeEach(() => {
+    itemProjector = {} as jest.Mocked<ProjectorInterface<Item>>
+    itemProjector.projectFull = jest.fn().mockReturnValue(itemProjection)
+
+    item1 = {} as jest.Mocked<Item>
+
+    item2 = {} as jest.Mocked<Item>
+  })
 
   it('should turn sync items response into a sync response for API Version 20161215', () => {
-    const item1 = {} as jest.Mocked<Item>
     const itemHash1 = {} as jest.Mocked<ItemHash>
     expect(createFactory().createResponse({
-      retrievedItems: [],
-      savedItems: [],
+      retrievedItems: [ item1 ],
+      savedItems: [ item2 ],
       conflicts: [
         {
           serverItem: item1,
@@ -27,11 +42,11 @@ describe('SyncResponseFactory20161215', () => {
       integrityHash: 'test-hash',
       cursorToken: 'cursor-test',
     })).toEqual({
-      retrieved_items: [],
-      saved_items: [],
+      retrieved_items: [ itemProjection ],
+      saved_items: [ itemProjection ],
       unsaved: [
         {
-          item: item1,
+          item: itemProjection,
           error: {
             tag: 'sync_conflict',
           },

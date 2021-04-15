@@ -23,6 +23,8 @@ const TYPES = {
   RevisionProjector: Symbol.for('RevisionProjector'),
   SessionProjector: Symbol.for('SessionProjector'),
   UserProjector: Symbol.for('UserProjector'),
+  ItemProjector: Symbol.for('ItemProjector'),
+  ItemConflictProjector: Symbol.for('ItemConflictProjector'),
   // env vars
   JWT_SECRET: Symbol.for('JWT_SECRET'),
   LEGACY_JWT_SECRET: Symbol.for('LEGACY_JWT_SECRET'),
