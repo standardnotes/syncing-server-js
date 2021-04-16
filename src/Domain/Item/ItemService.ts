@@ -105,7 +105,7 @@ export class ItemService implements ItemServiceInterface {
         this.logger.debug(`Saving new item ${itemHash.uuid}`)
 
         try {
-          const newItem = await this.saveNewItem(itemHash, dto.userAgent)
+          const newItem = await this.saveNewItem(dto.userUuid, itemHash, dto.userAgent)
           savedItems.push(newItem)
         } catch (error) {
           this.logger.debug(`Item ${itemHash.uuid} should not be saved. Conflict: ${error.message}`)
@@ -207,10 +207,11 @@ export class ItemService implements ItemServiceInterface {
     return savedItem
   }
 
-  private async saveNewItem(itemHash: ItemHash, userAgent?: string): Promise<Item> {
+  private async saveNewItem(userUuid: string, itemHash: ItemHash, userAgent?: string): Promise<Item> {
     const newItem = new Item()
     newItem.uuid = itemHash.uuid
     newItem.content = itemHash.content
+    newItem.userUuid = userUuid
     newItem.contentType = itemHash.content_type
     newItem.encItemKey = itemHash.enc_item_key
     newItem.itemsKeyId = itemHash.items_key_id
