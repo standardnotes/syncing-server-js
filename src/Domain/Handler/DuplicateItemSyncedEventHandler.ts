@@ -3,11 +3,13 @@ import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
+import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 
 @injectable()
 export class DuplicateItemSyncedEventHandler implements DomainEventHandlerInterface {
   constructor (
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
+    @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
     @inject(TYPES.Logger) private logger: Logger,
   ) {
   }
@@ -29,15 +31,8 @@ export class DuplicateItemSyncedEventHandler implements DomainEventHandlerInterf
 
     const existingOriginalItem = await this.itemRepository.findByUuidAndUserUuid(item.duplicateOf, event.payload.userUuid)
 
-    const itemRevisions = await item.revisions
     if (existingOriginalItem !== undefined) {
-      const originalItemRevisions = await existingOriginalItem.revisions
-      for (const originalItemRevision of originalItemRevisions) {
-        itemRevisions.push(originalItemRevision)
-      }
-      item.revisions = Promise.resolve(itemRevisions)
-
-      await this.itemRepository.save(item)
+      await this.revisionService.copyRevisions(existingOriginalItem.uuid, item.uuid)
     }
   }
 }

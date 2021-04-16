@@ -7,13 +7,13 @@ import { Frequency } from '../ExtensionSetting/Frequency'
 import { ContentDecoderInterface } from '../Item/ContentDecoderInterface'
 import { ContentType } from '../Item/ContentType'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
-import { RevisionRepositoryInterface } from '../Revision/RevisionRepositoryInterface'
+import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 
 @injectable()
 export class AccountDeletionRequestedEventHandler implements DomainEventHandlerInterface {
   constructor (
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
-    @inject(TYPES.RevisionRepository) private revisionRepository: RevisionRepositoryInterface,
+    @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
     @inject(TYPES.ContentDecoder) private contentDecoder: ContentDecoderInterface,
     @inject(TYPES.DomainEventPublisher) private domainEventPublisher: DomainEventPublisherInterface,
     @inject(TYPES.DomainEventFactory) private domainEventFactory: DomainEventFactoryInterface,
@@ -68,7 +68,7 @@ export class AccountDeletionRequestedEventHandler implements DomainEventHandlerI
     })
 
     for (const item of items) {
-      await this.revisionRepository.removeByItem(item.uuid)
+      await this.revisionService.deleteRevisionsForItem(item)
 
       await this.itemRepository.remove(item)
     }

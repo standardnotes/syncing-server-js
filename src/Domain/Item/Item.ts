@@ -1,5 +1,4 @@
-import { Column, Entity, Index, JoinTable, ManyToMany, PrimaryColumn } from 'typeorm'
-import { Revision } from '../Revision/Revision'
+import { Column, Entity, Index, PrimaryColumn } from 'typeorm'
 
 @Entity({ name: 'items' })
 @Index('index_items_on_user_uuid_and_content_type', ['userUuid', 'contentType'])
@@ -90,21 +89,4 @@ export class Item {
   })
   @Index('updated_at_timestamp')
   updatedAt: number
-
-  @ManyToMany(
-    /* istanbul ignore next */
-    () => Revision
-  )
-  @JoinTable({
-    name: 'item_revisions',
-    joinColumn: {
-      name: 'item_uuid',
-      referencedColumnName: 'uuid',
-    },
-    inverseJoinColumn: {
-      name: 'revision_uuid',
-      referencedColumnName: 'uuid',
-    },
-  })
-  revisions: Promise<Array<Revision>>
 }

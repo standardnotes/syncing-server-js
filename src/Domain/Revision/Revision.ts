@@ -1,11 +1,8 @@
-import { Column, Entity, Index, JoinTable, ManyToMany, PrimaryColumn } from 'typeorm'
-import { Item } from '../Item/Item'
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity({ name: 'revisions' })
 export class Revision {
-  @PrimaryColumn({
-    length: 36,
-  })
+  @PrimaryGeneratedColumn('uuid')
   uuid: string
 
   @Column({
@@ -75,21 +72,4 @@ export class Revision {
     nullable: true,
   })
   updatedAt: Date
-
-  @ManyToMany(
-    /* istanbul ignore next */
-    () => Item
-  )
-  @JoinTable({
-    name: 'item_revisions',
-    joinColumn: {
-      name: 'revision_uuid',
-      referencedColumnName: 'uuid',
-    },
-    inverseJoinColumn: {
-      name: 'item_uuid',
-      referencedColumnName: 'uuid',
-    },
-  })
-  items: Promise<Item[]>
 }

@@ -89,6 +89,9 @@ import { DuplicateItemSyncedEventHandler } from '../Domain/Handler/DuplicateItem
 import { AccountDeletionRequestedEventHandler } from '../Domain/Handler/AccountDeletionRequestedEventHandler'
 import { ItemProjector } from '../Domain/Item/ItemProjector'
 import { ItemConflictProjector } from '../Domain/Item/ItemConflictProjector'
+import { ItemRevisionRepositoryInterface } from '../Domain/Revision/ItemRevisionRepositoryInterface'
+import { MySQLItemRevisionRepository } from '../Infra/MySQL/MySQLItemRevisionRepository'
+import { ItemRevision } from '../Domain/Revision/ItemRevision'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -123,6 +126,7 @@ export class ContainerConfigLoader {
         RevokedSession,
         Item,
         Revision,
+        ItemRevision,
         ExtensionSetting,
       ],
       migrations: [
@@ -182,6 +186,7 @@ export class ContainerConfigLoader {
     container.bind<MySQLRevokedSessionRepository>(TYPES.RevokedSessionRepository).toConstantValue(connection.getCustomRepository(MySQLRevokedSessionRepository))
     container.bind<MySQLUserRepository>(TYPES.UserRepository).toConstantValue(connection.getCustomRepository(MySQLUserRepository))
     container.bind<MySQLRevisionRepository>(TYPES.RevisionRepository).toConstantValue(connection.getCustomRepository(MySQLRevisionRepository))
+    container.bind<ItemRevisionRepositoryInterface>(TYPES.ItemRevisionRepository).toConstantValue(connection.getCustomRepository(MySQLItemRevisionRepository))
     container.bind<MySQLItemRepository>(TYPES.ItemRepository).toConstantValue(connection.getCustomRepository(MySQLItemRepository))
     container.bind<RedisEphemeralSessionRepository>(TYPES.EphemeralSessionRepository).to(RedisEphemeralSessionRepository)
     container.bind<LockRepository>(TYPES.LockRepository).to(LockRepository)

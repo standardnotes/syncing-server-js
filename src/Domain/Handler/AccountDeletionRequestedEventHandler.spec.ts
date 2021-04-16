@@ -5,13 +5,13 @@ import { Logger } from 'winston'
 import { Item } from '../Item/Item'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
 import { AccountDeletionRequestedEventHandler } from './AccountDeletionRequestedEventHandler'
-import { RevisionRepositoryInterface } from '../Revision/RevisionRepositoryInterface'
 import { ContentDecoderInterface } from '../Item/ContentDecoderInterface'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
+import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 
 describe('AccountDeletionRequestedEventHandler', () => {
   let itemRepository: ItemRepositoryInterface
-  let revisionRepository: RevisionRepositoryInterface
+  let revisionService: RevisionServiceInterface
   let contentDecoder: ContentDecoderInterface
   let domainEventPublisher: DomainEventPublisherInterface
   let domainEventFactory: DomainEventFactoryInterface
@@ -21,7 +21,7 @@ describe('AccountDeletionRequestedEventHandler', () => {
 
   const createHandler = () => new AccountDeletionRequestedEventHandler(
     itemRepository,
-    revisionRepository,
+    revisionService,
     contentDecoder,
     domainEventPublisher,
     domainEventFactory,
@@ -38,8 +38,8 @@ describe('AccountDeletionRequestedEventHandler', () => {
     itemRepository.findAll = jest.fn().mockReturnValue([ item ])
     itemRepository.remove = jest.fn()
 
-    revisionRepository = {} as jest.Mocked<RevisionRepositoryInterface>
-    revisionRepository.removeByItem = jest.fn()
+    revisionService = {} as jest.Mocked<RevisionServiceInterface>
+    revisionService.deleteRevisionsForItem = jest.fn()
 
     contentDecoder = {} as jest.Mocked<ContentDecoderInterface>
     contentDecoder.decode = jest.fn().mockReturnValue({ frequency: 'realtime', url: 'http://test-url/extension1' })
@@ -92,7 +92,7 @@ describe('AccountDeletionRequestedEventHandler', () => {
   it('should remove all items and revision for a user', async () => {
     await createHandler().handle(event)
 
-    expect(revisionRepository.removeByItem).toHaveBeenCalledWith('1-2-3')
+    expect(revisionService.deleteRevisionsForItem).toHaveBeenCalledWith(item)
     expect(itemRepository.remove).toHaveBeenCalledWith(item)
   })
 })
