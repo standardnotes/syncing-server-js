@@ -12,12 +12,6 @@ export class MySQLRevisionRepository extends Repository<Revision> implements Rev
       .from('revisions')
       .where('revision.item_uuid = :itemUuid', { itemUuid })
       .execute()
-
-    await this.createQueryBuilder('item_revision')
-      .delete()
-      .from('item_revisions')
-      .where('item_revision.item_uuid = :itemUuid', { itemUuid })
-      .execute()
   }
 
   async findByItemId(itemId: string): Promise<Array<Revision>> {
