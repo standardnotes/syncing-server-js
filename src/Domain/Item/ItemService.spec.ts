@@ -59,8 +59,8 @@ describe('ItemService', () => {
       duplicate_of: null,
       enc_item_key: 'qweqwe1',
       items_key_id: 'asdasd1',
-      created_at: '2021-02-19T11:35:45.651Z',
-      updated_at: '2021-03-25T09:37:37.941Z',
+      created_at: dayjs.utc(Math.floor(item1.createdAt / Time.MicrosecondsInAMillisecond)).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      updated_at: dayjs.utc(Math.floor(item1.updatedAt / Time.MicrosecondsInAMillisecond) + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
     } as jest.Mocked<ItemHash>
 
     itemHash2 = {
@@ -70,8 +70,8 @@ describe('ItemService', () => {
       duplicate_of: null,
       enc_item_key: 'qweqwe2',
       items_key_id: 'asdasd2',
-      created_at: '2021-02-19T11:35:45.652Z',
-      updated_at: '2021-03-25T09:37:37.942Z',
+      created_at: dayjs.utc(Math.floor(item2.createdAt / Time.MicrosecondsInAMillisecond)).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      updated_at: dayjs.utc(Math.floor(item2.updatedAt / Time.MicrosecondsInAMillisecond) + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
     } as jest.Mocked<ItemHash>
 
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
@@ -632,14 +632,14 @@ describe('ItemService', () => {
     expect(domainEventFactory.createDuplicateItemSyncedEvent).toHaveBeenCalledTimes(1)
   })
 
-  it('should skip sync conflicting items and mark them as sync conflicts when the incoming updated at time is too close to the stored value', async () => {
+  it('should skip sync conflicting items and mark them as sync conflicts when the incoming updated at time is too far from the stored value', async () => {
     itemRepository.findByUuidAndUserUuid = jest.fn()
       .mockReturnValueOnce(item1)
       .mockReturnValueOnce(item2)
 
     timer.convertStringDateToMicroseconds = jest.fn()
-      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
-      .mockReturnValueOnce(item2.updatedAt + 999)
+      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1_000)
+      .mockReturnValueOnce(item2.updatedAt + 2_000)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1, itemHash2 ],
@@ -671,61 +671,20 @@ describe('ItemService', () => {
     })
   })
 
-  it('should skip sync conflicting items and mark them as sync conflicts when the incoming updated at time is too close to the stored value for legacy api', async () => {
+  it('should skip sync conflicting items and mark them as sync conflicts when the incoming updated at time is too far from the stored value for legacy api', async () => {
     itemRepository.findByUuidAndUserUuid = jest.fn()
       .mockReturnValueOnce(item1)
       .mockReturnValueOnce(item2)
 
     timer.convertStringDateToMicroseconds = jest.fn()
-      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
-      .mockReturnValueOnce(item2.updatedAt + 999_999)
+      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1_000)
+      .mockReturnValueOnce(item2.updatedAt + 2_000_000)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1, itemHash2 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20161215,
-    })
-
-    expect(result).toEqual({
-      conflicts: [
-        {
-          type: 'sync_conflict',
-          serverItem: item2,
-        },
-      ],
-      savedItems: [
-        {
-          content: 'asdqwe1',
-          contentType: 'Note',
-          createdAt: expect.any(Number),
-          encItemKey: 'qweqwe1',
-          itemsKeyId: 'asdasd1',
-          lastUserAgent: 'Brave',
-          updatedAt: expect.any(Number),
-          uuid: '1-2-3',
-        },
-      ],
-      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
-    })
-  })
-
-  it('should skip sync conflicting items and mark them as sync conflicts when the incoming updated at time is exactly the stored value', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn()
-      .mockReturnValueOnce(item1)
-      .mockReturnValueOnce(item2)
-
-    item2.updatedAt = dayjs.utc('2021-03-19T14:37:13.942Z').valueOf() * Time.MicrosecondsInAMillisecond
-    itemHash2.updated_at = '2021-03-19T14:37:13.942Z'
-
-    timer.convertStringDateToMicroseconds = jest.fn()
-      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
-      .mockReturnValueOnce(dayjs.utc(itemHash2.updated_at).valueOf() * 1000)
-
-    const result = await createService().saveItems({
-      itemHashes: [ itemHash1, itemHash2 ],
-      userAgent: 'Brave',
-      userUuid: '1-2-3',
     })
 
     expect(result).toEqual({
@@ -771,18 +730,13 @@ describe('ItemService', () => {
     })
 
     expect(result).toEqual({
-      conflicts: [],
-      savedItems: [
+      conflicts: [
         {
-          content: 'asdqwe2',
-          contentType: 'Note',
-          createdAt: expect.any(Number),
-          encItemKey: 'qweqwe2',
-          itemsKeyId: 'asdasd2',
-          lastUserAgent: 'Brave',
-          updatedAt: expect.any(Number),
-          uuid: '2-3-4',
+          type: 'sync_conflict',
+          serverItem: item2,
         },
+      ],
+      savedItems: [
         {
           content: 'asdqwe1',
           contentType: 'Note',

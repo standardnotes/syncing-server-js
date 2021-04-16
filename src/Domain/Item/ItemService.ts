@@ -259,7 +259,7 @@ export class ItemService implements ItemServiceInterface {
 
     this.logger.debug(`Difference in timestamps for item ${itemHash.uuid}: ${Math.abs(difference)}`)
 
-    return Math.abs(difference) > this.getMinimalConflictIntervalMicroseconds(apiVersion)
+    return Math.abs(difference) < this.getMinimalConflictIntervalMicroseconds(apiVersion)
   }
 
   private getMinimalConflictIntervalMicroseconds(apiVersion?: string): number {
