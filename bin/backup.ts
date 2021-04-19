@@ -43,9 +43,7 @@ const runDailyBackup = async (
     logger.debug(`Fetched ${fetchedItemsCount} extensions to backup`)
 
     for (const fetchedItem of fetchedItems) {
-      logger.debug('Processing extension %O', fetchedItem)
-
-      if (!fetchedItem.content || fetchedItem.userUuid) {
+      if (!fetchedItem.content || !fetchedItem.userUuid) {
         logger.debug('Extensions is missing content or user uuid')
         continue
       }
