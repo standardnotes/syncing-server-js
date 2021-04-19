@@ -53,7 +53,7 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
   private async getItemsForPostingToExtension(event: ItemsSyncedEvent): Promise<Item[]> {
     const itemQuery: ItemQuery = {
       userUuid: event.payload.userUuid,
-      sortBy: 'updated_at_timestap',
+      sortBy: 'updated_at_timestamp',
       sortOrder: 'DESC',
     }
     if (event.payload.itemUuids.length) {

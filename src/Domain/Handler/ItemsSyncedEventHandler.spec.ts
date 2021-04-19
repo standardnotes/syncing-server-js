@@ -57,7 +57,7 @@ describe('ItemsSyncedEventHandler', () => {
     await createHandler().handle(event)
 
     expect(itemRepository.findAll).toHaveBeenCalledWith({
-      sortBy: 'updated_at_timestap',
+      sortBy: 'updated_at_timestamp',
       sortOrder: 'DESC',
       userUuid: '1-2-3',
       uuids:  [
@@ -84,7 +84,7 @@ describe('ItemsSyncedEventHandler', () => {
     await createHandler().handle(event)
 
     expect(itemRepository.findAll).toHaveBeenCalledWith({
-      sortBy: 'updated_at_timestap',
+      sortBy: 'updated_at_timestamp',
       sortOrder: 'DESC',
       userUuid: '1-2-3',
       deleted: false,
