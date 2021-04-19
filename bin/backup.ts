@@ -120,6 +120,15 @@ void container.load().then(container => {
       domainEventPublisher,
       logger
     ))
-    .then(() => logger.info('Daily backup complete'))
-    .catch((error) => logger.error(`Could not finish daily backup: ${error.message}`))
+    .then(() => {
+      logger.info('Daily backup complete')
+
+      process.exit(0)
+    })
+    .catch((error) => {
+      logger.error(`Could not finish daily backup: ${error.message}`)
+
+      process.exit(1)
+    })
+
 })
