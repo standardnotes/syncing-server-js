@@ -59,6 +59,8 @@ describe('MySQLItemRepository', () => {
     queryBuilder.where = jest.fn()
     queryBuilder.andWhere = jest.fn()
     queryBuilder.orderBy = jest.fn()
+    queryBuilder.skip = jest.fn()
+    queryBuilder.take = jest.fn()
 
     const result = await repository.findAll({
       userUuid: '1-2-3',
@@ -69,6 +71,8 @@ describe('MySQLItemRepository', () => {
       lastSyncTime: 123,
       syncTimeComparison: '>=',
       uuids: [ '2-3-4' ],
+      offset: 1,
+      limit: 10,
     })
 
     expect(queryBuilder.where).toHaveBeenCalledTimes(1)
@@ -78,6 +82,8 @@ describe('MySQLItemRepository', () => {
     expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(2, 'item.deleted = :deleted', { deleted: false })
     expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(3, 'item.content_type = :contentType', { contentType: 'Note' })
     expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(4, 'item.updated_at_timestamp >= :lastSyncTime', { lastSyncTime: 123 })
+    expect(queryBuilder.skip).toHaveBeenCalledWith(1)
+    expect(queryBuilder.take).toHaveBeenCalledWith(10)
 
     expect(queryBuilder.orderBy).toHaveBeenCalledWith('item.updated_at_timestamp', 'DESC')
 
@@ -90,13 +96,9 @@ describe('MySQLItemRepository', () => {
     queryBuilder.orderBy = jest.fn()
 
     const result = await repository.findAll({
-      userUuid: '1-2-3',
       sortBy: 'updated_at_timestamp',
       sortOrder: 'DESC',
     })
-
-    expect(queryBuilder.where).toHaveBeenCalledTimes(1)
-    expect(queryBuilder.where).toHaveBeenNthCalledWith(1, 'item.user_uuid = :userUuid', { userUuid: '1-2-3' })
 
     expect(queryBuilder.orderBy).toHaveBeenCalledWith('item.updated_at_timestamp', 'DESC')
 

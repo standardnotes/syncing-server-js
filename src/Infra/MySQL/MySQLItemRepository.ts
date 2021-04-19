@@ -34,8 +34,11 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
 
   async findAll(query: ItemQuery): Promise<Item[]> {
     const queryBuilder = this.createQueryBuilder('item')
-    queryBuilder.where('item.user_uuid = :userUuid', { userUuid: query.userUuid })
     queryBuilder.orderBy(`item.${query.sortBy}`, query.sortOrder)
+
+    if (query.userUuid !== undefined) {
+      queryBuilder.where('item.user_uuid = :userUuid', { userUuid: query.userUuid })
+    }
     if (query.uuids) {
       queryBuilder.andWhere('item.uuid IN (:...uuids)', { uuids: query.uuids })
     }
@@ -47,6 +50,12 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
     }
     if (query.lastSyncTime && query.syncTimeComparison) {
       queryBuilder.andWhere(`item.updated_at_timestamp ${query.syncTimeComparison} :lastSyncTime`, { lastSyncTime: query.lastSyncTime })
+    }
+    if (query.offset !== undefined) {
+      queryBuilder.skip(query.offset)
+    }
+    if (query.limit !== undefined) {
+      queryBuilder.take(query.limit)
     }
 
     return queryBuilder.getMany()

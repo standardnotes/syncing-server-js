@@ -19,7 +19,9 @@
     "pretest": "yarn lint && yarn build",
     "test": "jest spec",
     "start": "node dist/bin/server.js",
-    "worker": "node dist/bin/worker.js"
+    "worker": "node dist/bin/worker.js",
+    "daily-backup": "node dist/bin/backup.js",
+    "daily-backup-no-email": "node dist/bin/backup.js mute-emails"
   },
   "dependencies": {
     "@standardnotes/auth": "2.0.1",

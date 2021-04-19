@@ -1,5 +1,5 @@
 export type ItemQuery = {
-  userUuid: string
+  userUuid?: string
   sortBy: string
   sortOrder: 'ASC' | 'DESC'
   uuids?: Array<string>
@@ -7,4 +7,6 @@ export type ItemQuery = {
   syncTimeComparison?: '>' | '>='
   contentType?: string
   deleted?: boolean
+  offset?: number
+  limit?: number
 }
