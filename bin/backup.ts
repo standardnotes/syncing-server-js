@@ -3,6 +3,8 @@ import 'reflect-metadata'
 import './tracer'
 
 import { Logger } from 'winston'
+import * as dayjs from 'dayjs'
+import * as utc from 'dayjs/plugin/utc'
 
 import { ContainerConfigLoader } from '../src/Bootstrap/Container'
 import TYPES from '../src/Bootstrap/Types'
@@ -100,6 +102,8 @@ const runDailyBackup = async (
 
 const container = new ContainerConfigLoader
 void container.load().then(container => {
+  dayjs.extend(utc)
+
   const env: Env = new Env()
   env.load()
 
@@ -130,5 +134,4 @@ void container.load().then(container => {
 
       process.exit(1)
     })
-
 })
