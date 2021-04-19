@@ -24,7 +24,10 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
   async handle(event: ItemsSyncedEvent): Promise<void> {
     const items = await this.getItemsForPostingToExtension(event)
 
-    const authParams = await this.authHttpService.getUserKeyParams(event.payload.userUuid, false)
+    const authParams = await this.authHttpService.getUserKeyParams({
+      uuid: event.payload.userUuid,
+      authenticated: false,
+    })
 
     const backupFilename = this.itemBackupService.backup(items, authParams)
 

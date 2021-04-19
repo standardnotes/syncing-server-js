@@ -41,7 +41,10 @@ export class AuthResponseFactory20200115 extends AuthResponseFactory20190520 {
 
     this.logger.debug(`Created session payload for user ${user.uuid}: %O`, sessionPayload)
 
-    const keyParams = await this.authHttpService.getUserKeyParams(user.email, true)
+    const keyParams = await this.authHttpService.getUserKeyParams({
+      email: user.email,
+      authenticated: true,
+    })
 
     return {
       session: sessionPayload,

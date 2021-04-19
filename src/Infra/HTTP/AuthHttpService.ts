@@ -12,10 +12,10 @@ export class AuthHttpService implements AuthHttpServiceInterface {
   ) {
   }
 
-  async getUserKeyParams(email: string, authenticated: boolean): Promise<KeyParams> {
+  async getUserKeyParams(dto: { email?: string, uuid?: string, authenticated: boolean }): Promise<KeyParams> {
     const keyParamsResponse = await this.httpClient
       .get(`${this.authServerUrl}/users/params`)
-      .query({ email, authenticated })
+      .query(dto)
       .send()
 
     return keyParamsResponse.body

@@ -36,10 +36,10 @@ export class AuthController extends BaseHttpController {
   @httpGet('/params', TYPES.AuthMiddlewareWithoutResponse)
   async params(request: Request, response: Response): Promise<results.JsonResult> {
     if (response.locals.session) {
-      const keyParams = await this.authHttpService.getUserKeyParams(
-        response.locals.user.email,
-        true
-      )
+      const keyParams = await this.authHttpService.getUserKeyParams({
+        email: response.locals.user.email,
+        authenticated: true,
+      })
 
       return this.json(keyParams)
     }
@@ -67,7 +67,10 @@ export class AuthController extends BaseHttpController {
       }, 401)
     }
 
-    const keyParams = await this.authHttpService.getUserKeyParams(<string> request.query.email, false)
+    const keyParams = await this.authHttpService.getUserKeyParams({
+      email: <string> request.query.email,
+      authenticated: false,
+    })
 
     return this.json(keyParams)
   }

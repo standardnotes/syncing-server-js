@@ -29,7 +29,10 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
       deleted: false,
     })
 
-    const authParams = await this.authHttpService.getUserKeyParams(event.payload.userUuid, false)
+    const authParams = await this.authHttpService.getUserKeyParams({
+      uuid: event.payload.userUuid,
+      authenticated: false,
+    })
 
     const data = JSON.stringify({
       items,

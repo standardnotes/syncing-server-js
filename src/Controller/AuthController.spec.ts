@@ -347,7 +347,10 @@ describe('AuthController', () => {
     const httpResponse = <results.JsonResult> await createController().params(request, response)
     const result = await httpResponse.executeAsync()
 
-    expect(authHttpService.getUserKeyParams).toHaveBeenCalledWith('test@test.te', true)
+    expect(authHttpService.getUserKeyParams).toHaveBeenCalledWith({
+      email: 'test@test.te',
+      authenticated: true,
+    })
 
     expect(result.statusCode).toEqual(200)
     expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
@@ -365,7 +368,10 @@ describe('AuthController', () => {
     const httpResponse = <results.JsonResult> await createController().params(request, response)
     const result = await httpResponse.executeAsync()
 
-    expect(authHttpService.getUserKeyParams).toHaveBeenCalledWith('test2@test.te', false)
+    expect(authHttpService.getUserKeyParams).toHaveBeenCalledWith({
+      email: 'test2@test.te',
+      authenticated: false,
+    })
 
     expect(result.statusCode).toEqual(200)
     expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')

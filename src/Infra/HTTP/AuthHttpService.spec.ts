@@ -20,7 +20,10 @@ describe('AuthHttpService', () => {
   })
 
   it('should send a request to auth service in order to get user key params', async () => {
-    await createService().getUserKeyParams('test@test.com', false)
+    await createService().getUserKeyParams({
+      email: 'test@test.com',
+      authenticated: false,
+    })
 
     expect(httpClient.get).toHaveBeenCalledWith('https://auth-server/users/params')
     expect(request.query).toHaveBeenCalledWith({ email: 'test@test.com', authenticated: false })
