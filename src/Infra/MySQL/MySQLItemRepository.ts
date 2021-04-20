@@ -32,17 +32,6 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
       .getOne()
   }
 
-  async findByUuid(uuid: string): Promise<Item | undefined> {
-    return this.createQueryBuilder('item')
-      .where(
-        'item.uuid = :uuid',
-        {
-          uuid,
-        }
-      )
-      .getOne()
-  }
-
   async findAll(query: ItemQuery): Promise<Item[]> {
     const queryBuilder = this.createQueryBuilder('item')
     queryBuilder.orderBy(`item.${query.sortBy}`, query.sortOrder)
