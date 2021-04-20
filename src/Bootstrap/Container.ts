@@ -174,12 +174,14 @@ export class ContainerConfigLoader {
       }))
     }
 
+    let s3Client = undefined
     if (env.get('S3_AWS_REGION', true)) {
-      container.bind<AWS.S3>(TYPES.S3).toConstantValue(new AWS.S3({
+      s3Client = new AWS.S3({
         apiVersion: 'latest',
         region: env.get('S3_AWS_REGION', true),
-      }))
+      })
     }
+    container.bind<AWS.S3 | undefined>(TYPES.S3).toConstantValue(s3Client)
 
     // Repositories
     container.bind<MySQLSessionRepository>(TYPES.SessionRepository).toConstantValue(connection.getCustomRepository(MySQLSessionRepository))

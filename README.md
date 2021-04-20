@@ -47,7 +47,7 @@ In order to stop the server type:
 
 ### Updating to latest version
 
-In order to update to the latest version of our software please first stop the server and then type:
+In order to update to the latest version of our software type:
 
 ```
 ./server.sh update

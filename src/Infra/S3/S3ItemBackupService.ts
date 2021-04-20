@@ -11,16 +11,16 @@ import { ProjectorInterface } from '../../Projection/ProjectorInterface'
 @injectable()
 export class S3ItemBackupService implements ItemBackupServiceInterface {
   constructor (
-    @inject(TYPES.S3) private s3Client: S3,
     @inject(TYPES.S3_BACKUP_BUCKET_NAME) private s3BackupBucketName: string,
     @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item>,
-    @inject(TYPES.Logger) private logger: Logger
+    @inject(TYPES.Logger) private logger: Logger,
+    @inject(TYPES.S3) private s3Client?: S3,
   ) {
   }
 
   async backup(items: Item[], authParams: KeyParams): Promise<string> {
-    if (!this.s3BackupBucketName) {
-      this.logger.warn('S3 backup bucket not configured')
+    if (!this.s3BackupBucketName || this.s3Client === undefined) {
+      this.logger.warn('S3 backup not configured')
 
       return ''
     }

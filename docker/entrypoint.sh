@@ -6,7 +6,7 @@ COMMAND=$1 && shift 1
 case "$COMMAND" in
   'start-local')
     echo "Building the project..."
-    yarn build
+    NODE_OPTIONS="--max-old-space-size=2048" yarn build
     echo "Starting Web..."
     yarn start
     ;;

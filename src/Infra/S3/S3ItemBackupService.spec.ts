@@ -8,7 +8,7 @@ import { S3ItemBackupService } from './S3ItemBackupService'
 import { ProjectorInterface } from '../../Projection/ProjectorInterface'
 
 describe('S3ItemBackupService', () => {
-  let s3Client: S3
+  let s3Client: S3 | undefined
   let itemProjector: ProjectorInterface<Item>
   let s3BackupBucketName = 'backup-bucket'
   let logger: Logger
@@ -16,10 +16,10 @@ describe('S3ItemBackupService', () => {
   let keyParams: KeyParams
 
   const createService = () => new S3ItemBackupService(
-    s3Client,
     s3BackupBucketName,
     itemProjector,
-    logger
+    logger,
+    s3Client
   )
 
   beforeEach(() => {
@@ -42,7 +42,7 @@ describe('S3ItemBackupService', () => {
   it('should upload items to S3 as a backup file', async () => {
     await createService().backup([ item ], keyParams)
 
-    expect(s3Client.upload).toHaveBeenCalledWith({
+    expect((<S3> s3Client).upload).toHaveBeenCalledWith({
       Body: '{"items":[{"foo":"bar"}],"auth_params":{}}',
       Bucket: 'backup-bucket',
       Key: expect.any(String),
@@ -53,6 +53,11 @@ describe('S3ItemBackupService', () => {
     s3BackupBucketName = ''
     await createService().backup([ item ], keyParams)
 
-    expect(s3Client.upload).not.toHaveBeenCalled()
+    expect((<S3> s3Client).upload).not.toHaveBeenCalled()
+  })
+
+  it('should not upload items to S3 if S3 client is not configured', async () => {
+    s3Client = undefined
+    expect(await createService().backup([ item ], keyParams)).toEqual('')
   })
 })
