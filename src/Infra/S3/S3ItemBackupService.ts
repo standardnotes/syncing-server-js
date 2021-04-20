@@ -16,7 +16,7 @@ export class S3ItemBackupService implements ItemBackupServiceInterface {
   ) {
   }
 
-  backup(items: Item[], authParams: KeyParams): string {
+  async backup(items: Item[], authParams: KeyParams): Promise<string> {
     if (!this.s3BackupBucketName) {
       this.logger.warn('S3 backup bucket not configured')
 
@@ -25,16 +25,16 @@ export class S3ItemBackupService implements ItemBackupServiceInterface {
 
     const fileName = uuid.v4()
 
-    this.s3Client.upload({
+    const uploadResult = await this.s3Client.upload({
       Bucket: this.s3BackupBucketName,
       Key: fileName,
       Body: JSON.stringify({
         items,
         auth_params: authParams,
       }),
-    })
+    }).promise()
 
-    return fileName
+    return uploadResult.Key
   }
 
 }

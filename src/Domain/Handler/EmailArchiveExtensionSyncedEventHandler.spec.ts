@@ -1,4 +1,5 @@
 import { DomainEventPublisherInterface, EmailArchiveExtensionSyncedEvent, EmailBackupAttachmentCreatedEvent, MailBackupAttachmentTooBigEvent } from '@standardnotes/domain-events'
+import { Logger } from 'winston'
 import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
 import { ExtensionSetting } from '../ExtensionSetting/ExtensionSetting'
@@ -19,6 +20,7 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
   const emailAttachmentMaxByteSize = 100
   let item: Item
   let event: EmailArchiveExtensionSyncedEvent
+  let logger: Logger
 
   const createHandler = () => new EmailArchiveExtensionSyncedEventHandler(
     itemRepository,
@@ -27,7 +29,8 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
     itemBackupService,
     domainEventPublisher,
     domainEventFactory,
-    emailAttachmentMaxByteSize
+    emailAttachmentMaxByteSize,
+    logger
   )
 
   beforeEach(() => {
@@ -64,6 +67,9 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
     domainEventFactory = {} as jest.Mocked<DomainEventFactoryInterface>
     domainEventFactory.createEmailBackupAttachmentCreatedEvent = jest.fn().mockReturnValue({} as jest.Mocked<EmailBackupAttachmentCreatedEvent>)
     domainEventFactory.createMailBackupAttachmentTooBigEvent = jest.fn().mockReturnValue({} as jest.Mocked<MailBackupAttachmentTooBigEvent>)
+
+    logger = {} as jest.Mocked<Logger>
+    logger.debug = jest.fn()
   })
 
   it('should inform that backup attachment for email was created', async () => {

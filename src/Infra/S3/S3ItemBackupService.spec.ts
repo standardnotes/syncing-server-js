@@ -17,7 +17,9 @@ describe('S3ItemBackupService', () => {
 
   beforeEach(() => {
     s3Client = {} as jest.Mocked<S3>
-    s3Client.upload = jest.fn()
+    s3Client.upload = jest.fn().mockReturnValue({
+      promise: jest.fn().mockReturnValue(Promise.resolve({ Key: 'test' })),
+    })
 
     logger = {} as jest.Mocked<Logger>
     logger.warn = jest.fn()

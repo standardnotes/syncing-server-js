@@ -1,5 +1,6 @@
 import { DomainEventHandlerInterface, DomainEventPublisherInterface, EmailArchiveExtensionSyncedEvent } from '@standardnotes/domain-events'
 import { inject, injectable } from 'inversify'
+import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
 import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
@@ -18,6 +19,7 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
     @inject(TYPES.DomainEventPublisher) private domainEventPublisher: DomainEventPublisherInterface,
     @inject(TYPES.DomainEventFactory) private domainEventFactory: DomainEventFactoryInterface,
     @inject(TYPES.EMAIL_ATTACHMENT_MAX_BYTE_SIZE) private emailAttachmentMaxByteSize: number,
+    @inject(TYPES.Logger) private logger: Logger,
   ) {
   }
 
@@ -40,10 +42,13 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
     })
 
     if (data.length > this.emailAttachmentMaxByteSize) {
+      this.logger.debug(`Backup email attachment too big: ${data.length}`)
       const extensionSetting = await this.getExtensionSetting(event.payload.extensionId)
       if (extensionSetting.muteEmails) {
         return
       }
+
+      this.logger.debug('Publishing MAIL_BACKUP_ATTACHMENT_TOO_BIG event')
 
       await this.domainEventPublisher.publish(
         this.domainEventFactory.createMailBackupAttachmentTooBigEvent({
@@ -57,9 +62,13 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
       return
     }
 
-    const backupFileName = this.itemBackupService.backup(items, authParams)
+    const backupFileName = await this.itemBackupService.backup(items, authParams)
+
+    this.logger.debug(`Data backed up into: ${backupFileName}`)
 
     if (backupFileName.length !== 0) {
+      this.logger.debug('Publishing EMAIL_BACKUP_ATTACHMENT_CREATED event')
+
       await this.domainEventPublisher.publish(
         this.domainEventFactory.createEmailBackupAttachmentCreatedEvent(backupFileName, authParams.identifier)
       )

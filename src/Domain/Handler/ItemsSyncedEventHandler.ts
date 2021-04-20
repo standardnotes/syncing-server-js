@@ -29,7 +29,7 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
       authenticated: false,
     })
 
-    const backupFilename = this.itemBackupService.backup(items, authParams)
+    const backupFilename = await this.itemBackupService.backup(items, authParams)
 
     await this.extensionsHttpService.sendItemsToExtensionsServer({
       items,
