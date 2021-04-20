@@ -83,7 +83,7 @@ export class ItemService implements ItemServiceInterface {
     const lastUpdatedTimestamp = this.timer.getTimestampInMicroseconds()
 
     for (const itemHash of dto.itemHashes) {
-      const existingItem = await this.itemRepository.findByUuidAndUserUuid(itemHash.uuid, dto.userUuid)
+      const existingItem = await this.itemRepository.findByUuid(itemHash.uuid)
 
       if (!this.itemShouldBeSaved(itemHash, dto.apiVersion, existingItem)) {
         this.logger.debug(`Item ${itemHash.uuid} should not be saved. Sync conflict.`)

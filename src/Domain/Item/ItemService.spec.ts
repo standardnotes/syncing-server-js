@@ -298,7 +298,7 @@ describe('ItemService', () => {
   })
 
   it('should save new items', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(null)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
@@ -328,7 +328,7 @@ describe('ItemService', () => {
   })
 
   it('should save new items that are duplicates', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(null)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
     itemHash1.duplicate_of = '1-2-3'
 
     const result = await createService().saveItems({
@@ -362,7 +362,7 @@ describe('ItemService', () => {
   })
 
   it('should save new items with empty user-agent', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(null)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
@@ -389,7 +389,7 @@ describe('ItemService', () => {
   })
 
   it('should save new items with auth hash', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(null)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
 
     itemHash1.auth_hash = 'test'
     const result = await createService().saveItems({
@@ -419,7 +419,7 @@ describe('ItemService', () => {
   })
 
   it('should calculate the sync token based on last updated date of saved items incremented with 1 microsecond to avoid returning same object in subsequent sync', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(null)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
 
     const itemHash3 = {
       uuid: '3-4-5',
@@ -453,7 +453,7 @@ describe('ItemService', () => {
   })
 
   it('should update existing items', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
 
@@ -483,7 +483,7 @@ describe('ItemService', () => {
 
   it('should create a revision for existing item if revisions frequency is matched', async () => {
     timer.convertMicrosecondsToSeconds =
-    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
 
@@ -512,7 +512,7 @@ describe('ItemService', () => {
   })
 
   it('should update existing items with empty user-agent', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
 
@@ -540,7 +540,7 @@ describe('ItemService', () => {
   })
 
   it('should update existing items with auth hash', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
 
@@ -572,7 +572,7 @@ describe('ItemService', () => {
   })
 
   it('should mark existing item as deleted', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
 
@@ -604,7 +604,7 @@ describe('ItemService', () => {
   })
 
   it('should mark existing item as duplicate', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item1)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
 
@@ -637,7 +637,7 @@ describe('ItemService', () => {
   })
 
   it('should skip sync conflicting items and mark them as sync conflicts when the incoming updated at time is too far from the stored value', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn()
+    itemRepository.findByUuid = jest.fn()
       .mockReturnValueOnce(item1)
       .mockReturnValueOnce(item2)
 
@@ -676,7 +676,7 @@ describe('ItemService', () => {
   })
 
   it('should skip sync conflicting items and mark them as sync conflicts when the incoming updated at time is too far from the stored value for legacy api', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn()
+    itemRepository.findByUuid = jest.fn()
       .mockReturnValueOnce(item1)
       .mockReturnValueOnce(item2)
 
@@ -715,7 +715,7 @@ describe('ItemService', () => {
   })
 
   it('should take server time when the incoming updated at time is not defined', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn()
+    itemRepository.findByUuid = jest.fn()
       .mockReturnValueOnce(item1)
       .mockReturnValueOnce(item2)
 
@@ -757,7 +757,7 @@ describe('ItemService', () => {
   })
 
   it('should skip saving conflicting items and mark them as sync conflicts when saving to database fails', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(null)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
     itemRepository.save = jest.fn().mockImplementation(() => {
       throw new Error('Something bad happened')
     })
