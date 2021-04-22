@@ -54,6 +54,21 @@ describe('MySQLItemRepository', () => {
     expect(result).toEqual(item)
   })
 
+  it('should find one item by uuid', async () => {
+    queryBuilder.where = jest.fn().mockReturnThis()
+    queryBuilder.getOne = jest.fn().mockReturnValue(item)
+
+    const result = await repository.findByUuid('1-2-3')
+
+    expect(queryBuilder.where).toHaveBeenCalledWith(
+      'item.uuid = :uuid',
+      {
+        uuid: '1-2-3',
+      }
+    )
+    expect(result).toEqual(item)
+  })
+
   it('should find items by all query criteria filled in', async () => {
     queryBuilder.getMany = jest.fn().mockReturnValue([ item ])
     queryBuilder.where = jest.fn()
