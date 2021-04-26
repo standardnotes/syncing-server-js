@@ -15,6 +15,7 @@ services:
 
   syncing-server-js-worker:
     image: syncing-server-js-local
+    build: .
     entrypoint: ["./wait-for.sh", "syncing-server-js", "3000", "./docker/entrypoint.sh", "start-worker"]
     env_file: .env
     restart: unless-stopped
