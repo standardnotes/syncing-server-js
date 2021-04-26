@@ -62,9 +62,13 @@ export class ItemService implements ItemServiceInterface {
 
     let items = await this.itemRepository.findAll(itemQuery)
 
+    this.logger.debug(`Fetched ${items.length} items. Limit defined: ${dto.limit}`)
+
     let cursorToken = undefined
-    const limit = !dto.limit || dto.limit < 1 ? this.DEFAULT_ITEMS_LIMIT : dto.limit
+    const limit = dto.limit === undefined || dto.limit < 1 ? this.DEFAULT_ITEMS_LIMIT : dto.limit
     if (items.length > limit) {
+      this.logger.debug(`Items count: ${items.length} above given limit: ${limit}`)
+
       items = items.slice(0, limit)
       const lastSyncTime = (items[items.length - 1].updatedAt) / Time.MicrosecondsInASecond
       cursorToken = Buffer.from(`${this.SYNC_TOKEN_VERSION}:${lastSyncTime}`, 'utf-8').toString('base64')
