@@ -17,3 +17,5 @@ data
 auth.env
 api-gateway.env
 syncing-server.env
+
+codeqldb
