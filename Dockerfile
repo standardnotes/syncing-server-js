@@ -17,7 +17,7 @@ RUN yarn install --pure-lockfile
 
 COPY --chown=$UID:$GID . /var/www
 
-RUN yarn build
+RUN NODE_OPTIONS="--max-old-space-size=2048" yarn build
 
 ENTRYPOINT [ "docker/entrypoint.sh" ]
 

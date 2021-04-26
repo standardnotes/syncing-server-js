@@ -57,7 +57,7 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
     const itemQuery: ItemQuery = {
       userUuid: event.payload.userUuid,
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC',
+      sortOrder: 'ASC',
     }
     if (event.payload.itemUuids.length) {
       itemQuery.uuids = event.payload.itemUuids

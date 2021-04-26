@@ -27,7 +27,7 @@ export class PostToRealtimeExtensions implements UseCaseInterface {
       deleted: false,
       userUuid: dto.userUuid,
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC',
+      sortOrder: 'ASC',
     })
 
     for (const extension of extensions) {

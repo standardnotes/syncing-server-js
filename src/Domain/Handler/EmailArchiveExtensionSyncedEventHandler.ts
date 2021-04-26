@@ -27,7 +27,7 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
     const items = await this.itemRepository.findAll({
       userUuid: event.payload.userUuid,
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC',
+      sortOrder: 'ASC',
       deleted: false,
     })
 

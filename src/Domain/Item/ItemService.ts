@@ -57,7 +57,7 @@ export class ItemService implements ItemServiceInterface {
       contentType: dto.contentType,
       deleted: lastSyncTime ? undefined : false,
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC',
+      sortOrder: 'ASC',
     }
 
     let items = await this.itemRepository.findAll(itemQuery)
@@ -67,8 +67,6 @@ export class ItemService implements ItemServiceInterface {
     let cursorToken = undefined
     const limit = dto.limit === undefined || dto.limit < 1 ? this.DEFAULT_ITEMS_LIMIT : dto.limit
     if (items.length > limit) {
-      this.logger.debug(`Items count: ${items.length} above given limit: ${limit}`)
-
       items = items.slice(0, limit)
       const lastSyncTime = (items[items.length - 1].updatedAt) / Time.MicrosecondsInASecond
       cursorToken = Buffer.from(`${this.SYNC_TOKEN_VERSION}:${lastSyncTime}`, 'utf-8').toString('base64')
@@ -146,7 +144,7 @@ export class ItemService implements ItemServiceInterface {
       userUuid,
       contentType: ContentType.ItemsKey,
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC',
+      sortOrder: 'ASC',
     })
 
     const retrievedItemsIds: Array<string> = retrievedItems.map((item: Item) => item.uuid)
@@ -290,7 +288,7 @@ export class ItemService implements ItemServiceInterface {
 
   private getLastSyncTime(dto: GetItemsDTO): number | undefined {
     let token = dto.syncToken
-    if (dto.cursorToken) {
+    if (dto.cursorToken !== undefined) {
       token = dto.cursorToken
     }
 

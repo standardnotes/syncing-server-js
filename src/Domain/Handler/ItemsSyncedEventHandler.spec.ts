@@ -58,7 +58,7 @@ describe('ItemsSyncedEventHandler', () => {
 
     expect(itemRepository.findAll).toHaveBeenCalledWith({
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC',
+      sortOrder: 'ASC',
       userUuid: '1-2-3',
       uuids:  [
         '4-5-6',
@@ -85,7 +85,7 @@ describe('ItemsSyncedEventHandler', () => {
 
     expect(itemRepository.findAll).toHaveBeenCalledWith({
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC',
+      sortOrder: 'ASC',
       userUuid: '1-2-3',
       deleted: false,
     })

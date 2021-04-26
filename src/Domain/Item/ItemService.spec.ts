@@ -119,7 +119,7 @@ describe('ItemService', () => {
       lastSyncTime: 1615791600000000,
       syncTimeComparison: '>',
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC',
+      sortOrder: 'ASC',
       userUuid: '1-2-3',
     })
   })
@@ -141,7 +141,7 @@ describe('ItemService', () => {
       lastSyncTime: 1616164633241564,
       syncTimeComparison: '>',
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC',
+      sortOrder: 'ASC',
       userUuid: '1-2-3',
     })
   })
@@ -166,7 +166,7 @@ describe('ItemService', () => {
       lastSyncTime: 1616164633241564,
       syncTimeComparison: '>',
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC',
+      sortOrder: 'ASC',
       userUuid: '1-2-3',
     })
   })
@@ -191,7 +191,7 @@ describe('ItemService', () => {
       lastSyncTime: 1616164633241123,
       syncTimeComparison: '>=',
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC',
+      sortOrder: 'ASC',
       userUuid: '1-2-3',
     })
   })
@@ -211,7 +211,7 @@ describe('ItemService', () => {
       contentType: 'Note',
       deleted: false,
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC',
+      sortOrder: 'ASC',
       syncTimeComparison: '>',
       userUuid: '1-2-3',
     })
@@ -229,7 +229,7 @@ describe('ItemService', () => {
       lastSyncTime: 1616164633241564,
       syncTimeComparison: '>',
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC',
+      sortOrder: 'ASC',
       userUuid: '1-2-3',
     })
   })
@@ -247,7 +247,7 @@ describe('ItemService', () => {
       lastSyncTime: 1616164633241564,
       syncTimeComparison: '>',
       sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC',
+      sortOrder: 'ASC',
       userUuid: '1-2-3',
     })
   })
