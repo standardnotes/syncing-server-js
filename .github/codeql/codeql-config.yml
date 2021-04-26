@@ -6,6 +6,7 @@ queries:
 
 paths:
 - src
+- bin
 
 paths-ignore:
 - dist
