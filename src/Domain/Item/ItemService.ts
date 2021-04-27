@@ -173,8 +173,12 @@ export class ItemService implements ItemServiceInterface {
   }
 
   private async updateExistingItem(existingItem: Item, itemHash: ItemHash, userAgent?: string): Promise<Item> {
-    existingItem.content = itemHash.content
-    existingItem.contentType = itemHash.content_type
+    if (itemHash.content) {
+      existingItem.content = itemHash.content
+    }
+    if (itemHash.content_type) {
+      existingItem.contentType = itemHash.content_type
+    }
     if (itemHash.deleted !== undefined) {
       existingItem.deleted = itemHash.deleted
     }
@@ -186,8 +190,12 @@ export class ItemService implements ItemServiceInterface {
     if (itemHash.auth_hash) {
       existingItem.authHash = itemHash.auth_hash
     }
-    existingItem.encItemKey = itemHash.enc_item_key
-    existingItem.itemsKeyId = itemHash.items_key_id
+    if (itemHash.enc_item_key) {
+      existingItem.encItemKey = itemHash.enc_item_key
+    }
+    if (itemHash.items_key_id) {
+      existingItem.itemsKeyId = itemHash.items_key_id
+    }
     existingItem.lastUserAgent = userAgent ?? null
 
     if (itemHash.deleted === true) {
@@ -220,13 +228,24 @@ export class ItemService implements ItemServiceInterface {
   private async saveNewItem(userUuid: string, itemHash: ItemHash, userAgent?: string): Promise<Item> {
     const newItem = new Item()
     newItem.uuid = itemHash.uuid
-    newItem.content = itemHash.content
+    if (itemHash.content) {
+      newItem.content = itemHash.content
+    }
     newItem.userUuid = userUuid
-    newItem.contentType = itemHash.content_type
-    newItem.encItemKey = itemHash.enc_item_key
-    newItem.itemsKeyId = itemHash.items_key_id
+    if (itemHash.content_type) {
+      newItem.contentType = itemHash.content_type
+    }
+    if (itemHash.enc_item_key) {
+      newItem.encItemKey = itemHash.enc_item_key
+    }
+    if (itemHash.items_key_id) {
+      newItem.itemsKeyId = itemHash.items_key_id
+    }
     if (itemHash.duplicate_of) {
       newItem.duplicateOf = itemHash.duplicate_of
+    }
+    if (itemHash.deleted !== undefined) {
+      newItem.deleted = itemHash.deleted
     }
     if (itemHash.auth_hash) {
       newItem.authHash = itemHash.auth_hash
