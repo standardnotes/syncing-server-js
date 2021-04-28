@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 
-import './tracer'
+require('newrelic')
 
 import { Logger } from 'winston'
 import * as dayjs from 'dayjs'

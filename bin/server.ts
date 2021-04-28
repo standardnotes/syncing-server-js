@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 
-import './tracer'
+require('newrelic')
 
 import '../src/Controller/HealthCheckController'
 import '../src/Controller/RevisionsController'
