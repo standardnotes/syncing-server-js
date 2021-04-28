@@ -38,7 +38,7 @@ describe('Register', () => {
       version: '004',
       pwCost: 11,
       pwSalt: 'qweqwe',
-      pwNonce: undefined
+      pwNonce: undefined,
     })).toEqual({ success: true, authResponse: { foo: 'bar' } })
 
     expect(userRepository.save).toHaveBeenCalledWith({
@@ -52,7 +52,7 @@ describe('Register', () => {
       version: '004',
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      SESSIONS_PROTOCOL_VERSION: 4
+      SESSIONS_PROTOCOL_VERSION: 4,
     })
   })
 
@@ -68,10 +68,10 @@ describe('Register', () => {
       version: '004',
       pwCost: 11,
       pwSalt: 'qweqwe',
-      pwNonce: undefined
+      pwNonce: undefined,
     })).toEqual({
       success: false,
-      errorMessage: 'This email is already registered.'
+      errorMessage: 'This email is already registered.',
     })
 
     expect(userRepository.save).not.toHaveBeenCalled()
@@ -89,10 +89,10 @@ describe('Register', () => {
       ephemeralSession: false,
       pwCost: 11,
       pwSalt: 'qweqwe',
-      pwNonce: undefined
+      pwNonce: undefined,
     })).toEqual({
       success: false,
-      errorMessage: 'User registration is currently not allowed.'
+      errorMessage: 'User registration is currently not allowed.',
     })
 
     expect(userRepository.save).not.toHaveBeenCalled()

@@ -1,8 +1,13 @@
+import { ItemHash } from '../Item/ItemHash'
+
 export type SyncItemsDTO = {
-  itemHashes: Array<string>
-  syncToken: string
-  cursorToken: string
+  userUuid: string
+  itemHashes: Array<ItemHash>
+  computeIntegrityHash: boolean
   limit: number
-  userAgent: string,
+  userAgent?: string,
+  syncToken?: string
+  cursorToken?: string
   contentType?: string
+  apiVersion?: string
 }

@@ -15,12 +15,12 @@ export class TokenDecoder implements TokenDecoderInterface {
   decode(token: string): Record<string, unknown> | undefined {
     try {
       return <Record<string, unknown>> verify(token, this.jwtSecret, {
-        algorithms: [ 'HS256' ]
+        algorithms: [ 'HS256' ],
       })
     } catch (error) {
       try {
         return <Record<string, unknown>> verify(token, this.legacyJwtSecret, {
-          algorithms: [ 'HS256' ]
+          algorithms: [ 'HS256' ],
         })
       } catch (legacyError) {
         return undefined

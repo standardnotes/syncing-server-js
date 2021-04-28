@@ -36,7 +36,7 @@ describe('SessionController', () => {
     } as jest.Mocked<express.Request>
 
     response = {
-      locals: {}
+      locals: {},
     } as jest.Mocked<express.Response>
   })
 
@@ -50,8 +50,8 @@ describe('SessionController', () => {
         access_token: '1231',
         refresh_token: '2341',
         access_expiration: 123123,
-        refresh_expiration: 123123
-      }
+        refresh_expiration: 123123,
+      },
     })
 
     const httpResponse = await createController().refresh(request, response)
@@ -61,8 +61,8 @@ describe('SessionController', () => {
         access_token: '1231',
         refresh_token: '2341',
         access_expiration: 123123,
-        refresh_expiration: 123123
-      }
+        refresh_expiration: 123123,
+      },
     })
     expect(httpResponse.statusCode).toEqual(200)
   })
@@ -79,7 +79,7 @@ describe('SessionController', () => {
     refreshSessionToken.execute = jest.fn().mockReturnValue({
       success: false,
       errorTag: 'test',
-      errorMessage: 'something bad happened'
+      errorMessage: 'something bad happened',
     })
 
     const httpResponse = await createController().refresh(request, response)
@@ -87,8 +87,8 @@ describe('SessionController', () => {
     expect(httpResponse.json).toEqual({
       error: {
         tag: 'test',
-        message: 'something bad happened'
-      }
+        message: 'something bad happened',
+      },
     })
     expect(httpResponse.statusCode).toEqual(400)
   })
@@ -108,7 +108,7 @@ describe('SessionController', () => {
 
     expect(deleteSessionForUser.execute).toBeCalledWith({
       userUuid: '123',
-      sessionUuid: '123'
+      sessionUuid: '123',
     })
 
     expect(httpResponse).toBeInstanceOf(results.StatusCodeResult)
@@ -180,7 +180,7 @@ describe('SessionController', () => {
 
     expect(deletePreviousSessionsForUser.execute).toHaveBeenCalledWith({
       userUuid: '123',
-      currentSessionUuid: '234'
+      currentSessionUuid: '234',
     })
 
     expect(httpResponse).toBeInstanceOf(results.StatusCodeResult)

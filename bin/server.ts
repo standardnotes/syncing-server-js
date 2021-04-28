@@ -8,10 +8,12 @@ import '../src/Controller/SessionController'
 import '../src/Controller/SessionsController'
 import '../src/Controller/AuthController'
 import '../src/Controller/UsersController'
+import '../src/Controller/ItemsController'
+import '../src/Controller/ExtensionSettingsController'
 
 import * as helmet from 'helmet'
 import * as cors from 'cors'
-import * as bodyParser from 'body-parser'
+import { urlencoded, json } from 'express'
 import * as prettyjson from 'prettyjson'
 import * as expressWinston from 'express-winston'
 import * as winston from 'winston'
@@ -30,9 +32,6 @@ void container.load().then(container => {
   const server = new InversifyExpressServer(container)
 
   server.setConfig((app) => {
-    app.use(bodyParser.urlencoded({
-      extended: true,
-    }))
     /* eslint-disable */
     app.use(helmet({
       contentSecurityPolicy: {
@@ -55,8 +54,8 @@ void container.load().then(container => {
       }
     }))
     /* eslint-enable */
-    app.use(bodyParser.json())
-    app.use(bodyParser.urlencoded({ extended: true }))
+    app.use(json({ limit: '50mb' }))
+    app.use(urlencoded({ extended: true, limit: '50mb', parameterLimit: 5000 }))
     app.use(cors())
 
     app.use(expressWinston.logger({

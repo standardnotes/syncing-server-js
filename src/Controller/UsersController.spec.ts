@@ -25,11 +25,11 @@ describe('UsersController', () => {
     request = {
       headers: {},
       body: {},
-      params: {}
+      params: {},
     } as jest.Mocked<express.Request>
 
     response = {
-      locals: {}
+      locals: {},
     } as jest.Mocked<express.Response>
   })
 
@@ -52,8 +52,8 @@ describe('UsersController', () => {
       updatedWithUserAgent: 'Google Chrome',
       version: '002',
       user: {
-        uuid: '123'
-      }
+        uuid: '123',
+      },
     })
 
     expect(result.statusCode).toEqual(200)

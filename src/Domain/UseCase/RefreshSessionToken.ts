@@ -19,7 +19,7 @@ export class RefreshSessionToken {
       return {
         success: false,
         errorTag: 'invalid-parameters',
-        errorMessage: 'The provided parameters are not valid.'
+        errorMessage: 'The provided parameters are not valid.',
       }
     }
 
@@ -27,7 +27,7 @@ export class RefreshSessionToken {
       return {
         success: false,
         errorTag: 'invalid-refresh-token',
-        errorMessage: 'The refresh token is not valid.'
+        errorMessage: 'The refresh token is not valid.',
       }
     }
 
@@ -43,7 +43,7 @@ export class RefreshSessionToken {
 
     return {
       success: true,
-      sessionPayload
+      sessionPayload,
     }
   }
 }

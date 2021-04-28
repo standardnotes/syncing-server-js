@@ -9,7 +9,7 @@ describe('ContentDecoder', () => {
     const content = '000eyJmb28iOiJiYXIifQ=='
 
     expect(createDecoder().decode(content)).toEqual({
-      foo: 'bar'
+      foo: 'bar',
     })
   })
 

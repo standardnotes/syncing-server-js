@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { inject } from 'inversify'
 import { BaseHttpController, controller, httpGet, httpPost, results } from 'inversify-express-utils'
-import { DomainEventFactoryInterface, DomainEventPublisherInterface } from '@standardnotes/domain-events'
+import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 
 import TYPES from '../Bootstrap/Types'
 import { SessionServiceInterace } from '../Domain/Session/SessionServiceInterface'
@@ -10,9 +10,10 @@ import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
 import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
 import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { Logger } from 'winston'
-import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { Register } from '../Domain/UseCase/Register'
 import { ChangePassword } from '../Domain/UseCase/ChangePassword'
+import { AuthHttpServiceInterface } from '../Domain/Auth/AuthHttpServiceInterface'
+import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
 
 @controller('/auth')
 export class AuthController extends BaseHttpController {
@@ -20,7 +21,7 @@ export class AuthController extends BaseHttpController {
     @inject(TYPES.SessionService) private sessionService: SessionServiceInterace,
     @inject(TYPES.VerifyMFA) private verifyMFA: VerifyMFA,
     @inject(TYPES.SignIn) private signInUseCase: SignIn,
-    @inject(TYPES.GetUserKeyParams) private getUserKeyParams: GetUserKeyParams,
+    @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
     @inject(TYPES.ClearLoginAttempts) private clearLoginAttempts: ClearLoginAttempts,
     @inject(TYPES.IncreaseLoginAttempts) private increaseLoginAttempts: IncreaseLoginAttempts,
     @inject(TYPES.Register) private registerUser: Register,
@@ -35,25 +36,25 @@ export class AuthController extends BaseHttpController {
   @httpGet('/params', TYPES.AuthMiddlewareWithoutResponse)
   async params(request: Request, response: Response): Promise<results.JsonResult> {
     if (response.locals.session) {
-      const result = await this.getUserKeyParams.execute({
+      const keyParams = await this.authHttpService.getUserKeyParams({
         email: response.locals.user.email,
-        authenticatedUser: response.locals.user
+        authenticated: true,
       })
 
-      return this.json(result.keyParams)
+      return this.json(keyParams)
     }
 
     if (!request.query.email) {
       return this.json({
         error: {
-          message: 'Please provide an email address.'
-        }
+          message: 'Please provide an email address.',
+        },
       }, 400)
     }
 
     const verifyMFAResponse = await this.verifyMFA.execute({
       email: <string> request.query.email,
-      requestParams: request.query
+      requestParams: request.query,
     })
 
     if (!verifyMFAResponse.success) {
@@ -62,15 +63,16 @@ export class AuthController extends BaseHttpController {
           tag: verifyMFAResponse.errorTag,
           message: verifyMFAResponse.errorMessage,
           payload: verifyMFAResponse.errorPayload,
-        }
+        },
       }, 401)
     }
 
-    const result = await this.getUserKeyParams.execute({
-      email: <string> request.query.email
+    const keyParams = await this.authHttpService.getUserKeyParams({
+      email: <string> request.query.email,
+      authenticated: false,
     })
 
-    return this.json(result.keyParams)
+    return this.json(keyParams)
   }
 
   @httpPost('/sign_in', TYPES.LockMiddleware)
@@ -82,13 +84,13 @@ export class AuthController extends BaseHttpController {
         error: {
           tag: 'invalid-auth',
           message: 'Invalid login credentials.',
-        }
+        },
       }, 401)
     }
 
     const verifyMFAResponse = await this.verifyMFA.execute({
       email: request.body.email,
-      requestParams: request.body
+      requestParams: request.body,
     })
 
     if (!verifyMFAResponse.success) {
@@ -97,7 +99,7 @@ export class AuthController extends BaseHttpController {
           tag: verifyMFAResponse.errorTag,
           message: verifyMFAResponse.errorMessage,
           payload: verifyMFAResponse.errorPayload,
-        }
+        },
       }, 401)
     }
 
@@ -106,7 +108,7 @@ export class AuthController extends BaseHttpController {
       userAgent: <string> request.headers['user-agent'],
       email: request.body.email,
       password: request.body.password,
-      ephemeralSession: request.body.ephemeral ?? false
+      ephemeralSession: request.body.ephemeral ?? false,
     })
 
     if (!signInResult.success) {
@@ -114,8 +116,8 @@ export class AuthController extends BaseHttpController {
 
       return this.json({
         error: {
-          message: signInResult.errorMessage
-        }
+          message: signInResult.errorMessage,
+        },
       }, 401)
     }
 
@@ -149,24 +151,24 @@ export class AuthController extends BaseHttpController {
     if (!request.body.current_password) {
       return this.json({
         error: {
-          message: 'Your current password is required to change your password. Please update your application if you do not see this option.'
-        }
+          message: 'Your current password is required to change your password. Please update your application if you do not see this option.',
+        },
       }, 400)
     }
 
     if (!request.body.new_password) {
       return this.json({
         error: {
-          message: 'Your new password is required to change your password. Please try again.'
-        }
+          message: 'Your new password is required to change your password. Please try again.',
+        },
       }, 400)
     }
 
     if (!request.body.pw_nonce) {
       return this.json({
         error: {
-          message: 'The change password request is missing new auth parameters. Please try again.'
-        }
+          message: 'The change password request is missing new auth parameters. Please try again.',
+        },
       }, 400)
     }
 
@@ -177,7 +179,7 @@ export class AuthController extends BaseHttpController {
       newPassword: request.body.new_password,
       pwNonce: request.body.pw_nonce,
       updatedWithUserAgent: <string> request.headers['user-agent'],
-      protocolVersion: request.body.version
+      protocolVersion: request.body.version,
     })
 
     if (!changePasswordResult.success) {
@@ -185,8 +187,8 @@ export class AuthController extends BaseHttpController {
 
       return this.json({
         error: {
-          message: changePasswordResult.errorMessage
-        }
+          message: changePasswordResult.errorMessage,
+        },
       }, 401)
     }
 
@@ -201,7 +203,7 @@ export class AuthController extends BaseHttpController {
       return this.json({
         error: {
           message: 'Please enter an email and a password to register.',
-        }
+        },
       }, 400)
     }
 
@@ -226,8 +228,8 @@ export class AuthController extends BaseHttpController {
     if (!registerResult.success || !registerResult.authResponse) {
       return this.json({
         error: {
-          message: registerResult.errorMessage
-        }
+          message: registerResult.errorMessage,
+        },
       }, 400)
     }
 

@@ -21,15 +21,15 @@ export class VerifyMFA implements UseCaseInterface {
     const user = await this.userRepository.findOneByEmail(dto.email)
     if(!user) {
       return {
-        success: true
+        success: true,
       }
     }
 
     const mfaExtension = await this.itemsRepository.findMFAExtensionByUserUuid(user.uuid)
 
-    if (!mfaExtension) {
+    if (!mfaExtension || mfaExtension.deleted) {
       return {
-        success: true
+        success: true,
       }
     }
 
@@ -39,11 +39,11 @@ export class VerifyMFA implements UseCaseInterface {
         success: false,
         errorTag: 'mfa-required',
         errorMessage: 'Please enter your two-factor authentication code.',
-        errorPayload: { mfa_key: mfaParamKey }
+        errorPayload: { mfa_key: mfaParamKey },
       }
     }
 
-    const mfaContent = this.contentDecoder.decode(mfaExtension.content)
+    const mfaContent = this.contentDecoder.decode(<string> mfaExtension.content)
 
     if (!authenticator.verify({ token: <string> dto.requestParams[mfaParamKey], secret: <string> mfaContent.secret })) {
       return {
@@ -55,7 +55,7 @@ export class VerifyMFA implements UseCaseInterface {
     }
 
     return {
-      success: true
+      success: true,
     }
   }
 }

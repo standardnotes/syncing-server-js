@@ -24,7 +24,7 @@ export class LockMiddleware extends BaseMiddleware {
     if (await this.lockRepository.isUserLocked(user.uuid)) {
       response.status(423).send({
         error: {
-          message: 'Too many successive login requests. Please try your request again later.'
+          message: 'Too many successive login requests. Please try your request again later.',
         },
       })
 

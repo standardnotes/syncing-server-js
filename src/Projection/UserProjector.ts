@@ -8,7 +8,7 @@ export class UserProjector implements ProjectorInterface<User> {
   projectSimple(user: User): Record<string, unknown> {
     return {
       uuid: user.uuid,
-      email: user.email
+      email: user.email,
     }
   }
 

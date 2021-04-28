@@ -21,16 +21,16 @@ export class SessionController extends BaseHttpController {
     if (!request.body.uuid) {
       return this.json({
         error: {
-          message: 'Please provide the session identifier.'
-        }
+          message: 'Please provide the session identifier.',
+        },
       }, 400)
     }
 
     if(request.body.uuid === response.locals.session.uuid) {
       return this.json({
         error: {
-          message: 'You can not delete your current session.'
-        }
+          message: 'You can not delete your current session.',
+        },
       }, 400)
     }
 
@@ -42,8 +42,8 @@ export class SessionController extends BaseHttpController {
     if (!useCaseResponse.success) {
       return this.json({
         error: {
-          message: useCaseResponse.errorMessage
-        }
+          message: useCaseResponse.errorMessage,
+        },
       }, 400)
     }
 
@@ -57,7 +57,7 @@ export class SessionController extends BaseHttpController {
         {
           error: {
             message: 'No session exists with the provided identifier.',
-          }
+          },
         },
         401
       )
@@ -65,7 +65,7 @@ export class SessionController extends BaseHttpController {
 
     await this.deletePreviousSessionsForUser.execute({
       userUuid: response.locals.user.uuid,
-      currentSessionUuid: response.locals.session.uuid
+      currentSessionUuid: response.locals.session.uuid,
     })
 
     return this.statusCode(204)
@@ -83,7 +83,7 @@ export class SessionController extends BaseHttpController {
 
     const result = await this.refreshSessionToken.execute({
       accessToken: request.body.access_token,
-      refreshToken: request.body.refresh_token
+      refreshToken: request.body.refresh_token,
     })
 
     if (!result.success) {
@@ -96,7 +96,7 @@ export class SessionController extends BaseHttpController {
     }
 
     return this.json({
-      session: result.sessionPayload
+      session: result.sessionPayload,
     })
   }
 }

@@ -12,7 +12,7 @@ import {
   RedisEventMessageHandler,
   SNSDomainEventPublisher,
   SQSDomainEventSubscriberFactory,
-  SQSEventMessageHandler
+  SQSEventMessageHandler,
 } from '@standardnotes/domain-events'
 import { UAParser } from 'ua-parser-js'
 
@@ -33,7 +33,6 @@ import { RevisionProjector } from '../Projection/RevisionProjector'
 import { SessionProjector } from '../Projection/SessionProjector'
 import { SessionMiddleware } from '../Controller/SessionMiddleware'
 import { RefreshSessionToken } from '../Domain/UseCase/RefreshSessionToken'
-import { KeyParamsFactory } from '../Domain/User/KeyParamsFactory'
 import { MySQLItemRepository } from '../Infra/MySQL/MySQLItemRepository'
 import { SignIn } from '../Domain/UseCase/SignIn'
 import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
@@ -47,7 +46,6 @@ import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
 import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { LockMiddleware } from '../Controller/LockMiddleware'
 import { AuthMiddlewareWithoutResponse } from '../Controller/AuthMiddlewareWithoutResponse'
-import { GetUserKeyParams } from '../Domain/UseCase/GetUserKeyParams'
 import { UpdateUser } from '../Domain/UseCase/UpdateUser'
 import { RedisEphemeralSessionRepository } from '../Infra/Redis/RedisEphemeralSessionRepository'
 import { GetActiveSessionsForUser } from '../Domain/UseCase/GetActiveSessionsForUser'
@@ -62,6 +60,38 @@ import { RevokedSession } from '../Domain/Session/RevokedSession'
 import { UserRegisteredEventHandler } from '../Domain/Handler/UserRegisteredEventHandler'
 import { ChangePassword } from '../Domain/UseCase/ChangePassword'
 import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
+import { TimerInterface } from '../Domain/Time/TimerInterface'
+import { Timer } from '../Domain/Time/Timer'
+import { SyncResponseFactory20161215 } from '../Domain/Item/SyncResponse/SyncResponseFactory20161215'
+import { SyncResponseFactory20200115 } from '../Domain/Item/SyncResponse/SyncResponseFactory20200115'
+import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
+import { SyncResponseFactoryResolver } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolver'
+import { ItemServiceInterface } from '../Domain/Item/ItemServiceInterface'
+import { ItemService } from '../Domain/Item/ItemService'
+import { ExtensionSettingRepositoryInterface } from '../Domain/ExtensionSetting/ExtensionSettingRepositoryInterface'
+import { MySQLExtensionSettingRepository } from '../Infra/MySQL/MySQLExtensionSettingRepository'
+import { AuthHttpServiceInterface } from '../Domain/Auth/AuthHttpServiceInterface'
+import { AuthHttpService } from '../Infra/HTTP/AuthHttpService'
+import { ExtensionSetting } from '../Domain/ExtensionSetting/ExtensionSetting'
+import { SyncItems } from '../Domain/UseCase/SyncItems'
+import { MuteNotifications } from '../Domain/UseCase/MuteNotifications/MuteNotifications'
+import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
+import { ExtensionsHttpServiceInterface } from '../Domain/Extension/ExtensionsHttpServiceInterface'
+import { ExtensionsHttpService } from '../Domain/Extension/ExtensionsHttpService'
+import { ItemBackupServiceInterface } from '../Domain/Item/ItemBackupServiceInterface'
+import { S3ItemBackupService } from '../Infra/S3/S3ItemBackupService'
+import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
+import { ItemsSyncedEventHandler } from '../Domain/Handler/ItemsSyncedEventHandler'
+import { EmailArchiveExtensionSyncedEventHandler } from '../Domain/Handler/EmailArchiveExtensionSyncedEventHandler'
+import { RevisionServiceInterface } from '../Domain/Revision/RevisionServiceInterface'
+import { RevisionService } from '../Domain/Revision/RevisionService'
+import { DuplicateItemSyncedEventHandler } from '../Domain/Handler/DuplicateItemSyncedEventHandler'
+import { AccountDeletionRequestedEventHandler } from '../Domain/Handler/AccountDeletionRequestedEventHandler'
+import { ItemProjector } from '../Domain/Item/ItemProjector'
+import { ItemConflictProjector } from '../Domain/Item/ItemConflictProjector'
+import { ItemRevisionRepositoryInterface } from '../Domain/Revision/ItemRevisionRepositoryInterface'
+import { MySQLItemRevisionRepository } from '../Infra/MySQL/MySQLItemRevisionRepository'
+import { ItemRevision } from '../Domain/Revision/ItemRevision'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -87,18 +117,20 @@ export class ContainerConfigLoader {
             username: env.get('DB_USERNAME'),
             password: env.get('DB_PASSWORD'),
             database: env.get('DB_DATABASE'),
-          }
-        ]
+          },
+        ],
       },
       entities: [
         User,
         Session,
         RevokedSession,
         Item,
-        Revision
+        Revision,
+        ItemRevision,
+        ExtensionSetting,
       ],
       migrations: [
-        env.get('DB_MIGRATIONS_PATH')
+        env.get('DB_MIGRATIONS_PATH'),
       ],
       migrationsRun: true,
       logging: <LoggerOptions> env.get('DB_DEBUG_LEVEL'),
@@ -131,25 +163,36 @@ export class ContainerConfigLoader {
     if (env.get('SNS_AWS_REGION', true)) {
       container.bind<AWS.SNS>(TYPES.SNS).toConstantValue(new AWS.SNS({
         apiVersion: 'latest',
-        region: env.get('SNS_AWS_REGION', true)
+        region: env.get('SNS_AWS_REGION', true),
       }))
     }
 
     if (env.get('SQS_AWS_REGION', true)) {
       container.bind<AWS.SQS>(TYPES.SQS).toConstantValue(new AWS.SQS({
         apiVersion: 'latest',
-        region: env.get('SQS_AWS_REGION', true)
+        region: env.get('SQS_AWS_REGION', true),
       }))
     }
+
+    let s3Client = undefined
+    if (env.get('S3_AWS_REGION', true)) {
+      s3Client = new AWS.S3({
+        apiVersion: 'latest',
+        region: env.get('S3_AWS_REGION', true),
+      })
+    }
+    container.bind<AWS.S3 | undefined>(TYPES.S3).toConstantValue(s3Client)
 
     // Repositories
     container.bind<MySQLSessionRepository>(TYPES.SessionRepository).toConstantValue(connection.getCustomRepository(MySQLSessionRepository))
     container.bind<MySQLRevokedSessionRepository>(TYPES.RevokedSessionRepository).toConstantValue(connection.getCustomRepository(MySQLRevokedSessionRepository))
     container.bind<MySQLUserRepository>(TYPES.UserRepository).toConstantValue(connection.getCustomRepository(MySQLUserRepository))
     container.bind<MySQLRevisionRepository>(TYPES.RevisionRepository).toConstantValue(connection.getCustomRepository(MySQLRevisionRepository))
+    container.bind<ItemRevisionRepositoryInterface>(TYPES.ItemRevisionRepository).toConstantValue(connection.getCustomRepository(MySQLItemRevisionRepository))
     container.bind<MySQLItemRepository>(TYPES.ItemRepository).toConstantValue(connection.getCustomRepository(MySQLItemRepository))
     container.bind<RedisEphemeralSessionRepository>(TYPES.EphemeralSessionRepository).to(RedisEphemeralSessionRepository)
     container.bind<LockRepository>(TYPES.LockRepository).to(LockRepository)
+    container.bind<ExtensionSettingRepositoryInterface>(TYPES.ExtensionSettingRepository).toConstantValue(connection.getCustomRepository(MySQLExtensionSettingRepository))
 
     // Middleware
     container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
@@ -161,6 +204,8 @@ export class ContainerConfigLoader {
     container.bind<RevisionProjector>(TYPES.RevisionProjector).to(RevisionProjector)
     container.bind<SessionProjector>(TYPES.SessionProjector).to(SessionProjector)
     container.bind<UserProjector>(TYPES.UserProjector).to(UserProjector)
+    container.bind<ItemProjector>(TYPES.ItemProjector).to(ItemProjector)
+    container.bind<ItemConflictProjector>(TYPES.ItemConflictProjector).to(ItemConflictProjector)
 
     // env vars
     container.bind(TYPES.JWT_SECRET).toConstantValue(env.get('JWT_SECRET'))
@@ -180,6 +225,13 @@ export class ContainerConfigLoader {
     container.bind(TYPES.USER_SERVER_AUTH_KEY).toConstantValue(env.get('USER_SERVER_AUTH_KEY', true))
     container.bind(TYPES.REDIS_EVENTS_CHANNEL).toConstantValue(env.get('REDIS_EVENTS_CHANNEL'))
     container.bind(TYPES.AUTH_JWT_SECRET).toConstantValue(env.get('AUTH_JWT_SECRET'))
+    container.bind(TYPES.INTERNAL_DNS_REROUTE_ENABLED).toConstantValue(env.get('INTERNAL_DNS_REROUTE_ENABLED'))
+    container.bind(TYPES.EXTENSIONS_SERVER_URL).toConstantValue(env.get('EXTENSIONS_SERVER_URL'))
+    container.bind(TYPES.AUTH_SERVER_URL).toConstantValue(env.get('AUTH_SERVER_URL'))
+    container.bind(TYPES.S3_AWS_REGION).toConstantValue(env.get('S3_AWS_REGION', true))
+    container.bind(TYPES.S3_BACKUP_BUCKET_NAME).toConstantValue(env.get('S3_BACKUP_BUCKET_NAME', true))
+    container.bind(TYPES.EMAIL_ATTACHMENT_MAX_BYTE_SIZE).toConstantValue(env.get('EMAIL_ATTACHMENT_MAX_BYTE_SIZE'))
+    container.bind(TYPES.REVISIONS_FREQUENCY).toConstantValue(env.get('REVISIONS_FREQUENCY'))
 
     // use cases
     container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
@@ -188,16 +240,22 @@ export class ContainerConfigLoader {
     container.bind<VerifyMFA>(TYPES.VerifyMFA).to(VerifyMFA)
     container.bind<ClearLoginAttempts>(TYPES.ClearLoginAttempts).to(ClearLoginAttempts)
     container.bind<IncreaseLoginAttempts>(TYPES.IncreaseLoginAttempts).to(IncreaseLoginAttempts)
-    container.bind<GetUserKeyParams>(TYPES.GetUserKeyParams).to(GetUserKeyParams)
     container.bind<UpdateUser>(TYPES.UpdateUser).to(UpdateUser)
     container.bind<Register>(TYPES.Register).to(Register)
     container.bind<GetActiveSessionsForUser>(TYPES.GetActiveSessionsForUser).to(GetActiveSessionsForUser)
     container.bind<DeletePreviousSessionsForUser>(TYPES.DeletePreviousSessionsForUser).to(DeletePreviousSessionsForUser)
     container.bind<DeleteSessionForUser>(TYPES.DeleteSessionForUser).to(DeleteSessionForUser)
     container.bind<ChangePassword>(TYPES.ChangePassword).to(ChangePassword)
+    container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
+    container.bind<PostToRealtimeExtensions>(TYPES.PostToRealtimeExtensions).to(PostToRealtimeExtensions)
+    container.bind<MuteNotifications>(TYPES.MuteNotifications).to(MuteNotifications)
 
     // Handlers
     container.bind<UserRegisteredEventHandler>(TYPES.UserRegisteredEventHandler).to(UserRegisteredEventHandler)
+    container.bind<ItemsSyncedEventHandler>(TYPES.ItemsSyncedEventHandler).to(ItemsSyncedEventHandler)
+    container.bind<EmailArchiveExtensionSyncedEventHandler>(TYPES.EmailArchiveExtensionSyncedEventHandler).to(EmailArchiveExtensionSyncedEventHandler)
+    container.bind<DuplicateItemSyncedEventHandler>(TYPES.DuplicateItemSyncedEventHandler).to(DuplicateItemSyncedEventHandler)
+    container.bind<AccountDeletionRequestedEventHandler>(TYPES.AccountDeletionRequestedEventHandler).to(AccountDeletionRequestedEventHandler)
 
     // Services
     container.bind<UAParser>(TYPES.DeviceDetector).toConstantValue(new UAParser())
@@ -207,11 +265,19 @@ export class ContainerConfigLoader {
     container.bind<AuthResponseFactory20190520>(TYPES.AuthResponseFactory20190520).to(AuthResponseFactory20190520)
     container.bind<AuthResponseFactory20200115>(TYPES.AuthResponseFactory20200115).to(AuthResponseFactory20200115)
     container.bind<AuthResponseFactoryResolver>(TYPES.AuthResponseFactoryResolver).to(AuthResponseFactoryResolver)
-    container.bind<KeyParamsFactory>(TYPES.KeyParamsFactory).to(KeyParamsFactory)
     container.bind<TokenDecoder>(TYPES.TokenDecoder).to(TokenDecoder)
     container.bind<AuthenticationMethodResolver>(TYPES.AuthenticationMethodResolver).to(AuthenticationMethodResolver)
-    container.bind<DomainEventFactory>(TYPES.DomainEventFactory).to(DomainEventFactory)
+    container.bind<DomainEventFactoryInterface>(TYPES.DomainEventFactory).to(DomainEventFactory)
     container.bind<superagent.SuperAgentStatic>(TYPES.HTTPClient).toConstantValue(superagent)
+    container.bind<ItemServiceInterface>(TYPES.ItemService).to(ItemService)
+    container.bind<TimerInterface>(TYPES.Timer).to(Timer)
+    container.bind<SyncResponseFactory20161215>(TYPES.SyncResponseFactory20161215).to(SyncResponseFactory20161215)
+    container.bind<SyncResponseFactory20200115>(TYPES.SyncResponseFactory20200115).to(SyncResponseFactory20200115)
+    container.bind<SyncResponseFactoryResolverInterface>(TYPES.SyncResponseFactoryResolver).to(SyncResponseFactoryResolver)
+    container.bind<AuthHttpServiceInterface>(TYPES.AuthHttpService).to(AuthHttpService)
+    container.bind<ExtensionsHttpServiceInterface>(TYPES.ExtensionsHttpService).to(ExtensionsHttpService)
+    container.bind<ItemBackupServiceInterface>(TYPES.ItemBackupService).to(S3ItemBackupService)
+    container.bind<RevisionServiceInterface>(TYPES.RevisionService).to(RevisionService)
 
     if (env.get('SNS_TOPIC_ARN', true)) {
       container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
@@ -230,7 +296,11 @@ export class ContainerConfigLoader {
     }
 
     const eventHandlers: Map<string, DomainEventHandlerInterface> = new Map([
-      ['USER_REGISTERED', container.get(TYPES.UserRegisteredEventHandler)]
+      ['DUPLICATE_ITEM_SYNCED', container.get(TYPES.DuplicateItemSyncedEventHandler)],
+      ['USER_REGISTERED', container.get(TYPES.UserRegisteredEventHandler)],
+      ['ITEMS_SYNCED', container.get(TYPES.ItemsSyncedEventHandler)],
+      ['EMAIL_ARCHIVE_EXTENSION_SYNCED', container.get(TYPES.EmailArchiveExtensionSyncedEventHandler)],
+      ['ACCOUNT_DELETION_REQUESTED', container.get(TYPES.AccountDeletionRequestedEventHandler)],
     ])
 
     if (env.get('SQS_QUEUE_URL', true)) {

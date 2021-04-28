@@ -1,59 +1,57 @@
-import { Column, Entity, Index, JoinTable, ManyToMany, PrimaryColumn } from 'typeorm'
-import { Item } from '../Item/Item'
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity({ name: 'revisions' })
 export class Revision {
-  @PrimaryColumn({
-    length: 36
-  })
+  @PrimaryGeneratedColumn('uuid')
   uuid: string
 
   @Column({
     name: 'item_uuid',
     length: 255,
-    nullable: true
+    nullable: true,
   })
   @Index('index_revisions_on_item_uuid')
   itemUuid: string
 
   @Column({
     type: 'mediumtext',
-    nullable: true
+    nullable: true,
   })
-  content: string
+  content: string | null
 
   @Column({
     name: 'content_type',
     length: 255,
-    nullable: true
+    nullable: true,
   })
   contentType: string
 
   @Column({
     name: 'items_key_id',
     length: 255,
-    nullable: true
+    nullable: true,
   })
   itemsKeyId: string
 
   @Column({
     name: 'enc_item_key',
     type: 'text',
-    nullable: true
+    nullable: true,
   })
-  encItemKey: string
+  encItemKey: string | null
 
   @Column({
     name: 'auth_hash',
+    type: 'varchar',
     length: 255,
-    nullable: true
+    nullable: true,
   })
-  authHash: string
+  authHash: string | null
 
   @Column({
     name: 'creation_date',
     type: 'date',
-    nullable: true
+    nullable: true,
   })
   @Index('index_revisions_on_creation_date')
   creationDate: Date
@@ -62,7 +60,7 @@ export class Revision {
     name: 'created_at',
     type: 'datetime',
     precision: 6,
-    nullable: true
+    nullable: true,
   })
   @Index('index_revisions_on_created_at')
   createdAt: Date
@@ -71,24 +69,7 @@ export class Revision {
     name: 'updated_at',
     type: 'datetime',
     precision: 6,
-    nullable: true
+    nullable: true,
   })
   updatedAt: Date
-
-  @ManyToMany(
-    /* istanbul ignore next */
-    () => Item
-  )
-  @JoinTable({
-    name: 'item_revisions',
-    joinColumn: {
-      name: 'revision_uuid',
-      referencedColumnName: 'uuid'
-    },
-    inverseJoinColumn: {
-      name: 'item_uuid',
-      referencedColumnName: 'uuid'
-    }
-  })
-  items: Promise<Item[]>
 }

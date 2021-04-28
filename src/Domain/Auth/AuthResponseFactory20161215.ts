@@ -26,11 +26,11 @@ export class AuthResponseFactory20161215 implements AuthResponseFactoryInterface
     const token = sign(
       {
         user_uuid: user.uuid,
-        pw_hash: crypto.createHash('sha256').update(user.encryptedPassword).digest('hex')
+        pw_hash: crypto.createHash('sha256').update(user.encryptedPassword).digest('hex'),
       },
       this.jwtSecret,
       {
-        algorithm: 'HS256'
+        algorithm: 'HS256',
       }
     )
 
@@ -38,7 +38,7 @@ export class AuthResponseFactory20161215 implements AuthResponseFactoryInterface
 
     return {
       user: this.userProjector.projectSimple(user),
-      token
+      token,
     }
   }
 }

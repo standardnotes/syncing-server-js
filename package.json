@@ -19,12 +19,14 @@
     "pretest": "yarn lint && yarn build",
     "test": "jest spec",
     "start": "node dist/bin/server.js",
-    "worker": "node dist/bin/worker.js"
+    "worker": "node dist/bin/worker.js",
+    "daily-backup": "node dist/bin/backup.js",
+    "daily-backup-no-email": "node dist/bin/backup.js mute-emails"
   },
   "dependencies": {
-    "@standardnotes/auth": "^1.1.0",
-    "@standardnotes/domain-events": "^1.0.1",
-    "aws-sdk": "^2.824.0",
+    "@standardnotes/auth": "2.0.1",
+    "@standardnotes/domain-events": "1.1.2",
+    "aws-sdk": "^2.880.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "crypto-random-string": "^3.3.0",
@@ -38,6 +40,7 @@
     "ioredis": "^4.19.4",
     "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.2.5",
+    "newrelic": "^7.3.1",
     "otplib": "^12.0.1",
     "prettyjson": "^1.2.1",
     "reflect-metadata": "^0.1.13",
@@ -49,7 +52,7 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "@standardnotes/config": "^1.1.1",
+    "@standardnotes/config": "1.3.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/cors": "^2.8.8",
     "@types/dotenv": "^8.2.0",

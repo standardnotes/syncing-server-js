@@ -5,13 +5,13 @@ import { ProjectorInterface } from '../../Projection/ProjectorInterface'
 import { EphemeralSession } from '../Session/EphemeralSession'
 import { Session } from '../Session/Session'
 import { SessionServiceInterace } from '../Session/SessionServiceInterface'
-import { KeyParamsFactoryInterface } from '../User/KeyParamsFactoryInterface'
 import { User } from '../User/User'
+import { AuthHttpServiceInterface } from './AuthHttpServiceInterface'
 import { AuthResponseFactory20200115 } from './AuthResponseFactory20200115'
 
 describe('AuthResponseFactory20200115', () => {
   let sessionService: SessionServiceInterace
-  let keyParamsFactory: KeyParamsFactoryInterface
+  let authHttpService: AuthHttpServiceInterface
   let userProjector: ProjectorInterface<User>
   let user: User
   let session: Session
@@ -20,7 +20,7 @@ describe('AuthResponseFactory20200115', () => {
 
   const createFactory = () => new AuthResponseFactory20200115(
     sessionService,
-    keyParamsFactory,
+    authHttpService,
     userProjector,
     'secret',
     logger
@@ -41,11 +41,11 @@ describe('AuthResponseFactory20200115', () => {
       access_token: 'access_token',
       refresh_token: 'refresh_token',
       access_expiration: 123,
-      refresh_expiration: 234
+      refresh_expiration: 234,
     })
 
-    keyParamsFactory = {} as jest.Mocked<KeyParamsFactoryInterface>
-    keyParamsFactory.create = jest.fn().mockReturnValue({
+    authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
+    authHttpService.getUserKeyParams = jest.fn().mockReturnValue({
       key1: 'value1',
       key2: 'value2',
     })
@@ -64,7 +64,7 @@ describe('AuthResponseFactory20200115', () => {
 
     expect(response).toEqual({
       user: { foo: 'bar' },
-      token: expect.any(String)
+      token: expect.any(String),
     })
   })
 
@@ -82,11 +82,11 @@ describe('AuthResponseFactory20200115', () => {
         access_token: 'access_token',
         refresh_token: 'refresh_token',
         access_expiration: 123,
-        refresh_expiration: 234
+        refresh_expiration: 234,
       },
       user: {
-        foo: 'bar'
-      }
+        foo: 'bar',
+      },
     })
   })
 
@@ -104,11 +104,11 @@ describe('AuthResponseFactory20200115', () => {
         access_token: 'access_token',
         refresh_token: 'refresh_token',
         access_expiration: 123,
-        refresh_expiration: 234
+        refresh_expiration: 234,
       },
       user: {
-        foo: 'bar'
-      }
+        foo: 'bar',
+      },
     })
   })
 })

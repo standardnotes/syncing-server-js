@@ -25,7 +25,7 @@ describe('RevisionProjector', () => {
       content_type: 'Note',
       created_at: '2020-11-26T13:34:00.000Z',
       updated_at: '2020-11-26T13:34:00.000Z',
-      uuid: '123'
+      uuid: '123',
     })
   })
 
@@ -41,7 +41,7 @@ describe('RevisionProjector', () => {
       item_uuid: undefined,
       items_key_id: '123',
       updated_at: '2020-11-26T13:34:00.000Z',
-      uuid: '123'
+      uuid: '123',
     })
   })
 

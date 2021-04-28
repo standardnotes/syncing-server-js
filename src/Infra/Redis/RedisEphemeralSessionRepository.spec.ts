@@ -64,7 +64,7 @@ describe('RedisEphemeralSessionRepository', () => {
 
     redisClient.mget = jest.fn().mockReturnValue([
       '{"uuid":"1-2-3","userUuid":"2-3-4","userAgent":"Mozilla Firefox","createdAt":"1970-01-01T00:00:00.001Z","updatedAt":"1970-01-01T00:00:00.002Z"}',
-      '{"uuid":"2-3-4","userUuid":"2-3-4","userAgent":"Google Chrome","createdAt":"1970-01-01T00:00:00.001Z","updatedAt":"1970-01-01T00:00:00.002Z"}'
+      '{"uuid":"2-3-4","userUuid":"2-3-4","userAgent":"Google Chrome","createdAt":"1970-01-01T00:00:00.001Z","updatedAt":"1970-01-01T00:00:00.002Z"}',
     ])
 
     const ephemeralSessions = await createRepository().findAllByUserUuid('2-3-4')

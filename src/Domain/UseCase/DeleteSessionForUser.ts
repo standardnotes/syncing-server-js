@@ -19,7 +19,7 @@ export class DeleteSessionForUser implements UseCaseInterface {
     if (!session) {
       return {
         success: false,
-        errorMessage: 'No session exists with the provided identifier.'
+        errorMessage: 'No session exists with the provided identifier.',
       }
     }
 

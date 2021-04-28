@@ -40,8 +40,8 @@ describe('ChangePassword', () => {
     })).toEqual({
       success: true,
       authResponse: {
-        foo: 'bar'
-      }
+        foo: 'bar',
+      },
     })
 
     expect(userRepository.save).toHaveBeenCalledWith({
@@ -61,7 +61,7 @@ describe('ChangePassword', () => {
       updatedWithUserAgent: 'Google Chrome',
     })).toEqual({
       success: false,
-      errorMessage: 'The current password you entered is incorrect. Please try again.'
+      errorMessage: 'The current password you entered is incorrect. Please try again.',
     })
 
     expect(userRepository.save).not.toHaveBeenCalled()
@@ -75,19 +75,19 @@ describe('ChangePassword', () => {
       newPassword: 'test234',
       pwNonce: 'asdzxc',
       updatedWithUserAgent: 'Google Chrome',
-      protocolVersion: '004'
+      protocolVersion: '004',
     })).toEqual({
       success: true,
       authResponse: {
-        foo: 'bar'
-      }
+        foo: 'bar',
+      },
     })
 
     expect(userRepository.save).toHaveBeenCalledWith({
       encryptedPassword: expect.any(String),
       updatedWithUserAgent: 'Google Chrome',
       pwNonce: 'asdzxc',
-      version: '004'
+      version: '004',
     })
   })
 })

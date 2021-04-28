@@ -30,11 +30,11 @@ describe('AuthMiddleware', () => {
     logger.error = jest.fn()
 
     request = {
-      headers: {}
+      headers: {},
     } as jest.Mocked<Request>
     request.header = jest.fn()
     response = {
-      locals: {}
+      locals: {},
     } as jest.Mocked<Response>
     response.status = jest.fn().mockReturnThis()
     response.send = jest.fn()
@@ -47,7 +47,7 @@ describe('AuthMiddleware', () => {
     const user = {} as jest.Mocked<User>
     authenticateUser.execute = jest.fn().mockReturnValue({
       success: true,
-      user: user
+      user: user,
     })
 
     await createMiddleware().handler(request, response, next)
@@ -65,7 +65,7 @@ describe('AuthMiddleware', () => {
       user,
       session,
       roles: [],
-      permissions: []
+      permissions: [],
     }, jwtSecret, { algorithm: 'HS256' })
 
     request.header = jest.fn().mockReturnValue(authToken)
@@ -87,7 +87,7 @@ describe('AuthMiddleware', () => {
       user,
       session,
       roles: [],
-      permissions: []
+      permissions: [],
     }, jwtSecret, { algorithm: 'HS256', notBefore: '2 days' })
 
     request.header = jest.fn().mockReturnValue(authToken)

@@ -17,8 +17,8 @@ export class UsersController extends BaseHttpController {
     if (request.params.userId !== response.locals.user.uuid) {
       return this.json({
         error: {
-          message: 'Operation not allowed.'
-        }
+          message: 'Operation not allowed.',
+        },
       }, 401)
     }
 

@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import { Logger } from 'winston'
 
 import { AuthResponseFactoryInterface } from '../Auth/AuthResponseFactoryInterface'
 import { AuthResponseFactoryResolverInterface } from '../Auth/AuthResponseFactoryResolverInterface'
@@ -11,8 +12,9 @@ describe('SignIn', () => {
   let userRepository: UserRepositoryInterface
   let authResponseFactoryResolver: AuthResponseFactoryResolverInterface
   let authResponseFactory: AuthResponseFactoryInterface
+  let logger: Logger
 
-  const createUseCase = () => new SignIn(userRepository, authResponseFactoryResolver)
+  const createUseCase = () => new SignIn(userRepository, authResponseFactoryResolver, logger)
 
   beforeEach(() => {
     user = {} as jest.Mocked<User>
@@ -26,6 +28,9 @@ describe('SignIn', () => {
 
     authResponseFactoryResolver = {} as jest.Mocked<AuthResponseFactoryResolverInterface>
     authResponseFactoryResolver.resolveAuthResponseFactoryVersion = jest.fn().mockReturnValue(authResponseFactory)
+
+    logger = {} as jest.Mocked<Logger>
+    logger.debug = jest.fn()
   })
 
   it('should sign in a user', async () => {
@@ -34,10 +39,10 @@ describe('SignIn', () => {
       password: 'qweqwe123123',
       userAgent: 'Google Chrome',
       apiVersion: '20190520',
-      ephemeralSession: false
+      ephemeralSession: false,
     })).toEqual({
       success: true,
-      authResponse: { foo: 'bar' }
+      authResponse: { foo: 'bar' },
     })
   })
 
@@ -47,23 +52,25 @@ describe('SignIn', () => {
       password: 'asdasd123123',
       userAgent: 'Google Chrome',
       apiVersion: '20190520',
-      ephemeralSession: false
+      ephemeralSession: false,
     })).toEqual({
       success: false,
-      errorMessage: 'Invalid email or password'
+      errorMessage: 'Invalid email or password',
     })
   })
 
-  it('should not sign in a user with wrong credentials', async () => {
+  it('should not sign in a user that does not exist', async () => {
+    userRepository.findOneByEmail = jest.fn().mockReturnValue(undefined)
+
     expect(await createUseCase().execute({
       email: 'test@test.te',
       password: 'asdasd123123',
       userAgent: 'Google Chrome',
       apiVersion: '20190520',
-      ephemeralSession: false
+      ephemeralSession: false,
     })).toEqual({
       success: false,
-      errorMessage: 'Invalid email or password'
+      errorMessage: 'Invalid email or password',
     })
   })
 })

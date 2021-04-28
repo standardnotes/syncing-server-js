@@ -32,7 +32,7 @@ describe('UserRegisteredEventHandler', () => {
     event.createdAt = new Date(1)
     event.payload = {
       userUuid: '1-2-3',
-      email: 'test@test.te'
+      email: 'test@test.te',
     }
 
     logger = {} as jest.Mocked<Logger>
@@ -48,7 +48,7 @@ describe('UserRegisteredEventHandler', () => {
       user: {
         created_at: new Date(1),
         email: 'test@test.te',
-      }
+      },
     })
   })
 

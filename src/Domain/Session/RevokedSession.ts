@@ -4,7 +4,7 @@ import { User } from '../User/User'
 @Entity({ name: 'revoked_sessions' })
 export class RevokedSession {
   @PrimaryColumn({
-    length: 36
+    length: 36,
   })
   uuid: string
 
@@ -19,7 +19,7 @@ export class RevokedSession {
     type: 'tinyint',
     width: 1,
     nullable: false,
-    default: 0
+    default: 0,
   })
   received: boolean
 
