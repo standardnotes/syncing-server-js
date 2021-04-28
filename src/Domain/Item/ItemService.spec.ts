@@ -27,6 +27,7 @@ describe('ItemService', () => {
   let item2: Item
   let itemHash1: ItemHash
   let itemHash2: ItemHash
+  let emptyHash: ItemHash
   let syncToken: string
   let logger: Logger
 
@@ -76,6 +77,10 @@ describe('ItemService', () => {
       updated_at: dayjs.utc(Math.floor(item2.updatedAt / Time.MicrosecondsInAMillisecond) + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
     } as jest.Mocked<ItemHash>
 
+    emptyHash = {
+      uuid: '2-3-4',
+    } as jest.Mocked<ItemHash>
+
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
     itemRepository.findAll = jest.fn().mockReturnValue([item1, item2])
     itemRepository.save = jest.fn().mockImplementation((item: Item) => item)
@@ -86,6 +91,8 @@ describe('ItemService', () => {
     timer = {} as jest.Mocked<TimerInterface>
     timer.getTimestampInMicroseconds = jest.fn().mockReturnValue(1616164633241568)
     timer.convertMicrosecondsToSeconds = jest.fn().mockReturnValue(600)
+    timer.convertStringDateToMicroseconds = jest.fn()
+      .mockImplementation((date: string) => dayjs.utc(date).valueOf() * 1000)
 
     domainEventPublisher = {} as jest.Mocked<DomainEventPublisherInterface>
     domainEventPublisher.publish = jest.fn()
@@ -101,7 +108,6 @@ describe('ItemService', () => {
 
   it('should retrieve all items for a user from last sync with sync token version 1', async () => {
     syncToken = Buffer.from('1:2021-03-15 07:00:00', 'utf-8').toString('base64')
-    timer.convertStringDateToMicroseconds = jest.fn().mockReturnValue(dayjs.utc('2021-03-15 07:00:00').valueOf() * 1000)
 
     expect(
       await createService().getItems({
@@ -329,6 +335,32 @@ describe('ItemService', () => {
     expect(revisionService.createRevision).toHaveBeenCalledTimes(1)
   })
 
+  it('should save empty hashes', async () => {
+    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+
+    const result = await createService().saveItems({
+      itemHashes: [ emptyHash ],
+      userAgent: 'Brave',
+      userUuid: '1-2-3',
+    })
+
+    expect(result).toEqual({
+      conflicts: [],
+      savedItems: [
+        {
+          createdAt: expect.any(Number),
+          lastUserAgent: 'Brave',
+          updatedAt: expect.any(Number),
+          userUuid: '1-2-3',
+          uuid: '2-3-4',
+        },
+      ],
+      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
+    })
+
+    expect(revisionService.createRevision).toHaveBeenCalledTimes(1)
+  })
+
   it('should save new items that are duplicates', async () => {
     itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
     itemHash1.duplicate_of = '1-2-3'
@@ -420,6 +452,36 @@ describe('ItemService', () => {
     })
   })
 
+  it('should save new items that are deleted', async () => {
+    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+    itemHash1.deleted = true
+
+    const result = await createService().saveItems({
+      itemHashes: [ itemHash1 ],
+      userAgent: 'Brave',
+      userUuid: '1-2-3',
+    })
+
+    expect(result).toEqual({
+      conflicts: [],
+      savedItems: [
+        {
+          content: 'asdqwe1',
+          contentType: 'Note',
+          createdAt: expect.any(Number),
+          encItemKey: 'qweqwe1',
+          itemsKeyId: 'asdasd1',
+          lastUserAgent: 'Brave',
+          deleted: true,
+          updatedAt: expect.any(Number),
+          userUuid: '1-2-3',
+          uuid: '1-2-3',
+        },
+      ],
+      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
+    })
+  })
+
   it('should calculate the sync token based on last updated date of saved items incremented with 1 microsecond to avoid returning same object in subsequent sync', async () => {
     itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
 
@@ -456,8 +518,6 @@ describe('ItemService', () => {
 
   it('should update existing items', async () => {
     itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
-    timer.convertStringDateToMicroseconds = jest.fn()
-      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
@@ -484,11 +544,34 @@ describe('ItemService', () => {
     })
   })
 
+  it('should update existing empty hashes', async () => {
+    itemRepository.findByUuid = jest.fn().mockReturnValue(item2)
+    emptyHash.updated_at = dayjs.utc(Math.floor(item2.updatedAt / Time.MicrosecondsInAMillisecond) + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+
+    const result = await createService().saveItems({
+      itemHashes: [ emptyHash ],
+      userAgent: 'Brave',
+      userUuid: '1-2-3',
+    })
+
+    expect(result).toEqual({
+      conflicts: [],
+      savedItems: [
+        {
+          createdAt: expect.any(Number),
+          lastUserAgent: 'Brave',
+          userUuid: '1-2-3',
+          updatedAt: expect.any(Number),
+          uuid: '2-3-4',
+        },
+      ],
+      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
+    })
+  })
+
   it('should not update existing item if it belongs to another user', async () => {
     item1.userUuid = '2-3-4'
     itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
-    timer.convertStringDateToMicroseconds = jest.fn()
-      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
@@ -511,8 +594,6 @@ describe('ItemService', () => {
   it('should create a revision for existing item if revisions frequency is matched', async () => {
     timer.convertMicrosecondsToSeconds =
     itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
-    timer.convertStringDateToMicroseconds = jest.fn()
-      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
@@ -541,8 +622,6 @@ describe('ItemService', () => {
 
   it('should update existing items with empty user-agent', async () => {
     itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
-    timer.convertStringDateToMicroseconds = jest.fn()
-      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
@@ -570,8 +649,6 @@ describe('ItemService', () => {
 
   it('should update existing items with auth hash', async () => {
     itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
-    timer.convertStringDateToMicroseconds = jest.fn()
-      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
 
     itemHash1.auth_hash = 'test'
 
@@ -603,8 +680,6 @@ describe('ItemService', () => {
 
   it('should mark existing item as deleted', async () => {
     itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
-    timer.convertStringDateToMicroseconds = jest.fn()
-      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
 
     itemHash1.deleted = true
     const result = await createService().saveItems({
@@ -636,8 +711,6 @@ describe('ItemService', () => {
 
   it('should mark existing item as duplicate', async () => {
     itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
-    timer.convertStringDateToMicroseconds = jest.fn()
-      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
 
     itemHash1.duplicate_of = '1-2-3'
     const result = await createService().saveItems({
@@ -754,10 +827,6 @@ describe('ItemService', () => {
       .mockReturnValueOnce(item2)
 
     itemHash2.updated_at = undefined
-
-    timer.convertStringDateToMicroseconds = jest.fn()
-      .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1000)
-      .mockReturnValueOnce(dayjs.utc(new Date(0).toString()).valueOf() * 1000)
 
     timer.getTimestampInMicroseconds = jest.fn().mockReturnValue(1616164634241568)
 

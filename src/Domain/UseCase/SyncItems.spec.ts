@@ -1,5 +1,4 @@
 import 'reflect-metadata'
-import { Logger } from 'winston'
 import { ContentType } from '../Item/ContentType'
 import { Item } from '../Item/Item'
 import { ItemHash } from '../Item/ItemHash'
@@ -19,9 +18,8 @@ describe('SyncItems', () => {
   let item2: Item
   let item3: Item
   let itemHash: ItemHash
-  let logger: Logger
 
-  const createUseCase = () => new SyncItems(itemService, syncResponceFactoryResolver, logger)
+  const createUseCase = () => new SyncItems(itemService, syncResponceFactoryResolver)
 
   beforeEach(() => {
     item1 = {
@@ -64,9 +62,6 @@ describe('SyncItems', () => {
 
     syncResponceFactoryResolver = {} as jest.Mocked<SyncResponseFactoryResolverInterface>
     syncResponceFactoryResolver.resolveSyncResponseFactoryVersion = jest.fn().mockReturnValue(syncResponseFactory)
-
-    logger = {} as jest.Mocked<Logger>
-    logger.debug = jest.fn()
   })
 
   it('should sync items', async() => {

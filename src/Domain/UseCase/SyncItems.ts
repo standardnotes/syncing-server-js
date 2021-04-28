@@ -1,5 +1,4 @@
 import { inject, injectable } from 'inversify'
-import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
 import { Item } from '../Item/Item'
 import { ItemConflict } from '../Item/ItemConflict'
@@ -15,14 +14,11 @@ import { UseCaseInterface } from './UseCaseInterface'
 export class SyncItems implements UseCaseInterface {
   constructor(
     @inject(TYPES.ItemService) private itemService: ItemServiceInterface,
-    @inject(TYPES.SyncResponseFactoryResolver) private syncResponseFactoryResolver: SyncResponseFactoryResolverInterface,
-    @inject(TYPES.Logger) private logger: Logger
+    @inject(TYPES.SyncResponseFactoryResolver) private syncResponseFactoryResolver: SyncResponseFactoryResolverInterface
   ) {
   }
 
   async execute(dto: SyncItemsDTO): Promise<SyncResponse20161215 | SyncResponse20200115> {
-    this.logger.debug('SyncItemsDTO: %O', dto)
-
     const getItemsResult = await this.itemService.getItems({
       userUuid: dto.userUuid,
       syncToken: dto.syncToken,
@@ -31,16 +27,12 @@ export class SyncItems implements UseCaseInterface {
       contentType: dto.contentType,
     })
 
-    this.logger.debug('getItemsResult: %O', getItemsResult)
-
     const saveItemsResult = await this.itemService.saveItems({
       itemHashes: dto.itemHashes,
       userAgent: dto.userAgent,
       userUuid: dto.userUuid,
       apiVersion: dto.apiVersion,
     })
-
-    this.logger.debug('saveItemsResult: %O', saveItemsResult)
 
     let retrievedItems = this.filterOutSyncConflictsForConsecutiveSyncs(getItemsResult.items, saveItemsResult.conflicts)
     if (this.isFirstSync(dto)) {
@@ -55,19 +47,13 @@ export class SyncItems implements UseCaseInterface {
       cursorToken: getItemsResult.cursorToken,
     }
 
-    this.logger.debug('syncResponse: %O', syncResponse)
-
     if (dto.computeIntegrityHash) {
       syncResponse.integrityHash = await this.itemService.computeIntegrityHash(dto.userUuid)
     }
 
-    const response = this.syncResponseFactoryResolver
+    return this.syncResponseFactoryResolver
       .resolveSyncResponseFactoryVersion(dto.apiVersion)
       .createResponse(syncResponse)
-
-    this.logger.debug('response: %O', response)
-
-    return response
   }
 
   private isFirstSync(dto: SyncItemsDTO): boolean {
