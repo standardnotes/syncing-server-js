@@ -12,7 +12,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
       with:
-        node-version: '14.x'
+        node-version: '15.x'
     - run: yarn install --pure-lockfile
     - run: yarn build
     - run: yarn lint
@@ -99,12 +99,21 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - name: Create New Relic deployment marker
+      - name: Create New Relic deployment marker for Web
         uses: newrelic/deployment-marker-action@v1
         with:
           accountId: ${{ secrets.NEW_RELIC_ACCOUNT_ID }}
           apiKey: ${{ secrets.NEW_RELIC_API_KEY }}
-          applicationId: ${{ secrets.NEW_RELIC_APPLICATION_ID_PROD }}
+          applicationId: ${{ secrets.NEW_RELIC_APPLICATION_ID_WEB_PROD }}
+          revision: "${{ github.ref }}-${{ github.sha }}"
+          description: "Automated Deployment via Github Actions"
+          user: "${{ github.actor }}"
+      - name: Create New Relic deployment marker for Worker
+        uses: newrelic/deployment-marker-action@v1
+        with:
+          accountId: ${{ secrets.NEW_RELIC_ACCOUNT_ID }}
+          apiKey: ${{ secrets.NEW_RELIC_API_KEY }}
+          applicationId: ${{ secrets.NEW_RELIC_APPLICATION_ID_WORKER_PROD }}
           revision: "${{ github.ref }}-${{ github.sha }}"
           description: "Automated Deployment via Github Actions"
           user: "${{ github.actor }}"
