@@ -2,7 +2,7 @@
   "name": "syncing-server-js",
   "version": "1.0.0",
   "engines": {
-    "node": ">=14.0.0 <15.0.0"
+    "node": ">=15.0.0 <16.0.0"
   },
   "description": "Syncing Server JS",
   "main": "dist/src/index.js",
