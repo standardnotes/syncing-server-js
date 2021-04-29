@@ -24,6 +24,7 @@
     "daily-backup-no-email": "node dist/bin/backup.js mute-emails"
   },
   "dependencies": {
+    "@newrelic/native-metrics": "^6.0.0",
     "@standardnotes/auth": "2.0.1",
     "@standardnotes/domain-events": "1.1.2",
     "aws-sdk": "^2.880.0",
