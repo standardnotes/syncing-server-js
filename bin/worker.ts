@@ -1,7 +1,5 @@
 import 'reflect-metadata'
 
-require('newrelic')
-
 import { Logger } from 'winston'
 import * as dayjs from 'dayjs'
 import * as utc from 'dayjs/plugin/utc'
