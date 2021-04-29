@@ -1,7 +1,5 @@
 import 'reflect-metadata'
 
-import './tracer'
-
 import '../src/Controller/HealthCheckController'
 import '../src/Controller/RevisionsController'
 import '../src/Controller/SessionController'
