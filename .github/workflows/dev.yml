@@ -94,6 +94,21 @@ jobs:
         cluster: dev
         wait-for-service-stability: true
 
+  newrelic:
+    needs: [ deploy-web, deploy-worker ]
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create New Relic deployment marker
+        uses: newrelic/deployment-marker-action@v1
+        with:
+          accountId: ${{ secrets.NEW_RELIC_ACCOUNT_ID }}
+          apiKey: ${{ secrets.NEW_RELIC_API_KEY }}
+          applicationId: ${{ secrets.NEW_RELIC_APPLICATION_ID_DEV }}
+          revision: "${{ github.ref }}-${{ github.sha }}"
+          description: "Automated Deployment via Github Actions"
+          user: "${{ github.actor }}"
+
   notify_slack:
     needs: [ deploy-web, deploy-worker ]
 
