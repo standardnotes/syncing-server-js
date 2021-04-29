@@ -1,5 +1,7 @@
 import 'reflect-metadata'
 
+import 'newrelic'
+
 import '../src/Controller/HealthCheckController'
 import '../src/Controller/RevisionsController'
 import '../src/Controller/SessionController'
