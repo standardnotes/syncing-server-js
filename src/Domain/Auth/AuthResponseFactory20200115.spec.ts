@@ -2,8 +2,7 @@ import 'reflect-metadata'
 import { Logger } from 'winston'
 
 import { ProjectorInterface } from '../../Projection/ProjectorInterface'
-import { EphemeralSession } from '../Session/EphemeralSession'
-import { Session } from '../Session/Session'
+import { SessionPayload } from '../Session/SessionPayload'
 import { SessionServiceInterace } from '../Session/SessionServiceInterface'
 import { User } from '../User/User'
 import { AuthHttpServiceInterface } from './AuthHttpServiceInterface'
@@ -14,8 +13,7 @@ describe('AuthResponseFactory20200115', () => {
   let authHttpService: AuthHttpServiceInterface
   let userProjector: ProjectorInterface<User>
   let user: User
-  let session: Session
-  let ephemeralSession: EphemeralSession
+  let sessionPayload: SessionPayload
   let logger: Logger
 
   const createFactory = () => new AuthResponseFactory20200115(
@@ -30,19 +28,16 @@ describe('AuthResponseFactory20200115', () => {
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
 
-    session = {} as jest.Mocked<Session>
-
-    ephemeralSession = {} as jest.Mocked<EphemeralSession>
-
-    sessionService = {} as jest.Mocked<SessionServiceInterace>
-    sessionService.createNewSessionForUser = jest.fn().mockReturnValue(session)
-    sessionService.createNewEphemeralSessionForUser = jest.fn().mockReturnValue(ephemeralSession)
-    sessionService.createTokens = jest.fn().mockReturnValue({
+    sessionPayload = {
       access_token: 'access_token',
       refresh_token: 'refresh_token',
       access_expiration: 123,
       refresh_expiration: 234,
-    })
+    }
+
+    sessionService = {} as jest.Mocked<SessionServiceInterace>
+    sessionService.createNewSessionForUser = jest.fn().mockReturnValue(sessionPayload)
+    sessionService.createNewEphemeralSessionForUser = jest.fn().mockReturnValue(sessionPayload)
 
     authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
     authHttpService.getUserKeyParams = jest.fn().mockReturnValue({

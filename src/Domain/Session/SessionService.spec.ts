@@ -98,8 +98,8 @@ describe('SessionService', () => {
     })
   })
 
-  it('should create access and refresh tokens for a session', async () => {
-    expect(await createService().createTokens(session)).toEqual({
+  it('should refresh access and refresh tokens for a session', async () => {
+    expect(await createService().refreshTokens(session)).toEqual({
       access_expiration: 123,
       access_token: expect.any(String),
       refresh_token: expect.any(String),
@@ -114,20 +114,56 @@ describe('SessionService', () => {
     const user = {} as jest.Mocked<User>
     user.uuid = '123'
 
-    const createdSession = await createService().createNewSessionForUser(user, '003', 'Google Chrome')
+    const sessionPayload = await createService().createNewSessionForUser(user, '003', 'Google Chrome')
 
-    expect(createdSession).toEqual(session)
+    expect(sessionRepository.save).toHaveBeenCalledWith(expect.any(Session))
+    expect(sessionRepository.save).toHaveBeenCalledWith({
+      accessExpiration: expect.any(Date),
+      apiVersion: '003',
+      createdAt: expect.any(Date),
+      hashedAccessToken: expect.any(String),
+      hashedRefreshToken: expect.any(String),
+      refreshExpiration: expect.any(Date),
+      updatedAt: expect.any(Date),
+      userAgent: 'Google Chrome',
+      userUuid: '123',
+      uuid: expect.any(String),
+    })
+
+    expect(sessionPayload).toEqual({
+      access_expiration: 123,
+      access_token: expect.any(String),
+      refresh_expiration: 123,
+      refresh_token: expect.any(String),
+    })
   })
 
   it('should create new ephemeral session for a user', async () => {
     const user = {} as jest.Mocked<User>
     user.uuid = '123'
 
-    const createdSession = await createService().createNewEphemeralSessionForUser(user, '003', 'Google Chrome')
+    const sessionPayload = await createService().createNewEphemeralSessionForUser(user, '003', 'Google Chrome')
 
-    expect(createdSession).toBeInstanceOf(EphemeralSession)
-    expect(createdSession.userUuid).toEqual(user.uuid)
-    expect(createdSession.userAgent).toEqual('Google Chrome')
+    expect(ephemeralSessionRepository.save).toHaveBeenCalledWith(expect.any(EphemeralSession))
+    expect(ephemeralSessionRepository.save).toHaveBeenCalledWith({
+      accessExpiration: expect.any(Date),
+      apiVersion: '003',
+      createdAt: expect.any(Date),
+      hashedAccessToken: expect.any(String),
+      hashedRefreshToken: expect.any(String),
+      refreshExpiration: expect.any(Date),
+      updatedAt: expect.any(Date),
+      userAgent: 'Google Chrome',
+      userUuid: '123',
+      uuid: expect.any(String),
+    })
+
+    expect(sessionPayload).toEqual({
+      access_expiration: 123,
+      access_token: expect.any(String),
+      refresh_expiration: 123,
+      refresh_token: expect.any(String),
+    })
   })
 
   it('should delete a session by token', async () => {

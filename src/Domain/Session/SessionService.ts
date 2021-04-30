@@ -34,46 +34,42 @@ export class SessionService implements SessionServiceInterace {
   ) {
   }
 
-  async createNewSessionForUser(user: User, apiVersion: string, userAgent: string): Promise<Session> {
+  async createNewSessionForUser(user: User, apiVersion: string, userAgent: string): Promise<SessionPayload> {
     const session = this.createSession(user, apiVersion, userAgent, false)
 
-    return this.sessionRepository.save(session)
+    const sessionPayload = await this.createTokens(session)
+
+    await this.sessionRepository.save(session)
+
+    return sessionPayload
   }
 
-  async createNewEphemeralSessionForUser(user: User, apiVersion: string, userAgent: string): Promise<EphemeralSession> {
+  async createNewEphemeralSessionForUser(user: User, apiVersion: string, userAgent: string): Promise<SessionPayload> {
     const ephemeralSession = this.createSession(user, apiVersion, userAgent, true)
+
+    const sessionPayload = await this.createTokens(ephemeralSession)
 
     await this.ephemeralSessionRepository.save(ephemeralSession)
 
-    return ephemeralSession
+    return sessionPayload
   }
 
-  async createTokens(session: Session): Promise<SessionPayload> {
-    const accessToken = cryptoRandomString({ length: 16, type: 'url-safe' })
-    const refreshToken = cryptoRandomString({ length: 16, type: 'url-safe' })
+  async refreshTokens(session: Session): Promise<SessionPayload> {
+    const sessionPayload = await this.createTokens(session)
 
-    const hashedAccessToken = crypto.createHash('sha256').update(accessToken).digest('hex')
-    const hashedRefreshToken = crypto.createHash('sha256').update(refreshToken).digest('hex')
-    await this.sessionRepository.updateHashedTokens(session.uuid, hashedAccessToken, hashedRefreshToken)
+    await this.sessionRepository.updateHashedTokens(session.uuid, session.hashedAccessToken, session.hashedRefreshToken)
 
-    const accessTokenExpiration = dayjs.utc().add(this.accessTokenAge, 'second').toDate()
-    const refreshTokenExpiration = dayjs.utc().add(this.refreshTokenAge, 'second').toDate()
-    await this.sessionRepository.updatedTokenExpirationDates(session.uuid, accessTokenExpiration, refreshTokenExpiration)
+    await this.sessionRepository.updatedTokenExpirationDates(session.uuid, session.accessExpiration, session.refreshExpiration)
 
     await this.ephemeralSessionRepository.updateTokensAndExpirationDates(
       session.uuid,
-      hashedAccessToken,
-      hashedRefreshToken,
-      accessTokenExpiration,
-      refreshTokenExpiration
+      session.hashedAccessToken,
+      session.hashedRefreshToken,
+      session.accessExpiration,
+      session.refreshExpiration
     )
 
-    return {
-      access_token: `${SessionService.SESSION_TOKEN_VERSION}:${session.uuid}:${accessToken}`,
-      refresh_token: `${SessionService.SESSION_TOKEN_VERSION}:${session.uuid}:${refreshToken}`,
-      access_expiration: this.timer.convertStringDateToMilliseconds(accessTokenExpiration.toString()),
-      refresh_expiration: this.timer.convertStringDateToMilliseconds(refreshTokenExpiration.toString()),
-    }
+    return sessionPayload
   }
 
   isRefreshTokenValid(session: Session, token: string): boolean {
@@ -207,5 +203,27 @@ export class SessionService implements SessionServiceInterace {
     }
 
     return session
+  }
+
+  private async createTokens(session: Session): Promise<SessionPayload> {
+    const accessToken = cryptoRandomString({ length: 16, type: 'url-safe' })
+    const refreshToken = cryptoRandomString({ length: 16, type: 'url-safe' })
+
+    const hashedAccessToken = crypto.createHash('sha256').update(accessToken).digest('hex')
+    const hashedRefreshToken = crypto.createHash('sha256').update(refreshToken).digest('hex')
+    session.hashedAccessToken = hashedAccessToken
+    session.hashedRefreshToken = hashedRefreshToken
+
+    const accessTokenExpiration = dayjs.utc().add(this.accessTokenAge, 'second').toDate()
+    const refreshTokenExpiration = dayjs.utc().add(this.refreshTokenAge, 'second').toDate()
+    session.accessExpiration = accessTokenExpiration
+    session.refreshExpiration = refreshTokenExpiration
+
+    return {
+      access_token: `${SessionService.SESSION_TOKEN_VERSION}:${session.uuid}:${accessToken}`,
+      refresh_token: `${SessionService.SESSION_TOKEN_VERSION}:${session.uuid}:${refreshToken}`,
+      access_expiration: this.timer.convertStringDateToMilliseconds(accessTokenExpiration.toString()),
+      refresh_expiration: this.timer.convertStringDateToMilliseconds(refreshTokenExpiration.toString()),
+    }
   }
 }
