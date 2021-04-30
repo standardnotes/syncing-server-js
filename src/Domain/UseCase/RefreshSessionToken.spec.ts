@@ -19,7 +19,7 @@ describe('RefreshSessionToken', () => {
     sessionService = {} as jest.Mocked<SessionServiceInterace>
     sessionService.isRefreshTokenValid = jest.fn().mockReturnValue(true)
     sessionService.getSessionFromToken = jest.fn().mockReturnValue(session)
-    sessionService.createTokens = jest.fn().mockReturnValue({
+    sessionService.refreshTokens = jest.fn().mockReturnValue({
       access_token: 'token1',
       refresh_token: 'token2',
       access_expiration: 123,
@@ -33,7 +33,7 @@ describe('RefreshSessionToken', () => {
       refreshToken: '234',
     })
 
-    expect(sessionService.createTokens).toHaveBeenCalledWith(session)
+    expect(sessionService.refreshTokens).toHaveBeenCalledWith(session)
 
     expect(result).toEqual({
       success: true,
