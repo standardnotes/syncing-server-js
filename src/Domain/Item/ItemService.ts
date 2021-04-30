@@ -118,7 +118,7 @@ export class ItemService implements ItemServiceInterface {
           const newItem = await this.saveNewItem(dto.userUuid, itemHash, dto.userAgent)
           savedItems.push(newItem)
         } catch (error) {
-          this.logger.debug(`Item ${itemHash.uuid} should not be saved. Conflict: ${error.message}`)
+          this.logger.error(`Saving item ${itemHash.uuid} failed. Error: ${error.message}`)
 
           conflicts.push({
             unsavedItem: itemHash,
