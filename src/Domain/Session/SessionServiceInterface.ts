@@ -1,13 +1,12 @@
 import { User } from '../User/User'
 import { RevokedSession } from './RevokedSession'
-import { EphemeralSession } from './EphemeralSession'
 import { Session } from './Session'
 import { SessionPayload } from './SessionPayload'
 
 export interface SessionServiceInterace {
-  createNewSessionForUser(user: User, apiVersion: string, userAgent: string): Promise<Session>
-  createNewEphemeralSessionForUser(user: User, apiVersion: string, userAgent: string): Promise<EphemeralSession>
-  createTokens(session: Session): Promise<SessionPayload>
+  createNewSessionForUser(user: User, apiVersion: string, userAgent: string): Promise<SessionPayload>
+  createNewEphemeralSessionForUser(user: User, apiVersion: string, userAgent: string): Promise<SessionPayload>
+  refreshTokens(session: Session): Promise<SessionPayload>
   getSessionFromToken(token: string): Promise<Session | undefined>
   getRevokedSessionFromToken(token: string): Promise<RevokedSession | undefined>
   markRevokedSessionAsReceived(revokedSession: RevokedSession): Promise<RevokedSession>

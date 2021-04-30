@@ -39,7 +39,7 @@ export class RefreshSessionToken {
       }
     }
 
-    const sessionPayload = await this.sessionService.createTokens(session)
+    const sessionPayload = await this.sessionService.refreshTokens(session)
 
     return {
       success: true,
