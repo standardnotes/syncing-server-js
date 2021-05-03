@@ -65,6 +65,8 @@ case "$COMMAND" in
     checkForConfigFileChanges
     echo "Downloading latest images of Standard Notes services."
     docker-compose pull
+    echo "Building latest image of Syncing Server."
+    docker-compose build
     echo "Images up to date. Starting all services."
     docker-compose up -d
     echo "Infrastructure started. Give it a moment to warm up. If you wish please run the './server.sh logs' command to see details."

@@ -1,5 +1,7 @@
 export interface TimerInterface {
   getTimestampInMicroseconds(): number
+  getUTCDate(): Date
+  convertStringDateToDate(date: string): Date
   convertStringDateToMicroseconds(date: string): number
   convertStringDateToMilliseconds(date: string): number
   convertMicrosecondsToMilliseconds(microseconds: number): number

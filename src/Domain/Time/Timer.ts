@@ -14,6 +14,14 @@ export class Timer implements TimerInterface {
     return dayjs.utc().valueOf() * Time.MicrosecondsInAMillisecond + Math.floor(hrTime[1] / Time.MicrosecondsInAMillisecond)
   }
 
+  getUTCDate(): Date {
+    return dayjs.utc().toDate()
+  }
+
+  convertStringDateToDate(date: string): Date {
+    return dayjs.utc(date).toDate()
+  }
+
   convertStringDateToMicroseconds(date: string): number {
     return this.convertStringDateToMilliseconds(date) * Time.MicrosecondsInAMillisecond
   }

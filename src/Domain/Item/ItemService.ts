@@ -213,6 +213,11 @@ export class ItemService implements ItemServiceInterface {
     }
     existingItem.updatedAtTimestamp = updatedAt
 
+    if (itemHash.created_at) {
+      existingItem.createdAt = this.timer.convertStringDateToDate(itemHash.created_at)
+    }
+    existingItem.updatedAt = this.timer.getUTCDate()
+
     const savedItem = await this.itemRepository.save(existingItem)
 
     if (secondsFromLastUpdate >= this.revisionFrequency) {
@@ -254,12 +259,19 @@ export class ItemService implements ItemServiceInterface {
       newItem.authHash = itemHash.auth_hash
     }
     newItem.lastUserAgent = userAgent ?? null
-    const now = this.timer.getTimestampInMicroseconds()
-    newItem.createdAtTimestamp = now
+    const nowTimestamp = this.timer.getTimestampInMicroseconds()
+    newItem.createdAtTimestamp = nowTimestamp
     if (itemHash.created_at) {
       newItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
     }
-    newItem.updatedAtTimestamp = now
+    newItem.updatedAtTimestamp = nowTimestamp
+
+    const nowDate = this.timer.getUTCDate()
+    newItem.createdAt = nowDate
+    if (itemHash.created_at) {
+      newItem.createdAt = this.timer.convertStringDateToDate(itemHash.created_at)
+    }
+    newItem.updatedAt = nowDate
 
     const savedItem = await this.itemRepository.save(newItem)
 
