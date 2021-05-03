@@ -68,7 +68,7 @@ export class ItemService implements ItemServiceInterface {
     const limit = dto.limit === undefined || dto.limit < 1 ? this.DEFAULT_ITEMS_LIMIT : dto.limit
     if (items.length > limit) {
       items = items.slice(0, limit)
-      const lastSyncTime = (items[items.length - 1].updatedAt) / Time.MicrosecondsInASecond
+      const lastSyncTime = (items[items.length - 1].updatedAtTimestamp) / Time.MicrosecondsInASecond
       cursorToken = Buffer.from(`${this.SYNC_TOKEN_VERSION}:${lastSyncTime}`, 'utf-8').toString('base64')
     }
 
@@ -160,8 +160,8 @@ export class ItemService implements ItemServiceInterface {
 
   private calculateSyncToken(lastUpdatedTimestamp: number, savedItems: Array<Item>): string {
     if (savedItems.length) {
-      const sortedItems = savedItems.sort((itemA: Item, itemB: Item) => itemA.updatedAt > itemB.updatedAt ? 1 : -1)
-      lastUpdatedTimestamp = sortedItems[sortedItems.length - 1].updatedAt
+      const sortedItems = savedItems.sort((itemA: Item, itemB: Item) => itemA.updatedAtTimestamp > itemB.updatedAtTimestamp ? 1 : -1)
+      lastUpdatedTimestamp = sortedItems[sortedItems.length - 1].updatedAtTimestamp
     }
 
     const lastUpdatedTimestampWithMicrosecondPreventingSyncDoubles = lastUpdatedTimestamp + 1
@@ -206,12 +206,12 @@ export class ItemService implements ItemServiceInterface {
     }
 
     const updatedAt = this.timer.getTimestampInMicroseconds()
-    const secondsFromLastUpdate = this.timer.convertMicrosecondsToSeconds(updatedAt - existingItem.updatedAt)
+    const secondsFromLastUpdate = this.timer.convertMicrosecondsToSeconds(updatedAt - existingItem.updatedAtTimestamp)
 
     if (itemHash.created_at) {
-      existingItem.createdAt = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
+      existingItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
     }
-    existingItem.updatedAt = updatedAt
+    existingItem.updatedAtTimestamp = updatedAt
 
     const savedItem = await this.itemRepository.save(existingItem)
 
@@ -255,11 +255,11 @@ export class ItemService implements ItemServiceInterface {
     }
     newItem.lastUserAgent = userAgent ?? null
     const now = this.timer.getTimestampInMicroseconds()
-    newItem.createdAt = now
+    newItem.createdAtTimestamp = now
     if (itemHash.created_at) {
-      newItem.createdAt = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
+      newItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
     }
-    newItem.updatedAt = now
+    newItem.updatedAtTimestamp = now
 
     const savedItem = await this.itemRepository.save(newItem)
 
@@ -291,7 +291,7 @@ export class ItemService implements ItemServiceInterface {
 
     this.logger.debug(`Incoming updated at timestamp for item ${itemHash.uuid}: ${incomingUpdatedAtTimestamp}`)
 
-    const ourUpdatedAtTimestamp = existingItem.updatedAt
+    const ourUpdatedAtTimestamp = existingItem.updatedAtTimestamp
 
     this.logger.debug(`Our updated at timestamp for item ${itemHash.uuid}: ${ourUpdatedAtTimestamp}`)
 

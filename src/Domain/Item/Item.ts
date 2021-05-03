@@ -81,12 +81,12 @@ export class Item {
     name: 'created_at_timestamp',
     type: 'bigint',
   })
-  createdAt: number
+  createdAtTimestamp: number
 
   @Column({
     name: 'updated_at_timestamp',
     type: 'bigint',
   })
   @Index('updated_at_timestamp')
-  updatedAt: number
+  updatedAtTimestamp: number
 }

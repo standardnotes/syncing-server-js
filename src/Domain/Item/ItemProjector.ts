@@ -31,8 +31,8 @@ export class ItemProjector implements ProjectorInterface<Item> {
       content_type: item.contentType,
       auth_hash: item.authHash,
       deleted: !!item.deleted,
-      created_at: this.timer.convertMicrosecondsToStringDate(item.createdAt),
-      updated_at: this.timer.convertMicrosecondsToStringDate(item.updatedAt),
+      created_at: this.timer.convertMicrosecondsToStringDate(item.createdAtTimestamp),
+      updated_at: this.timer.convertMicrosecondsToStringDate(item.updatedAtTimestamp),
     }
   }
 }
