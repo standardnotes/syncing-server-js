@@ -45,14 +45,18 @@ describe('ItemService', () => {
     item1 = {
       uuid: '1-2-3',
       userUuid: '1-2-3',
-      createdAt: 1616164633241311,
-      updatedAt: 1616164633241311,
+      createdAt: new Date(1616164633241311),
+      createdAtTimestamp: 1616164633241311,
+      updatedAt: new Date(1616164633241311),
+      updatedAtTimestamp: 1616164633241311,
     } as jest.Mocked<Item>
     item2 = {
       uuid: '2-3-4',
       userUuid: '1-2-3',
-      createdAt: 1616164633241312,
-      updatedAt: 1616164633241312,
+      createdAt: new Date(1616164633241312),
+      createdAtTimestamp: 1616164633241312,
+      updatedAt: new Date(1616164633241312),
+      updatedAtTimestamp: 1616164633241312,
     } as jest.Mocked<Item>
 
     itemHash1 = {
@@ -62,8 +66,8 @@ describe('ItemService', () => {
       duplicate_of: null,
       enc_item_key: 'qweqwe1',
       items_key_id: 'asdasd1',
-      created_at: dayjs.utc(Math.floor(item1.createdAt / Time.MicrosecondsInAMillisecond)).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-      updated_at: dayjs.utc(Math.floor(item1.updatedAt / Time.MicrosecondsInAMillisecond) + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      created_at: dayjs.utc(Math.floor(item1.createdAtTimestamp / Time.MicrosecondsInAMillisecond)).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      updated_at: dayjs.utc(Math.floor(item1.updatedAtTimestamp / Time.MicrosecondsInAMillisecond) + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
     } as jest.Mocked<ItemHash>
 
     itemHash2 = {
@@ -73,8 +77,8 @@ describe('ItemService', () => {
       duplicate_of: null,
       enc_item_key: 'qweqwe2',
       items_key_id: 'asdasd2',
-      created_at: dayjs.utc(Math.floor(item2.createdAt / Time.MicrosecondsInAMillisecond)).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-      updated_at: dayjs.utc(Math.floor(item2.updatedAt / Time.MicrosecondsInAMillisecond) + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      created_at: dayjs.utc(Math.floor(item2.createdAtTimestamp / Time.MicrosecondsInAMillisecond)).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      updated_at: dayjs.utc(Math.floor(item2.updatedAtTimestamp / Time.MicrosecondsInAMillisecond) + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
     } as jest.Mocked<ItemHash>
 
     emptyHash = {
@@ -90,6 +94,8 @@ describe('ItemService', () => {
 
     timer = {} as jest.Mocked<TimerInterface>
     timer.getTimestampInMicroseconds = jest.fn().mockReturnValue(1616164633241568)
+    timer.getUTCDate = jest.fn().mockReturnValue(new Date())
+    timer.convertStringDateToDate = jest.fn().mockImplementation((date: string) => dayjs.utc(date).toDate())
     timer.convertMicrosecondsToSeconds = jest.fn().mockReturnValue(600)
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockImplementation((date: string) => dayjs.utc(date).valueOf() * 1000)
@@ -321,11 +327,13 @@ describe('ItemService', () => {
         {
           content: 'asdqwe1',
           contentType: 'Note',
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           lastUserAgent: 'Brave',
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           userUuid: '1-2-3',
           uuid: '1-2-3',
         },
@@ -349,9 +357,11 @@ describe('ItemService', () => {
       conflicts: [],
       savedItems: [
         {
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           lastUserAgent: 'Brave',
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           userUuid: '1-2-3',
           uuid: '2-3-4',
         },
@@ -378,12 +388,14 @@ describe('ItemService', () => {
         {
           content: 'asdqwe1',
           contentType: 'Note',
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           lastUserAgent: 'Brave',
           duplicateOf: '1-2-3',
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           userUuid: '1-2-3',
           uuid: '1-2-3',
         },
@@ -410,11 +422,13 @@ describe('ItemService', () => {
         {
           content: 'asdqwe1',
           contentType: 'Note',
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           lastUserAgent: null,
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           userUuid: '1-2-3',
           uuid: '1-2-3',
         },
@@ -439,12 +453,14 @@ describe('ItemService', () => {
         {
           content: 'asdqwe1',
           contentType: 'Note',
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           lastUserAgent: 'Brave',
           authHash: 'test',
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           userUuid: '1-2-3',
           uuid: '1-2-3',
         },
@@ -469,12 +485,14 @@ describe('ItemService', () => {
         {
           content: 'asdqwe1',
           contentType: 'Note',
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           lastUserAgent: 'Brave',
           deleted: true,
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           userUuid: '1-2-3',
           uuid: '1-2-3',
         },
@@ -532,12 +550,14 @@ describe('ItemService', () => {
         {
           content: 'asdqwe1',
           contentType: 'Note',
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           lastUserAgent: 'Brave',
           userUuid: '1-2-3',
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           uuid: '1-2-3',
         },
       ],
@@ -547,7 +567,7 @@ describe('ItemService', () => {
 
   it('should update existing empty hashes', async () => {
     itemRepository.findByUuid = jest.fn().mockReturnValue(item2)
-    emptyHash.updated_at = dayjs.utc(Math.floor(item2.updatedAt / Time.MicrosecondsInAMillisecond) + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+    emptyHash.updated_at = dayjs.utc(Math.floor(item2.updatedAtTimestamp / Time.MicrosecondsInAMillisecond) + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
 
     const result = await createService().saveItems({
       itemHashes: [ emptyHash ],
@@ -559,10 +579,12 @@ describe('ItemService', () => {
       conflicts: [],
       savedItems: [
         {
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           lastUserAgent: 'Brave',
           userUuid: '1-2-3',
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           uuid: '2-3-4',
         },
       ],
@@ -608,12 +630,14 @@ describe('ItemService', () => {
         {
           content: 'asdqwe1',
           contentType: 'Note',
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           lastUserAgent: 'Brave',
           userUuid: '1-2-3',
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           uuid: '1-2-3',
         },
       ],
@@ -635,12 +659,14 @@ describe('ItemService', () => {
         {
           content: 'asdqwe1',
           contentType: 'Note',
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           lastUserAgent: null,
           userUuid: '1-2-3',
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           uuid: '1-2-3',
         },
       ],
@@ -665,13 +691,15 @@ describe('ItemService', () => {
         {
           content: 'asdqwe1',
           contentType: 'Note',
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           authHash: 'test',
           lastUserAgent: 'Brave',
           userUuid: '1-2-3',
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           uuid: '1-2-3',
         },
       ],
@@ -696,13 +724,15 @@ describe('ItemService', () => {
           content: null,
           authHash: null,
           contentType: 'Note',
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           encItemKey: null,
           deleted: true,
           itemsKeyId: 'asdasd1',
           lastUserAgent: 'Brave',
           userUuid: '1-2-3',
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           uuid: '1-2-3',
         },
       ],
@@ -726,13 +756,15 @@ describe('ItemService', () => {
         {
           content: 'asdqwe1',
           contentType: 'Note',
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           duplicateOf: '1-2-3',
           itemsKeyId: 'asdasd1',
           lastUserAgent: 'Brave',
           userUuid: '1-2-3',
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           uuid: '1-2-3',
         },
       ],
@@ -749,7 +781,7 @@ describe('ItemService', () => {
 
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1_000)
-      .mockReturnValueOnce(item2.updatedAt + 2_000)
+      .mockReturnValueOnce(item2.updatedAtTimestamp + 2_000)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1, itemHash2 ],
@@ -769,12 +801,14 @@ describe('ItemService', () => {
         {
           content: 'asdqwe1',
           contentType: 'Note',
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           lastUserAgent: 'Brave',
           userUuid: '1-2-3',
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           uuid: '1-2-3',
         },
       ],
@@ -789,7 +823,7 @@ describe('ItemService', () => {
 
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockReturnValueOnce(dayjs.utc(itemHash1.updated_at).valueOf() * 1_000)
-      .mockReturnValueOnce(item2.updatedAt + 2_000_000)
+      .mockReturnValueOnce(item2.updatedAtTimestamp + 2_000_000)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1, itemHash2 ],
@@ -809,12 +843,14 @@ describe('ItemService', () => {
         {
           content: 'asdqwe1',
           contentType: 'Note',
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           lastUserAgent: 'Brave',
           userUuid: '1-2-3',
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           uuid: '1-2-3',
         },
       ],
@@ -848,12 +884,14 @@ describe('ItemService', () => {
         {
           content: 'asdqwe1',
           contentType: 'Note',
-          createdAt: expect.any(Number),
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           lastUserAgent: 'Brave',
           userUuid: '1-2-3',
-          updatedAt: expect.any(Number),
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
           uuid: '1-2-3',
         },
       ],

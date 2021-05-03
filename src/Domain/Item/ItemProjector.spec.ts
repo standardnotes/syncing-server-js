@@ -23,8 +23,8 @@ describe('ItemProjector', () => {
     item.contentType = 'Note'
     item.authHash = 'asd'
     item.deleted = false
-    item.createdAt = 123
-    item.updatedAt = 123
+    item.createdAtTimestamp = 123
+    item.updatedAtTimestamp = 123
   })
 
   it('should create a full projection of an item', () => {
