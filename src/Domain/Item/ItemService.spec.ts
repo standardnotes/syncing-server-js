@@ -344,6 +344,42 @@ describe('ItemService', () => {
     expect(revisionService.createRevision).toHaveBeenCalledTimes(1)
   })
 
+  it('should save new items with created_at_timestamp', async () => {
+    itemHash1.created_at_timestamp = 123
+    const mockedDate = new Date(123)
+
+    timer.convertMicrosecondsToDate = jest.fn().mockReturnValue(mockedDate)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+
+    const result = await createService().saveItems({
+      itemHashes: [ itemHash1 ],
+      userAgent: 'Brave',
+      userUuid: '1-2-3',
+    })
+
+    expect(result).toEqual({
+      conflicts: [],
+      savedItems: [
+        {
+          content: 'asdqwe1',
+          contentType: 'Note',
+          createdAtTimestamp: 123,
+          createdAt: mockedDate,
+          encItemKey: 'qweqwe1',
+          itemsKeyId: 'asdasd1',
+          lastUserAgent: 'Brave',
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
+          userUuid: '1-2-3',
+          uuid: '1-2-3',
+        },
+      ],
+      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
+    })
+
+    expect(revisionService.createRevision).toHaveBeenCalledTimes(1)
+  })
+
   it('should save empty hashes', async () => {
     itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
 
@@ -552,6 +588,40 @@ describe('ItemService', () => {
           contentType: 'Note',
           createdAtTimestamp: expect.any(Number),
           createdAt: expect.any(Date),
+          encItemKey: 'qweqwe1',
+          itemsKeyId: 'asdasd1',
+          lastUserAgent: 'Brave',
+          userUuid: '1-2-3',
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
+          uuid: '1-2-3',
+        },
+      ],
+      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
+    })
+  })
+
+  it('should update existing items with created_at_timestamp', async () => {
+    itemHash1.created_at_timestamp = 123
+    itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
+    const mockedDate = new Date(123)
+
+    timer.convertMicrosecondsToDate = jest.fn().mockReturnValue(mockedDate)
+
+    const result = await createService().saveItems({
+      itemHashes: [ itemHash1 ],
+      userAgent: 'Brave',
+      userUuid: '1-2-3',
+    })
+
+    expect(result).toEqual({
+      conflicts: [],
+      savedItems: [
+        {
+          content: 'asdqwe1',
+          contentType: 'Note',
+          createdAtTimestamp: 123,
+          createdAt: mockedDate,
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           lastUserAgent: 'Brave',
