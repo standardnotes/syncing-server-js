@@ -8,5 +8,7 @@ export type ItemHash = {
   enc_item_key?: string
   items_key_id?: string
   created_at?: string
+  created_at_timestamp?: number
   updated_at?: string
+  updated_at_timestamp?: number
 }

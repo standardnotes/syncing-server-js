@@ -35,6 +35,10 @@ describe('Timer', () => {
     expect(date).toEqual(new Date(1617012825000))
   })
 
+  it('should convert microseconds to date', () => {
+    expect(createTimer().convertMicrosecondsToDate(1617004805233123)).toEqual(new Date('2021-03-29T08:00:05.233123Z'))
+  })
+
   it('should convert microseconds to milliseconds', () => {
     expect(createTimer().convertMicrosecondsToMilliseconds(1616164633241312)).toEqual(1616164633241)
   })

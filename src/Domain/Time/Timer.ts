@@ -41,4 +41,10 @@ export class Timer implements TimerInterface {
 
     return dayjs.utc(milliseconds).format(`YYYY-MM-DDTHH:mm:ss.SSS${microsecondsString}[Z]`)
   }
+
+  convertMicrosecondsToDate(microseconds: number): Date {
+    return this.convertStringDateToDate(
+      this.convertMicrosecondsToStringDate(microseconds)
+    )
+  }
 }

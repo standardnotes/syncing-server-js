@@ -208,12 +208,16 @@ export class ItemService implements ItemServiceInterface {
     const updatedAt = this.timer.getTimestampInMicroseconds()
     const secondsFromLastUpdate = this.timer.convertMicrosecondsToSeconds(updatedAt - existingItem.updatedAtTimestamp)
 
-    if (itemHash.created_at) {
+    if (itemHash.created_at_timestamp) {
+      existingItem.createdAtTimestamp = itemHash.created_at_timestamp
+    } else if (itemHash.created_at) {
       existingItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
     }
     existingItem.updatedAtTimestamp = updatedAt
 
-    if (itemHash.created_at) {
+    if (itemHash.created_at_timestamp) {
+      existingItem.createdAt = this.timer.convertMicrosecondsToDate(itemHash.created_at_timestamp)
+    } else if (itemHash.created_at) {
       existingItem.createdAt = this.timer.convertStringDateToDate(itemHash.created_at)
     }
     existingItem.updatedAt = this.timer.getUTCDate()
@@ -261,14 +265,18 @@ export class ItemService implements ItemServiceInterface {
     newItem.lastUserAgent = userAgent ?? null
     const nowTimestamp = this.timer.getTimestampInMicroseconds()
     newItem.createdAtTimestamp = nowTimestamp
-    if (itemHash.created_at) {
+    if (itemHash.created_at_timestamp) {
+      newItem.createdAtTimestamp = itemHash.created_at_timestamp
+    } else if (itemHash.created_at) {
       newItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
     }
     newItem.updatedAtTimestamp = nowTimestamp
 
     const nowDate = this.timer.getUTCDate()
     newItem.createdAt = nowDate
-    if (itemHash.created_at) {
+    if (itemHash.created_at_timestamp) {
+      newItem.createdAt = this.timer.convertMicrosecondsToDate(itemHash.created_at_timestamp)
+    } else if (itemHash.created_at) {
       newItem.createdAt = this.timer.convertStringDateToDate(itemHash.created_at)
     }
     newItem.updatedAt = nowDate
@@ -297,7 +305,8 @@ export class ItemService implements ItemServiceInterface {
       return true
     }
 
-    const incomingUpdatedAtTimestamp = itemHash.updated_at ?
+    let incomingUpdatedAtTimestamp = itemHash.updated_at_timestamp
+    incomingUpdatedAtTimestamp = incomingUpdatedAtTimestamp === undefined && itemHash.updated_at !== undefined ?
       this.timer.convertStringDateToMicroseconds(itemHash.updated_at) :
       this.timer.convertStringDateToMicroseconds(new Date(0).toString())
 
