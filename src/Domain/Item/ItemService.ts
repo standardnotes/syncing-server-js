@@ -306,9 +306,10 @@ export class ItemService implements ItemServiceInterface {
     }
 
     let incomingUpdatedAtTimestamp = itemHash.updated_at_timestamp
-    incomingUpdatedAtTimestamp = incomingUpdatedAtTimestamp === undefined && itemHash.updated_at !== undefined ?
-      this.timer.convertStringDateToMicroseconds(itemHash.updated_at) :
-      this.timer.convertStringDateToMicroseconds(new Date(0).toString())
+    if (incomingUpdatedAtTimestamp === undefined) {
+      incomingUpdatedAtTimestamp = itemHash.updated_at !== undefined ? this.timer.convertStringDateToMicroseconds(itemHash.updated_at) :
+        this.timer.convertStringDateToMicroseconds(new Date(0).toString())
+    }
 
     this.logger.debug(`Incoming updated at timestamp for item ${itemHash.uuid}: ${incomingUpdatedAtTimestamp}`)
 

@@ -346,6 +346,7 @@ describe('ItemService', () => {
 
   it('should save new items with created_at_timestamp', async () => {
     itemHash1.created_at_timestamp = 123
+    itemHash1.updated_at_timestamp = item1.updatedAtTimestamp
     const mockedDate = new Date(123)
 
     timer.convertMicrosecondsToDate = jest.fn().mockReturnValue(mockedDate)
@@ -603,6 +604,7 @@ describe('ItemService', () => {
 
   it('should update existing items with created_at_timestamp', async () => {
     itemHash1.created_at_timestamp = 123
+    itemHash1.updated_at_timestamp = item1.updatedAtTimestamp
     itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
     const mockedDate = new Date(123)
 
