@@ -210,17 +210,14 @@ export class ItemService implements ItemServiceInterface {
 
     if (itemHash.created_at_timestamp) {
       existingItem.createdAtTimestamp = itemHash.created_at_timestamp
-    } else if (itemHash.created_at) {
-      existingItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
-    }
-    existingItem.updatedAtTimestamp = updatedAt
-
-    if (itemHash.created_at_timestamp) {
       existingItem.createdAt = this.timer.convertMicrosecondsToDate(itemHash.created_at_timestamp)
     } else if (itemHash.created_at) {
+      existingItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
       existingItem.createdAt = this.timer.convertStringDateToDate(itemHash.created_at)
     }
-    existingItem.updatedAt = this.timer.getUTCDate()
+
+    existingItem.updatedAtTimestamp = updatedAt
+    existingItem.updatedAt = this.timer.convertMicrosecondsToDate(updatedAt)
 
     const savedItem = await this.itemRepository.save(existingItem)
 
@@ -263,22 +260,19 @@ export class ItemService implements ItemServiceInterface {
       newItem.authHash = itemHash.auth_hash
     }
     newItem.lastUserAgent = userAgent ?? null
-    const nowTimestamp = this.timer.getTimestampInMicroseconds()
-    newItem.createdAtTimestamp = nowTimestamp
+    const now = this.timer.getTimestampInMicroseconds()
+    newItem.createdAtTimestamp = now
     if (itemHash.created_at_timestamp) {
       newItem.createdAtTimestamp = itemHash.created_at_timestamp
-    } else if (itemHash.created_at) {
-      newItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
-    }
-    newItem.updatedAtTimestamp = nowTimestamp
-
-    const nowDate = this.timer.getUTCDate()
-    newItem.createdAt = nowDate
-    if (itemHash.created_at_timestamp) {
       newItem.createdAt = this.timer.convertMicrosecondsToDate(itemHash.created_at_timestamp)
     } else if (itemHash.created_at) {
+      newItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
       newItem.createdAt = this.timer.convertStringDateToDate(itemHash.created_at)
     }
+    newItem.updatedAtTimestamp = now
+
+    const nowDate = this.timer.convertMicrosecondsToDate(now)
+    newItem.createdAt = nowDate
     newItem.updatedAt = nowDate
 
     const savedItem = await this.itemRepository.save(newItem)
