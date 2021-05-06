@@ -99,6 +99,9 @@ describe('ItemService', () => {
     timer.convertMicrosecondsToSeconds = jest.fn().mockReturnValue(600)
     timer.convertStringDateToMicroseconds = jest.fn()
       .mockImplementation((date: string) => dayjs.utc(date).valueOf() * 1000)
+    timer.convertMicrosecondsToDate = jest.fn().mockImplementation((microseconds: number) => {
+      return dayjs.utc(Math.floor(microseconds / Time.MicrosecondsInAMillisecond)).toDate()
+    })
 
     domainEventPublisher = {} as jest.Mocked<DomainEventPublisherInterface>
     domainEventPublisher.publish = jest.fn()
@@ -347,9 +350,6 @@ describe('ItemService', () => {
   it('should save new items with created_at_timestamp', async () => {
     itemHash1.created_at_timestamp = 123
     itemHash1.updated_at_timestamp = item1.updatedAtTimestamp
-    const mockedDate = new Date(123)
-
-    timer.convertMicrosecondsToDate = jest.fn().mockReturnValue(mockedDate)
     itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
 
     const result = await createService().saveItems({
@@ -365,7 +365,7 @@ describe('ItemService', () => {
           content: 'asdqwe1',
           contentType: 'Note',
           createdAtTimestamp: 123,
-          createdAt: mockedDate,
+          createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           lastUserAgent: 'Brave',
@@ -606,9 +606,6 @@ describe('ItemService', () => {
     itemHash1.created_at_timestamp = 123
     itemHash1.updated_at_timestamp = item1.updatedAtTimestamp
     itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
-    const mockedDate = new Date(123)
-
-    timer.convertMicrosecondsToDate = jest.fn().mockReturnValue(mockedDate)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
@@ -623,7 +620,7 @@ describe('ItemService', () => {
           content: 'asdqwe1',
           contentType: 'Note',
           createdAtTimestamp: 123,
-          createdAt: mockedDate,
+          createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           lastUserAgent: 'Brave',
