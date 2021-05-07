@@ -103,6 +103,7 @@ export class ContainerConfigLoader {
     const connection: Connection = await createConnection({
       type: 'mysql',
       supportBigNumbers: true,
+      bigNumberStrings: false,
       replication: {
         master: {
           host: env.get('DB_HOST'),
