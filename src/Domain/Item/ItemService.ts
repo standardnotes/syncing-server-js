@@ -260,8 +260,16 @@ export class ItemService implements ItemServiceInterface {
       newItem.authHash = itemHash.auth_hash
     }
     newItem.lastUserAgent = userAgent ?? null
+
     const now = this.timer.getTimestampInMicroseconds()
+    const nowDate = this.timer.convertMicrosecondsToDate(now)
+
+    newItem.updatedAtTimestamp = now
+    newItem.updatedAt = nowDate
+
     newItem.createdAtTimestamp = now
+    newItem.createdAt = nowDate
+
     if (itemHash.created_at_timestamp) {
       newItem.createdAtTimestamp = itemHash.created_at_timestamp
       newItem.createdAt = this.timer.convertMicrosecondsToDate(itemHash.created_at_timestamp)
@@ -269,11 +277,6 @@ export class ItemService implements ItemServiceInterface {
       newItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
       newItem.createdAt = this.timer.convertStringDateToDate(itemHash.created_at)
     }
-    newItem.updatedAtTimestamp = now
-
-    const nowDate = this.timer.convertMicrosecondsToDate(now)
-    newItem.createdAt = nowDate
-    newItem.updatedAt = nowDate
 
     const savedItem = await this.itemRepository.save(newItem)
 
