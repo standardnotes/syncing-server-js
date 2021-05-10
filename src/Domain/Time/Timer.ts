@@ -1,8 +1,8 @@
 import * as dayjs from 'dayjs'
+import * as microtime from 'microtime'
 import { injectable } from 'inversify'
 import { Time } from './Time'
 import { TimerInterface } from './TimerInterface'
-import microtime = require('microtime')
 
 @injectable()
 export class Timer implements TimerInterface {
