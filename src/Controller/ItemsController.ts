@@ -1,7 +1,10 @@
 import { Request, Response } from 'express'
 import { inject } from 'inversify'
 import { BaseHttpController, controller, httpPost, results } from 'inversify-express-utils'
+import { Logger } from 'winston'
 import TYPES from '../Bootstrap/Types'
+import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
+import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
 import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
 
@@ -9,7 +12,10 @@ import { SyncItems } from '../Domain/UseCase/SyncItems'
 export class ItemsController extends BaseHttpController {
   constructor(
     @inject(TYPES.SyncItems) private syncItems: SyncItems,
-    @inject(TYPES.PostToRealtimeExtensions) private postToRealtimeExtensions: PostToRealtimeExtensions
+    @inject(TYPES.SyncResponseFactoryResolver) private syncResponseFactoryResolver: SyncResponseFactoryResolverInterface,
+    @inject(TYPES.PostToRealtimeExtensions) private postToRealtimeExtensions: PostToRealtimeExtensions,
+    @inject(TYPES.PostToDailyExtensions) private postToDailyExtensions: PostToDailyExtensions,
+    @inject(TYPES.Logger) private logger: Logger
   ) {
     super()
   }
@@ -28,11 +34,25 @@ export class ItemsController extends BaseHttpController {
       apiVersion: request.body.api,
     })
 
-    await this.postToRealtimeExtensions.execute({
-      userUuid: response.locals.user.uuid,
-      itemHashes: request.body.items,
-    })
+    try {
+      await this.postToRealtimeExtensions.execute({
+        userUuid: response.locals.user.uuid,
+        itemHashes: request.body.items,
+      })
 
-    return this.json(syncResult)
+      await this.postToDailyExtensions.execute({
+        userUuid: response.locals.user.uuid,
+        items: syncResult.savedItems,
+      })
+
+    } catch (error) {
+      this.logger.error(`Failed posting items to extensions after sync: ${error.message}`)
+    }
+
+    const syncResponse = this.syncResponseFactoryResolver
+      .resolveSyncResponseFactoryVersion(request.body.api)
+      .createResponse(syncResult)
+
+    return this.json(syncResponse)
   }
 }

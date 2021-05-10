@@ -9,6 +9,11 @@ import { SyncItems } from '../Domain/UseCase/SyncItems'
 import { ApiVersion } from '../Domain/Api/ApiVersion'
 import { ContentType } from '../Domain/Item/ContentType'
 import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
+import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
+import { SyncResponseFactoryInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryInterface'
+import { SyncResponse20200115 } from '../Domain/Item/SyncResponse/SyncResponse20200115'
+import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
+import { Logger } from 'winston'
 
 describe('ItemsController', () => {
   let syncItems: SyncItems
@@ -16,15 +21,26 @@ describe('ItemsController', () => {
   let request: express.Request
   let response: express.Response
   let user: User
+  let syncResponceFactoryResolver: SyncResponseFactoryResolverInterface
+  let syncResponseFactory: SyncResponseFactoryInterface
+  let syncResponse: SyncResponse20200115
+  let postToDailyExtensions: PostToDailyExtensions
+  let logger: Logger
 
-  const createController = () => new ItemsController(syncItems, postToRealtimeExtensions)
+  const createController = () => new ItemsController(syncItems, syncResponceFactoryResolver, postToRealtimeExtensions, postToDailyExtensions, logger)
 
   beforeEach(() => {
     syncItems = {} as jest.Mocked<SyncItems>
-    syncItems.execute = jest.fn()
+    syncItems.execute = jest.fn().mockReturnValue({ foo: 'bar' })
 
     postToRealtimeExtensions = {} as jest.Mocked<PostToRealtimeExtensions>
     postToRealtimeExtensions.execute = jest.fn()
+
+    postToDailyExtensions = {} as jest.Mocked<PostToDailyExtensions>
+    postToDailyExtensions.execute = jest.fn()
+
+    logger = {} as jest.Mocked<Logger>
+    logger.error = jest.fn()
 
     user = {} as jest.Mocked<User>
     user.uuid = '123'
@@ -35,12 +51,6 @@ describe('ItemsController', () => {
       params: {},
     } as jest.Mocked<express.Request>
 
-    response = {
-      locals: {},
-    } as jest.Mocked<express.Response>
-  })
-
-  it('should sync items', async () => {
     request.body.api = ApiVersion.v20200115
     request.body.sync_token = 'MjoxNjE3MTk1MzQyLjc1ODEyMTc='
     request.body.limit = 150
@@ -60,10 +70,23 @@ describe('ItemsController', () => {
       },
     ]
 
+    response = {
+      locals: {},
+    } as jest.Mocked<express.Response>
     response.locals.user = user
 
-    syncItems.execute = jest.fn().mockReturnValue({ foo: 'bar' })
+    syncResponse = {
+      integrity_hash: '123',
+    } as jest.Mocked<SyncResponse20200115>
 
+    syncResponseFactory = {} as jest.Mocked<SyncResponseFactoryInterface>
+    syncResponseFactory.createResponse = jest.fn().mockReturnValue(syncResponse)
+
+    syncResponceFactoryResolver = {} as jest.Mocked<SyncResponseFactoryResolverInterface>
+    syncResponceFactoryResolver.resolveSyncResponseFactoryVersion = jest.fn().mockReturnValue(syncResponseFactory)
+  })
+
+  it('should sync items', async () => {
     const httpResponse = <results.JsonResult> await createController().sync(request, response)
     const result = await httpResponse.executeAsync()
 
@@ -107,6 +130,18 @@ describe('ItemsController', () => {
     })
 
     expect(result.statusCode).toEqual(200)
-    expect(await result.content.readAsStringAsync()).toEqual('{"foo":"bar"}')
+    expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
+  })
+
+  it('should sync items even if posting to extensions fails', async () => {
+    postToRealtimeExtensions.execute = jest.fn().mockImplementation(() => {
+      throw new Error('Oops')
+    })
+
+    const httpResponse = <results.JsonResult> await createController().sync(request, response)
+    const result = await httpResponse.executeAsync()
+
+    expect(result.statusCode).toEqual(200)
+    expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
   })
 })
