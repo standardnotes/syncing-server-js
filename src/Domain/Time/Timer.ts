@@ -1,4 +1,5 @@
 import * as dayjs from 'dayjs'
+import * as microtime from 'microtime'
 import { injectable } from 'inversify'
 import { Time } from './Time'
 import { TimerInterface } from './TimerInterface'
@@ -10,8 +11,7 @@ export class Timer implements TimerInterface {
   }
 
   getTimestampInMicroseconds(): number {
-    const hrTime = process.hrtime()
-    return dayjs.utc().valueOf() * Time.MicrosecondsInAMillisecond + Math.floor(hrTime[1] / Time.MicrosecondsInAMillisecond)
+    return microtime.now()
   }
 
   getUTCDate(): Date {
