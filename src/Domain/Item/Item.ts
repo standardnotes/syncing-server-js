@@ -1,13 +1,11 @@
-import { Column, Entity, Index, PrimaryColumn } from 'typeorm'
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity({ name: 'items' })
 @Index('index_items_on_user_uuid_and_content_type', ['userUuid', 'contentType'])
 @Index('user_uuid_and_updated_at_timestamp_and_created_at_timestamp', ['userUuid', 'updatedAtTimestamp', 'createdAtTimestamp'])
 @Index('index_items_on_user_uuid_and_updated_at_and_created_at', ['userUuid', 'updatedAt', 'createdAt'])
 export class Item {
-  @PrimaryColumn({
-    length: 36,
-  })
+  @PrimaryGeneratedColumn('uuid')
   uuid: string
 
   @Column({
