@@ -6,6 +6,7 @@ import { ContentDecoderInterface } from '../../Item/ContentDecoderInterface'
 import { Item } from '../../Item/Item'
 import { PostToDailyExtensions } from './PostToDailyExtensions'
 import { ContentType } from '../../Item/ContentType'
+import { Logger } from 'winston'
 
 describe('PostToDailyExtensions', () => {
   let contentDecoder: ContentDecoderInterface
@@ -17,11 +18,13 @@ describe('PostToDailyExtensions', () => {
   let regularItem: Item
   let deletedDailyExtension: Item
   let noUrlDailyExtension: Item
+  let logger: Logger
 
   const createUseCase = () => new PostToDailyExtensions(
     contentDecoder,
     domainEventPublisher,
     domainEventFactory,
+    logger
   )
 
   beforeEach(() => {
@@ -70,6 +73,9 @@ describe('PostToDailyExtensions', () => {
       contentType: ContentType.ServerExtension,
       deleted: false,
     } as jest.Mocked<Item>
+
+    logger = {} as jest.Mocked<Logger>
+    logger.debug = jest.fn()
   })
 
   it('should trigger extensions with daily frequency', async () => {

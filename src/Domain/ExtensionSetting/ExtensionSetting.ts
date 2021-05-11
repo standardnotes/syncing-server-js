@@ -1,10 +1,8 @@
-import { Column, Entity, Index, PrimaryColumn } from 'typeorm'
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity({ name: 'extension_settings' })
 export class ExtensionSetting {
-  @PrimaryColumn({
-    length: 36,
-  })
+  @PrimaryGeneratedColumn('uuid')
   uuid: string
 
   @Column({

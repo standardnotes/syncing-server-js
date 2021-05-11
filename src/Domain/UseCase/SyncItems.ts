@@ -3,9 +3,6 @@ import TYPES from '../../Bootstrap/Types'
 import { Item } from '../Item/Item'
 import { ItemConflict } from '../Item/ItemConflict'
 import { ItemServiceInterface } from '../Item/ItemServiceInterface'
-import { SyncResponse20161215 } from '../Item/SyncResponse/SyncResponse20161215'
-import { SyncResponse20200115 } from '../Item/SyncResponse/SyncResponse20200115'
-import { SyncResponseFactoryResolverInterface } from '../Item/SyncResponse/SyncResponseFactoryResolverInterface'
 import { SyncItemsDTO } from './SyncItemsDTO'
 import { SyncItemsResponse } from './SyncItemsResponse'
 import { UseCaseInterface } from './UseCaseInterface'
@@ -14,11 +11,10 @@ import { UseCaseInterface } from './UseCaseInterface'
 export class SyncItems implements UseCaseInterface {
   constructor(
     @inject(TYPES.ItemService) private itemService: ItemServiceInterface,
-    @inject(TYPES.SyncResponseFactoryResolver) private syncResponseFactoryResolver: SyncResponseFactoryResolverInterface
   ) {
   }
 
-  async execute(dto: SyncItemsDTO): Promise<SyncResponse20161215 | SyncResponse20200115> {
+  async execute(dto: SyncItemsDTO): Promise<SyncItemsResponse> {
     const getItemsResult = await this.itemService.getItems({
       userUuid: dto.userUuid,
       syncToken: dto.syncToken,
@@ -51,9 +47,7 @@ export class SyncItems implements UseCaseInterface {
       syncResponse.integrityHash = await this.itemService.computeIntegrityHash(dto.userUuid)
     }
 
-    return this.syncResponseFactoryResolver
-      .resolveSyncResponseFactoryVersion(dto.apiVersion)
-      .createResponse(syncResponse)
+    return syncResponse
   }
 
   private isFirstSync(dto: SyncItemsDTO): boolean {

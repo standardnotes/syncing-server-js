@@ -92,6 +92,7 @@ import { ItemConflictProjector } from '../Domain/Item/ItemConflictProjector'
 import { ItemRevisionRepositoryInterface } from '../Domain/Revision/ItemRevisionRepositoryInterface'
 import { MySQLItemRevisionRepository } from '../Infra/MySQL/MySQLItemRevisionRepository'
 import { ItemRevision } from '../Domain/Revision/ItemRevision'
+import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -251,6 +252,7 @@ export class ContainerConfigLoader {
     container.bind<ChangePassword>(TYPES.ChangePassword).to(ChangePassword)
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
     container.bind<PostToRealtimeExtensions>(TYPES.PostToRealtimeExtensions).to(PostToRealtimeExtensions)
+    container.bind<PostToDailyExtensions>(TYPES.PostToDailyExtensions).to(PostToDailyExtensions)
     container.bind<MuteNotifications>(TYPES.MuteNotifications).to(MuteNotifications)
 
     // Handlers

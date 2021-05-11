@@ -1,11 +1,9 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { User } from '../User/User'
 
 @Entity({ name: 'revoked_sessions' })
 export class RevokedSession {
-  @PrimaryColumn({
-    length: 36,
-  })
+  @PrimaryGeneratedColumn('uuid')
   uuid: string
 
   @Column({

@@ -67,6 +67,7 @@ const TYPES = {
   ChangePassword: Symbol.for('ChangePassword'),
   SyncItems: Symbol.for('SyncItems'),
   PostToRealtimeExtensions: Symbol.for('PostToRealtimeExtensions'),
+  PostToDailyExtensions: Symbol.for('PostToDailyExtensions'),
   MuteNotifications: Symbol.for('MuteNotifications'),
   // Handlers
   AccountDeletionRequestedEventHandler: Symbol.for('AccountDeletionRequestedEventHandler'),
