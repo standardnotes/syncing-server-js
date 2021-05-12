@@ -19,6 +19,7 @@
     "pretest": "yarn lint && yarn build",
     "test": "jest spec",
     "start": "node dist/bin/server.js",
+    "start:local": "nodemon -L bin/server.ts",
     "worker": "node dist/bin/worker.js",
     "daily-backup": "node dist/bin/backup.js",
     "daily-backup-no-email": "node dist/bin/backup.js mute-emails"
@@ -74,8 +75,10 @@
     "@typescript-eslint/parser": "^4.8.1",
     "eslint": "^7.13.0",
     "jest": "^26.6.3",
+    "nodemon": "^2.0.7",
     "pre-push": "^0.1.1",
     "ts-jest": "^26.4.4",
+    "ts-node": "^9.1.1",
     "typescript": "^4.0.5"
   },
   "pre-push": [

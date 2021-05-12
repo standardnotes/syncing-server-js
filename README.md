@@ -30,6 +30,8 @@ Your MySQL Data will be written to your local disk in the `data` folder to keep 
 
 Your server should now be available under http://localhost:3000
 
+**Note**: When running the server locally it is by default ran in a Hot Reload Mode. This means that every time you change any of the source files locally the server is restarted to reflect the changes. This is in particular helpful when doing local development.
+
 ### Logs
 
 You can check the logs of the running server by typing:
