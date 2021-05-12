@@ -144,4 +144,26 @@ describe('ItemsController', () => {
     expect(result.statusCode).toEqual(200)
     expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
   })
+
+  it('should sync items with no incoming items in request', async () => {
+    delete request.body.items
+
+    const httpResponse = <results.JsonResult> await createController().sync(request, response)
+    const result = await httpResponse.executeAsync()
+
+    expect(syncItems.execute).toHaveBeenCalledWith({
+      apiVersion: '20200115',
+      computeIntegrityHash: false,
+      itemHashes: [],
+      limit: 150,
+      syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
+      userAgent: 'Google Chrome',
+      userUuid: '123',
+    })
+
+    expect(postToRealtimeExtensions.execute).toHaveBeenCalled()
+
+    expect(result.statusCode).toEqual(200)
+    expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
+  })
 })
