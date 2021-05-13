@@ -10,8 +10,9 @@ junit.xml
 
 .DS_Store
 
-# MySQL data
-data
+# MySQL & Redis data
+data/mysql
+data/redis
 
 # Ignore ENV variables config
 .env
