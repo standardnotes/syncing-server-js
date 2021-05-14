@@ -18,7 +18,7 @@ export class AuthResponseFactoryResolver implements AuthResponseFactoryResolverI
   ) {
   }
 
-  resolveAuthResponseFactoryVersion(apiVersion: string): AuthResponseFactoryInterface {
+  resolveAuthResponseFactoryVersion(apiVersion: string = ApiVersion.v20161215): AuthResponseFactoryInterface {
     this.logger.debug(`Resolving auth response factory for api version: ${apiVersion}`)
 
     switch(apiVersion) {
