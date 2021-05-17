@@ -340,7 +340,7 @@ export class ItemService implements ItemServiceInterface {
 
   private getLastSyncTime(dto: GetItemsDTO): number | undefined {
     let token = dto.syncToken
-    if (dto.cursorToken !== undefined) {
+    if (dto.cursorToken !== undefined && dto.cursorToken !== null) {
       token = dto.cursorToken
     }
 

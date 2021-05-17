@@ -40,14 +40,7 @@ describe('AuthResponseFactoryResolver', () => {
     expect(createResolver().resolveAuthResponseFactoryVersion('20200115')).toEqual(authResponseFactory20200115)
   })
 
-  it('should throw error on unsupported api version', () => {
-    let error = null
-    try {
-      createResolver().resolveAuthResponseFactoryVersion('20200116')
-    } catch (caughtError) {
-      error = caughtError
-    }
-
-    expect(error.message).toEqual('Not supported api version: 20200116')
+  it('should resolve 2016 response factory as default', () => {
+    expect(createResolver().resolveAuthResponseFactoryVersion('')).toEqual(authResponseFactory20161215)
   })
 })
