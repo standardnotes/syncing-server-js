@@ -51,7 +51,7 @@ export class SyncItems implements UseCaseInterface {
   }
 
   private isFirstSync(dto: SyncItemsDTO): boolean {
-    return dto.syncToken === undefined
+    return dto.syncToken === undefined || dto.syncToken === null
   }
 
   private filterOutSyncConflictsForConsecutiveSyncs(retrievedItems: Array<Item>, conflicts: Array<ItemConflict>): Array<Item> {

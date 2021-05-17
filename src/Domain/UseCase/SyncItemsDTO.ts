@@ -6,8 +6,8 @@ export type SyncItemsDTO = {
   computeIntegrityHash: boolean
   limit: number
   userAgent?: string,
-  syncToken?: string
-  cursorToken?: string
+  syncToken?: string | null
+  cursorToken?: string | null
   contentType?: string
   apiVersion?: string
 }
