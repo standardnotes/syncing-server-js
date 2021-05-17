@@ -1,7 +1,7 @@
 export type GetItemsDTO = {
   userUuid: string
-  syncToken?: string
-  cursorToken?: string
+  syncToken?: string | null
+  cursorToken?: string | null
   limit?: number
   contentType?: string
 }
