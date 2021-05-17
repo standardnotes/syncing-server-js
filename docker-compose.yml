@@ -21,6 +21,8 @@ services:
     image: syncing-server-js-local
     build: .
     entrypoint: [
+      "./wait-for.sh", "db", "3306",
+      "./wait-for.sh", "cache", "6379",
       "./wait-for.sh", "syncing-server-js", "3000",
        "./docker/entrypoint.sh", "start-worker"
     ]
@@ -50,6 +52,8 @@ services:
   auth:
     image: standardnotes/auth:1.6.4
     entrypoint: [
+      "./wait-for.sh", "db", "3306",
+      "./wait-for.sh", "cache", "6379",
       "./wait-for.sh", "syncing-server-js", "3000",
       "./docker/entrypoint.sh", "start-web"
     ]
@@ -78,6 +82,8 @@ services:
   auth-worker:
     image: standardnotes/auth:1.6.4
     entrypoint: [
+      "./wait-for.sh", "db", "3306",
+      "./wait-for.sh", "cache", "6379",
       "./wait-for.sh", "auth", "3000",
       "./docker/entrypoint.sh", "start-worker"
     ]
