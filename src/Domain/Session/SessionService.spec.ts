@@ -55,7 +55,7 @@ describe('SessionService', () => {
     ephemeralSessionRepository.save = jest.fn()
     ephemeralSessionRepository.findOneByUuid = jest.fn()
     ephemeralSessionRepository.updateTokensAndExpirationDates = jest.fn()
-    ephemeralSessionRepository.deleteOneByUuid = jest.fn()
+    ephemeralSessionRepository.deleteOne = jest.fn()
 
     revokedSessionRepository = {} as jest.Mocked<RevokedSessionRepositoryInterface>
     revokedSessionRepository.save = jest.fn()
@@ -178,7 +178,7 @@ describe('SessionService', () => {
     await createService().deleteSessionByToken('1:2:3')
 
     expect(sessionRepository.deleteOneByUuid).toHaveBeenCalledWith('2e1e43')
-    expect(ephemeralSessionRepository.deleteOneByUuid).toHaveBeenCalledWith('2e1e43')
+    expect(ephemeralSessionRepository.deleteOne).toHaveBeenCalledWith('2e1e43', '1-2-3')
   })
 
   it('should not delete a session by token if session is not found', async () => {
@@ -193,7 +193,7 @@ describe('SessionService', () => {
     await createService().deleteSessionByToken('1:4:3')
 
     expect(sessionRepository.deleteOneByUuid).not.toHaveBeenCalled()
-    expect(ephemeralSessionRepository.deleteOneByUuid).not.toHaveBeenCalled()
+    expect(ephemeralSessionRepository.deleteOne).not.toHaveBeenCalled()
   })
 
   it('should determine if a refresh token is valid', async () => {
