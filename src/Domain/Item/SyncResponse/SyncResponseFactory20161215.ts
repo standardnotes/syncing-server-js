@@ -11,13 +11,23 @@ import { SyncResponseFactoryInterface } from './SyncResponseFactoryInterface'
 
 @injectable()
 export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface {
+  private readonly LEGACY_MIN_CONFLICT_INTERVAL = 20_000_000
+
   constructor(
     @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item>,
   ){
   }
 
   createResponse(syncItemsResponse: SyncItemsResponse): SyncResponse20161215 {
-    const unsaved = syncItemsResponse.conflicts.map((conflict: ItemConflict) => ({
+    const conflicts = syncItemsResponse.conflicts.filter((itemConflict: ItemConflict) => itemConflict.type === 'uuid_conflict')
+
+    const pickOutConflictsResult = this.pickOutConflicts(
+      syncItemsResponse.savedItems,
+      syncItemsResponse.retrievedItems,
+      conflicts
+    )
+
+    const unsaved = pickOutConflictsResult.unsavedItems.map((conflict: ItemConflict) => ({
       item: conflict.serverItem ?
         <ItemProjection> this.itemProjector.projectFull(conflict.serverItem) :
         <ItemHash> conflict.unsavedItem,
@@ -27,12 +37,47 @@ export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface
     }))
 
     return {
-      retrieved_items: syncItemsResponse.retrievedItems.map(item => <ItemProjection> this.itemProjector.projectFull(item)),
+      retrieved_items: pickOutConflictsResult.retrievedItems.map(item => <ItemProjection> this.itemProjector.projectFull(item)),
       saved_items: syncItemsResponse.savedItems.map(item => <ItemProjection> this.itemProjector.projectFull(item)),
       unsaved,
       sync_token: syncItemsResponse.syncToken,
       cursor_token: syncItemsResponse.cursorToken,
       integrity_hash: syncItemsResponse.integrityHash,
+    }
+  }
+
+  private pickOutConflicts(
+    savedItems: Array<Item>,
+    retrievedItems: Array<Item>,
+    unsavedItems: Array<ItemConflict>
+  ): {
+    unsavedItems: Array<ItemConflict>,
+    retrievedItems: Array<Item>,
+  } {
+    const savedIds: Array<string> = savedItems.map((savedItem: Item) => savedItem.uuid)
+    const retrievedIds: Array<string> = retrievedItems.map((retrievedItem: Item) => retrievedItem.uuid)
+
+    const conflictingIds = savedIds.filter(savedId => retrievedIds.includes(savedId))
+
+    for (const conflictingId of conflictingIds) {
+      const savedItem = <Item> savedItems.find(item => item.uuid === conflictingId)
+      const conflictedItem = <Item> retrievedItems.find(item => item.uuid === conflictingId)
+
+      const difference = savedItem.updatedAtTimestamp - conflictedItem.updatedAtTimestamp
+
+      if (Math.abs(difference) > this.LEGACY_MIN_CONFLICT_INTERVAL) {
+        unsavedItems.push({
+          serverItem: conflictedItem,
+          type: 'sync_conflict',
+        })
+      }
+
+      retrievedItems = retrievedItems.filter((retrievedItem: Item) => retrievedItem.uuid !== conflictingId)
+    }
+
+    return {
+      retrievedItems,
+      unsavedItems,
     }
   }
 }

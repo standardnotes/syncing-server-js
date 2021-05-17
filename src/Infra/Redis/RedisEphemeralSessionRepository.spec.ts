@@ -4,13 +4,11 @@ import * as IORedis from 'ioredis'
 
 import { RedisEphemeralSessionRepository } from './RedisEphemeralSessionRepository'
 import { EphemeralSession } from '../../Domain/Session/EphemeralSession'
-import { Logger } from 'winston'
 
 describe('RedisEphemeralSessionRepository', () => {
   let redisClient: IORedis.Redis
-  let logger: Logger
 
-  const createRepository = () => new RedisEphemeralSessionRepository(redisClient, 3600, logger)
+  const createRepository = () => new RedisEphemeralSessionRepository(redisClient, 3600)
 
   beforeEach(() => {
     redisClient = {} as jest.Mocked<IORedis.Redis>
@@ -19,25 +17,13 @@ describe('RedisEphemeralSessionRepository', () => {
     redisClient.scan = jest.fn()
     redisClient.get = jest.fn()
     redisClient.mget = jest.fn()
-
-    logger = {} as jest.Mocked<Logger>
-    logger.debug = jest.fn()
   })
 
-  it('should delete an ephemeral session by uuid', async () => {
-    redisClient.scan = jest.fn().mockReturnValue(['0', ['session:1-2-3:2-3-4']])
-
-    await createRepository().deleteOneByUuid('1-2-3')
+  it('should delete an ephemeral', async () => {
+    await createRepository().deleteOne('1-2-3', '2-3-4')
 
     expect(redisClient.del).toHaveBeenCalledWith('session:1-2-3:2-3-4')
-  })
-
-  it('should not delete an ephemeral session if it cannot be found', async () => {
-    redisClient.scan = jest.fn().mockReturnValue(['0', []])
-
-    await createRepository().deleteOneByUuid('1-2-3')
-
-    expect(redisClient.del).not.toHaveBeenCalled()
+    expect(redisClient.del).toHaveBeenCalledWith('session:1-2-3')
   })
 
   it('should save an ephemeral session', async () => {
@@ -84,7 +70,6 @@ describe('RedisEphemeralSessionRepository', () => {
   })
 
   it('should find an ephemeral session by uuid', async () => {
-    redisClient.scan = jest.fn().mockReturnValue(['0', ['session:1-2-3:2-3-4']])
     redisClient.get = jest.fn().mockReturnValue('{"uuid":"1-2-3","userUuid":"2-3-4","userAgent":"Mozilla Firefox","createdAt":"1970-01-01T00:00:00.001Z","updatedAt":"1970-01-01T00:00:00.002Z"}')
 
     const ephemeralSession = <EphemeralSession> await createRepository().findOneByUuid('1-2-3')
@@ -94,15 +79,6 @@ describe('RedisEphemeralSessionRepository', () => {
   })
 
   it('should return undefined if session is not found', async () => {
-    redisClient.scan = jest.fn().mockReturnValue(['0', []])
-
-    const ephemeralSession = <EphemeralSession> await createRepository().findOneByUuid('1-2-3')
-
-    expect(ephemeralSession).toBeUndefined()
-  })
-
-  it('should return undefined if session fails to retrieve', async () => {
-    redisClient.scan = jest.fn().mockReturnValue(['0', ['session:1-2-3:2-3-4']])
     redisClient.get = jest.fn().mockReturnValue(null)
 
     const ephemeralSession = <EphemeralSession> await createRepository().findOneByUuid('1-2-3')

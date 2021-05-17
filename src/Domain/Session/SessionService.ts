@@ -165,7 +165,7 @@ export class SessionService implements SessionServiceInterace {
 
     if (session) {
       await this.sessionRepository.deleteOneByUuid(session.uuid)
-      await this.ephemeralSessionRepository.deleteOneByUuid(session.uuid)
+      await this.ephemeralSessionRepository.deleteOne(session.uuid, session.userUuid)
     }
   }
 
