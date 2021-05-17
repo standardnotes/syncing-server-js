@@ -11,7 +11,7 @@ import { SyncResponseFactoryInterface } from './SyncResponseFactoryInterface'
 
 @injectable()
 export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface {
-  private readonly LEGACY_MIN_CONFLICT_INTERVAL = 20
+  private readonly LEGACY_MIN_CONFLICT_INTERVAL = 20_000_000
 
   constructor(
     @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item>,
@@ -19,10 +19,12 @@ export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface
   }
 
   createResponse(syncItemsResponse: SyncItemsResponse): SyncResponse20161215 {
+    const conflicts = syncItemsResponse.conflicts.filter((itemConflict: ItemConflict) => itemConflict.type === 'uuid_conflict')
+
     const pickOutConflictsResult = this.pickOutConflicts(
       syncItemsResponse.savedItems,
       syncItemsResponse.retrievedItems,
-      syncItemsResponse.conflicts
+      conflicts
     )
 
     const unsaved = pickOutConflictsResult.unsavedItems.map((conflict: ItemConflict) => ({
@@ -58,8 +60,8 @@ export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface
     const conflictingIds = savedIds.filter(savedId => retrievedIds.includes(savedId))
 
     for (const conflictingId of conflictingIds) {
-      const savedItem = savedItems.find(item => item.uuid === conflictingId
-      const conflictedItem = retrievedItems.find(item => item.uuid === conflictingId)
+      const savedItem = <Item> savedItems.find(item => item.uuid === conflictingId)
+      const conflictedItem = <Item> retrievedItems.find(item => item.uuid === conflictingId)
 
       const difference = savedItem.updatedAtTimestamp - conflictedItem.updatedAtTimestamp
 

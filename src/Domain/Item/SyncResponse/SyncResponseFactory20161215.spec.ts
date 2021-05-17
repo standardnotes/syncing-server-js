@@ -67,12 +67,6 @@ describe('SyncResponseFactory20161215', () => {
       saved_items: [ item2Projection ],
       unsaved: [
         {
-          item: item1Projection,
-          error: {
-            tag: 'sync_conflict',
-          },
-        },
-        {
           item: itemHash1,
           error: {
             tag: 'uuid_conflict',
@@ -89,7 +83,7 @@ describe('SyncResponseFactory20161215', () => {
     const itemHash1 = {} as jest.Mocked<ItemHash>
 
     const duplicateItem1 = Object.assign({}, item1)
-    duplicateItem1.updatedAtTimestamp = item1.updatedAtTimestamp + 21
+    duplicateItem1.updatedAtTimestamp = item1.updatedAtTimestamp + 21_000_000
 
     const duplicateItem2 = Object.assign({}, item2)
 
