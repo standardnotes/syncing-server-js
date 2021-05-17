@@ -59,7 +59,7 @@ export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface
 
     for (const conflictingId of conflictingIds) {
       const savedItem = savedItems.find(item => item.uuid === conflictingId
-      const conflictedItem = retrievedItems.filter(item => item.uuid === conflictingId)[0]
+      const conflictedItem = retrievedItems.find(item => item.uuid === conflictingId)
 
       const difference = savedItem.updatedAtTimestamp - conflictedItem.updatedAtTimestamp
 
