@@ -9,5 +9,5 @@ export type SyncItemsDTO = {
   syncToken?: string | null
   cursorToken?: string | null
   contentType?: string
-  apiVersion?: string
+  apiVersion: string
 }

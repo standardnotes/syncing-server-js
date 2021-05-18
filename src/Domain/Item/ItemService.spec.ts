@@ -322,6 +322,43 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
+    })
+
+    expect(result).toEqual({
+      conflicts: [],
+      savedItems: [
+        {
+          content: 'asdqwe1',
+          contentType: 'Note',
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
+          encItemKey: 'qweqwe1',
+          itemsKeyId: 'asdasd1',
+          lastUserAgent: 'Brave',
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
+          userUuid: '1-2-3',
+          uuid: '1-2-3',
+        },
+      ],
+      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
+    })
+
+    expect(revisionService.createRevision).toHaveBeenCalledTimes(1)
+  })
+
+  it('should save new items from legacy clients', async () => {
+    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+
+    delete itemHash1.updated_at
+    delete itemHash1.updated_at_timestamp
+
+    const result = await createService().saveItems({
+      itemHashes: [ itemHash1 ],
+      userAgent: 'Brave',
+      userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20161215,
     })
 
     expect(result).toEqual({
@@ -356,6 +393,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({
@@ -388,6 +426,7 @@ describe('ItemService', () => {
       itemHashes: [ emptyHash ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({
@@ -417,6 +456,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({
@@ -451,6 +491,7 @@ describe('ItemService', () => {
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({
@@ -482,6 +523,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({
@@ -514,6 +556,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({
@@ -566,6 +609,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1, itemHash3, itemHash2 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result.syncToken).toEqual('MjoxNjE2MTY0NjMzLjI0MTU3MQ==')
@@ -579,6 +623,41 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
+    })
+
+    expect(result).toEqual({
+      conflicts: [],
+      savedItems: [
+        {
+          content: 'asdqwe1',
+          contentType: 'Note',
+          createdAtTimestamp: expect.any(Number),
+          createdAt: expect.any(Date),
+          encItemKey: 'qweqwe1',
+          itemsKeyId: 'asdasd1',
+          lastUserAgent: 'Brave',
+          userUuid: '1-2-3',
+          updatedAtTimestamp: expect.any(Number),
+          updatedAt: expect.any(Date),
+          uuid: '1-2-3',
+        },
+      ],
+      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
+    })
+  })
+
+  it('should update existing items from legacy clients', async () => {
+    itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
+
+    delete itemHash1.updated_at
+    delete itemHash1.updated_at_timestamp
+
+    const result = await createService().saveItems({
+      itemHashes: [ itemHash1 ],
+      userAgent: 'Brave',
+      userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20161215,
     })
 
     expect(result).toEqual({
@@ -611,6 +690,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({
@@ -642,6 +722,7 @@ describe('ItemService', () => {
       itemHashes: [ emptyHash ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({
@@ -669,6 +750,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({
@@ -691,6 +773,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({
@@ -720,6 +803,7 @@ describe('ItemService', () => {
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({
@@ -752,6 +836,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({
@@ -784,6 +869,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({
@@ -817,6 +903,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({
@@ -940,6 +1027,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1, itemHash2 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({
@@ -978,6 +1066,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1, itemHash2 ],
       userAgent: 'Brave',
       userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
     })
 
     expect(result).toEqual({

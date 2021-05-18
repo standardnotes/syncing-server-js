@@ -295,7 +295,7 @@ export class ItemService implements ItemServiceInterface {
     return existingItem !== undefined && existingItem.userUuid !== userUuid
   }
 
-  private itemShouldBeSaved(itemHash: ItemHash, apiVersion?: string, existingItem?: Item): boolean {
+  private itemShouldBeSaved(itemHash: ItemHash, apiVersion: string, existingItem?: Item): boolean {
     if (!existingItem) {
       this.logger.debug(`No previously existing item with uuid ${itemHash.uuid} . Item should be saved`)
 
@@ -309,6 +309,10 @@ export class ItemService implements ItemServiceInterface {
     }
 
     this.logger.debug(`Incoming updated at timestamp for item ${itemHash.uuid}: ${incomingUpdatedAtTimestamp}`)
+
+    if (this.itemWasSentFromALegacyClient(incomingUpdatedAtTimestamp, apiVersion)) {
+      return true
+    }
 
     const ourUpdatedAtTimestamp = existingItem.updatedAtTimestamp
 
@@ -327,6 +331,10 @@ export class ItemService implements ItemServiceInterface {
 
   private itemHashHasMicrosecondsPrecision(itemHash: ItemHash) {
     return itemHash.updated_at_timestamp !== undefined
+  }
+
+  private itemWasSentFromALegacyClient(incomingUpdatedAtTimestamp: number, apiVersion: string) {
+    return incomingUpdatedAtTimestamp === 0 && apiVersion === ApiVersion.v20161215
   }
 
   private getMinimalConflictIntervalMicroseconds(apiVersion?: string): number {

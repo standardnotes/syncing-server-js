@@ -133,6 +133,38 @@ describe('ItemsController', () => {
     expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
   })
 
+  it('should sync items with defaulting API version if none specified', async () => {
+    delete request.body.api
+
+    const httpResponse = <results.JsonResult> await createController().sync(request, response)
+    const result = await httpResponse.executeAsync()
+
+    expect(syncItems.execute).toHaveBeenCalledWith({
+      apiVersion: '20161215',
+      computeIntegrityHash: false,
+      itemHashes: [
+        {
+          content: 'test',
+          content_type: 'Note',
+          created_at: '2021-02-19T11:35:45.655Z',
+          deleted: false,
+          duplicate_of: null,
+          enc_item_key: 'test',
+          items_key_id: 'test',
+          updated_at: '2021-02-19T11:35:45.655Z',
+          uuid: '1-2-3',
+        },
+      ],
+      limit: 150,
+      syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
+      userAgent: 'Google Chrome',
+      userUuid: '123',
+    })
+
+    expect(result.statusCode).toEqual(200)
+    expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
+  })
+
   it('should sync items even if posting to extensions fails', async () => {
     postToRealtimeExtensions.execute = jest.fn().mockImplementation(() => {
       throw new Error('Oops')

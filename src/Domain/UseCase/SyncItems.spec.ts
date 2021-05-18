@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import { ApiVersion } from '../Api/ApiVersion'
 import { ContentType } from '../Item/ContentType'
 import { Item } from '../Item/Item'
 import { ItemHash } from '../Item/ItemHash'
@@ -60,6 +61,7 @@ describe('SyncItems', () => {
       limit: 10,
       userAgent: 'Google Chrome',
       contentType: 'Note',
+      apiVersion: ApiVersion.v20200115,
     })).toEqual({
       conflicts: [],
       cursorToken: 'asdzxc',
@@ -85,6 +87,7 @@ describe('SyncItems', () => {
       itemHashes: [ itemHash ],
       userAgent: 'Google Chrome',
       userUuid: '1-2-3',
+      apiVersion: '20200115',
     })
   })
 
@@ -96,6 +99,7 @@ describe('SyncItems', () => {
       limit: 10,
       userAgent: 'Google Chrome',
       contentType: 'Note',
+      apiVersion: ApiVersion.v20200115,
     })).toEqual({
       conflicts: [],
       cursorToken: 'asdzxc',
@@ -119,6 +123,7 @@ describe('SyncItems', () => {
       limit: 10,
       userAgent: 'Google Chrome',
       contentType: 'Note',
+      apiVersion: ApiVersion.v20200115,
     })).toEqual({
       conflicts: [],
       cursorToken: 'asdzxc',
@@ -164,6 +169,7 @@ describe('SyncItems', () => {
       limit: 10,
       userAgent: 'Google Chrome',
       contentType: 'Note',
+      apiVersion: ApiVersion.v20200115,
     })).toEqual({
       conflicts: [
         {
