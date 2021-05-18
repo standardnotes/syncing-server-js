@@ -3,6 +3,7 @@ import { inject } from 'inversify'
 import { BaseHttpController, controller, httpPost, results } from 'inversify-express-utils'
 import { Logger } from 'winston'
 import TYPES from '../Bootstrap/Types'
+import { ApiVersion } from '../Domain/Api/ApiVersion'
 import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
 import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
 import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
@@ -36,7 +37,7 @@ export class ItemsController extends BaseHttpController {
       limit: request.body.limit,
       userAgent: request.headers['user-agent'],
       contentType: request.body.content_type,
-      apiVersion: request.body.api,
+      apiVersion: request.body.api ?? ApiVersion.v20161215,
     })
 
     try {
