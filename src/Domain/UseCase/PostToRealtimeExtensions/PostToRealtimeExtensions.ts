@@ -1,5 +1,6 @@
 import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import { inject, injectable } from 'inversify'
+import { Logger } from 'winston'
 import TYPES from '../../../Bootstrap/Types'
 import { DomainEventFactoryInterface } from '../../Event/DomainEventFactoryInterface'
 import { Frequency } from '../../ExtensionSetting/Frequency'
@@ -18,6 +19,7 @@ export class PostToRealtimeExtensions implements UseCaseInterface {
     @inject(TYPES.ContentDecoder) private contentDecoder: ContentDecoderInterface,
     @inject(TYPES.DomainEventPublisher) private domainEventPublisher: DomainEventPublisherInterface,
     @inject(TYPES.DomainEventFactory) private domainEventFactory: DomainEventFactoryInterface,
+    @inject(TYPES.Logger) private logger: Logger
   ) {
   }
 
@@ -47,6 +49,8 @@ export class PostToRealtimeExtensions implements UseCaseInterface {
       }
 
       if (decodedContent.frequency === Frequency.Realtime) {
+        this.logger.info(`Publishing ITEMS_SYNCED event with ${dto.itemHashes.length} items for extension ${extension.uuid} and user ${dto.userUuid}`)
+
         await this.domainEventPublisher.publish(
           this.domainEventFactory.createItemsSyncedEvent({
             userUuid: dto.userUuid,
