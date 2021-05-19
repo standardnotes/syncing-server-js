@@ -22,6 +22,12 @@ export class PostToRealtimeExtensions implements UseCaseInterface {
   }
 
   async execute(dto: PostToRealtimeExtensionsDTO): Promise<PostToRealtimeExtensionsResponse> {
+    if (dto.itemHashes.length === 0) {
+      return {
+        success: false,
+      }
+    }
+
     const extensions = await this.itemRepository.findAll({
       contentType: ContentType.ServerExtension,
       deleted: false,

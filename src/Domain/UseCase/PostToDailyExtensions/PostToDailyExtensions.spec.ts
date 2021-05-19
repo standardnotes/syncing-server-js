@@ -86,7 +86,7 @@ describe('PostToDailyExtensions', () => {
 
     await createUseCase().execute({
       userUuid: '1-2-3',
-      items: [ dailyExtension, realtimeExtension, deletedDailyExtension, regularItem ],
+      extensions: [ dailyExtension, realtimeExtension, deletedDailyExtension, regularItem ],
     })
 
     expect(domainEventPublisher.publish).toHaveBeenCalledTimes(1)
@@ -109,7 +109,7 @@ describe('PostToDailyExtensions', () => {
 
     await createUseCase().execute({
       userUuid: '1-2-3',
-      items: [ emailArchiveExtension, realtimeExtension, noUrlDailyExtension ],
+      extensions: [ emailArchiveExtension, realtimeExtension, noUrlDailyExtension ],
     })
 
     expect(domainEventPublisher.publish).toHaveBeenCalledTimes(1)

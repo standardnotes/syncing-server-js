@@ -70,6 +70,16 @@ describe('PostToRealtimeExtensions', () => {
     })
   })
 
+  it('should not post to realtime extensions if no item hashes are passed', async () => {
+    await createUseCase().execute({
+      userUuid: '1-2-3',
+      itemHashes: [],
+    })
+
+    expect(domainEventPublisher.publish).not.toHaveBeenCalled()
+    expect(domainEventFactory.createItemsSyncedEvent).not.toHaveBeenCalledWith()
+  })
+
   it('should skip extensions that are lacking content', async () => {
     extension.content = null
     await createUseCase().execute({
