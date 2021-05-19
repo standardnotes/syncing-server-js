@@ -8,6 +8,7 @@ import { ItemHash } from '../../Item/ItemHash'
 import { ItemRepositoryInterface } from '../../Item/ItemRepositoryInterface'
 import { PostToRealtimeExtensions } from './PostToRealtimeExtensions'
 import { DomainEventFactoryInterface } from '../../Event/DomainEventFactoryInterface'
+import { Logger } from 'winston'
 
 describe('PostToRealtimeExtensions', () => {
   let itemRepository: ItemRepositoryInterface
@@ -16,12 +17,14 @@ describe('PostToRealtimeExtensions', () => {
   let domainEventFactory: DomainEventFactoryInterface
   let extension: Item
   let itemHash: ItemHash
+  let logger: Logger
 
   const createUseCase = () => new PostToRealtimeExtensions(
     itemRepository,
     contentDecoder,
     domainEventPublisher,
     domainEventFactory,
+    logger
   )
 
   beforeEach(() => {
@@ -52,6 +55,9 @@ describe('PostToRealtimeExtensions', () => {
 
     domainEventFactory = {} as jest.Mocked<DomainEventFactoryInterface>
     domainEventFactory.createItemsSyncedEvent = jest.fn().mockReturnValue({} as jest.Mocked<ItemsSyncedEvent>)
+
+    logger = {} as jest.Mocked<Logger>
+    logger.info = jest.fn()
   })
 
   it('should post items realtime extensions', async () => {
