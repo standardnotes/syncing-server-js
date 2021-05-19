@@ -76,7 +76,6 @@ describe('PostToDailyExtensions', () => {
 
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
-    logger.info = jest.fn()
   })
 
   it('should trigger extensions with daily frequency', async () => {
