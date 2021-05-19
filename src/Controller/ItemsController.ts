@@ -48,7 +48,7 @@ export class ItemsController extends BaseHttpController {
 
       await this.postToDailyExtensions.execute({
         userUuid: response.locals.user.uuid,
-        items: syncResult.savedItems,
+        extensions: syncResult.savedItems,
       })
 
     } catch (error) {
