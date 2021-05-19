@@ -7,6 +7,7 @@ import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
 import { ItemsSyncedEventHandler } from './ItemsSyncedEventHandler'
 import { ItemBackupServiceInterface } from '../Item/ItemBackupServiceInterface'
 import { ExtensionsHttpServiceInterface } from '../Extension/ExtensionsHttpServiceInterface'
+import { Logger } from 'winston'
 
 describe('ItemsSyncedEventHandler', () => {
   let itemRepository: ItemRepositoryInterface
@@ -17,6 +18,7 @@ describe('ItemsSyncedEventHandler', () => {
   const extensionsServerUrl = 'https://extensions-server'
   let event: ItemsSyncedEvent
   let item: Item
+  let logger: Logger
 
   const createHandler = () => new ItemsSyncedEventHandler(
     itemRepository,
@@ -24,7 +26,8 @@ describe('ItemsSyncedEventHandler', () => {
     extensionsHttpService,
     itemBackupService,
     internalDNSRerouteEnabled,
-    extensionsServerUrl
+    extensionsServerUrl,
+    logger
   )
 
   beforeEach(() => {
@@ -51,6 +54,9 @@ describe('ItemsSyncedEventHandler', () => {
 
     itemBackupService = {} as jest.Mocked<ItemBackupServiceInterface>
     itemBackupService.backup = jest.fn().mockReturnValue('backup-file-name')
+
+    logger = {} as jest.Mocked<Logger>
+    logger.info = jest.fn()
   })
 
   it('should send synced items to extensions server', async () => {

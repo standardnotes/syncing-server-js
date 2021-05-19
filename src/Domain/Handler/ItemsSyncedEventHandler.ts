@@ -8,6 +8,7 @@ import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
 import { Item } from '../Item/Item'
 import { ExtensionsHttpServiceInterface } from '../Extension/ExtensionsHttpServiceInterface'
 import { ItemBackupServiceInterface } from '../Item/ItemBackupServiceInterface'
+import { Logger } from 'winston'
 
 @injectable()
 export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
@@ -18,6 +19,7 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
     @inject(TYPES.ItemBackupService) private itemBackupService: ItemBackupServiceInterface,
     @inject(TYPES.INTERNAL_DNS_REROUTE_ENABLED) private internalDNSRerouteEnabled: boolean,
     @inject(TYPES.EXTENSIONS_SERVER_URL) private extensionsServerUrl: string,
+    @inject(TYPES.Logger) private logger: Logger
   ) {
   }
 
@@ -30,6 +32,8 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
     })
 
     const backupFilename = await this.itemBackupService.backup(items, authParams)
+
+    this.logger.info(`Sending ${items.length} items to extensions server for user ${event.payload.userUuid}`)
 
     await this.extensionsHttpService.sendItemsToExtensionsServer({
       items,
