@@ -25,7 +25,7 @@ export class PostToDailyExtensions implements UseCaseInterface {
   async execute(dto: PostToDailyExtensionsDTO): Promise<PostToDailyExtensionsResponse> {
     this.logger.debug('Posting to daily extensions...')
 
-    const dailyExtensions = this.filterOutDailyExtensions(dto.items)
+    const dailyExtensions = this.filterOutDailyExtensions(dto.extensions)
 
     for (const dailyExtension of dailyExtensions) {
       const decodedContent = this.contentDecoder.decode(<string> dailyExtension.content)
