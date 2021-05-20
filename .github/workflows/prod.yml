@@ -124,7 +124,7 @@ jobs:
         wait-for-service-stability: true
 
   deploy-demo:
-    needs: publish
+    needs: publish-aws-ecr
 
     runs-on: ubuntu-latest
 
@@ -144,7 +144,7 @@ jobs:
       with:
         task-definition: task-definition.json
         container-name: syncing-server-demo-dev
-        image: "standardnotes/syncing-server-js:${{ github.sha }}"
+        image: ${{ secrets.AWS_ECR_REGISTRY }}/syncing-server-js:${{ github.sha }}
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
