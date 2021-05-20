@@ -57,7 +57,7 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
     }
   }
 
-  createItemsSyncedEvent(dto: { userUuid: string, extensionUrl: string, extensionId: string, itemUuids: string[], forceMute: boolean }): ItemsSyncedEvent {
+  createItemsSyncedEvent(dto: { userUuid: string, extensionUrl: string, extensionId: string, itemUuids: Array<string>, forceMute: boolean, skipFileBackup: boolean }): ItemsSyncedEvent {
     return {
       type: 'ITEMS_SYNCED',
       createdAt: dayjs.utc().toDate(),

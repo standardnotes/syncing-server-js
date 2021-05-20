@@ -32,7 +32,7 @@ export class PostToDailyExtensions implements UseCaseInterface {
 
       let event: DomainEventInterface
       if ('subtype' in decodedContent && decodedContent.subtype === ContentSubtype.BackupEmailArchive) {
-        this.logger.info(`Publishing EMAIL_ARCHIVE_EXTENSION_SYNCED event for extension ${dailyExtension.uuid} and user ${dto.userUuid}`)
+        this.logger.debug(`Publishing EMAIL_ARCHIVE_EXTENSION_SYNCED event for extension ${dailyExtension.uuid} and user ${dto.userUuid}`)
 
         event = this.domainEventFactory.createEmailArchiveExtensionSyncedEvent(
           dto.userUuid,
@@ -43,7 +43,7 @@ export class PostToDailyExtensions implements UseCaseInterface {
           continue
         }
 
-        this.logger.info(`Publishing ITEMS_SYNCED event for extension ${dailyExtension.uuid} and user ${dto.userUuid}`)
+        this.logger.debug(`Publishing ITEMS_SYNCED event for extension ${dailyExtension.uuid} and user ${dto.userUuid}`)
 
         event = this.domainEventFactory.createItemsSyncedEvent({
           userUuid: dto.userUuid,
@@ -51,6 +51,7 @@ export class PostToDailyExtensions implements UseCaseInterface {
           extensionId: dailyExtension.uuid,
           itemUuids: [],
           forceMute: false,
+          skipFileBackup: false,
         })
       }
 

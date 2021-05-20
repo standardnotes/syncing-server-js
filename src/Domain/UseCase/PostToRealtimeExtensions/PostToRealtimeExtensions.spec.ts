@@ -57,7 +57,7 @@ describe('PostToRealtimeExtensions', () => {
     domainEventFactory.createItemsSyncedEvent = jest.fn().mockReturnValue({} as jest.Mocked<ItemsSyncedEvent>)
 
     logger = {} as jest.Mocked<Logger>
-    logger.info = jest.fn()
+    logger.debug = jest.fn()
   })
 
   it('should post items realtime extensions', async () => {
@@ -73,6 +73,7 @@ describe('PostToRealtimeExtensions', () => {
       extensionId: '4-5-6',
       itemUuids: ['2-3-4'],
       forceMute: true,
+      skipFileBackup: true,
     })
   })
 

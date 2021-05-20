@@ -31,9 +31,12 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
       authenticated: false,
     })
 
-    const backupFilename = await this.itemBackupService.backup(items, authParams)
+    let backupFilename = ''
+    if (!event.payload.skipFileBackup) {
+      backupFilename = await this.itemBackupService.backup(items, authParams)
+    }
 
-    this.logger.info(`Sending ${items.length} items to extensions server for user ${event.payload.userUuid}`)
+    this.logger.debug(`Sending ${items.length} items to extensions server for user ${event.payload.userUuid}`)
 
     await this.extensionsHttpService.sendItemsToExtensionsServer({
       items,
