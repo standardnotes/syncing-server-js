@@ -24,6 +24,7 @@ describe('DomainEventFactory', () => {
       extensionId: '2-3-4',
       itemUuids: ['3-4-5'],
       forceMute: false,
+      skipFileBackup: false,
     }))
       .toEqual({
         createdAt: expect.any(Date),
@@ -33,6 +34,7 @@ describe('DomainEventFactory', () => {
           extensionId: '2-3-4',
           itemUuids: [ '3-4-5' ],
           forceMute: false,
+          skipFileBackup: false,
         },
         type: 'ITEMS_SYNCED',
       })

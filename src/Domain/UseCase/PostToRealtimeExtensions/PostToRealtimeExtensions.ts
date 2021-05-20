@@ -49,7 +49,7 @@ export class PostToRealtimeExtensions implements UseCaseInterface {
       }
 
       if (decodedContent.frequency === Frequency.Realtime) {
-        this.logger.info(`Publishing ITEMS_SYNCED event with ${dto.itemHashes.length} items for extension ${extension.uuid} and user ${dto.userUuid}`)
+        this.logger.debug(`Publishing ITEMS_SYNCED event with ${dto.itemHashes.length} items for extension ${extension.uuid} and user ${dto.userUuid}`)
 
         await this.domainEventPublisher.publish(
           this.domainEventFactory.createItemsSyncedEvent({
@@ -58,6 +58,7 @@ export class PostToRealtimeExtensions implements UseCaseInterface {
             extensionId: extension.uuid,
             itemUuids: dto.itemHashes.map((itemHash: ItemHash) => itemHash.uuid),
             forceMute: true,
+            skipFileBackup: true,
           })
         )
       }
