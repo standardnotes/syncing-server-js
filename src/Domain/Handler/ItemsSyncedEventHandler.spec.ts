@@ -50,13 +50,14 @@ describe('ItemsSyncedEventHandler', () => {
       extensionUrl: 'https://extensions-server/extension1',
       forceMute: false,
       itemUuids: [ '4-5-6' ],
+      skipFileBackup: false,
     }
 
     itemBackupService = {} as jest.Mocked<ItemBackupServiceInterface>
     itemBackupService.backup = jest.fn().mockReturnValue('backup-file-name')
 
     logger = {} as jest.Mocked<Logger>
-    logger.info = jest.fn()
+    logger.debug = jest.fn()
   })
 
   it('should send synced items to extensions server', async () => {
@@ -76,6 +77,32 @@ describe('ItemsSyncedEventHandler', () => {
         foo: 'bar',
       },
       backupFilename: 'backup-file-name',
+      extensionId: '2-3-4',
+      extensionsServerUrl: 'https://extensions-server/extension1',
+      forceMute: false,
+      items: [ item ],
+      userUuid: '1-2-3',
+    })
+  })
+
+  it('should send synced items to extensions server with skipped file backup', async () => {
+    event.payload.skipFileBackup = true
+    await createHandler().handle(event)
+
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      uuids:  [
+        '4-5-6',
+      ],
+    })
+
+    expect(extensionsHttpService.sendItemsToExtensionsServer).toHaveBeenCalledWith({
+      authParams: {
+        foo: 'bar',
+      },
+      backupFilename: '',
       extensionId: '2-3-4',
       extensionsServerUrl: 'https://extensions-server/extension1',
       forceMute: false,

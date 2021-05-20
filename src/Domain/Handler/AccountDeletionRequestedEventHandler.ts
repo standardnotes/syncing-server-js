@@ -55,6 +55,7 @@ export class AccountDeletionRequestedEventHandler implements DomainEventHandlerI
           extensionId: extension.uuid,
           itemUuids: [],
           forceMute: true,
+          skipFileBackup: true,
         })
       )
     }

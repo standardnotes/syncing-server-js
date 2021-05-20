@@ -92,6 +92,7 @@ const runDailyBackup = async (
           extensionId: fetchedItem.uuid,
           itemUuids: [],
           forceMute: muteEmails,
+          skipFileBackup: false,
         })
       )
     }

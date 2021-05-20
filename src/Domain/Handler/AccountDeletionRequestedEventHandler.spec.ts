@@ -70,6 +70,7 @@ describe('AccountDeletionRequestedEventHandler', () => {
       forceMute: true,
       itemUuids: [],
       userUuid: '2-3-4',
+      skipFileBackup: true,
     })
   })
 
