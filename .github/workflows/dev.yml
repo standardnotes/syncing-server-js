@@ -18,7 +18,36 @@ jobs:
     - run: yarn lint
     - run: yarn coverage
 
-  publish:
+  publish-aws-ecr:
+    needs: test
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - run: cp .env.sample .env
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: syncing-server-js
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:dev
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:dev
+
+  publish-docker-hub:
     needs: test
 
     runs-on: ubuntu-latest
@@ -35,7 +64,7 @@ jobs:
         tags: "dev,${{ github.sha }}"
 
   deploy-web:
-    needs: publish
+    needs: publish-aws-ecr
 
     runs-on: ubuntu-latest
 
@@ -55,7 +84,7 @@ jobs:
       with:
         task-definition: task-definition.json
         container-name: syncing-server-js-dev
-        image: "standardnotes/syncing-server-js:${{ github.sha }}"
+        image: ${{ secrets.AWS_ECR_REGISTRY }}/syncing-server-js:${{ github.sha }}
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
@@ -65,7 +94,7 @@ jobs:
         wait-for-service-stability: true
 
   deploy-worker:
-    needs: publish
+    needs: publish-aws-ecr
 
     runs-on: ubuntu-latest
 
@@ -85,7 +114,7 @@ jobs:
       with:
         task-definition: task-definition.json
         container-name: syncing-server-js-worker-dev
-        image: "standardnotes/syncing-server-js:${{ github.sha }}"
+        image: ${{ secrets.AWS_ECR_REGISTRY }}/syncing-server-js:${{ github.sha }}
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
