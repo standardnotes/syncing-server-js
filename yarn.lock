@@ -684,13 +684,14 @@
     "@typescript-eslint/eslint-plugin" "^4.14.0"
     "@typescript-eslint/parser" "^4.14.0"
 
-"@standardnotes/domain-events@1.1.5":
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/@standardnotes/domain-events/-/domain-events-1.1.5.tgz#be4416813f21be7adb7e29d574f8e952488a65e9"
-  integrity sha512-7ay/mQYb4RXUu7QdWGk47Xrx/0TidZVq7FeqhHcMiL29Ri3kEZ28xYUkLUR8WTFdLCPaeogQ81fvPGEBGhtzQA==
+"@standardnotes/domain-events@1.1.7":
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/@standardnotes/domain-events/-/domain-events-1.1.7.tgz#57eb7e45fcaa334d4e5d761fb60d41c7c1f9c87e"
+  integrity sha512-hLaF1KH+BM87E40ms3dmp1QSxEvp2V80t3Ol+g/UKxV532RZAmpyilzQOUHGvJYkBnKs7pK3iB9kGXRdGYNgaQ==
   dependencies:
     aws-sdk "^2.824.0"
     ioredis "^4.19.4"
+    newrelic "^7.4.0"
     reflect-metadata "^0.1.13"
     sqs-consumer "^5.5.0"
     winston "^3.3.3"
@@ -4593,6 +4594,26 @@ newrelic@^7.3.1:
   version "7.3.1"
   resolved "https://registry.yarnpkg.com/newrelic/-/newrelic-7.3.1.tgz#2ab15cf057c7b27b3899f12add643bcc752101fb"
   integrity sha512-PtFIJqaZnrj8+blZrE/kEpOYsL4rYZjs2L2mWRgfdAl7KJfmbAalRHFyae7Pn2o5wYSXGrIoUqHJY7hcKZNXKQ==
+  dependencies:
+    "@grpc/grpc-js" "^1.2.11"
+    "@grpc/proto-loader" "^0.5.6"
+    "@newrelic/aws-sdk" "^3.1.0"
+    "@newrelic/koa" "^5.0.0"
+    "@newrelic/superagent" "^4.0.0"
+    "@tyriar/fibonacci-heap" "^2.0.7"
+    async "^3.2.0"
+    concat-stream "^2.0.0"
+    https-proxy-agent "^4.0.0"
+    json-stringify-safe "^5.0.0"
+    readable-stream "^3.6.0"
+    semver "^5.3.0"
+  optionalDependencies:
+    "@newrelic/native-metrics" "^6.0.0"
+
+newrelic@^7.4.0:
+  version "7.4.0"
+  resolved "https://registry.yarnpkg.com/newrelic/-/newrelic-7.4.0.tgz#66f46ad1e70ca3962861b1d9e83b9ad7bb581ea7"
+  integrity sha512-McnVaKopE5garsAgI02NG8r98lGXT69Dci0OI5tZx0Gucc7H8fzjhslYEY35aWiWlrK74Y3SIpQllorfJbBlvA==
   dependencies:
     "@grpc/grpc-js" "^1.2.11"
     "@grpc/proto-loader" "^0.5.6"

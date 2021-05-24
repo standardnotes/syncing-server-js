@@ -13,6 +13,7 @@ import {
   SNSDomainEventPublisher,
   SQSDomainEventSubscriberFactory,
   SQSEventMessageHandler,
+  SQSNewRelicEventMessageHandler,
 } from '@standardnotes/domain-events'
 import { UAParser } from 'ua-parser-js'
 
@@ -236,6 +237,7 @@ export class ContainerConfigLoader {
     container.bind(TYPES.S3_BACKUP_BUCKET_NAME).toConstantValue(env.get('S3_BACKUP_BUCKET_NAME', true))
     container.bind(TYPES.EMAIL_ATTACHMENT_MAX_BYTE_SIZE).toConstantValue(env.get('EMAIL_ATTACHMENT_MAX_BYTE_SIZE'))
     container.bind(TYPES.REVISIONS_FREQUENCY).toConstantValue(env.get('REVISIONS_FREQUENCY'))
+    container.bind(TYPES.NEW_RELIC_ENABLED).toConstantValue(env.get('NEW_RELIC_ENABLED', true))
 
     // use cases
     container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
@@ -310,7 +312,9 @@ export class ContainerConfigLoader {
 
     if (env.get('SQS_QUEUE_URL', true)) {
       container.bind<DomainEventMessageHandlerInterface>(TYPES.DomainEventMessageHandler).toConstantValue(
-        new SQSEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
+        env.get('NEW_RELIC_ENABLED', true) === 'true' ?
+          new SQSNewRelicEventMessageHandler(eventHandlers, container.get(TYPES.Logger)) :
+          new SQSEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
       )
       container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).toConstantValue(
         new SQSDomainEventSubscriberFactory(
