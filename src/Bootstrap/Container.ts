@@ -2,7 +2,6 @@ import * as winston from 'winston'
 import * as IORedis from 'ioredis'
 import * as AWS from 'aws-sdk'
 import * as superagent from 'superagent'
-import * as newrelic from 'newrelic'
 import { Container } from 'inversify'
 import {
   DomainEventHandlerInterface,
@@ -13,7 +12,6 @@ import {
   RedisEventMessageHandler,
   SNSDomainEventPublisher,
   SQSDomainEventSubscriberFactory,
-  SQSWrappedEventMessageHandler,
 } from '@standardnotes/domain-events'
 import { UAParser } from 'ua-parser-js'
 
@@ -94,6 +92,7 @@ import { ItemRevisionRepositoryInterface } from '../Domain/Revision/ItemRevision
 import { MySQLItemRevisionRepository } from '../Infra/MySQL/MySQLItemRevisionRepository'
 import { ItemRevision } from '../Domain/Revision/ItemRevision'
 import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
+import { SQSNewRelicEventMessageHandler } from '../Infra/SQS/SQSNewRelicEventMessageHandler'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -311,7 +310,7 @@ export class ContainerConfigLoader {
 
     if (env.get('SQS_QUEUE_URL', true)) {
       container.bind<DomainEventMessageHandlerInterface>(TYPES.DomainEventMessageHandler).toConstantValue(
-        new SQSWrappedEventMessageHandler(eventHandlers, newrelic.startBackgroundTransaction, container.get(TYPES.Logger))
+        new SQSNewRelicEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
       )
       container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).toConstantValue(
         new SQSDomainEventSubscriberFactory(
