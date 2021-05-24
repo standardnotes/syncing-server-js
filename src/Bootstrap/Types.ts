@@ -52,6 +52,7 @@ const TYPES = {
   S3_BACKUP_BUCKET_NAME: Symbol.for('S3_BACKUP_BUCKET_NAME'),
   EMAIL_ATTACHMENT_MAX_BYTE_SIZE: Symbol.for('EMAIL_ATTACHMENT_MAX_BYTE_SIZE'),
   REVISIONS_FREQUENCY: Symbol.for('REVISIONS_FREQUENCY'),
+  NEW_RELIC_ENABLED: Symbol.for('NEW_RELIC_ENABLED'),
   // use cases
   AuthenticateUser: Symbol.for('AuthenticateUser'),
   RefreshSessionToken: Symbol.for('RefreshSessionToken'),
