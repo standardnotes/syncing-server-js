@@ -2,6 +2,7 @@ import * as winston from 'winston'
 import * as IORedis from 'ioredis'
 import * as AWS from 'aws-sdk'
 import * as superagent from 'superagent'
+import { startBackgroundTransaction } from 'newrelic'
 import { Container } from 'inversify'
 import {
   DomainEventHandlerInterface,
@@ -12,7 +13,7 @@ import {
   RedisEventMessageHandler,
   SNSDomainEventPublisher,
   SQSDomainEventSubscriberFactory,
-  SQSEventMessageHandler,
+  SQSWrappedEventMessageHandler,
 } from '@standardnotes/domain-events'
 import { UAParser } from 'ua-parser-js'
 
@@ -310,7 +311,7 @@ export class ContainerConfigLoader {
 
     if (env.get('SQS_QUEUE_URL', true)) {
       container.bind<DomainEventMessageHandlerInterface>(TYPES.DomainEventMessageHandler).toConstantValue(
-        new SQSEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
+        new SQSWrappedEventMessageHandler(eventHandlers, startBackgroundTransaction, container.get(TYPES.Logger))
       )
       container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).toConstantValue(
         new SQSDomainEventSubscriberFactory(
