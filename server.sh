@@ -44,6 +44,9 @@ case "$COMMAND" in
     echo "Default configuration files created as .env and docker/*.env files. Feel free to modify values if needed."
     ;;
   'start' )
+    echo "Cleaning stale dist folder"
+    yarn clean
+    echo "Checking for env file changes"
     checkForConfigFileChanges
     echo "Starting up infrastructure"
     docker-compose up -d
