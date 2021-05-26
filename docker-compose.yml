@@ -24,7 +24,7 @@ services:
       "./wait-for.sh", "db", "3306",
       "./wait-for.sh", "cache", "6379",
       "./wait-for.sh", "syncing-server-js", "3000",
-       "./docker/entrypoint.sh", "start-worker"
+       "./docker/entrypoint.sh", "start-worker-local"
     ]
     env_file: .env
     restart: unless-stopped

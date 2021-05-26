@@ -21,6 +21,7 @@
     "start": "node dist/bin/server.js",
     "start:local": "npx nodemon -L bin/server.ts",
     "worker": "node dist/bin/worker.js",
+    "worker:local": "npx nodemon -L dist/bin/worker.js",
     "daily-backup": "node dist/bin/backup.js",
     "daily-backup-no-email": "node dist/bin/backup.js mute-emails"
   },

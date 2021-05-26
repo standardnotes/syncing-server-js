@@ -9,6 +9,11 @@ case "$COMMAND" in
     yarn start:local
     ;;
 
+  'start-worker-local')
+    echo "Starting Worker in Local Mode..."
+    yarn worker:local
+    ;;
+
   'start-web' )
     echo "Starting Web..."
     yarn start
