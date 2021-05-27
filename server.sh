@@ -44,8 +44,6 @@ case "$COMMAND" in
     echo "Default configuration files created as .env and docker/*.env files. Feel free to modify values if needed."
     ;;
   'start' )
-    echo "Cleaning stale dist folder"
-    yarn clean
     echo "Checking for env file changes"
     checkForConfigFileChanges
     echo "Starting up infrastructure"
@@ -70,6 +68,10 @@ case "$COMMAND" in
     docker-compose pull
     echo "Building latest image of Syncing Server."
     docker-compose build
+    echo "Cleaning stale dist folder"
+    yarn clean
+    echo "Installing dependencies"
+    yarn install --pure-lockfile
     echo "Images up to date. Starting all services."
     docker-compose up -d
     echo "Infrastructure started. Give it a moment to warm up. If you wish please run the './server.sh logs' command to see details."

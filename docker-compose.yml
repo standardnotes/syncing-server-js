@@ -1,4 +1,4 @@
-version: '3.9'
+version: '3.8'
 services:
   syncing-server-js:
     image: syncing-server-js-local
@@ -9,9 +9,6 @@ services:
       "./docker/entrypoint.sh", "start-local"
     ]
     env_file: .env
-    restart: unless-stopped
-    ports:
-      - 3000:${PORT}
     networks:
       - syncing_server_js
     volumes:
@@ -27,11 +24,10 @@ services:
        "./docker/entrypoint.sh", "start-worker-local"
     ]
     env_file: .env
-    restart: unless-stopped
     networks:
       - syncing_server_js
-    volumes:
-      - .:/var/www
+    volumes_from:
+      - syncing-server-js
 
   api-gateway:
     image: standardnotes/api-gateway:1.4.4
@@ -45,7 +41,7 @@ services:
       "./docker/entrypoint.sh", "start-web"
     ]
     ports:
-      - 3124:3000
+      - 3000:3000
     networks:
       - syncing_server_js
 
@@ -116,7 +112,6 @@ services:
       MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
     ports:
       - 32789:3306
-    restart: unless-stopped
     command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8 --collation-server=utf8_general_ci
     volumes:
       - ./data/mysql:/var/lib/mysql
