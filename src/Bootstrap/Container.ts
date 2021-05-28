@@ -58,7 +58,6 @@ import { MySQLRevokedSessionRepository } from '../Infra/MySQL/MySQLRevokedSessio
 import { TokenDecoder } from '../Domain/Auth/TokenDecoder'
 import { AuthenticationMethodResolver } from '../Domain/Auth/AuthenticationMethodResolver'
 import { RevokedSession } from '../Domain/Session/RevokedSession'
-import { UserRegisteredEventHandler } from '../Domain/Handler/UserRegisteredEventHandler'
 import { ChangePassword } from '../Domain/UseCase/ChangePassword'
 import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
 import { TimerInterface } from '../Domain/Time/TimerInterface'
@@ -257,7 +256,6 @@ export class ContainerConfigLoader {
     container.bind<MuteNotifications>(TYPES.MuteNotifications).to(MuteNotifications)
 
     // Handlers
-    container.bind<UserRegisteredEventHandler>(TYPES.UserRegisteredEventHandler).to(UserRegisteredEventHandler)
     container.bind<ItemsSyncedEventHandler>(TYPES.ItemsSyncedEventHandler).to(ItemsSyncedEventHandler)
     container.bind<EmailArchiveExtensionSyncedEventHandler>(TYPES.EmailArchiveExtensionSyncedEventHandler).to(EmailArchiveExtensionSyncedEventHandler)
     container.bind<DuplicateItemSyncedEventHandler>(TYPES.DuplicateItemSyncedEventHandler).to(DuplicateItemSyncedEventHandler)
@@ -303,7 +301,6 @@ export class ContainerConfigLoader {
 
     const eventHandlers: Map<string, DomainEventHandlerInterface> = new Map([
       ['DUPLICATE_ITEM_SYNCED', container.get(TYPES.DuplicateItemSyncedEventHandler)],
-      ['USER_REGISTERED', container.get(TYPES.UserRegisteredEventHandler)],
       ['ITEMS_SYNCED', container.get(TYPES.ItemsSyncedEventHandler)],
       ['EMAIL_ARCHIVE_EXTENSION_SYNCED', container.get(TYPES.EmailArchiveExtensionSyncedEventHandler)],
       ['ACCOUNT_DELETION_REQUESTED', container.get(TYPES.AccountDeletionRequestedEventHandler)],

@@ -72,7 +72,6 @@ const TYPES = {
   // Handlers
   AccountDeletionRequestedEventHandler: Symbol.for('AccountDeletionRequestedEventHandler'),
   DuplicateItemSyncedEventHandler: Symbol.for('DuplicateItemSyncedEventHandler'),
-  UserRegisteredEventHandler: Symbol.for('UserRegisteredEventHandler'),
   ItemsSyncedEventHandler: Symbol.for('ItemsSyncedEventHandler'),
   EmailArchiveExtensionSyncedEventHandler: Symbol.for('EmailArchiveExtensionSyncedEventHandler'),
   // Services
