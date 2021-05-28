@@ -54,6 +54,7 @@ describe('AuthController', () => {
   beforeEach(() => {
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
+    logger.warn = jest.fn()
 
     sessionService = {} as jest.Mocked<SessionServiceInterace>
     sessionService.deleteSessionByToken = jest.fn()
@@ -390,6 +391,35 @@ describe('AuthController', () => {
     const result = await httpResponse.executeAsync()
 
     expect(result.statusCode).toEqual(401)
+  })
+
+  it('should not get auth params for authenticated user if auth http service not responding', async () => {
+    response.locals.user = user
+    response.locals.session = session
+
+    authHttpService.getUserKeyParams = jest.fn().mockImplementation(() => {
+      throw new Error('Oops!')
+    })
+
+    const httpResponse = <results.JsonResult> await createController().params(request, response)
+    const result = await httpResponse.executeAsync()
+
+    expect(result.statusCode).toEqual(400)
+  })
+
+  it('should not get auth params for unauthenticated user if auth http service not responding', async () => {
+    authHttpService.getUserKeyParams = jest.fn().mockImplementation(() => {
+      throw new Error('Oops!')
+    })
+
+    verifyMFA.execute = jest.fn().mockReturnValue({ success: true })
+
+    request.query.email = 'test2@test.te'
+
+    const httpResponse = <results.JsonResult> await createController().params(request, response)
+    const result = await httpResponse.executeAsync()
+
+    expect(result.statusCode).toEqual(400)
   })
 
   it('should not get auth params for missing email parameter', async () => {

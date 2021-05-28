@@ -58,6 +58,7 @@ describe('ItemsSyncedEventHandler', () => {
 
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
+    logger.warn = jest.fn()
   })
 
   it('should send synced items to extensions server', async () => {
@@ -83,6 +84,16 @@ describe('ItemsSyncedEventHandler', () => {
       items: [ item ],
       userUuid: '1-2-3',
     })
+  })
+
+  it('should skip sending synced items to extensions server if user key params cannot be obtained', async () => {
+    authHttpService.getUserKeyParams = jest.fn().mockImplementation(() => {
+      throw new Error('Oops!')
+    })
+
+    await createHandler().handle(event)
+
+    expect(extensionsHttpService.sendItemsToExtensionsServer).not.toHaveBeenCalled()
   })
 
   it('should send synced items to extensions server with skipped file backup', async () => {
