@@ -1,3 +1,4 @@
+import { KeyParams } from '@standardnotes/auth'
 import { DomainEventHandlerInterface, DomainEventPublisherInterface, EmailArchiveExtensionSyncedEvent } from '@standardnotes/domain-events'
 import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
@@ -31,10 +32,18 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
       deleted: false,
     })
 
-    const authParams = await this.authHttpService.getUserKeyParams({
-      uuid: event.payload.userUuid,
-      authenticated: false,
-    })
+    let authParams: KeyParams
+    try {
+      authParams = await this.authHttpService.getUserKeyParams({
+        uuid: event.payload.userUuid,
+        authenticated: false,
+      })
+    } catch (error) {
+      this.logger.warn(`Could not get user key params from auth service: ${error.message}`)
+
+      return
+    }
+
 
     const data = JSON.stringify({
       items,

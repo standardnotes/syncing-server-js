@@ -36,12 +36,22 @@ export class AuthController extends BaseHttpController {
   @httpGet('/params', TYPES.AuthMiddlewareWithoutResponse)
   async params(request: Request, response: Response): Promise<results.JsonResult> {
     if (response.locals.session) {
-      const keyParams = await this.authHttpService.getUserKeyParams({
-        email: response.locals.user.email,
-        authenticated: true,
-      })
+      try {
+        const keyParams = await this.authHttpService.getUserKeyParams({
+          email: response.locals.user.email,
+          authenticated: true,
+        })
 
-      return this.json(keyParams)
+        return this.json(keyParams)
+      } catch (error) {
+        this.logger.warn(`Could not get user key params from auth service: ${error.message}`)
+
+        return this.json({
+          error: {
+            message: 'Could not obtain authentication parameters.',
+          },
+        }, 400)
+      }
     }
 
     if (!request.query.email) {
@@ -67,12 +77,22 @@ export class AuthController extends BaseHttpController {
       }, 401)
     }
 
-    const keyParams = await this.authHttpService.getUserKeyParams({
-      email: <string> request.query.email,
-      authenticated: false,
-    })
+    try {
+      const keyParams = await this.authHttpService.getUserKeyParams({
+        email: <string> request.query.email,
+        authenticated: false,
+      })
 
-    return this.json(keyParams)
+      return this.json(keyParams)
+    } catch (error) {
+      this.logger.warn(`Could not get user key params from auth service: ${error.message}`)
+
+      return this.json({
+        error: {
+          message: 'Could not obtain authentication parameters.',
+        },
+      }, 400)
+    }
   }
 
   @httpPost('/sign_in', TYPES.LockMiddleware)

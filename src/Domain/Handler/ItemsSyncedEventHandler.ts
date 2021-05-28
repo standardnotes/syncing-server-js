@@ -9,6 +9,7 @@ import { Item } from '../Item/Item'
 import { ExtensionsHttpServiceInterface } from '../Extension/ExtensionsHttpServiceInterface'
 import { ItemBackupServiceInterface } from '../Item/ItemBackupServiceInterface'
 import { Logger } from 'winston'
+import { KeyParams } from '@standardnotes/auth'
 
 @injectable()
 export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
@@ -26,10 +27,17 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
   async handle(event: ItemsSyncedEvent): Promise<void> {
     const items = await this.getItemsForPostingToExtension(event)
 
-    const authParams = await this.authHttpService.getUserKeyParams({
-      uuid: event.payload.userUuid,
-      authenticated: false,
-    })
+    let authParams: KeyParams
+    try {
+      authParams = await this.authHttpService.getUserKeyParams({
+        uuid: event.payload.userUuid,
+        authenticated: false,
+      })
+    } catch (error) {
+      this.logger.warn(`Could not get user key params from auth service: ${error.message}`)
+
+      return
+    }
 
     let backupFilename = ''
     if (!event.payload.skipFileBackup) {
