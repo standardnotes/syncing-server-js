@@ -70,6 +70,7 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
 
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
+    logger.warn = jest.fn()
   })
 
   it('should inform that backup attachment for email was created', async () => {
@@ -77,6 +78,17 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
 
     expect(domainEventPublisher.publish).toHaveBeenCalledTimes(1)
     expect(domainEventFactory.createEmailBackupAttachmentCreatedEvent).toHaveBeenCalledWith('backup-file-name', 'test@test.com')
+  })
+
+  it('should not inform that backup attachment for email was created if user key params cannot be obtained', async () => {
+    authHttpService.getUserKeyParams = jest.fn().mockImplementation(() => {
+      throw new Error('Oops!')
+    })
+
+    await createHandler().handle(event)
+
+    expect(domainEventPublisher.publish).not.toHaveBeenCalled()
+    expect(domainEventFactory.createEmailBackupAttachmentCreatedEvent).not.toHaveBeenCalled()
   })
 
   it('should not inform that backup attachment for email was created if backup file name is empty', async () => {
