@@ -6,7 +6,6 @@ import { DomainEventInterface, DomainEventPublisherInterface } from '@standardno
 
 import { AuthController } from './AuthController'
 import { results } from 'inversify-express-utils'
-import { SessionServiceInterace } from '../Domain/Session/SessionServiceInterface'
 import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
 import { SignIn } from '../Domain/UseCase/SignIn'
 import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
@@ -19,7 +18,6 @@ import { AuthHttpServiceInterface } from '../Domain/Auth/AuthHttpServiceInterfac
 import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
 
 describe('AuthController', () => {
-  let sessionService: SessionServiceInterace
   let verifyMFA: VerifyMFA
   let signIn: SignIn
   let authHttpService: AuthHttpServiceInterface
@@ -36,7 +34,6 @@ describe('AuthController', () => {
   let logger: Logger
 
   const createController = () => new AuthController(
-    sessionService,
     verifyMFA,
     signIn,
     authHttpService,
@@ -50,9 +47,6 @@ describe('AuthController', () => {
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
     logger.warn = jest.fn()
-
-    sessionService = {} as jest.Mocked<SessionServiceInterace>
-    sessionService.deleteSessionByToken = jest.fn()
 
     verifyMFA = {} as jest.Mocked<VerifyMFA>
     verifyMFA.execute = jest.fn()
@@ -383,22 +377,6 @@ describe('AuthController', () => {
     const result = await httpResponse.executeAsync()
 
     expect(increaseLoginAttempts.execute).toHaveBeenCalledWith({ email: 'test@test.te' })
-
-    expect(result.statusCode).toEqual(401)
-  })
-
-  it('should delete a session by authorization header token', async () => {
-    request.headers.authorization = 'Bearer test'
-
-    const httpResponse = <results.StatusCodeResult> await createController().signOut(request)
-    const result = await httpResponse.executeAsync()
-
-    expect(result.statusCode).toEqual(204)
-  })
-
-  it('should not delete a session if authorization header is missing', async () => {
-    const httpResponse = <results.JsonResult> await createController().signOut(request)
-    const result = await httpResponse.executeAsync()
 
     expect(result.statusCode).toEqual(401)
   })
