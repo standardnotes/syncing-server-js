@@ -62,7 +62,6 @@ const TYPES = {
   GetActiveSessionsForUser: Symbol.for('GetActiveSessionsForUser'),
   DeletePreviousSessionsForUser: Symbol.for('DeletePreviousSessionsForUser'),
   DeleteSessionForUser: Symbol.for('DeleteSessionForUser'),
-  ChangePassword: Symbol.for('ChangePassword'),
   SyncItems: Symbol.for('SyncItems'),
   PostToRealtimeExtensions: Symbol.for('PostToRealtimeExtensions'),
   PostToDailyExtensions: Symbol.for('PostToDailyExtensions'),
