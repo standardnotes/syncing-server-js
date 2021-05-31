@@ -160,15 +160,6 @@ export class SessionService implements SessionServiceInterace {
     return this.revokedSessionRepository.save(revokedSession)
   }
 
-  async deleteSessionByToken(token: string): Promise<void> {
-    const session = await this.getSessionFromToken(token)
-
-    if (session) {
-      await this.sessionRepository.deleteOneByUuid(session.uuid)
-      await this.ephemeralSessionRepository.deleteOne(session.uuid, session.userUuid)
-    }
-  }
-
   async revokeSession(session: Session): Promise<RevokedSession> {
     const revokedSession = new RevokedSession()
     revokedSession.uuid = session.uuid

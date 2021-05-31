@@ -166,36 +166,6 @@ describe('SessionService', () => {
     })
   })
 
-  it('should delete a session by token', async () => {
-    sessionRepository.findOneByUuid = jest.fn().mockImplementation((uuid) => {
-      if (uuid === '2') {
-        return session
-      }
-
-      return undefined
-    })
-
-    await createService().deleteSessionByToken('1:2:3')
-
-    expect(sessionRepository.deleteOneByUuid).toHaveBeenCalledWith('2e1e43')
-    expect(ephemeralSessionRepository.deleteOne).toHaveBeenCalledWith('2e1e43', '1-2-3')
-  })
-
-  it('should not delete a session by token if session is not found', async () => {
-    sessionRepository.findOneByUuid = jest.fn().mockImplementation((uuid) => {
-      if (uuid === '2') {
-        return session
-      }
-
-      return undefined
-    })
-
-    await createService().deleteSessionByToken('1:4:3')
-
-    expect(sessionRepository.deleteOneByUuid).not.toHaveBeenCalled()
-    expect(ephemeralSessionRepository.deleteOne).not.toHaveBeenCalled()
-  })
-
   it('should determine if a refresh token is valid', async () => {
     expect(createService().isRefreshTokenValid(session, '1:2:3')).toBeTruthy()
     expect(createService().isRefreshTokenValid(session, '1:2:4')).toBeFalsy()

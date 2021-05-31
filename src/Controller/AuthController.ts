@@ -3,7 +3,6 @@ import { inject } from 'inversify'
 import { BaseHttpController, controller, httpGet, httpPost, results } from 'inversify-express-utils'
 
 import TYPES from '../Bootstrap/Types'
-import { SessionServiceInterace } from '../Domain/Session/SessionServiceInterface'
 import { SignIn } from '../Domain/UseCase/SignIn'
 import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
 import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
@@ -15,7 +14,6 @@ import { AuthHttpServiceInterface } from '../Domain/Auth/AuthHttpServiceInterfac
 @controller('/auth')
 export class AuthController extends BaseHttpController {
   constructor(
-    @inject(TYPES.SessionService) private sessionService: SessionServiceInterace,
     @inject(TYPES.VerifyMFA) private verifyMFA: VerifyMFA,
     @inject(TYPES.SignIn) private signInUseCase: SignIn,
     @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
@@ -138,26 +136,6 @@ export class AuthController extends BaseHttpController {
     await this.clearLoginAttempts.execute({ email: request.body.email })
 
     return this.json(signInResult.authResponse)
-  }
-
-  @httpPost('/sign_out')
-  async signOut(request: Request): Promise<results.JsonResult | results.StatusCodeResult> {
-    const authorizationHeader = <string> request.headers.authorization
-
-    if (!authorizationHeader) {
-      this.logger.debug('/auth/sign_out request missing authorization header')
-
-      return this.json({
-        error: {
-          tag: 'invalid-auth',
-          message: 'Invalid login credentials.',
-        },
-      }, 401)
-    }
-
-    await this.sessionService.deleteSessionByToken(authorizationHeader.replace('Bearer ', ''))
-
-    return this.statusCode(204)
   }
 
   @httpPost('/change_pw', TYPES.AuthMiddleware)

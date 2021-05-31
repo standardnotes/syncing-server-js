@@ -10,7 +10,6 @@ export interface SessionServiceInterace {
   getSessionFromToken(token: string): Promise<Session | undefined>
   getRevokedSessionFromToken(token: string): Promise<RevokedSession | undefined>
   markRevokedSessionAsReceived(revokedSession: RevokedSession): Promise<RevokedSession>
-  deleteSessionByToken(token: string): Promise<void>
   isRefreshTokenValid(session: Session, token: string): boolean
   getDeviceInfo(session: Session): string
   revokeSession(session: Session): Promise<RevokedSession>
