@@ -58,7 +58,6 @@ const TYPES = {
   SignIn: Symbol.for('SignIn'),
   ClearLoginAttempts: Symbol.for('ClearLoginAttempts'),
   IncreaseLoginAttempts: Symbol.for('IncreaseLoginAttempts'),
-  UpdateUser: Symbol.for('UpdateUser'),
   DeletePreviousSessionsForUser: Symbol.for('DeletePreviousSessionsForUser'),
   DeleteSessionForUser: Symbol.for('DeleteSessionForUser'),
   SyncItems: Symbol.for('SyncItems'),

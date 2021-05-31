@@ -47,7 +47,6 @@ import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
 import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { LockMiddleware } from '../Controller/LockMiddleware'
 import { AuthMiddlewareWithoutResponse } from '../Controller/AuthMiddlewareWithoutResponse'
-import { UpdateUser } from '../Domain/UseCase/UpdateUser'
 import { RedisEphemeralSessionRepository } from '../Infra/Redis/RedisEphemeralSessionRepository'
 import { DeletePreviousSessionsForUser } from '../Domain/UseCase/DeletePreviousSessionsForUser'
 import { DeleteSessionForUser } from '../Domain/UseCase/DeleteSessionForUser'
@@ -240,7 +239,6 @@ export class ContainerConfigLoader {
     container.bind<VerifyMFA>(TYPES.VerifyMFA).to(VerifyMFA)
     container.bind<ClearLoginAttempts>(TYPES.ClearLoginAttempts).to(ClearLoginAttempts)
     container.bind<IncreaseLoginAttempts>(TYPES.IncreaseLoginAttempts).to(IncreaseLoginAttempts)
-    container.bind<UpdateUser>(TYPES.UpdateUser).to(UpdateUser)
     container.bind<DeletePreviousSessionsForUser>(TYPES.DeletePreviousSessionsForUser).to(DeletePreviousSessionsForUser)
     container.bind<DeleteSessionForUser>(TYPES.DeleteSessionForUser).to(DeleteSessionForUser)
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
