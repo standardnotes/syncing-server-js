@@ -43,7 +43,7 @@ export class ItemsController extends BaseHttpController {
     try {
       await this.postToRealtimeExtensions.execute({
         userUuid: response.locals.user.uuid,
-        itemHashes: request.body.items,
+        itemHashes,
       })
 
       await this.postToDailyExtensions.execute({
