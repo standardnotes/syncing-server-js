@@ -10,7 +10,7 @@ export class MySQLRevisionRepository extends Repository<Revision> implements Rev
     await this.createQueryBuilder('revision')
       .delete()
       .from('revisions')
-      .where('revision.item_uuid = :itemUuid', { itemUuid })
+      .where('item_uuid = :itemUuid', { itemUuid })
       .execute()
   }
 

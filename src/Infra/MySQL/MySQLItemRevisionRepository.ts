@@ -16,7 +16,7 @@ export class MySQLItemRevisionRepository extends Repository<ItemRevision> implem
     await this.createQueryBuilder('item_revision')
       .delete()
       .from('item_revisions')
-      .where('item_revision.item_uuid = :itemUuid', { itemUuid })
+      .where('item_uuid = :itemUuid', { itemUuid })
       .execute()
   }
 }
