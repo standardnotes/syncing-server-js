@@ -556,44 +556,6 @@
     "@nodelib/fs.scandir" "2.1.3"
     fastq "^1.6.0"
 
-"@otplib/core@^12.0.1":
-  version "12.0.1"
-  resolved "https://registry.yarnpkg.com/@otplib/core/-/core-12.0.1.tgz#73720a8cedce211fe5b3f683cd5a9c098eaf0f8d"
-  integrity sha512-4sGntwbA/AC+SbPhbsziRiD+jNDdIzsZ3JUyfZwjtKyc/wufl1pnSIaG4Uqx8ymPagujub0o92kgBnB89cuAMA==
-
-"@otplib/plugin-crypto@^12.0.1":
-  version "12.0.1"
-  resolved "https://registry.yarnpkg.com/@otplib/plugin-crypto/-/plugin-crypto-12.0.1.tgz#2b42c624227f4f9303c1c041fca399eddcbae25e"
-  integrity sha512-qPuhN3QrT7ZZLcLCyKOSNhuijUi9G5guMRVrxq63r9YNOxxQjPm59gVxLM+7xGnHnM6cimY57tuKsjK7y9LM1g==
-  dependencies:
-    "@otplib/core" "^12.0.1"
-
-"@otplib/plugin-thirty-two@^12.0.1":
-  version "12.0.1"
-  resolved "https://registry.yarnpkg.com/@otplib/plugin-thirty-two/-/plugin-thirty-two-12.0.1.tgz#5cc9b56e6e89f2a1fe4a2b38900ca4e11c87aa9e"
-  integrity sha512-MtT+uqRso909UkbrrYpJ6XFjj9D+x2Py7KjTO9JDPhL0bJUYVu5kFP4TFZW4NFAywrAtFRxOVY261u0qwb93gA==
-  dependencies:
-    "@otplib/core" "^12.0.1"
-    thirty-two "^1.0.2"
-
-"@otplib/preset-default@^12.0.1":
-  version "12.0.1"
-  resolved "https://registry.yarnpkg.com/@otplib/preset-default/-/preset-default-12.0.1.tgz#cb596553c08251e71b187ada4a2246ad2a3165ba"
-  integrity sha512-xf1v9oOJRyXfluBhMdpOkr+bsE+Irt+0D5uHtvg6x1eosfmHCsCC6ej/m7FXiWqdo0+ZUI6xSKDhJwc8yfiOPQ==
-  dependencies:
-    "@otplib/core" "^12.0.1"
-    "@otplib/plugin-crypto" "^12.0.1"
-    "@otplib/plugin-thirty-two" "^12.0.1"
-
-"@otplib/preset-v11@^12.0.1":
-  version "12.0.1"
-  resolved "https://registry.yarnpkg.com/@otplib/preset-v11/-/preset-v11-12.0.1.tgz#4c7266712e7230500b421ba89252963c838fc96d"
-  integrity sha512-9hSetMI7ECqbFiKICrNa4w70deTUfArtwXykPUvSHWOdzOlfa9ajglu7mNCntlvxycTiOAXkQGwjQCzzDEMRMg==
-  dependencies:
-    "@otplib/core" "^12.0.1"
-    "@otplib/plugin-crypto" "^12.0.1"
-    "@otplib/plugin-thirty-two" "^12.0.1"
-
 "@protobufjs/aspromise@^1.1.1", "@protobufjs/aspromise@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@protobufjs/aspromise/-/aspromise-1.1.2.tgz#9b8b0cc663d669a7d8f6f5d0893a14d348f30fbf"
@@ -745,11 +707,6 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
-"@types/bcryptjs@^2.4.2":
-  version "2.4.2"
-  resolved "https://registry.yarnpkg.com/@types/bcryptjs/-/bcryptjs-2.4.2.tgz#e3530eac9dd136bfdfb0e43df2c4c5ce1f77dfae"
-  integrity sha512-LiMQ6EOPob/4yUL66SZzu6Yh77cbzJFYll+ZfaPiPPFswtIlA/Fs1MzdKYA7JApHU49zQTbJGX3PDmCpIdDBRQ==
-
 "@types/body-parser@*":
   version "1.19.0"
   resolved "https://registry.yarnpkg.com/@types/body-parser/-/body-parser-1.19.0.tgz#0685b3c47eb3006ffed117cdd55164b61f80538f"
@@ -868,11 +825,6 @@
   resolved "https://registry.yarnpkg.com/@types/long/-/long-4.0.1.tgz#459c65fa1867dafe6a8f322c4c51695663cc55e9"
   integrity sha512-5tXH6Bx/kNGd3MgffdmP4dy2Z+G4eaXw0SE81Tq3BNadtnMR5/ySMzX4SLEzHJzSmPNn4HIdpQsBvXMUykr58w==
 
-"@types/microtime@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@types/microtime/-/microtime-2.1.0.tgz#adbd99f501a85c88695eb1efd3515810f2563932"
-  integrity sha1-rb2Z9QGoXIhpXrHv01FYEPJWOTI=
-
 "@types/mime@*":
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-2.0.3.tgz#c893b73721db73699943bfc3653b1deb7faa4a3a"
@@ -902,13 +854,6 @@
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.0.tgz#e486d0d97396d79beedd0a6e33f4534ff6b4973e"
   integrity sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==
-
-"@types/otplib@^10.0.0":
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/@types/otplib/-/otplib-10.0.0.tgz#2d040ee14d9e82f13cef545ec0cc89fff9d8b2cb"
-  integrity sha512-fxgTy0WQiylowcAuKgCdMW/DcWAz/Qo/GZjY5sLD7/z12RXXjIardQnsZU2iSHWFznVlE+7VstBWZnHUA8aF8Q==
-  dependencies:
-    otplib "*"
 
 "@types/prettier@^2.0.0":
   version "2.1.5"
@@ -1489,11 +1434,6 @@ bcrypt-pbkdf@^1.0.0:
   integrity sha1-pDAdOJtqQ/m2f/PKEaP2Y342Dp4=
   dependencies:
     tweetnacl "^0.14.3"
-
-bcryptjs@^2.4.3:
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/bcryptjs/-/bcryptjs-2.4.3.tgz#9ab5627b93e60621ff7cdac5da9733027df1d0cb"
-  integrity sha1-mrVie5PmBiH/fNrF2pczAn3x0Ms=
 
 bignumber.js@^9.0.0:
   version "9.0.1"
@@ -4838,15 +4778,6 @@ optionator@^0.9.1:
     type-check "^0.4.0"
     word-wrap "^1.2.3"
 
-otplib@*, otplib@^12.0.1:
-  version "12.0.1"
-  resolved "https://registry.yarnpkg.com/otplib/-/otplib-12.0.1.tgz#c1d3060ab7aadf041ed2960302f27095777d1f73"
-  integrity sha512-xDGvUOQjop7RDgxTQ+o4pOol0/3xSZzawTiPKRrHnQWAy0WjhNs/5HdIDJCrqC4MBynmjXgULc6YfioaxZeFgg==
-  dependencies:
-    "@otplib/core" "^12.0.1"
-    "@otplib/preset-default" "^12.0.1"
-    "@otplib/preset-v11" "^12.0.1"
-
 p-cancelable@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/p-cancelable/-/p-cancelable-1.1.0.tgz#d078d15a3af409220c886f1d9a0ca2e441ab26cc"
@@ -6054,11 +5985,6 @@ thenify-all@^1.0.0:
   integrity sha512-RVZSIV5IG10Hk3enotrhvz0T9em6cyHBLkH/YAZuKqd8hRkKhSfCGIcP2KUY0EPxndzANBmNllzWPwak+bheSw==
   dependencies:
     any-promise "^1.0.0"
-
-thirty-two@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/thirty-two/-/thirty-two-1.0.2.tgz#4ca2fffc02a51290d2744b9e3f557693ca6b627a"
-  integrity sha1-TKL//AKlEpDSdEueP1V2k8prYno=
 
 throat@^5.0.0:
   version "5.0.0"
