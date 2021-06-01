@@ -46,7 +46,6 @@ describe('SessionService', () => {
 
     sessionRepository = {} as jest.Mocked<SessionRepositoryInterface>
     sessionRepository.findOneByUuid = jest.fn()
-    sessionRepository.deleteOneByUuid = jest.fn()
     sessionRepository.save = jest.fn().mockReturnValue(session)
     sessionRepository.updateHashedTokens = jest.fn()
     sessionRepository.updatedTokenExpirationDates = jest.fn()
@@ -96,18 +95,6 @@ describe('SessionService', () => {
       uuid: '2e1e43',
       received: true,
     })
-  })
-
-  it('should refresh access and refresh tokens for a session', async () => {
-    expect(await createService().refreshTokens(session)).toEqual({
-      access_expiration: 123,
-      access_token: expect.any(String),
-      refresh_token: expect.any(String),
-      refresh_expiration: 123,
-    })
-
-    expect(sessionRepository.updateHashedTokens).toHaveBeenCalled()
-    expect(sessionRepository.updatedTokenExpirationDates).toHaveBeenCalled()
   })
 
   it('should create new session for a user', async () => {
@@ -164,12 +151,6 @@ describe('SessionService', () => {
       refresh_expiration: 123,
       refresh_token: expect.any(String),
     })
-  })
-
-  it('should determine if a refresh token is valid', async () => {
-    expect(createService().isRefreshTokenValid(session, '1:2:3')).toBeTruthy()
-    expect(createService().isRefreshTokenValid(session, '1:2:4')).toBeFalsy()
-    expect(createService().isRefreshTokenValid(session, '1:2')).toBeFalsy()
   })
 
   it('should return device info based on user agent', () => {
@@ -363,16 +344,6 @@ describe('SessionService', () => {
     const result = await createService().getSessionFromToken('1:2:4')
 
     expect(result).toBeUndefined()
-  })
-
-  it('should revoked a session', async () => {
-    await createService().revokeSession(session)
-
-    expect(revokedSessionRepository.save).toHaveBeenCalledWith({
-      uuid: '2e1e43',
-      userUuid: '1-2-3',
-      createdAt: expect.any(Date),
-    })
   })
 
   it('should retrieve an archvied session from a session token', async () => {

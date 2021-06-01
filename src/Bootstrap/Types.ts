@@ -19,7 +19,6 @@ const TYPES = {
   AuthMiddleware: Symbol.for('AuthMiddleware'),
   AuthMiddlewareWithoutResponse: Symbol.for('AuthMiddlewareWithoutResponse'),
   LockMiddleware: Symbol.for('LockMiddleware'),
-  SessionMiddleware: Symbol.for('SessionMiddleware'),
   // Projectors
   RevisionProjector: Symbol.for('RevisionProjector'),
   SessionProjector: Symbol.for('SessionProjector'),
@@ -53,13 +52,10 @@ const TYPES = {
   NEW_RELIC_ENABLED: Symbol.for('NEW_RELIC_ENABLED'),
   // use cases
   AuthenticateUser: Symbol.for('AuthenticateUser'),
-  RefreshSessionToken: Symbol.for('RefreshSessionToken'),
   VerifyMFA: Symbol.for('VerifyMFA'),
   SignIn: Symbol.for('SignIn'),
   ClearLoginAttempts: Symbol.for('ClearLoginAttempts'),
   IncreaseLoginAttempts: Symbol.for('IncreaseLoginAttempts'),
-  DeletePreviousSessionsForUser: Symbol.for('DeletePreviousSessionsForUser'),
-  DeleteSessionForUser: Symbol.for('DeleteSessionForUser'),
   SyncItems: Symbol.for('SyncItems'),
   PostToRealtimeExtensions: Symbol.for('PostToRealtimeExtensions'),
   PostToDailyExtensions: Symbol.for('PostToDailyExtensions'),

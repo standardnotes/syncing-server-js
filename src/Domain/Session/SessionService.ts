@@ -54,36 +54,6 @@ export class SessionService implements SessionServiceInterace {
     return sessionPayload
   }
 
-  async refreshTokens(session: Session): Promise<SessionPayload> {
-    const sessionPayload = await this.createTokens(session)
-
-    await this.sessionRepository.updateHashedTokens(session.uuid, session.hashedAccessToken, session.hashedRefreshToken)
-
-    await this.sessionRepository.updatedTokenExpirationDates(session.uuid, session.accessExpiration, session.refreshExpiration)
-
-    await this.ephemeralSessionRepository.updateTokensAndExpirationDates(
-      session.uuid,
-      session.hashedAccessToken,
-      session.hashedRefreshToken,
-      session.accessExpiration,
-      session.refreshExpiration
-    )
-
-    return sessionPayload
-  }
-
-  isRefreshTokenValid(session: Session, token: string): boolean {
-    const tokenParts = token.split(':')
-    const refreshToken = tokenParts[2]
-    if (!refreshToken) {
-      return false
-    }
-
-    const hashedRefreshToken = crypto.createHash('sha256').update(refreshToken).digest('hex')
-
-    return crypto.timingSafeEqual(Buffer.from(hashedRefreshToken), Buffer.from(session.hashedRefreshToken))
-  }
-
   getDeviceInfo(session: Session): string {
     try {
       const userAgentParsed = this.deviceDetector.setUA(session.userAgent).getResult()
@@ -156,15 +126,6 @@ export class SessionService implements SessionServiceInterace {
 
   async markRevokedSessionAsReceived(revokedSession: RevokedSession): Promise<RevokedSession> {
     revokedSession.received = true
-
-    return this.revokedSessionRepository.save(revokedSession)
-  }
-
-  async revokeSession(session: Session): Promise<RevokedSession> {
-    const revokedSession = new RevokedSession()
-    revokedSession.uuid = session.uuid
-    revokedSession.userUuid = session.userUuid
-    revokedSession.createdAt = dayjs.utc().toDate()
 
     return this.revokedSessionRepository.save(revokedSession)
   }

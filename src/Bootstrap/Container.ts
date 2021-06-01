@@ -32,8 +32,6 @@ import { Item } from '../Domain/Item/Item'
 import { Revision } from '../Domain/Revision/Revision'
 import { RevisionProjector } from '../Projection/RevisionProjector'
 import { SessionProjector } from '../Projection/SessionProjector'
-import { SessionMiddleware } from '../Controller/SessionMiddleware'
-import { RefreshSessionToken } from '../Domain/UseCase/RefreshSessionToken'
 import { MySQLItemRepository } from '../Infra/MySQL/MySQLItemRepository'
 import { SignIn } from '../Domain/UseCase/SignIn'
 import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
@@ -48,8 +46,6 @@ import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
 import { LockMiddleware } from '../Controller/LockMiddleware'
 import { AuthMiddlewareWithoutResponse } from '../Controller/AuthMiddlewareWithoutResponse'
 import { RedisEphemeralSessionRepository } from '../Infra/Redis/RedisEphemeralSessionRepository'
-import { DeletePreviousSessionsForUser } from '../Domain/UseCase/DeletePreviousSessionsForUser'
-import { DeleteSessionForUser } from '../Domain/UseCase/DeleteSessionForUser'
 import { LockRepository } from '../Infra/Redis/LockRepository'
 import { MySQLRevokedSessionRepository } from '../Infra/MySQL/MySQLRevokedSessionRepository'
 import { TokenDecoder } from '../Domain/Auth/TokenDecoder'
@@ -196,7 +192,6 @@ export class ContainerConfigLoader {
 
     // Middleware
     container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
-    container.bind<SessionMiddleware>(TYPES.SessionMiddleware).to(SessionMiddleware)
     container.bind<LockMiddleware>(TYPES.LockMiddleware).to(LockMiddleware)
     container.bind<AuthMiddlewareWithoutResponse>(TYPES.AuthMiddlewareWithoutResponse).to(AuthMiddlewareWithoutResponse)
 
@@ -234,13 +229,10 @@ export class ContainerConfigLoader {
 
     // use cases
     container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
-    container.bind<RefreshSessionToken>(TYPES.RefreshSessionToken).to(RefreshSessionToken)
     container.bind<SignIn>(TYPES.SignIn).to(SignIn)
     container.bind<VerifyMFA>(TYPES.VerifyMFA).to(VerifyMFA)
     container.bind<ClearLoginAttempts>(TYPES.ClearLoginAttempts).to(ClearLoginAttempts)
     container.bind<IncreaseLoginAttempts>(TYPES.IncreaseLoginAttempts).to(IncreaseLoginAttempts)
-    container.bind<DeletePreviousSessionsForUser>(TYPES.DeletePreviousSessionsForUser).to(DeletePreviousSessionsForUser)
-    container.bind<DeleteSessionForUser>(TYPES.DeleteSessionForUser).to(DeleteSessionForUser)
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
     container.bind<PostToRealtimeExtensions>(TYPES.PostToRealtimeExtensions).to(PostToRealtimeExtensions)
     container.bind<PostToDailyExtensions>(TYPES.PostToDailyExtensions).to(PostToDailyExtensions)
