@@ -65,7 +65,7 @@ describe('MySQLRevisionRepository', () => {
     expect(queryBuilder.delete).toHaveBeenCalled()
 
     expect(queryBuilder.from).toHaveBeenCalledWith('revisions')
-    expect(queryBuilder.where).toHaveBeenCalledWith('revision.item_uuid = :itemUuid', { itemUuid: '123' })
+    expect(queryBuilder.where).toHaveBeenCalledWith('item_uuid = :itemUuid', { itemUuid: '123' })
 
     expect(queryBuilder.execute).toHaveBeenCalled()
   })

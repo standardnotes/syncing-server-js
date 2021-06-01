@@ -1,7 +1,7 @@
+import { TimerInterface } from '@standardnotes/time'
 import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
 import { ProjectorInterface } from '../../Projection/ProjectorInterface'
-import { TimerInterface } from '../Time/TimerInterface'
 
 import { Item } from './Item'
 import { ItemProjection } from './ItemProjection'

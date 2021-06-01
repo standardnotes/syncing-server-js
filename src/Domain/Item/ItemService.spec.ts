@@ -2,19 +2,18 @@ import 'reflect-metadata'
 
 import * as crypto from 'crypto'
 import * as dayjs from 'dayjs'
-import { TimerInterface } from '../Time/TimerInterface'
 import { Item } from './Item'
 import { ItemHash } from './ItemHash'
 
 import { ItemRepositoryInterface } from './ItemRepositoryInterface'
 import { ItemService } from './ItemService'
 import { ContentType } from './ContentType'
-import { Time } from '../Time/Time'
 import { ApiVersion } from '../Api/ApiVersion'
 import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
 import { Logger } from 'winston'
+import { Time, TimerInterface } from '@standardnotes/time'
 
 describe('ItemService', () => {
   let itemRepository: ItemRepositoryInterface
