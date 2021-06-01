@@ -17,8 +17,6 @@ const TYPES = {
   ExtensionSettingRepository: Symbol.for('ExtensionSettingRepository'),
   // Middleware
   AuthMiddleware: Symbol.for('AuthMiddleware'),
-  AuthMiddlewareWithoutResponse: Symbol.for('AuthMiddlewareWithoutResponse'),
-  LockMiddleware: Symbol.for('LockMiddleware'),
   // Projectors
   RevisionProjector: Symbol.for('RevisionProjector'),
   SessionProjector: Symbol.for('SessionProjector'),
@@ -52,10 +50,6 @@ const TYPES = {
   NEW_RELIC_ENABLED: Symbol.for('NEW_RELIC_ENABLED'),
   // use cases
   AuthenticateUser: Symbol.for('AuthenticateUser'),
-  VerifyMFA: Symbol.for('VerifyMFA'),
-  SignIn: Symbol.for('SignIn'),
-  ClearLoginAttempts: Symbol.for('ClearLoginAttempts'),
-  IncreaseLoginAttempts: Symbol.for('IncreaseLoginAttempts'),
   SyncItems: Symbol.for('SyncItems'),
   PostToRealtimeExtensions: Symbol.for('PostToRealtimeExtensions'),
   PostToDailyExtensions: Symbol.for('PostToDailyExtensions'),
@@ -69,10 +63,6 @@ const TYPES = {
   DeviceDetector: Symbol.for('DeviceDetector'),
   SessionService: Symbol.for('SessionService'),
   ContentDecoder: Symbol.for('ContentDecoder'),
-  AuthResponseFactory20161215: Symbol.for('AuthResponseFactory20161215'),
-  AuthResponseFactory20190520: Symbol.for('AuthResponseFactory20190520'),
-  AuthResponseFactory20200115: Symbol.for('AuthResponseFactory20200115'),
-  AuthResponseFactoryResolver: Symbol.for('AuthResponseFactoryResolver'),
   TokenDecoder: Symbol.for('TokenDecoder'),
   AuthenticationMethodResolver: Symbol.for('AuthenticationMethodResolver'),
   DomainEventPublisher: Symbol.for('DomainEventPublisher'),

@@ -34,29 +34,6 @@ export class RedisEphemeralSessionRepository implements EphemeralSessionReposito
     await this.save(session)
   }
 
-  async findAllByUserUuid(userUuid: string): Promise<Array<EphemeralSession>> {
-    let cursor = '0'
-    let sessionKeys: Array<string> = []
-    do {
-      const scanResult = await this.redisClient.scan(
-        cursor,
-        'MATCH',
-        `${this.PREFIX}:*:${userUuid}`
-      )
-
-      cursor = scanResult[0]
-      sessionKeys = sessionKeys.concat(scanResult[1])
-    } while (cursor !== '0')
-
-    if (!sessionKeys.length) {
-      return []
-    }
-
-    const sessions = await this.redisClient.mget(sessionKeys)
-
-    return (<string[]> sessions.filter(value => value)).map(stringifiedSession => JSON.parse(stringifiedSession))
-  }
-
   async findOneByUuid(uuid: string): Promise<EphemeralSession | undefined> {
     const stringifiedSession = await this.redisClient.get(`${this.PREFIX}:${uuid}`)
     if (!stringifiedSession) {

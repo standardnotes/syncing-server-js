@@ -33,27 +33,14 @@ import { Revision } from '../Domain/Revision/Revision'
 import { RevisionProjector } from '../Projection/RevisionProjector'
 import { SessionProjector } from '../Projection/SessionProjector'
 import { MySQLItemRepository } from '../Infra/MySQL/MySQLItemRepository'
-import { SignIn } from '../Domain/UseCase/SignIn'
-import { VerifyMFA } from '../Domain/UseCase/VerifyMFA'
 import { ContentDecoder } from '../Domain/Item/ContentDecoder'
 import { UserProjector } from '../Projection/UserProjector'
-import { AuthResponseFactory20161215 } from '../Domain/Auth/AuthResponseFactory20161215'
-import { AuthResponseFactory20190520 } from '../Domain/Auth/AuthResponseFactory20190520'
-import { AuthResponseFactory20200115 } from '../Domain/Auth/AuthResponseFactory20200115'
-import { AuthResponseFactoryResolver } from '../Domain/Auth/AuthResponseFactoryResolver'
-import { ClearLoginAttempts } from '../Domain/UseCase/ClearLoginAttempts'
-import { IncreaseLoginAttempts } from '../Domain/UseCase/IncreaseLoginAttempts'
-import { LockMiddleware } from '../Controller/LockMiddleware'
-import { AuthMiddlewareWithoutResponse } from '../Controller/AuthMiddlewareWithoutResponse'
 import { RedisEphemeralSessionRepository } from '../Infra/Redis/RedisEphemeralSessionRepository'
-import { LockRepository } from '../Infra/Redis/LockRepository'
 import { MySQLRevokedSessionRepository } from '../Infra/MySQL/MySQLRevokedSessionRepository'
 import { TokenDecoder } from '../Domain/Auth/TokenDecoder'
 import { AuthenticationMethodResolver } from '../Domain/Auth/AuthenticationMethodResolver'
 import { RevokedSession } from '../Domain/Session/RevokedSession'
 import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
-import { TimerInterface } from '../Domain/Time/TimerInterface'
-import { Timer } from '../Domain/Time/Timer'
 import { SyncResponseFactory20161215 } from '../Domain/Item/SyncResponse/SyncResponseFactory20161215'
 import { SyncResponseFactory20200115 } from '../Domain/Item/SyncResponse/SyncResponseFactory20200115'
 import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
@@ -85,6 +72,7 @@ import { ItemRevisionRepositoryInterface } from '../Domain/Revision/ItemRevision
 import { MySQLItemRevisionRepository } from '../Infra/MySQL/MySQLItemRevisionRepository'
 import { ItemRevision } from '../Domain/Revision/ItemRevision'
 import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
+import { Timer, TimerInterface } from '@standardnotes/time'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -187,13 +175,10 @@ export class ContainerConfigLoader {
     container.bind<ItemRevisionRepositoryInterface>(TYPES.ItemRevisionRepository).toConstantValue(connection.getCustomRepository(MySQLItemRevisionRepository))
     container.bind<MySQLItemRepository>(TYPES.ItemRepository).toConstantValue(connection.getCustomRepository(MySQLItemRepository))
     container.bind<RedisEphemeralSessionRepository>(TYPES.EphemeralSessionRepository).to(RedisEphemeralSessionRepository)
-    container.bind<LockRepository>(TYPES.LockRepository).to(LockRepository)
     container.bind<ExtensionSettingRepositoryInterface>(TYPES.ExtensionSettingRepository).toConstantValue(connection.getCustomRepository(MySQLExtensionSettingRepository))
 
     // Middleware
     container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
-    container.bind<LockMiddleware>(TYPES.LockMiddleware).to(LockMiddleware)
-    container.bind<AuthMiddlewareWithoutResponse>(TYPES.AuthMiddlewareWithoutResponse).to(AuthMiddlewareWithoutResponse)
 
     // Projectors
     container.bind<RevisionProjector>(TYPES.RevisionProjector).to(RevisionProjector)
@@ -229,10 +214,6 @@ export class ContainerConfigLoader {
 
     // use cases
     container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
-    container.bind<SignIn>(TYPES.SignIn).to(SignIn)
-    container.bind<VerifyMFA>(TYPES.VerifyMFA).to(VerifyMFA)
-    container.bind<ClearLoginAttempts>(TYPES.ClearLoginAttempts).to(ClearLoginAttempts)
-    container.bind<IncreaseLoginAttempts>(TYPES.IncreaseLoginAttempts).to(IncreaseLoginAttempts)
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
     container.bind<PostToRealtimeExtensions>(TYPES.PostToRealtimeExtensions).to(PostToRealtimeExtensions)
     container.bind<PostToDailyExtensions>(TYPES.PostToDailyExtensions).to(PostToDailyExtensions)
@@ -248,16 +229,12 @@ export class ContainerConfigLoader {
     container.bind<UAParser>(TYPES.DeviceDetector).toConstantValue(new UAParser())
     container.bind<SessionService>(TYPES.SessionService).to(SessionService)
     container.bind<ContentDecoder>(TYPES.ContentDecoder).to(ContentDecoder)
-    container.bind<AuthResponseFactory20161215>(TYPES.AuthResponseFactory20161215).to(AuthResponseFactory20161215)
-    container.bind<AuthResponseFactory20190520>(TYPES.AuthResponseFactory20190520).to(AuthResponseFactory20190520)
-    container.bind<AuthResponseFactory20200115>(TYPES.AuthResponseFactory20200115).to(AuthResponseFactory20200115)
-    container.bind<AuthResponseFactoryResolver>(TYPES.AuthResponseFactoryResolver).to(AuthResponseFactoryResolver)
     container.bind<TokenDecoder>(TYPES.TokenDecoder).to(TokenDecoder)
     container.bind<AuthenticationMethodResolver>(TYPES.AuthenticationMethodResolver).to(AuthenticationMethodResolver)
     container.bind<DomainEventFactoryInterface>(TYPES.DomainEventFactory).to(DomainEventFactory)
     container.bind<superagent.SuperAgentStatic>(TYPES.HTTPClient).toConstantValue(superagent)
     container.bind<ItemServiceInterface>(TYPES.ItemService).to(ItemService)
-    container.bind<TimerInterface>(TYPES.Timer).to(Timer)
+    container.bind<TimerInterface>(TYPES.Timer).toConstantValue(new Timer())
     container.bind<SyncResponseFactory20161215>(TYPES.SyncResponseFactory20161215).to(SyncResponseFactory20161215)
     container.bind<SyncResponseFactory20200115>(TYPES.SyncResponseFactory20200115).to(SyncResponseFactory20200115)
     container.bind<SyncResponseFactoryResolverInterface>(TYPES.SyncResponseFactoryResolver).to(SyncResponseFactoryResolver)

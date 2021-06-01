@@ -43,32 +43,6 @@ describe('RedisEphemeralSessionRepository', () => {
     )
   })
 
-  it('should find all ephemeral sessions by user uuid', async () => {
-    redisClient.scan = jest.fn()
-      .mockReturnValueOnce(['1', ['session:1-2-3:2-3-4']])
-      .mockReturnValueOnce(['0', ['session:2-3-4:2-3-4']])
-
-    redisClient.mget = jest.fn().mockReturnValue([
-      '{"uuid":"1-2-3","userUuid":"2-3-4","userAgent":"Mozilla Firefox","createdAt":"1970-01-01T00:00:00.001Z","updatedAt":"1970-01-01T00:00:00.002Z"}',
-      '{"uuid":"2-3-4","userUuid":"2-3-4","userAgent":"Google Chrome","createdAt":"1970-01-01T00:00:00.001Z","updatedAt":"1970-01-01T00:00:00.002Z"}',
-    ])
-
-    const ephemeralSessions = await createRepository().findAllByUserUuid('2-3-4')
-
-    expect(ephemeralSessions.length).toEqual(2)
-    expect(ephemeralSessions[1].userAgent).toEqual('Google Chrome')
-  })
-
-  it('should not look for ephemeral sessions if keys are not found', async () => {
-    redisClient.scan = jest.fn()
-      .mockReturnValueOnce(['0', []])
-
-    const ephemeralSessions = await createRepository().findAllByUserUuid('2-3-4')
-
-    expect(redisClient.mget).not.toHaveBeenCalled()
-    expect(ephemeralSessions.length).toEqual(0)
-  })
-
   it('should find an ephemeral session by uuid', async () => {
     redisClient.get = jest.fn().mockReturnValue('{"uuid":"1-2-3","userUuid":"2-3-4","userAgent":"Mozilla Firefox","createdAt":"1970-01-01T00:00:00.001Z","updatedAt":"1970-01-01T00:00:00.002Z"}')
 

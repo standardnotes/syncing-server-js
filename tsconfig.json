@@ -1,6 +1,7 @@
 {
   "extends": "./node_modules/@standardnotes/config/src/tsconfig.json",
   "compilerOptions": {
+    "target": "esnext",
     "outDir": "dist"
   },
   "include": [

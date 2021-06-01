@@ -1,6 +1,6 @@
 import 'reflect-metadata'
+import { TimerInterface } from '@standardnotes/time'
 
-import { TimerInterface } from '../Time/TimerInterface'
 import { Item } from './Item'
 import { ItemProjector } from './ItemProjector'
 
