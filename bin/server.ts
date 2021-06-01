@@ -4,7 +4,6 @@ import 'newrelic'
 
 import '../src/Controller/HealthCheckController'
 import '../src/Controller/RevisionsController'
-import '../src/Controller/SessionController'
 import '../src/Controller/AuthController'
 import '../src/Controller/ItemsController'
 import '../src/Controller/ExtensionSettingsController'
