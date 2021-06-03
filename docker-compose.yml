@@ -68,9 +68,7 @@ services:
       DB_DEBUG_LEVEL: '${DB_DEBUG_LEVEL}'
       DB_MIGRATIONS_PATH: '${DB_MIGRATIONS_PATH}'
       REDIS_URL: '${REDIS_URL}'
-      JWT_SECRET: '${JWT_SECRET}'
       AUTH_JWT_SECRET: '${AUTH_JWT_SECRET}'
-      EPHEMERAL_SESSION_AGE: '${EPHEMERAL_SESSION_AGE}'
     networks:
       - syncing_server_js
 
@@ -93,9 +91,7 @@ services:
       DB_DEBUG_LEVEL: '${DB_DEBUG_LEVEL}'
       DB_MIGRATIONS_PATH: '${DB_MIGRATIONS_PATH}'
       REDIS_URL: '${REDIS_URL}'
-      JWT_SECRET: '${JWT_SECRET}'
       AUTH_JWT_SECRET: '${AUTH_JWT_SECRET}'
-      EPHEMERAL_SESSION_AGE: '${EPHEMERAL_SESSION_AGE}'
     networks:
       - syncing_server_js
 
