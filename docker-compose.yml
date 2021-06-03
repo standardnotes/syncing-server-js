@@ -34,7 +34,7 @@ services:
       - .:/var/www
 
   api-gateway:
-    image: standardnotes/api-gateway:1.4.4
+    image: standardnotes/api-gateway:dev
     env_file: docker/api-gateway.env
     environment:
       PORT: 3000
@@ -50,7 +50,7 @@ services:
       - syncing_server_js
 
   auth:
-    image: standardnotes/auth:1.6.4
+    image: standardnotes/auth:dev
     entrypoint: [
       "./wait-for.sh", "db", "3306",
       "./wait-for.sh", "cache", "6379",
@@ -68,14 +68,12 @@ services:
       DB_DEBUG_LEVEL: '${DB_DEBUG_LEVEL}'
       DB_MIGRATIONS_PATH: '${DB_MIGRATIONS_PATH}'
       REDIS_URL: '${REDIS_URL}'
-      JWT_SECRET: '${JWT_SECRET}'
       AUTH_JWT_SECRET: '${AUTH_JWT_SECRET}'
-      EPHEMERAL_SESSION_AGE: '${EPHEMERAL_SESSION_AGE}'
     networks:
       - syncing_server_js
 
   auth-worker:
-    image: standardnotes/auth:1.6.4
+    image: standardnotes/auth:dev
     entrypoint: [
       "./wait-for.sh", "db", "3306",
       "./wait-for.sh", "cache", "6379",
@@ -93,9 +91,7 @@ services:
       DB_DEBUG_LEVEL: '${DB_DEBUG_LEVEL}'
       DB_MIGRATIONS_PATH: '${DB_MIGRATIONS_PATH}'
       REDIS_URL: '${REDIS_URL}'
-      JWT_SECRET: '${JWT_SECRET}'
       AUTH_JWT_SECRET: '${AUTH_JWT_SECRET}'
-      EPHEMERAL_SESSION_AGE: '${EPHEMERAL_SESSION_AGE}'
     networks:
       - syncing_server_js
 

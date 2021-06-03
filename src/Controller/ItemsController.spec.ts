@@ -4,7 +4,6 @@ import * as express from 'express'
 
 import { ItemsController } from './ItemsController'
 import { results } from 'inversify-express-utils'
-import { User } from '../Domain/User/User'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
 import { ApiVersion } from '../Domain/Api/ApiVersion'
 import { ContentType } from '../Domain/Item/ContentType'
@@ -20,7 +19,6 @@ describe('ItemsController', () => {
   let postToRealtimeExtensions: PostToRealtimeExtensions
   let request: express.Request
   let response: express.Response
-  let user: User
   let syncResponceFactoryResolver: SyncResponseFactoryResolverInterface
   let syncResponseFactory: SyncResponseFactoryInterface
   let syncResponse: SyncResponse20200115
@@ -41,9 +39,6 @@ describe('ItemsController', () => {
 
     logger = {} as jest.Mocked<Logger>
     logger.error = jest.fn()
-
-    user = {} as jest.Mocked<User>
-    user.uuid = '123'
 
     request = {
       headers: {},
@@ -73,7 +68,9 @@ describe('ItemsController', () => {
     response = {
       locals: {},
     } as jest.Mocked<express.Response>
-    response.locals.user = user
+    response.locals.user = {
+      uuid: '123',
+    }
 
     syncResponse = {
       integrity_hash: '123',
