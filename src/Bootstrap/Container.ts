@@ -15,31 +15,17 @@ import {
   SQSEventMessageHandler,
   SQSNewRelicEventMessageHandler,
 } from '@standardnotes/domain-events'
-import { UAParser } from 'ua-parser-js'
 
 import { Env } from './Env'
 import TYPES from './Types'
 import { AuthMiddleware } from '../Controller/AuthMiddleware'
-import { AuthenticateUser } from '../Domain/UseCase/AuthenticateUser'
 import { Connection, createConnection, LoggerOptions } from 'typeorm'
-import { User } from '../Domain/User/User'
-import { Session } from '../Domain/Session/Session'
-import { SessionService } from '../Domain/Session/SessionService'
-import { MySQLSessionRepository } from '../Infra/MySQL/MySQLSessionRepository'
-import { MySQLUserRepository } from '../Infra/MySQL/MySQLUserRepository'
 import { MySQLRevisionRepository } from '../Infra/MySQL/MySQLRevisionRepository'
 import { Item } from '../Domain/Item/Item'
 import { Revision } from '../Domain/Revision/Revision'
 import { RevisionProjector } from '../Projection/RevisionProjector'
-import { SessionProjector } from '../Projection/SessionProjector'
 import { MySQLItemRepository } from '../Infra/MySQL/MySQLItemRepository'
 import { ContentDecoder } from '../Domain/Item/ContentDecoder'
-import { UserProjector } from '../Projection/UserProjector'
-import { RedisEphemeralSessionRepository } from '../Infra/Redis/RedisEphemeralSessionRepository'
-import { MySQLRevokedSessionRepository } from '../Infra/MySQL/MySQLRevokedSessionRepository'
-import { TokenDecoder } from '../Domain/Auth/TokenDecoder'
-import { AuthenticationMethodResolver } from '../Domain/Auth/AuthenticationMethodResolver'
-import { RevokedSession } from '../Domain/Session/RevokedSession'
 import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
 import { SyncResponseFactory20161215 } from '../Domain/Item/SyncResponse/SyncResponseFactory20161215'
 import { SyncResponseFactory20200115 } from '../Domain/Item/SyncResponse/SyncResponseFactory20200115'
@@ -105,9 +91,6 @@ export class ContainerConfigLoader {
         removeNodeErrorCount: 10,
       },
       entities: [
-        User,
-        Session,
-        RevokedSession,
         Item,
         Revision,
         ItemRevision,
@@ -168,13 +151,9 @@ export class ContainerConfigLoader {
     container.bind<AWS.S3 | undefined>(TYPES.S3).toConstantValue(s3Client)
 
     // Repositories
-    container.bind<MySQLSessionRepository>(TYPES.SessionRepository).toConstantValue(connection.getCustomRepository(MySQLSessionRepository))
-    container.bind<MySQLRevokedSessionRepository>(TYPES.RevokedSessionRepository).toConstantValue(connection.getCustomRepository(MySQLRevokedSessionRepository))
-    container.bind<MySQLUserRepository>(TYPES.UserRepository).toConstantValue(connection.getCustomRepository(MySQLUserRepository))
     container.bind<MySQLRevisionRepository>(TYPES.RevisionRepository).toConstantValue(connection.getCustomRepository(MySQLRevisionRepository))
     container.bind<ItemRevisionRepositoryInterface>(TYPES.ItemRevisionRepository).toConstantValue(connection.getCustomRepository(MySQLItemRevisionRepository))
     container.bind<MySQLItemRepository>(TYPES.ItemRepository).toConstantValue(connection.getCustomRepository(MySQLItemRepository))
-    container.bind<RedisEphemeralSessionRepository>(TYPES.EphemeralSessionRepository).to(RedisEphemeralSessionRepository)
     container.bind<ExtensionSettingRepositoryInterface>(TYPES.ExtensionSettingRepository).toConstantValue(connection.getCustomRepository(MySQLExtensionSettingRepository))
 
     // Middleware
@@ -182,15 +161,10 @@ export class ContainerConfigLoader {
 
     // Projectors
     container.bind<RevisionProjector>(TYPES.RevisionProjector).to(RevisionProjector)
-    container.bind<SessionProjector>(TYPES.SessionProjector).to(SessionProjector)
-    container.bind<UserProjector>(TYPES.UserProjector).to(UserProjector)
     container.bind<ItemProjector>(TYPES.ItemProjector).to(ItemProjector)
     container.bind<ItemConflictProjector>(TYPES.ItemConflictProjector).to(ItemConflictProjector)
 
     // env vars
-    container.bind(TYPES.JWT_SECRET).toConstantValue(env.get('JWT_SECRET'))
-    container.bind(TYPES.LEGACY_JWT_SECRET).toConstantValue(env.get('LEGACY_JWT_SECRET'))
-    container.bind(TYPES.EPHEMERAL_SESSION_AGE).toConstantValue(env.get('EPHEMERAL_SESSION_AGE'))
     container.bind(TYPES.REDIS_URL).toConstantValue(env.get('REDIS_URL'))
     container.bind(TYPES.SNS_TOPIC_ARN).toConstantValue(env.get('SNS_TOPIC_ARN', true))
     container.bind(TYPES.SNS_AWS_REGION).toConstantValue(env.get('SNS_AWS_REGION', true))
@@ -207,7 +181,6 @@ export class ContainerConfigLoader {
     container.bind(TYPES.NEW_RELIC_ENABLED).toConstantValue(env.get('NEW_RELIC_ENABLED', true))
 
     // use cases
-    container.bind<AuthenticateUser>(TYPES.AuthenticateUser).to(AuthenticateUser)
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
     container.bind<PostToRealtimeExtensions>(TYPES.PostToRealtimeExtensions).to(PostToRealtimeExtensions)
     container.bind<PostToDailyExtensions>(TYPES.PostToDailyExtensions).to(PostToDailyExtensions)
@@ -220,11 +193,7 @@ export class ContainerConfigLoader {
     container.bind<AccountDeletionRequestedEventHandler>(TYPES.AccountDeletionRequestedEventHandler).to(AccountDeletionRequestedEventHandler)
 
     // Services
-    container.bind<UAParser>(TYPES.DeviceDetector).toConstantValue(new UAParser())
-    container.bind<SessionService>(TYPES.SessionService).to(SessionService)
     container.bind<ContentDecoder>(TYPES.ContentDecoder).to(ContentDecoder)
-    container.bind<TokenDecoder>(TYPES.TokenDecoder).to(TokenDecoder)
-    container.bind<AuthenticationMethodResolver>(TYPES.AuthenticationMethodResolver).to(AuthenticationMethodResolver)
     container.bind<DomainEventFactoryInterface>(TYPES.DomainEventFactory).to(DomainEventFactory)
     container.bind<superagent.SuperAgentStatic>(TYPES.HTTPClient).toConstantValue(superagent)
     container.bind<ItemServiceInterface>(TYPES.ItemService).to(ItemService)
