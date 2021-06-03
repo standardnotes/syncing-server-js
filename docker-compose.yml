@@ -34,7 +34,7 @@ services:
       - .:/var/www
 
   api-gateway:
-    image: standardnotes/api-gateway:1.4.4
+    image: standardnotes/api-gateway:dev
     env_file: docker/api-gateway.env
     environment:
       PORT: 3000
@@ -50,7 +50,7 @@ services:
       - syncing_server_js
 
   auth:
-    image: standardnotes/auth:1.6.4
+    image: standardnotes/auth:dev
     entrypoint: [
       "./wait-for.sh", "db", "3306",
       "./wait-for.sh", "cache", "6379",
@@ -73,7 +73,7 @@ services:
       - syncing_server_js
 
   auth-worker:
-    image: standardnotes/auth:1.6.4
+    image: standardnotes/auth:dev
     entrypoint: [
       "./wait-for.sh", "db", "3306",
       "./wait-for.sh", "cache", "6379",
