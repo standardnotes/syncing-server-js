@@ -1,27 +1,31 @@
 import { Request, Response } from 'express'
 import { inject } from 'inversify'
-import { BaseHttpController, controller, httpPost, results } from 'inversify-express-utils'
+import { BaseHttpController, controller, httpGet, httpPost, results } from 'inversify-express-utils'
 import { Logger } from 'winston'
 import TYPES from '../Bootstrap/Types'
 import { ApiVersion } from '../Domain/Api/ApiVersion'
+import { ContentDecoderInterface } from '../Domain/Item/ContentDecoderInterface'
+import { ItemRepositoryInterface } from '../Domain/Item/ItemRepositoryInterface'
 import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
 import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
 import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
 
-@controller('/items', TYPES.AuthMiddleware)
+@controller('/items')
 export class ItemsController extends BaseHttpController {
   constructor(
     @inject(TYPES.SyncItems) private syncItems: SyncItems,
     @inject(TYPES.SyncResponseFactoryResolver) private syncResponseFactoryResolver: SyncResponseFactoryResolverInterface,
     @inject(TYPES.PostToRealtimeExtensions) private postToRealtimeExtensions: PostToRealtimeExtensions,
     @inject(TYPES.PostToDailyExtensions) private postToDailyExtensions: PostToDailyExtensions,
+    @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
+    @inject(TYPES.ContentDecoder) private contentDecoder: ContentDecoderInterface,
     @inject(TYPES.Logger) private logger: Logger
   ) {
     super()
   }
 
-  @httpPost('/sync')
+  @httpPost('/sync', TYPES.AuthMiddleware)
   public async sync(request: Request, response: Response): Promise<results.JsonResult> {
     let itemHashes = []
     if ('items' in request.body) {
@@ -60,5 +64,19 @@ export class ItemsController extends BaseHttpController {
       .createResponse(syncResult)
 
     return this.json(syncResponse)
+  }
+
+  @httpGet('/mfa/:userUuid')
+  public async findMFASecret(request: Request): Promise<results.NotFoundResult | results.JsonResult> {
+    const mfaExtension = await this.itemRepository.findMFAExtensionByUserUuid(request.params.userUuid)
+    if (mfaExtension === undefined || mfaExtension.deleted) {
+      return this.notFound()
+    }
+
+    const mfaContent = this.contentDecoder.decode(mfaExtension.content as string)
+
+    return this.json({
+      secret: mfaContent.secret,
+    })
   }
 }
