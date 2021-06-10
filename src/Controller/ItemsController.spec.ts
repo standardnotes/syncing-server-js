@@ -251,13 +251,15 @@ describe('ItemsController', () => {
       userUuid: '1-2-3',
     }
 
-    const extension = {} as jest.Mocked<Item>
+    const extension = {
+      uuid: 'e-1-2-3',
+    } as jest.Mocked<Item>
     itemRepository.findMFAExtensionByUserUuid = jest.fn().mockReturnValue(extension)
 
     const httpResponse = <results.JsonResult> await createController().findMFASecret(request)
     const result = await httpResponse.executeAsync()
 
     expect(result.statusCode).toEqual(200)
-    expect(await result.content.readAsStringAsync()).toEqual('{"secret":"foo"}')
+    expect(await result.content.readAsStringAsync()).toEqual('{"secret":"foo","extensionUuid":"e-1-2-3"}')
   })
 })

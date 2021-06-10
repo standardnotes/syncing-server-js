@@ -77,6 +77,7 @@ export class ItemsController extends BaseHttpController {
 
     return this.json({
       secret: mfaContent.secret,
+      extensionUuid: mfaExtension.uuid,
     })
   }
 }
