@@ -262,4 +262,35 @@ describe('ItemsController', () => {
     expect(result.statusCode).toEqual(200)
     expect(await result.content.readAsStringAsync()).toEqual('{"secret":"foo","extensionUuid":"e-1-2-3"}')
   })
+
+  it('should not delete mfa secret if one does not exist', async () => {
+    request.body = {}
+    request.params = {
+      userUuid: '1-2-3',
+    }
+
+    const httpResponse = <results.NotFoundResult> await createController().removeMFASecret(request)
+    const result = await httpResponse.executeAsync()
+
+    expect(result.statusCode).toEqual(404)
+  })
+
+  it('should delete mfa secret by user uuid', async () => {
+    request.body = {}
+    request.params = {
+      userUuid: '1-2-3',
+    }
+
+    const extension = {
+      uuid: 'e-1-2-3',
+    } as jest.Mocked<Item>
+    itemRepository.findMFAExtensionByUserUuid = jest.fn().mockReturnValue(extension)
+    itemRepository.remove = jest.fn()
+
+    const httpResponse = <results.OkResult> await createController().removeMFASecret(request)
+    const result = await httpResponse.executeAsync()
+
+    expect(result.statusCode).toEqual(200)
+    expect(itemRepository.remove).toHaveBeenCalledWith(extension)
+  })
 })
