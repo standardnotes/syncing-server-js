@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { inject } from 'inversify'
-import { BaseHttpController, controller, httpGet, httpPost, results } from 'inversify-express-utils'
+import { BaseHttpController, controller, httpDelete, httpGet, httpPost, results } from 'inversify-express-utils'
 import { Logger } from 'winston'
 import TYPES from '../Bootstrap/Types'
 import { ApiVersion } from '../Domain/Api/ApiVersion'
@@ -79,5 +79,17 @@ export class ItemsController extends BaseHttpController {
       secret: mfaContent.secret,
       extensionUuid: mfaExtension.uuid,
     })
+  }
+
+  @httpDelete('/mfa/:userUuid')
+  public async removeMFASecret(request: Request): Promise<results.NotFoundResult | results.OkResult> {
+    const mfaExtension = await this.itemRepository.findMFAExtensionByUserUuid(request.params.userUuid)
+    if (mfaExtension === undefined) {
+      return this.notFound()
+    }
+
+    await this.itemRepository.remove(mfaExtension)
+
+    return this.ok()
   }
 }
