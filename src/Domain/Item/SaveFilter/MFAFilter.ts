@@ -16,6 +16,7 @@ export class MFAFilter implements ItemSaveFilterInterface {
   async filter(dto: ItemSaveProcessingDTO): Promise<ItemSaveFilteringResult> {
     if (dto.itemHash.content_type === ContentType.MFA) {
       const stubItem = this.itemFactory.create(dto.userUuid, dto.itemHash)
+      stubItem.uuid = `mfa-${dto.userUuid}`
 
       return {
         passed: false,

@@ -1,11 +1,23 @@
 import 'reflect-metadata'
 import { ApiVersion } from '../../Api/ApiVersion'
 import { ContentType } from '../ContentType'
+import { Item } from '../Item'
+import { ItemFactoryInterface } from '../ItemFactoryInterface'
 
 import { MFAFilter } from './MFAFilter'
 
 describe('MFAFilter', () => {
-  const createFilter = () => new MFAFilter()
+  let itemFactory: ItemFactoryInterface
+  let item: Item
+
+  const createFilter = () => new MFAFilter(itemFactory)
+
+  beforeEach(() => {
+    item = {} as jest.Mocked<Item>
+
+    itemFactory = {} as jest.Mocked<ItemFactoryInterface>
+    itemFactory.create = jest.fn().mockReturnValue(item)
+  })
 
   it ('should filter out mfa item so it can be skipped on database save', async () => {
     const result = await createFilter().filter({
@@ -19,6 +31,9 @@ describe('MFAFilter', () => {
 
     expect(result).toEqual({
       passed: false,
+      skipped: {
+        uuid: 'mfa-1-2-3',
+      },
     })
   })
 
