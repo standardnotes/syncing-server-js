@@ -72,13 +72,99 @@ describe('TimeDifferenceFilter', () => {
     })
   })
 
-  it ('should filter out items having the same updated at timestamp ', async () => {
-    delete itemHash.updated_at
-    delete itemHash.updated_at_timestamp
+  it ('should filter out items having update at timestamp different in microseconds precision', async () => {
+    itemHash.updated_at_timestamp = existingItem.updatedAtTimestamp + 1
+
+    const result = await createFilter().filter({
+      userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
+      itemHash,
+      existingItem,
+    })
+
+    expect(result).toEqual({
+      passed: false,
+      conflict: {
+        serverItem: existingItem,
+        type: 'sync_conflict',
+      },
+    })
+  })
+
+  it ('should leave items having update at timestamp same in microseconds precision', async () => {
+    itemHash.updated_at_timestamp = existingItem.updatedAtTimestamp
+
+    const result = await createFilter().filter({
+      userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
+      itemHash,
+      existingItem,
+    })
+
+    expect(result).toEqual({
+      passed: true,
+    })
+  })
+
+  it ('should filter out items having update at timestamp different by a second for legacy clients', async () => {
+    itemHash.updated_at = dayjs.utc(Math.floor(existingItem.updatedAtTimestamp / Time.MicrosecondsInAMillisecond) + Time.MicrosecondsInASecond + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
 
     const result = await createFilter().filter({
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20161215,
+      itemHash,
+      existingItem,
+    })
+
+    expect(result).toEqual({
+      passed: false,
+      conflict: {
+        serverItem: existingItem,
+        type: 'sync_conflict',
+      },
+    })
+  })
+
+  it ('should leave items having update at timestamp different by less then a second for legacy clients', async () => {
+    itemHash.updated_at = dayjs.utc(Math.floor(existingItem.updatedAtTimestamp / Time.MicrosecondsInAMillisecond)).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+
+    const result = await createFilter().filter({
+      userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20161215,
+      itemHash,
+      existingItem,
+    })
+
+    expect(result).toEqual({
+      passed: true,
+    })
+  })
+
+  it ('should filter out items having update at timestamp different by a millisecond', async () => {
+    itemHash.updated_at = dayjs.utc(Math.floor(existingItem.updatedAtTimestamp / Time.MicrosecondsInAMillisecond) + Time.MicrosecondsInAMillisecond + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+
+    const result = await createFilter().filter({
+      userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
+      itemHash,
+      existingItem,
+    })
+
+    expect(result).toEqual({
+      passed: false,
+      conflict: {
+        serverItem: existingItem,
+        type: 'sync_conflict',
+      },
+    })
+  })
+
+  it ('should leave items having update at timestamp different by less than a millisecond', async () => {
+    itemHash.updated_at = dayjs.utc(Math.floor(existingItem.updatedAtTimestamp / Time.MicrosecondsInAMillisecond)).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+
+    const result = await createFilter().filter({
+      userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
       itemHash,
       existingItem,
     })

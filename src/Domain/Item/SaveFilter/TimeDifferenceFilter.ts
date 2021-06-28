@@ -38,6 +38,7 @@ export class TimeDifferenceFilter implements ItemSaveFilterInterface {
 
     if (this.itemHashHasMicrosecondsPrecision(dto.itemHash)) {
       const passed = difference === 0
+
       return {
         passed,
         conflict: passed ? undefined : {
@@ -48,6 +49,7 @@ export class TimeDifferenceFilter implements ItemSaveFilterInterface {
     }
 
     const passed = Math.abs(difference) < this.getMinimalConflictIntervalMicroseconds(dto.apiVersion)
+
     return {
       passed,
       conflict: passed ? undefined : {
