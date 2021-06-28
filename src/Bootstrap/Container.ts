@@ -62,6 +62,10 @@ import { Timer, TimerInterface } from '@standardnotes/time'
 import { ItemSaveProcessorInterface } from '../Domain/Item/SaveProcessor/ItemSaveProcessorInterface'
 import { ItemSaveProcessor } from '../Domain/Item/SaveProcessor/ItemSaveProcessor'
 import { OwnershipFilter } from '../Domain/Item/SaveFilter/OwnershipFilter'
+import { MFAFilter } from '../Domain/Item/SaveFilter/MFAFilter'
+import { TimeDifferenceFilter } from '../Domain/Item/SaveFilter/TimeDifferenceFilter'
+import { ItemFactoryInterface } from '../Domain/Item/ItemFactoryInterface'
+import { ItemFactory } from '../Domain/Item/ItemFactory'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -258,11 +262,17 @@ export class ContainerConfigLoader {
       )
     }
 
+    container.bind<ItemFactoryInterface>(TYPES.ItemFactory).to(ItemFactory)
+
     container.bind<OwnershipFilter>(TYPES.OwnershipFilter).to(OwnershipFilter)
+    container.bind<MFAFilter>(TYPES.MFAFilter).to(MFAFilter)
+    container.bind<TimeDifferenceFilter>(TYPES.TimeDifferenceFilter).to(TimeDifferenceFilter)
 
     container.bind<ItemSaveProcessorInterface>(TYPES.ItemSaveProcessor).toConstantValue(
       new ItemSaveProcessor([
         container.get(TYPES.OwnershipFilter),
+        container.get(TYPES.MFAFilter),
+        container.get(TYPES.TimeDifferenceFilter),
       ])
     )
 

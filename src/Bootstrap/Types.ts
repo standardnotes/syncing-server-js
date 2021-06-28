@@ -60,6 +60,9 @@ const TYPES = {
   RevisionService: Symbol.for('RevisionService'),
   ItemSaveProcessor: Symbol.for('ItemSaveProcessor'),
   OwnershipFilter: Symbol.for('OwnershipFilter'),
+  MFAFilter: Symbol.for('MFAFilter'),
+  TimeDifferenceFilter: Symbol.for('TimeDifferenceFilter'),
+  ItemFactory: Symbol.for('ItemFactory'),
 }
 
 export default TYPES
