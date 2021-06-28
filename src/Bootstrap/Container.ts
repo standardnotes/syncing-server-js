@@ -59,6 +59,9 @@ import { MySQLItemRevisionRepository } from '../Infra/MySQL/MySQLItemRevisionRep
 import { ItemRevision } from '../Domain/Revision/ItemRevision'
 import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
 import { Timer, TimerInterface } from '@standardnotes/time'
+import { ItemSaveProcessorInterface } from '../Domain/Item/SaveProcessor/ItemSaveProcessorInterface'
+import { ItemSaveProcessor } from '../Domain/Item/SaveProcessor/ItemSaveProcessor'
+import { OwnershipFilter } from '../Domain/Item/SaveFilter/OwnershipFilter'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -254,6 +257,14 @@ export class ContainerConfigLoader {
         )
       )
     }
+
+    container.bind<OwnershipFilter>(TYPES.OwnershipFilter).to(OwnershipFilter)
+
+    container.bind<ItemSaveProcessorInterface>(TYPES.ItemSaveProcessor).toConstantValue(
+      new ItemSaveProcessor([
+        container.get(TYPES.OwnershipFilter),
+      ])
+    )
 
     return container
   }

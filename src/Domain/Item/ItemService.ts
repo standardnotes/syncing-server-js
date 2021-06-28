@@ -19,6 +19,7 @@ import { ItemRepositoryInterface } from './ItemRepositoryInterface'
 import { ItemServiceInterface } from './ItemServiceInterface'
 import { SaveItemsDTO } from './SaveItemsDTO'
 import { SaveItemsResult } from './SaveItemsResult'
+import { ItemSaveProcessorInterface } from './SaveProcessor/ItemSaveProcessorInterface'
 
 @injectable()
 export class ItemService implements ItemServiceInterface {
@@ -26,6 +27,7 @@ export class ItemService implements ItemServiceInterface {
   private readonly SYNC_TOKEN_VERSION = 2
 
   constructor (
+    @inject(TYPES.ItemSaveProcessor) private itemSaveProcessor: ItemSaveProcessorInterface,
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
     @inject(TYPES.DomainEventPublisher) private domainEventPublisher: DomainEventPublisherInterface,
@@ -85,11 +87,13 @@ export class ItemService implements ItemServiceInterface {
 
     for (const itemHash of dto.itemHashes) {
       const existingItem = await this.itemRepository.findByUuid(itemHash.uuid)
-      if (this.itemBelongsToADifferentUser(dto.userUuid, existingItem)) {
-        conflicts.push({
-          unsavedItem: itemHash,
-          type: 'uuid_conflict',
-        })
+      const processingResult = await this.itemSaveProcessor.process({
+        userUuid: dto.userUuid,
+        itemHash,
+        existingItem,
+      })
+      if (!processingResult.passed) {
+        conflicts.push(processingResult.conflict as ItemConflict)
 
         continue
       }
@@ -288,10 +292,6 @@ export class ItemService implements ItemServiceInterface {
     }
 
     return savedItem
-  }
-
-  private itemBelongsToADifferentUser(userUuid: string, existingItem?: Item) {
-    return existingItem !== undefined && existingItem.userUuid !== userUuid
   }
 
   private itemShouldBeSaved(itemHash: ItemHash, apiVersion: string, existingItem?: Item): boolean {

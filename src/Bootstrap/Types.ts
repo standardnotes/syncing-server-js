@@ -58,6 +58,8 @@ const TYPES = {
   ExtensionsHttpService: Symbol.for('ExtensionsHttpService'),
   ItemBackupService: Symbol.for('ItemBackupService'),
   RevisionService: Symbol.for('RevisionService'),
+  ItemSaveProcessor: Symbol.for('ItemSaveProcessor'),
+  OwnershipFilter: Symbol.for('OwnershipFilter'),
 }
 
 export default TYPES
