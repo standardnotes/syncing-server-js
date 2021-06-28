@@ -31,7 +31,8 @@ describe('ItemFactory', () => {
     const item = createFactory().create('a-b-c', itemHash)
 
     expect(item).toEqual({
-      createdAtTimestamp: 1616164633241000,
+      createdAtTimestamp: 1616164633241568,
+      createdAt: expect.any(Date),
       lastUserAgent: null,
       updatedAt: expect.any(Date),
       updatedAtTimestamp: 1616164633241568,
