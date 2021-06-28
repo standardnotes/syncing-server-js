@@ -1,7 +1,9 @@
+import { injectable } from 'inversify'
 import { ItemSaveProcessingDTO } from '../SaveProcessor/ItemSaveProcessingDTO'
 import { ItemSaveFilteringResult } from './ItemSaveFilteringResult'
 import { ItemSaveFilterInterface } from './ItemSaveFilterInterface'
 
+@injectable()
 export class OwnershipFilter implements ItemSaveFilterInterface {
   async filter(dto: ItemSaveProcessingDTO): Promise<ItemSaveFilteringResult> {
     const itemBelongsToADifferentUser = dto.existingItem !== undefined && dto.existingItem.userUuid !== dto.userUuid

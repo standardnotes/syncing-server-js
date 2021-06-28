@@ -4,7 +4,6 @@ import * as crypto from 'crypto'
 import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
-import { ApiVersion } from '../Api/ApiVersion'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
 import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 import { ContentType } from './ContentType'
@@ -89,22 +88,12 @@ export class ItemService implements ItemServiceInterface {
       const existingItem = await this.itemRepository.findByUuid(itemHash.uuid)
       const processingResult = await this.itemSaveProcessor.process({
         userUuid: dto.userUuid,
+        apiVersion: dto.apiVersion,
         itemHash,
         existingItem,
       })
       if (!processingResult.passed) {
         conflicts.push(processingResult.conflict as ItemConflict)
-
-        continue
-      }
-
-      if (!this.itemShouldBeSaved(itemHash, dto.apiVersion, existingItem)) {
-        this.logger.debug(`Item ${itemHash.uuid} should not be saved. Sync conflict.`)
-
-        conflicts.push({
-          serverItem: existingItem,
-          type: 'sync_conflict',
-        })
 
         continue
       }
@@ -292,57 +281,6 @@ export class ItemService implements ItemServiceInterface {
     }
 
     return savedItem
-  }
-
-  private itemShouldBeSaved(itemHash: ItemHash, apiVersion: string, existingItem?: Item): boolean {
-    if (!existingItem) {
-      this.logger.debug(`No previously existing item with uuid ${itemHash.uuid} . Item should be saved`)
-
-      return true
-    }
-
-    let incomingUpdatedAtTimestamp = itemHash.updated_at_timestamp
-    if (incomingUpdatedAtTimestamp === undefined) {
-      incomingUpdatedAtTimestamp = itemHash.updated_at !== undefined ? this.timer.convertStringDateToMicroseconds(itemHash.updated_at) :
-        this.timer.convertStringDateToMicroseconds(new Date(0).toString())
-    }
-
-    this.logger.debug(`Incoming updated at timestamp for item ${itemHash.uuid}: ${incomingUpdatedAtTimestamp}`)
-
-    if (this.itemWasSentFromALegacyClient(incomingUpdatedAtTimestamp, apiVersion)) {
-      return true
-    }
-
-    const ourUpdatedAtTimestamp = existingItem.updatedAtTimestamp
-
-    this.logger.debug(`Our updated at timestamp for item ${itemHash.uuid}: ${ourUpdatedAtTimestamp}`)
-
-    const difference = incomingUpdatedAtTimestamp - ourUpdatedAtTimestamp
-
-    this.logger.debug(`Difference in timestamps for item ${itemHash.uuid}: ${Math.abs(difference)}`)
-
-    if (this.itemHashHasMicrosecondsPrecision(itemHash)) {
-      return difference === 0
-    }
-
-    return Math.abs(difference) < this.getMinimalConflictIntervalMicroseconds(apiVersion)
-  }
-
-  private itemHashHasMicrosecondsPrecision(itemHash: ItemHash) {
-    return itemHash.updated_at_timestamp !== undefined
-  }
-
-  private itemWasSentFromALegacyClient(incomingUpdatedAtTimestamp: number, apiVersion: string) {
-    return incomingUpdatedAtTimestamp === 0 && apiVersion === ApiVersion.v20161215
-  }
-
-  private getMinimalConflictIntervalMicroseconds(apiVersion?: string): number {
-    switch(apiVersion) {
-    case ApiVersion.v20161215:
-      return Time.MicrosecondsInASecond
-    default:
-      return Time.MicrosecondsInAMillisecond
-    }
   }
 
   private getLastSyncTime(dto: GetItemsDTO): number | undefined {

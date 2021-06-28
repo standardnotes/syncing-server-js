@@ -1,8 +1,10 @@
+import { injectable } from 'inversify'
 import { ItemSaveFilterInterface } from '../SaveFilter/ItemSaveFilterInterface'
 import { ItemSaveProcessingDTO } from './ItemSaveProcessingDTO'
 import { ItemSaveProcessingResult } from './ItemSaveProcessingResult'
 import { ItemSaveProcessorInterface } from './ItemSaveProcessorInterface'
 
+@injectable()
 export class ItemSaveProcessor implements ItemSaveProcessorInterface {
   constructor(
     private filters: Array<ItemSaveFilterInterface>
