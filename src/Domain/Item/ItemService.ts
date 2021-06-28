@@ -93,7 +93,9 @@ export class ItemService implements ItemServiceInterface {
         existingItem,
       })
       if (!processingResult.passed) {
-        conflicts.push(processingResult.conflict as ItemConflict)
+        if (processingResult.conflict) {
+          conflicts.push(processingResult.conflict)
+        }
 
         continue
       }

@@ -1,19 +1,15 @@
 import { injectable } from 'inversify'
+import { ContentType } from '../ContentType'
 import { ItemSaveProcessingDTO } from '../SaveProcessor/ItemSaveProcessingDTO'
 import { ItemSaveFilteringResult } from './ItemSaveFilteringResult'
 import { ItemSaveFilterInterface } from './ItemSaveFilterInterface'
 
 @injectable()
-export class OwnershipFilter implements ItemSaveFilterInterface {
+export class MFAFilter implements ItemSaveFilterInterface {
   async filter(dto: ItemSaveProcessingDTO): Promise<ItemSaveFilteringResult> {
-    const itemBelongsToADifferentUser = dto.existingItem !== undefined && dto.existingItem.userUuid !== dto.userUuid
-    if (itemBelongsToADifferentUser) {
+    if (dto.itemHash.content_type === ContentType.MFA) {
       return {
         passed: false,
-        conflict: {
-          unsavedItem: dto.itemHash,
-          type: 'uuid_conflict',
-        },
       }
     }
 
