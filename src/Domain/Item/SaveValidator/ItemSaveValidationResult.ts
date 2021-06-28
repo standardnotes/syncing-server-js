@@ -1,7 +1,7 @@
 import { Item } from '../Item'
 import { ItemConflict } from '../ItemConflict'
 
-export type ItemSaveProcessingResult = {
+export type ItemSaveValidationResult = {
   passed: boolean
   conflict?: ItemConflict
   skipped?: Item

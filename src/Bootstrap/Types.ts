@@ -58,7 +58,7 @@ const TYPES = {
   ExtensionsHttpService: Symbol.for('ExtensionsHttpService'),
   ItemBackupService: Symbol.for('ItemBackupService'),
   RevisionService: Symbol.for('RevisionService'),
-  ItemSaveProcessor: Symbol.for('ItemSaveProcessor'),
+  ItemSaveValidator: Symbol.for('ItemSaveValidator'),
   OwnershipFilter: Symbol.for('OwnershipFilter'),
   MFAFilter: Symbol.for('MFAFilter'),
   TimeDifferenceFilter: Symbol.for('TimeDifferenceFilter'),

@@ -14,7 +14,7 @@ import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
 import { Logger } from 'winston'
 import { Time, TimerInterface } from '@standardnotes/time'
-import { ItemSaveProcessorInterface } from './SaveProcessor/ItemSaveProcessorInterface'
+import { ItemSaveValidatorInterface } from './SaveValidator/ItemSaveValidatorInterface'
 import { ItemFactoryInterface } from './ItemFactoryInterface'
 import { ItemConflict } from './ItemConflict'
 
@@ -32,12 +32,12 @@ describe('ItemService', () => {
   let emptyHash: ItemHash
   let syncToken: string
   let logger: Logger
-  let itemSaveProcessor: ItemSaveProcessorInterface
+  let itemSaveValidator: ItemSaveValidatorInterface
   let newItem: Item
   let itemFactory: ItemFactoryInterface
 
   const createService = () => new ItemService(
-    itemSaveProcessor,
+    itemSaveValidator,
     itemFactory,
     itemRepository,
     revisionService,
@@ -122,8 +122,8 @@ describe('ItemService', () => {
 
     syncToken = Buffer.from('2:1616164633.241564', 'utf-8').toString('base64')
 
-    itemSaveProcessor = {} as jest.Mocked<ItemSaveProcessorInterface>
-    itemSaveProcessor.process = jest.fn().mockReturnValue({ passed: true })
+    itemSaveValidator = {} as jest.Mocked<ItemSaveValidatorInterface>
+    itemSaveValidator.validate = jest.fn().mockReturnValue({ passed: true })
 
     newItem = {} as jest.Mocked<Item>
 
@@ -382,7 +382,7 @@ describe('ItemService', () => {
 
     const conflict = {} as jest.Mocked<ItemConflict>
     const validationResult = { passed: false, conflict }
-    itemSaveProcessor.process = jest.fn().mockReturnValue(validationResult)
+    itemSaveValidator.validate = jest.fn().mockReturnValue(validationResult)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
@@ -403,7 +403,7 @@ describe('ItemService', () => {
 
     const skipped = {} as jest.Mocked<Item>
     const validationResult = { passed: false, skipped }
-    itemSaveProcessor.process = jest.fn().mockReturnValue(validationResult)
+    itemSaveValidator.validate = jest.fn().mockReturnValue(validationResult)
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],

@@ -59,8 +59,8 @@ import { MySQLItemRevisionRepository } from '../Infra/MySQL/MySQLItemRevisionRep
 import { ItemRevision } from '../Domain/Revision/ItemRevision'
 import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
 import { Timer, TimerInterface } from '@standardnotes/time'
-import { ItemSaveProcessorInterface } from '../Domain/Item/SaveProcessor/ItemSaveProcessorInterface'
-import { ItemSaveProcessor } from '../Domain/Item/SaveProcessor/ItemSaveProcessor'
+import { ItemSaveValidatorInterface } from '../Domain/Item/SaveValidator/ItemSaveValidatorInterface'
+import { ItemSaveValidator } from '../Domain/Item/SaveValidator/ItemSaveValidator'
 import { OwnershipFilter } from '../Domain/Item/SaveFilter/OwnershipFilter'
 import { MFAFilter } from '../Domain/Item/SaveFilter/MFAFilter'
 import { TimeDifferenceFilter } from '../Domain/Item/SaveFilter/TimeDifferenceFilter'
@@ -268,8 +268,8 @@ export class ContainerConfigLoader {
     container.bind<MFAFilter>(TYPES.MFAFilter).to(MFAFilter)
     container.bind<TimeDifferenceFilter>(TYPES.TimeDifferenceFilter).to(TimeDifferenceFilter)
 
-    container.bind<ItemSaveProcessorInterface>(TYPES.ItemSaveProcessor).toConstantValue(
-      new ItemSaveProcessor([
+    container.bind<ItemSaveValidatorInterface>(TYPES.ItemSaveValidator).toConstantValue(
+      new ItemSaveValidator([
         container.get(TYPES.OwnershipFilter),
         container.get(TYPES.MFAFilter),
         container.get(TYPES.TimeDifferenceFilter),

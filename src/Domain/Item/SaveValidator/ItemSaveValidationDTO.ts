@@ -1,7 +1,7 @@
 import { Item } from '../Item'
 import { ItemHash } from '../ItemHash'
 
-export type ItemSaveProcessingDTO = {
+export type ItemSaveValidationDTO = {
   userUuid: string
   apiVersion: string
   itemHash: ItemHash

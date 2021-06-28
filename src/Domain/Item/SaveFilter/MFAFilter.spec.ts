@@ -20,7 +20,7 @@ describe('MFAFilter', () => {
   })
 
   it ('should filter out mfa item so it can be skipped on database save', async () => {
-    const result = await createFilter().filter({
+    const result = await createFilter().check({
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       itemHash: {
@@ -38,7 +38,7 @@ describe('MFAFilter', () => {
   })
 
   it ('should leave non mfa item so it can be saved to database', async () => {
-    const result = await createFilter().filter({
+    const result = await createFilter().check({
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       itemHash: {

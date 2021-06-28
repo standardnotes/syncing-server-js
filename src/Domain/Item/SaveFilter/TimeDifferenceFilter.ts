@@ -3,18 +3,18 @@ import { inject, injectable } from 'inversify'
 import TYPES from '../../../Bootstrap/Types'
 import { ApiVersion } from '../../Api/ApiVersion'
 import { ItemHash } from '../ItemHash'
-import { ItemSaveProcessingDTO } from '../SaveProcessor/ItemSaveProcessingDTO'
-import { ItemSaveFilteringResult } from './ItemSaveFilteringResult'
-import { ItemSaveFilterInterface } from './ItemSaveFilterInterface'
+import { ItemSaveValidationDTO } from '../SaveValidator/ItemSaveValidationDTO'
+import { ItemSaveRuleResult } from './ItemSaveRuleResult'
+import { ItemSaveRuleInterface } from './ItemSaveRuleInterface'
 
 @injectable()
-export class TimeDifferenceFilter implements ItemSaveFilterInterface {
+export class TimeDifferenceFilter implements ItemSaveRuleInterface {
   constructor (
     @inject(TYPES.Timer) private timer: TimerInterface,
   ) {
   }
 
-  async filter(dto: ItemSaveProcessingDTO): Promise<ItemSaveFilteringResult> {
+  async check(dto: ItemSaveValidationDTO): Promise<ItemSaveRuleResult> {
     if (!dto.existingItem) {
       return {
         passed: true,

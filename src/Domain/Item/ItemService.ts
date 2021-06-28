@@ -19,7 +19,7 @@ import { ItemRepositoryInterface } from './ItemRepositoryInterface'
 import { ItemServiceInterface } from './ItemServiceInterface'
 import { SaveItemsDTO } from './SaveItemsDTO'
 import { SaveItemsResult } from './SaveItemsResult'
-import { ItemSaveProcessorInterface } from './SaveProcessor/ItemSaveProcessorInterface'
+import { ItemSaveValidatorInterface } from './SaveValidator/ItemSaveValidatorInterface'
 
 @injectable()
 export class ItemService implements ItemServiceInterface {
@@ -27,7 +27,7 @@ export class ItemService implements ItemServiceInterface {
   private readonly SYNC_TOKEN_VERSION = 2
 
   constructor (
-    @inject(TYPES.ItemSaveProcessor) private itemSaveProcessor: ItemSaveProcessorInterface,
+    @inject(TYPES.ItemSaveValidator) private itemSaveValidator: ItemSaveValidatorInterface,
     @inject(TYPES.ItemFactory) private itemFactory: ItemFactoryInterface,
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
@@ -88,7 +88,7 @@ export class ItemService implements ItemServiceInterface {
 
     for (const itemHash of dto.itemHashes) {
       const existingItem = await this.itemRepository.findByUuid(itemHash.uuid)
-      const processingResult = await this.itemSaveProcessor.process({
+      const processingResult = await this.itemSaveValidator.validate({
         userUuid: dto.userUuid,
         apiVersion: dto.apiVersion,
         itemHash,

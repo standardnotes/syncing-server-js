@@ -1,25 +1,25 @@
 import 'reflect-metadata'
 import { ApiVersion } from '../../Api/ApiVersion'
 import { ItemHash } from '../ItemHash'
-import { ItemSaveFilterInterface } from '../SaveFilter/ItemSaveFilterInterface'
+import { ItemSaveRuleInterface } from '../SaveFilter/ItemSaveRuleInterface'
 
-import { ItemSaveProcessor } from './ItemSaveProcessor'
+import { ItemSaveValidator } from './ItemSaveValidator'
 
-describe('ItemSaveProcessor', () => {
-  let filter: ItemSaveFilterInterface
+describe('ItemSaveValidator', () => {
+  let rule: ItemSaveRuleInterface
   let itemHash: ItemHash
 
-  const createProcessor = () => new ItemSaveProcessor([ filter ])
+  const createProcessor = () => new ItemSaveValidator([ rule ])
 
   beforeEach(() => {
-    filter = {} as jest.Mocked<ItemSaveFilterInterface>
-    filter.filter = jest.fn().mockReturnValue({ passed: true })
+    rule = {} as jest.Mocked<ItemSaveRuleInterface>
+    rule.check = jest.fn().mockReturnValue({ passed: true })
 
     itemHash = {} as jest.Mocked<ItemHash>
   })
 
   it('should run item through all filters with passing', async () => {
-    const result = await createProcessor().process({
+    const result = await createProcessor().validate({
       apiVersion: ApiVersion.v20200115,
       userUuid: '1-2-3',
       itemHash,
@@ -31,9 +31,9 @@ describe('ItemSaveProcessor', () => {
   })
 
   it('should run item through all filters with not passing', async () => {
-    filter.filter = jest.fn().mockReturnValue({ passed: false })
+    rule.check = jest.fn().mockReturnValue({ passed: false })
 
-    const result = await createProcessor().process({
+    const result = await createProcessor().validate({
       apiVersion: ApiVersion.v20200115,
       userUuid: '1-2-3',
       itemHash,
