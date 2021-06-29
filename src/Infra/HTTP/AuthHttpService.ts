@@ -1,4 +1,4 @@
-import { KeyParams } from '@standardnotes/auth'
+import { KeyParams, MfaSetting } from '@standardnotes/auth'
 import { inject, injectable } from 'inversify'
 import { SuperAgentStatic } from 'superagent'
 import TYPES from '../../Bootstrap/Types'
@@ -19,5 +19,32 @@ export class AuthHttpService implements AuthHttpServiceInterface {
       .send()
 
     return keyParamsResponse.body
+  }
+
+  async saveUserMFA(dto: { userUuid: string, mfaSecret: string }): Promise<string> {
+    const response = await this.httpClient
+      .put(`${this.authServerUrl}/users/${dto.userUuid}/settings`)
+      .send({
+        name: MfaSetting.MfaSecret,
+        value: dto.mfaSecret,
+      })
+
+    if (!response.body?.setting?.uuid) {
+      throw new Error('Missing mfa setting uuid from auth service response')
+    }
+
+    return response.body.setting.uuid
+  }
+
+  async getUserMFA(userUuid: string): Promise<string> {
+    const response = await this.httpClient
+      .get(`${this.authServerUrl}/users/${userUuid}/mfa`)
+      .send()
+
+    if (!response.body?.setting?.value) {
+      throw new Error('Missing mfa setting value from auth service response')
+    }
+
+    return response.body.setting.value
   }
 }
