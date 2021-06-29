@@ -4,7 +4,6 @@ import * as crypto from 'crypto'
 import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
-import { ApiVersion } from '../Api/ApiVersion'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
 import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 import { ContentType } from './ContentType'
@@ -13,12 +12,14 @@ import { GetItemsDTO } from './GetItemsDTO'
 import { GetItemsResult } from './GetItemsResult'
 import { Item } from './Item'
 import { ItemConflict } from './ItemConflict'
+import { ItemFactoryInterface } from './ItemFactoryInterface'
 import { ItemHash } from './ItemHash'
 import { ItemQuery } from './ItemQuery'
 import { ItemRepositoryInterface } from './ItemRepositoryInterface'
 import { ItemServiceInterface } from './ItemServiceInterface'
 import { SaveItemsDTO } from './SaveItemsDTO'
 import { SaveItemsResult } from './SaveItemsResult'
+import { ItemSaveValidatorInterface } from './SaveValidator/ItemSaveValidatorInterface'
 
 @injectable()
 export class ItemService implements ItemServiceInterface {
@@ -26,6 +27,8 @@ export class ItemService implements ItemServiceInterface {
   private readonly SYNC_TOKEN_VERSION = 2
 
   constructor (
+    @inject(TYPES.ItemSaveValidator) private itemSaveValidator: ItemSaveValidatorInterface,
+    @inject(TYPES.ItemFactory) private itemFactory: ItemFactoryInterface,
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
     @inject(TYPES.DomainEventPublisher) private domainEventPublisher: DomainEventPublisherInterface,
@@ -85,22 +88,19 @@ export class ItemService implements ItemServiceInterface {
 
     for (const itemHash of dto.itemHashes) {
       const existingItem = await this.itemRepository.findByUuid(itemHash.uuid)
-      if (this.itemBelongsToADifferentUser(dto.userUuid, existingItem)) {
-        conflicts.push({
-          unsavedItem: itemHash,
-          type: 'uuid_conflict',
-        })
-
-        continue
-      }
-
-      if (!this.itemShouldBeSaved(itemHash, dto.apiVersion, existingItem)) {
-        this.logger.debug(`Item ${itemHash.uuid} should not be saved. Sync conflict.`)
-
-        conflicts.push({
-          serverItem: existingItem,
-          type: 'sync_conflict',
-        })
+      const processingResult = await this.itemSaveValidator.validate({
+        userUuid: dto.userUuid,
+        apiVersion: dto.apiVersion,
+        itemHash,
+        existingItem,
+      })
+      if (!processingResult.passed) {
+        if (processingResult.conflict) {
+          conflicts.push(processingResult.conflict)
+        }
+        if (processingResult.skipped) {
+          savedItems.push(processingResult.skipped)
+        }
 
         continue
       }
@@ -234,48 +234,7 @@ export class ItemService implements ItemServiceInterface {
   }
 
   private async saveNewItem(userUuid: string, itemHash: ItemHash, userAgent?: string): Promise<Item> {
-    const newItem = new Item()
-    newItem.uuid = itemHash.uuid
-    if (itemHash.content) {
-      newItem.content = itemHash.content
-    }
-    newItem.userUuid = userUuid
-    if (itemHash.content_type) {
-      newItem.contentType = itemHash.content_type
-    }
-    if (itemHash.enc_item_key) {
-      newItem.encItemKey = itemHash.enc_item_key
-    }
-    if (itemHash.items_key_id) {
-      newItem.itemsKeyId = itemHash.items_key_id
-    }
-    if (itemHash.duplicate_of) {
-      newItem.duplicateOf = itemHash.duplicate_of
-    }
-    if (itemHash.deleted !== undefined) {
-      newItem.deleted = itemHash.deleted
-    }
-    if (itemHash.auth_hash) {
-      newItem.authHash = itemHash.auth_hash
-    }
-    newItem.lastUserAgent = userAgent ?? null
-
-    const now = this.timer.getTimestampInMicroseconds()
-    const nowDate = this.timer.convertMicrosecondsToDate(now)
-
-    newItem.updatedAtTimestamp = now
-    newItem.updatedAt = nowDate
-
-    newItem.createdAtTimestamp = now
-    newItem.createdAt = nowDate
-
-    if (itemHash.created_at_timestamp) {
-      newItem.createdAtTimestamp = itemHash.created_at_timestamp
-      newItem.createdAt = this.timer.convertMicrosecondsToDate(itemHash.created_at_timestamp)
-    } else if (itemHash.created_at) {
-      newItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
-      newItem.createdAt = this.timer.convertStringDateToDate(itemHash.created_at)
-    }
+    const newItem = this.itemFactory.create(userUuid, itemHash, userAgent)
 
     const savedItem = await this.itemRepository.save(newItem)
 
@@ -288,61 +247,6 @@ export class ItemService implements ItemServiceInterface {
     }
 
     return savedItem
-  }
-
-  private itemBelongsToADifferentUser(userUuid: string, existingItem?: Item) {
-    return existingItem !== undefined && existingItem.userUuid !== userUuid
-  }
-
-  private itemShouldBeSaved(itemHash: ItemHash, apiVersion: string, existingItem?: Item): boolean {
-    if (!existingItem) {
-      this.logger.debug(`No previously existing item with uuid ${itemHash.uuid} . Item should be saved`)
-
-      return true
-    }
-
-    let incomingUpdatedAtTimestamp = itemHash.updated_at_timestamp
-    if (incomingUpdatedAtTimestamp === undefined) {
-      incomingUpdatedAtTimestamp = itemHash.updated_at !== undefined ? this.timer.convertStringDateToMicroseconds(itemHash.updated_at) :
-        this.timer.convertStringDateToMicroseconds(new Date(0).toString())
-    }
-
-    this.logger.debug(`Incoming updated at timestamp for item ${itemHash.uuid}: ${incomingUpdatedAtTimestamp}`)
-
-    if (this.itemWasSentFromALegacyClient(incomingUpdatedAtTimestamp, apiVersion)) {
-      return true
-    }
-
-    const ourUpdatedAtTimestamp = existingItem.updatedAtTimestamp
-
-    this.logger.debug(`Our updated at timestamp for item ${itemHash.uuid}: ${ourUpdatedAtTimestamp}`)
-
-    const difference = incomingUpdatedAtTimestamp - ourUpdatedAtTimestamp
-
-    this.logger.debug(`Difference in timestamps for item ${itemHash.uuid}: ${Math.abs(difference)}`)
-
-    if (this.itemHashHasMicrosecondsPrecision(itemHash)) {
-      return difference === 0
-    }
-
-    return Math.abs(difference) < this.getMinimalConflictIntervalMicroseconds(apiVersion)
-  }
-
-  private itemHashHasMicrosecondsPrecision(itemHash: ItemHash) {
-    return itemHash.updated_at_timestamp !== undefined
-  }
-
-  private itemWasSentFromALegacyClient(incomingUpdatedAtTimestamp: number, apiVersion: string) {
-    return incomingUpdatedAtTimestamp === 0 && apiVersion === ApiVersion.v20161215
-  }
-
-  private getMinimalConflictIntervalMicroseconds(apiVersion?: string): number {
-    switch(apiVersion) {
-    case ApiVersion.v20161215:
-      return Time.MicrosecondsInASecond
-    default:
-      return Time.MicrosecondsInAMillisecond
-    }
   }
 
   private getLastSyncTime(dto: GetItemsDTO): number | undefined {
