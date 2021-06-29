@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import { ApiVersion } from '../../Api/ApiVersion'
 import { ItemHash } from '../ItemHash'
-import { ItemSaveRuleInterface } from '../SaveFilter/ItemSaveRuleInterface'
+import { ItemSaveRuleInterface } from '../SaveRule/ItemSaveRuleInterface'
 
 import { ItemSaveValidator } from './ItemSaveValidator'
 

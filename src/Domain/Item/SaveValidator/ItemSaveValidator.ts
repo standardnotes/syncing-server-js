@@ -1,5 +1,5 @@
 import { injectable } from 'inversify'
-import { ItemSaveRuleInterface } from '../SaveFilter/ItemSaveRuleInterface'
+import { ItemSaveRuleInterface } from '../SaveRule/ItemSaveRuleInterface'
 import { ItemSaveValidationDTO } from './ItemSaveValidationDTO'
 import { ItemSaveValidationResult } from './ItemSaveValidationResult'
 import { ItemSaveValidatorInterface } from './ItemSaveValidatorInterface'

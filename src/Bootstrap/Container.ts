@@ -61,9 +61,9 @@ import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/P
 import { Timer, TimerInterface } from '@standardnotes/time'
 import { ItemSaveValidatorInterface } from '../Domain/Item/SaveValidator/ItemSaveValidatorInterface'
 import { ItemSaveValidator } from '../Domain/Item/SaveValidator/ItemSaveValidator'
-import { OwnershipFilter } from '../Domain/Item/SaveFilter/OwnershipFilter'
-import { MFAFilter } from '../Domain/Item/SaveFilter/MFAFilter'
-import { TimeDifferenceFilter } from '../Domain/Item/SaveFilter/TimeDifferenceFilter'
+import { OwnershipFilter } from '../Domain/Item/SaveRule/OwnershipFilter'
+import { MFAFilter } from '../Domain/Item/SaveRule/MFAFilter'
+import { TimeDifferenceFilter } from '../Domain/Item/SaveRule/TimeDifferenceFilter'
 import { ItemFactoryInterface } from '../Domain/Item/ItemFactoryInterface'
 import { ItemFactory } from '../Domain/Item/ItemFactory'
 
