@@ -18,6 +18,7 @@ export class ItemSaveValidator implements ItemSaveValidatorInterface {
         return {
           passed: false,
           conflict: result.conflict,
+          skipped: result.skipped,
         }
       }
     }
