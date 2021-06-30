@@ -1,14 +1,16 @@
 import 'reflect-metadata'
 
 import { SuperAgentRequest, SuperAgentStatic } from 'superagent'
+import { Logger } from 'winston'
 import { AuthHttpService } from './AuthHttpService'
 
 describe('AuthHttpService', () => {
   let httpClient: SuperAgentStatic
   let request: SuperAgentRequest
+  let logger: Logger
   const authServerUrl = 'https://auth-server'
 
-  const createService = () => new AuthHttpService(httpClient, authServerUrl)
+  const createService = () => new AuthHttpService(httpClient, authServerUrl, logger)
 
   beforeEach(() => {
     request = {} as jest.Mocked<SuperAgentRequest>
@@ -18,6 +20,9 @@ describe('AuthHttpService', () => {
     httpClient = {} as jest.Mocked<SuperAgentStatic>
     httpClient.get = jest.fn().mockReturnValue(request)
     httpClient.put = jest.fn().mockReturnValue(request)
+
+    logger = {} as jest.Mocked<Logger>
+    logger.debug = jest.fn()
   })
 
   it('should send a request to auth service in order to get user key params', async () => {
