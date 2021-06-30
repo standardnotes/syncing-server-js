@@ -45,8 +45,8 @@ describe('AuthHttpService', () => {
       mfaSecret: 'test',
     })).toEqual('3-4-5')
 
-    expect(httpClient.put).toHaveBeenCalledWith('https://auth-server/users/1-2-3/settings')
-    expect(request.send).toHaveBeenCalledWith({ name: 'MFA_SECRET', value: 'test' })
+    expect(httpClient.put).toHaveBeenCalledWith('https://auth-server/users/1-2-3/mfa')
+    expect(request.send).toHaveBeenCalledWith({ value: 'test' })
   })
 
   it('should throw an error if sending a request to auth service in order to save mfa secret fails', async () => {

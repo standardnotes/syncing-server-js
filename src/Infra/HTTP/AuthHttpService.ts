@@ -1,4 +1,4 @@
-import { KeyParams, MfaSetting } from '@standardnotes/auth'
+import { KeyParams } from '@standardnotes/auth'
 import { inject, injectable } from 'inversify'
 import { SuperAgentStatic } from 'superagent'
 import TYPES from '../../Bootstrap/Types'
@@ -23,9 +23,8 @@ export class AuthHttpService implements AuthHttpServiceInterface {
 
   async saveUserMFA(dto: { userUuid: string, mfaSecret: string }): Promise<string> {
     const response = await this.httpClient
-      .put(`${this.authServerUrl}/users/${dto.userUuid}/settings`)
+      .put(`${this.authServerUrl}/users/${dto.userUuid}/mfa`)
       .send({
-        name: MfaSetting.MfaSecret,
         value: dto.mfaSecret,
       })
 
