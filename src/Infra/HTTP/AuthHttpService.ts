@@ -30,7 +30,7 @@ export class AuthHttpService implements AuthHttpServiceInterface {
         value: dto.mfaSecret,
       })
 
-    this.logger.debug('Auth server response for saving MFA: %O', response.body)
+    this.logger.debug('Auth server response (%s) for saving MFA: %O', response.status, response.body)
 
     if (!response.body?.setting?.uuid) {
       throw new Error('Missing mfa setting uuid from auth service response')
@@ -50,7 +50,7 @@ export class AuthHttpService implements AuthHttpServiceInterface {
       .get(`${this.authServerUrl}/users/${userUuid}/mfa`)
       .send()
 
-    this.logger.debug('Auth server response for getting MFA: %O', response.body)
+    this.logger.debug('Auth server response (%s) for getting MFA: %O', response.status, response.body)
 
     if (!response.body?.setting?.value) {
       throw new Error('Missing mfa setting value from auth service response')
