@@ -46,12 +46,13 @@ describe('AuthHttpService', () => {
     })
 
     expect(await createService().saveUserMFA({
+      uuid: '2-3-4',
       userUuid: '1-2-3',
       mfaSecret: 'test',
-    })).toEqual('3-4-5')
+    })).toEqual({ uuid: '3-4-5' })
 
     expect(httpClient.put).toHaveBeenCalledWith('https://auth-server/users/1-2-3/mfa')
-    expect(request.send).toHaveBeenCalledWith({ value: 'test' })
+    expect(request.send).toHaveBeenCalledWith({ value: 'test', uuid: '2-3-4' })
   })
 
   it('should throw an error if sending a request to auth service in order to save mfa secret fails', async () => {
@@ -59,6 +60,7 @@ describe('AuthHttpService', () => {
 
     try {
       await createService().saveUserMFA({
+        uuid: '2-3-4',
         userUuid: '1-2-3',
         mfaSecret: 'test',
       })

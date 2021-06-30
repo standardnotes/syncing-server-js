@@ -23,20 +23,21 @@ export class AuthHttpService implements AuthHttpServiceInterface {
     return keyParamsResponse.body
   }
 
-  async saveUserMFA(dto: { userUuid: string, mfaSecret: string }): Promise<string> {
+  async saveUserMFA(dto: { uuid: string, userUuid: string, mfaSecret: string }): Promise<string> {
     const response = await this.httpClient
       .put(`${this.authServerUrl}/users/${dto.userUuid}/mfa`)
       .send({
         value: dto.mfaSecret,
+        uuid: dto.uuid,
       })
 
     this.logger.debug('Auth server response (%s) for saving MFA: %O', response.status, response.body)
 
-    if (!response.body?.setting?.uuid) {
+    if (!response.body?.setting) {
       throw new Error('Missing mfa setting uuid from auth service response')
     }
 
-    return response.body.setting.uuid
+    return response.body.setting
   }
 
   async getUserMFA(userUuid: string): Promise<{

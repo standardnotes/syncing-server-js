@@ -23,7 +23,7 @@ describe('MFAFilter', () => {
     itemFactory.create = jest.fn().mockReturnValue(item)
 
     authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
-    authHttpService.saveUserMFA = jest.fn().mockReturnValue('5-6-7')
+    authHttpService.saveUserMFA = jest.fn().mockReturnValue({ uuid: '5-6-7' })
 
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
@@ -41,9 +41,7 @@ describe('MFAFilter', () => {
 
     expect(result).toEqual({
       passed: false,
-      skipped: {
-        uuid: 'mfa-5-6-7',
-      },
+      skipped: item,
     })
   })
 

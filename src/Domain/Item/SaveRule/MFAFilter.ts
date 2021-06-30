@@ -20,13 +20,13 @@ export class MFAFilter implements ItemSaveRuleInterface {
   async check(dto: ItemSaveValidationDTO): Promise<ItemSaveRuleResult> {
     if (dto.itemHash.content_type === ContentType.MFA) {
       try {
-        const mfaUserSettingUuid = await this.authHttpService.saveUserMFA({
+        await this.authHttpService.saveUserMFA({
+          uuid: dto.itemHash.uuid,
           userUuid: dto.userUuid,
           mfaSecret: dto.itemHash.content as string,
         })
 
         const stubItem = this.itemFactory.create(dto.userUuid, dto.itemHash)
-        stubItem.uuid = `mfa-${mfaUserSettingUuid}`
 
         this.logger.debug('Returning a stub item for MFA user setting: %O', stubItem)
 
