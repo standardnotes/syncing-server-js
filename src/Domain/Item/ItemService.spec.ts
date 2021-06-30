@@ -17,6 +17,7 @@ import { Time, TimerInterface } from '@standardnotes/time'
 import { ItemSaveValidatorInterface } from './SaveValidator/ItemSaveValidatorInterface'
 import { ItemFactoryInterface } from './ItemFactoryInterface'
 import { ItemConflict } from './ItemConflict'
+import { ItemGetValidatorInterface } from './GetValidator/ItemGetValidatorInterface'
 
 describe('ItemService', () => {
   let itemRepository: ItemRepositoryInterface
@@ -33,11 +34,13 @@ describe('ItemService', () => {
   let syncToken: string
   let logger: Logger
   let itemSaveValidator: ItemSaveValidatorInterface
+  let itemGetValidator: ItemGetValidatorInterface
   let newItem: Item
   let itemFactory: ItemFactoryInterface
 
   const createService = () => new ItemService(
     itemSaveValidator,
+    itemGetValidator,
     itemFactory,
     itemRepository,
     revisionService,
@@ -125,6 +128,9 @@ describe('ItemService', () => {
     itemSaveValidator = {} as jest.Mocked<ItemSaveValidatorInterface>
     itemSaveValidator.validate = jest.fn().mockReturnValue({ passed: true })
 
+    itemGetValidator = {} as jest.Mocked<ItemGetValidatorInterface>
+    itemGetValidator.validate = jest.fn().mockReturnValue({ passed: true })
+
     newItem = {} as jest.Mocked<Item>
 
     itemFactory = {} as jest.Mocked<ItemFactoryInterface>
@@ -165,6 +171,33 @@ describe('ItemService', () => {
       })
     ).toEqual({
       items: [ item1, item2 ],
+    })
+
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      contentType: 'Note',
+      lastSyncTime: 1616164633241564,
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+    })
+  })
+
+  it('should replace all items not passing validation', async () => {
+    const itemReplaced = {} as jest.Mocked<Item>
+
+    itemGetValidator.validate = jest.fn()
+      .mockReturnValueOnce({ passed: true })
+      .mockReturnValueOnce({ passed: false, replaced: itemReplaced })
+    expect(
+      await createService().getItems({
+        userUuid: '1-2-3',
+        syncToken,
+        limit: 100,
+        contentType: ContentType.Note,
+      })
+    ).toEqual({
+      items: [ item1, itemReplaced ],
     })
 
     expect(itemRepository.findAll).toHaveBeenCalledWith({

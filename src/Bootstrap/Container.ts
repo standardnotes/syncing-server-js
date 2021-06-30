@@ -66,6 +66,9 @@ import { MFAFilter } from '../Domain/Item/SaveRule/MFAFilter'
 import { TimeDifferenceFilter } from '../Domain/Item/SaveRule/TimeDifferenceFilter'
 import { ItemFactoryInterface } from '../Domain/Item/ItemFactoryInterface'
 import { ItemFactory } from '../Domain/Item/ItemFactory'
+import { ItemGetValidatorInterface } from '../Domain/Item/GetValidator/ItemGetValidatorInterface'
+import { ItemGetValidator } from '../Domain/Item/GetValidator/ItemGetValidator'
+import { MFARule } from '../Domain/Item/GetRule/MFARule'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -273,6 +276,14 @@ export class ContainerConfigLoader {
         container.get(TYPES.OwnershipFilter),
         container.get(TYPES.MFAFilter),
         container.get(TYPES.TimeDifferenceFilter),
+      ])
+    )
+
+    container.bind<MFARule>(TYPES.MFARule).to(MFARule)
+
+    container.bind<ItemGetValidatorInterface>(TYPES.ItemGetValidator).toConstantValue(
+      new ItemGetValidator([
+        container.get(TYPES.MFARule),
       ])
     )
 
