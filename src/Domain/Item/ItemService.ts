@@ -10,6 +10,7 @@ import { ContentType } from './ContentType'
 import { GetItemsDTO } from './GetItemsDTO'
 
 import { GetItemsResult } from './GetItemsResult'
+import { ItemGetValidatorInterface } from './GetValidator/ItemGetValidatorInterface'
 import { Item } from './Item'
 import { ItemConflict } from './ItemConflict'
 import { ItemFactoryInterface } from './ItemFactoryInterface'
@@ -28,6 +29,7 @@ export class ItemService implements ItemServiceInterface {
 
   constructor (
     @inject(TYPES.ItemSaveValidator) private itemSaveValidator: ItemSaveValidatorInterface,
+    @inject(TYPES.ItemGetValidator) private itemGetValidator: ItemGetValidatorInterface,
     @inject(TYPES.ItemFactory) private itemFactory: ItemFactoryInterface,
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
@@ -63,6 +65,15 @@ export class ItemService implements ItemServiceInterface {
     }
 
     let items = await this.itemRepository.findAll(itemQuery)
+
+    items = await Promise.all(items.map(async (item: Item) => {
+      const result = await this.itemGetValidator.validate({ item })
+      if (!result.passed) {
+        return result.replaced as Item
+      }
+
+      return item
+    }))
 
     this.logger.debug(`Fetched ${items.length} items. Limit defined: ${dto.limit}`)
 

@@ -73,7 +73,7 @@ describe('AuthHttpService', () => {
       },
     })
 
-    expect(await createService().getUserMFA('1-2-3')).toEqual('top-secret')
+    expect(await createService().getUserMFA('1-2-3')).toEqual({ value: 'top-secret' })
 
     expect(httpClient.get).toHaveBeenCalledWith('https://auth-server/users/1-2-3/mfa')
     expect(request.send).toHaveBeenCalled()

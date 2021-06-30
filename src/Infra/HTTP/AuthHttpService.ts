@@ -36,7 +36,13 @@ export class AuthHttpService implements AuthHttpServiceInterface {
     return response.body.setting.uuid
   }
 
-  async getUserMFA(userUuid: string): Promise<string> {
+  async getUserMFA(userUuid: string): Promise<{
+    uuid: string,
+    name: string,
+    value: string,
+    createdAt: string,
+    updatedAt: string
+  }> {
     const response = await this.httpClient
       .get(`${this.authServerUrl}/users/${userUuid}/mfa`)
       .send()
@@ -45,6 +51,6 @@ export class AuthHttpService implements AuthHttpServiceInterface {
       throw new Error('Missing mfa setting value from auth service response')
     }
 
-    return response.body.setting.value
+    return response.body.setting
   }
 }
