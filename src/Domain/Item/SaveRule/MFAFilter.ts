@@ -28,6 +28,8 @@ export class MFAFilter implements ItemSaveRuleInterface {
         const stubItem = this.itemFactory.create(dto.userUuid, dto.itemHash)
         stubItem.uuid = `mfa-${mfaUserSettingUuid}`
 
+        this.logger.debug('Returning a stub item for MFA user setting: %O', stubItem)
+
         return {
           passed: false,
           skipped: stubItem,

@@ -106,6 +106,8 @@ export class ItemService implements ItemServiceInterface {
         existingItem,
       })
       if (!processingResult.passed) {
+        this.logger.debug('Item %s filtered out from saving: %O', itemHash.uuid, processingResult)
+
         if (processingResult.conflict) {
           conflicts.push(processingResult.conflict)
         }
