@@ -4,13 +4,14 @@ import * as crypto from 'crypto'
 import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
+import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
 import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
+import { ServiceTransitionHelperInterface } from '../Transition/ServiceTransitionHelperInterface'
 import { ContentType } from './ContentType'
 import { GetItemsDTO } from './GetItemsDTO'
 
 import { GetItemsResult } from './GetItemsResult'
-import { ItemGetValidatorInterface } from './GetValidator/ItemGetValidatorInterface'
 import { Item } from './Item'
 import { ItemConflict } from './ItemConflict'
 import { ItemFactoryInterface } from './ItemFactoryInterface'
@@ -29,7 +30,8 @@ export class ItemService implements ItemServiceInterface {
 
   constructor (
     @inject(TYPES.ItemSaveValidator) private itemSaveValidator: ItemSaveValidatorInterface,
-    @inject(TYPES.ItemGetValidator) private itemGetValidator: ItemGetValidatorInterface,
+    @inject(TYPES.ServiceTransitionHelper) private serviceTransitionHelper: ServiceTransitionHelperInterface,
+    @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
     @inject(TYPES.ItemFactory) private itemFactory: ItemFactoryInterface,
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
@@ -53,11 +55,12 @@ export class ItemService implements ItemServiceInterface {
 
   async getItems(dto: GetItemsDTO): Promise<GetItemsResult> {
     const lastSyncTime = this.getLastSyncTime(dto)
+    const syncTimeComparison = dto.cursorToken ? '>=' : '>'
 
     const itemQuery: ItemQuery = {
       userUuid: dto.userUuid,
       lastSyncTime,
-      syncTimeComparison: dto.cursorToken ? '>=' : '>',
+      syncTimeComparison,
       contentType: dto.contentType,
       deleted: lastSyncTime ? undefined : false,
       sortBy: 'updated_at_timestamp',
@@ -66,16 +69,20 @@ export class ItemService implements ItemServiceInterface {
 
     let items = await this.itemRepository.findAll(itemQuery)
 
-    items = await Promise.all(items.map(async (item: Item) => {
-      const result = await this.itemGetValidator.validate({ item })
-      if (!result.passed) {
-        return result.replaced as Item
-      }
+    const mfaItemWasRetrieved = this.mfaItemWasRetrievedInBatch(items)
 
-      return item
-    }))
+    const userHasMovedMFAToUserSettings = await this.serviceTransitionHelper.userHasMovedMFAToUserSettings(dto.userUuid)
 
-    this.logger.debug(`Fetched ${items.length} items. Limit defined: ${dto.limit}`)
+    const mfaIsToBeRetrieved = dto.contentType === undefined || dto.contentType === ContentType.MFA
+
+    if (mfaIsToBeRetrieved && userHasMovedMFAToUserSettings && !mfaItemWasRetrieved) {
+      items = await this.appendStubMFAItemBasedOnSyncToken({
+        userUuid: dto.userUuid,
+        items,
+        lastSyncTime,
+        syncTimeComparison,
+      })
+    }
 
     let cursorToken = undefined
     const limit = dto.limit === undefined || dto.limit < 1 ? this.DEFAULT_ITEMS_LIMIT : dto.limit
@@ -285,6 +292,45 @@ export class ItemService implements ItemServiceInterface {
     default:
       throw Error('Sync token is missing version part')
     }
+  }
 
+  private mfaItemWasRetrievedInBatch(items: Array<Item>): boolean {
+    for (const item of items ) {
+      if (item.contentType === ContentType.MFA) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  private async appendStubMFAItemBasedOnSyncToken(dto: {
+    userUuid: string,
+    items: Array<Item>,
+    lastSyncTime: number | undefined,
+    syncTimeComparison: '>' | '>='
+  }): Promise<Array<Item>> {
+    const mfaUserSettingUpdatedAt = await this.serviceTransitionHelper.getUserMFAUpdatedAtTimestamp(dto.userUuid)
+
+    const mfaUserSettingShouldBeAppendedToItemsBatch =
+      dto.lastSyncTime === undefined ||
+      dto.syncTimeComparison === '>' && mfaUserSettingUpdatedAt > dto.lastSyncTime ||
+      dto.syncTimeComparison === '>=' && mfaUserSettingUpdatedAt >= dto.lastSyncTime
+
+    if (mfaUserSettingShouldBeAppendedToItemsBatch) {
+      const mfaUserSetting = await this.authHttpService.getUserMFA(dto.userUuid)
+
+      const stubItem = this.itemFactory.create(dto.userUuid, {
+        uuid: mfaUserSetting.uuid,
+        content_type: ContentType.MFA,
+        content: mfaUserSetting.value,
+        created_at_timestamp: mfaUserSetting.createdAt,
+        updated_at_timestamp: mfaUserSetting.updatedAt,
+      })
+
+      dto.items.unshift(stubItem)
+    }
+
+    return dto.items
   }
 }

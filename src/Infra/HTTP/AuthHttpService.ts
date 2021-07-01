@@ -48,8 +48,8 @@ export class AuthHttpService implements AuthHttpServiceInterface {
     uuid: string,
     name: string,
     value: string,
-    createdAt: string,
-    updatedAt: string
+    createdAt: number,
+    updatedAt: number
   }> {
     const response = await this.httpClient
       .get(`${this.authServerUrl}/users/${userUuid}/mfa`)
