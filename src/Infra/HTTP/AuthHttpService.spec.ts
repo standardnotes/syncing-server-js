@@ -26,6 +26,7 @@ describe('AuthHttpService', () => {
 
     contentDecoder = {} as jest.Mocked<ContentDecoderInterface>
     contentDecoder.decode = jest.fn().mockReturnValue({ secret: 'decoded-secret' })
+    contentDecoder.encode = jest.fn().mockReturnValue('encoded-secret')
 
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
@@ -86,7 +87,7 @@ describe('AuthHttpService', () => {
       },
     })
 
-    expect(await createService().getUserMFA('1-2-3')).toEqual({ value: 'top-secret' })
+    expect(await createService().getUserMFA('1-2-3')).toEqual({ value: 'encoded-secret' })
 
     expect(httpClient.get).toHaveBeenCalledWith('https://auth-server/users/1-2-3/mfa')
     expect(request.send).toHaveBeenCalled()

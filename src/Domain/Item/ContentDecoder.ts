@@ -13,4 +13,8 @@ export class ContentDecoder implements ContentDecoderInterface {
       return {}
     }
   }
+
+  encode(content: Record<string, unknown>): string | undefined {
+    return `000${btoa(JSON.stringify(content))}`
+  }
 }

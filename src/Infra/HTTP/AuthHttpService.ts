@@ -61,6 +61,10 @@ export class AuthHttpService implements AuthHttpServiceInterface {
       throw new Error('Missing mfa setting value from auth service response')
     }
 
-    return response.body.setting
+    const setting = response.body.setting
+
+    setting.value = this.contentDecoder.encode(setting.value)
+
+    return setting
   }
 }
