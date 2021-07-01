@@ -23,7 +23,7 @@ export class MFAFilter implements ItemSaveRuleInterface {
         await this.authHttpService.saveUserMFA({
           uuid: dto.itemHash.uuid,
           userUuid: dto.userUuid,
-          mfaSecret: dto.itemHash.content as string,
+          encodedMfaSecret: dto.itemHash.content as string,
         })
 
         const stubItem = this.itemFactory.create(dto.userUuid, dto.itemHash)
