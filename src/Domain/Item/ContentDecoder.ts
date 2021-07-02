@@ -15,6 +15,8 @@ export class ContentDecoder implements ContentDecoderInterface {
   }
 
   encode(content: Record<string, unknown>): string | undefined {
-    return `000${btoa(JSON.stringify(content))}`
+    const stringifiedContent = JSON.stringify(content)
+
+    return `000${Buffer.from(stringifiedContent).toString('base64')}`
   }
 }
