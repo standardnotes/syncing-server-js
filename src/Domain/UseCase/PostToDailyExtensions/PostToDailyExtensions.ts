@@ -23,8 +23,6 @@ export class PostToDailyExtensions implements UseCaseInterface {
   }
 
   async execute(dto: PostToDailyExtensionsDTO): Promise<PostToDailyExtensionsResponse> {
-    this.logger.debug('Posting to daily extensions...')
-
     const dailyExtensions = this.filterOutDailyExtensions(dto.extensions)
 
     for (const dailyExtension of dailyExtensions) {
