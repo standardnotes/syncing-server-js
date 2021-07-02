@@ -4,14 +4,12 @@ import { SuperAgentStatic } from 'superagent'
 import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
 import { AuthHttpServiceInterface } from '../../Domain/Auth/AuthHttpServiceInterface'
-import { ContentDecoderInterface } from '../../Domain/Item/ContentDecoderInterface'
 
 @injectable()
 export class AuthHttpService implements AuthHttpServiceInterface {
   constructor (
     @inject(TYPES.HTTPClient) private httpClient: SuperAgentStatic,
     @inject(TYPES.AUTH_SERVER_URL) private authServerUrl: string,
-    @inject(TYPES.ContentDecoder) private contentDecoder: ContentDecoderInterface,
     @inject(TYPES.Logger) private logger: Logger,
   ) {
   }
@@ -26,12 +24,10 @@ export class AuthHttpService implements AuthHttpServiceInterface {
   }
 
   async saveUserMFA(dto: { uuid: string, userUuid: string, encodedMfaSecret: string }): Promise<string> {
-    const mfaContentDecoded = this.contentDecoder.decode(dto.encodedMfaSecret)
-
     const response = await this.httpClient
       .put(`${this.authServerUrl}/users/${dto.userUuid}/mfa`)
       .send({
-        value: mfaContentDecoded.secret,
+        value: dto.encodedMfaSecret,
         uuid: dto.uuid,
       })
 
@@ -62,8 +58,6 @@ export class AuthHttpService implements AuthHttpServiceInterface {
     }
 
     const setting = response.body.setting
-
-    setting.value = this.contentDecoder.encode(setting.value)
 
     return setting
   }

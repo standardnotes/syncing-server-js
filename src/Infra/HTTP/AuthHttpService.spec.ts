@@ -2,18 +2,16 @@ import 'reflect-metadata'
 
 import { SuperAgentRequest, SuperAgentStatic } from 'superagent'
 import { Logger } from 'winston'
-import { ContentDecoderInterface } from '../../Domain/Item/ContentDecoderInterface'
 import { AuthHttpService } from './AuthHttpService'
 
 describe('AuthHttpService', () => {
   let httpClient: SuperAgentStatic
   let request: SuperAgentRequest
   let logger: Logger
-  let contentDecoder: ContentDecoderInterface
 
   const authServerUrl = 'https://auth-server'
 
-  const createService = () => new AuthHttpService(httpClient, authServerUrl, contentDecoder, logger)
+  const createService = () => new AuthHttpService(httpClient, authServerUrl, logger)
 
   beforeEach(() => {
     request = {} as jest.Mocked<SuperAgentRequest>
@@ -23,10 +21,6 @@ describe('AuthHttpService', () => {
     httpClient = {} as jest.Mocked<SuperAgentStatic>
     httpClient.get = jest.fn().mockReturnValue(request)
     httpClient.put = jest.fn().mockReturnValue(request)
-
-    contentDecoder = {} as jest.Mocked<ContentDecoderInterface>
-    contentDecoder.decode = jest.fn().mockReturnValue({ secret: 'decoded-secret' })
-    contentDecoder.encode = jest.fn().mockReturnValue('encoded-secret')
 
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
@@ -59,7 +53,7 @@ describe('AuthHttpService', () => {
     })).toEqual({ uuid: '3-4-5' })
 
     expect(httpClient.put).toHaveBeenCalledWith('https://auth-server/users/1-2-3/mfa')
-    expect(request.send).toHaveBeenCalledWith({ value: 'decoded-secret', uuid: '2-3-4' })
+    expect(request.send).toHaveBeenCalledWith({ value: 'test', uuid: '2-3-4' })
   })
 
   it('should throw an error if sending a request to auth service in order to save mfa secret fails', async () => {
@@ -87,7 +81,7 @@ describe('AuthHttpService', () => {
       },
     })
 
-    expect(await createService().getUserMFA('1-2-3')).toEqual({ value: 'encoded-secret' })
+    expect(await createService().getUserMFA('1-2-3')).toEqual({ value: 'top-secret' })
 
     expect(httpClient.get).toHaveBeenCalledWith('https://auth-server/users/1-2-3/mfa')
     expect(request.send).toHaveBeenCalled()
