@@ -214,6 +214,7 @@ export class ContainerConfigLoader {
     container.bind<ExtensionsHttpServiceInterface>(TYPES.ExtensionsHttpService).to(ExtensionsHttpService)
     container.bind<ItemBackupServiceInterface>(TYPES.ItemBackupService).to(S3ItemBackupService)
     container.bind<RevisionServiceInterface>(TYPES.RevisionService).to(RevisionService)
+    container.bind<ServiceTransitionHelperInterface>(TYPES.ServiceTransitionHelper).to(RedisServiceTransitionHelper)
 
     if (env.get('SNS_TOPIC_ARN', true)) {
       container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
@@ -277,8 +278,6 @@ export class ContainerConfigLoader {
         container.get(TYPES.TimeDifferenceFilter),
       ])
     )
-
-    container.bind<ServiceTransitionHelperInterface>(TYPES.ServiceTransitionHelper).to(RedisServiceTransitionHelper)
 
     return container
   }
