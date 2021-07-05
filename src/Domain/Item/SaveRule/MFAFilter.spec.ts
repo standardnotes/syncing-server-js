@@ -28,9 +28,11 @@ describe('MFAFilter', () => {
 
     authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
     authHttpService.saveUserMFA = jest.fn().mockReturnValue({ uuid: '5-6-7' })
+    authHttpService.removeUserMFA = jest.fn()
 
     serviceTransitionHelper = {} as jest.Mocked<ServiceTransitionHelperInterface>
     serviceTransitionHelper.markUserMFAAsMovedToUserSettings = jest.fn()
+    serviceTransitionHelper.deleteUserMFAAsUserSetting = jest.fn()
 
     timer = {} as jest.Mocked<TimerInterface>
     timer.convertStringDateToMicroseconds = jest.fn().mockReturnValue(1)
@@ -111,6 +113,27 @@ describe('MFAFilter', () => {
 
     expect(result).toEqual({
       passed: true,
+    })
+  })
+
+  it ('should filter out deleted mfa item so it can be skipped on database save', async () => {
+    const result = await createFilter().check({
+      userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
+      itemHash: {
+        uuid: '2-3-4',
+        deleted: true,
+        content_type: ContentType.MFA,
+      },
+    })
+
+    expect(authHttpService.removeUserMFA).toHaveBeenCalledWith('1-2-3')
+
+    expect(serviceTransitionHelper.deleteUserMFAAsUserSetting).toHaveBeenCalledWith('1-2-3')
+
+    expect(result).toEqual({
+      passed: false,
+      skipped: item,
     })
   })
 })

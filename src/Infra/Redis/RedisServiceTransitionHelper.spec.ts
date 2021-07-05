@@ -13,6 +13,7 @@ describe('RedisServiceTransitionHelper', () => {
     redisClient = {} as jest.Mocked<IORedis.Redis>
     redisClient.set = jest.fn()
     redisClient.get = jest.fn()
+    redisClient.del = jest.fn()
   })
 
   it ('should tell if user has moved MFA from items to user settings', async () => {
@@ -42,5 +43,12 @@ describe('RedisServiceTransitionHelper', () => {
     redisClient.get = jest.fn().mockReturnValue('123')
 
     expect(await createHelper().getUserMFAUpdatedAtTimestamp('1-2-3')).toEqual(123)
+  })
+
+  it ('should mark the user as not moved MFA from items to user settings', async () => {
+    await createHelper().deleteUserMFAAsUserSetting('1-2-3')
+
+    expect(redisClient.del).toHaveBeenNthCalledWith(1, 'mfa:1-2-3')
+    expect(redisClient.del).toHaveBeenNthCalledWith(2, 'mfa_ua:1-2-3')
   })
 })

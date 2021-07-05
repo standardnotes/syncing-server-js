@@ -40,6 +40,14 @@ export class AuthHttpService implements AuthHttpServiceInterface {
     return response.body.setting
   }
 
+  async removeUserMFA(userUuid: string): Promise<void> {
+    const response = await this.httpClient
+      .delete(`${this.authServerUrl}/users/${userUuid}/mfa`)
+      .send()
+
+    this.logger.debug('Auth server response (%s) for deleting MFA: %O', response.status, response.body)
+  }
+
   async getUserMFA(userUuid: string): Promise<{
     uuid: string,
     name: string,

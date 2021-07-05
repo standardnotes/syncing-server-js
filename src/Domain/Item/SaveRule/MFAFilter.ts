@@ -24,29 +24,17 @@ export class MFAFilter implements ItemSaveRuleInterface {
   async check(dto: ItemSaveValidationDTO): Promise<ItemSaveRuleResult> {
     if (dto.itemHash.content_type === ContentType.MFA) {
       try {
-        const createdAt = dto.itemHash.created_at_timestamp ?
-          dto.itemHash.created_at_timestamp : this.timer.convertStringDateToMicroseconds(dto.itemHash.created_at as string)
-        const updatedAt = dto.itemHash.updated_at_timestamp ?
-          dto.itemHash.updated_at_timestamp : this.timer.convertStringDateToMicroseconds(dto.itemHash.updated_at as string)
-
-        await this.authHttpService.saveUserMFA({
-          uuid: dto.itemHash.uuid,
-          userUuid: dto.userUuid,
-          encodedMfaSecret: dto.itemHash.content as string,
-          createdAt,
-          updatedAt,
-        })
-
-        await this.serviceTransitionHelper.markUserMFAAsMovedToUserSettings(dto.userUuid, updatedAt)
-
-        const stubItem = this.itemFactory.create(dto.userUuid, dto.itemHash)
-
-        this.logger.debug('Returning a stub item for MFA user setting: %O', stubItem)
-
-        return {
-          passed: false,
-          skipped: stubItem,
+        let result: ItemSaveRuleResult
+        switch (dto.itemHash.deleted) {
+        case true:
+          result = await this.deleteUserMfaUserSetting(dto)
+          break
+        default:
+          result = await this.saveUserMFAUserSetting(dto)
+          break
         }
+
+        return result
       } catch (error) {
         this.logger.debug(`Could not save user MFA as user setting: ${error.message}`)
 
@@ -62,6 +50,45 @@ export class MFAFilter implements ItemSaveRuleInterface {
 
     return {
       passed: true,
+    }
+  }
+
+  private async deleteUserMfaUserSetting(dto: ItemSaveValidationDTO): Promise<ItemSaveRuleResult> {
+    await this.authHttpService.removeUserMFA(dto.userUuid)
+
+    await this.serviceTransitionHelper.deleteUserMFAAsUserSetting(dto.userUuid)
+
+    const stubItem = this.itemFactory.create(dto.userUuid, dto.itemHash)
+
+    return {
+      passed: false,
+      skipped: stubItem,
+    }
+  }
+
+  private async saveUserMFAUserSetting(dto: ItemSaveValidationDTO): Promise<ItemSaveRuleResult> {
+    const createdAt = dto.itemHash.created_at_timestamp ?
+      dto.itemHash.created_at_timestamp : this.timer.convertStringDateToMicroseconds(dto.itemHash.created_at as string)
+    const updatedAt = dto.itemHash.updated_at_timestamp ?
+      dto.itemHash.updated_at_timestamp : this.timer.convertStringDateToMicroseconds(dto.itemHash.updated_at as string)
+
+    await this.authHttpService.saveUserMFA({
+      uuid: dto.itemHash.uuid,
+      userUuid: dto.userUuid,
+      encodedMfaSecret: dto.itemHash.content as string,
+      createdAt,
+      updatedAt,
+    })
+
+    await this.serviceTransitionHelper.markUserMFAAsMovedToUserSettings(dto.userUuid, updatedAt)
+
+    const stubItem = this.itemFactory.create(dto.userUuid, dto.itemHash)
+
+    this.logger.debug('Returning a stub item for MFA user setting: %O', stubItem)
+
+    return {
+      passed: false,
+      skipped: stubItem,
     }
   }
 }

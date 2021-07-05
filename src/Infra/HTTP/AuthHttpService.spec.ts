@@ -21,6 +21,7 @@ describe('AuthHttpService', () => {
     httpClient = {} as jest.Mocked<SuperAgentStatic>
     httpClient.get = jest.fn().mockReturnValue(request)
     httpClient.put = jest.fn().mockReturnValue(request)
+    httpClient.delete = jest.fn().mockReturnValue(request)
 
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
@@ -84,6 +85,13 @@ describe('AuthHttpService', () => {
     expect(await createService().getUserMFA('1-2-3')).toEqual({ value: 'top-secret' })
 
     expect(httpClient.get).toHaveBeenCalledWith('https://auth-server/users/1-2-3/mfa')
+    expect(request.send).toHaveBeenCalled()
+  })
+
+  it('should send a request to auth service in order to delete user mfa secret', async () => {
+    expect(await createService().removeUserMFA('1-2-3'))
+
+    expect(httpClient.delete).toHaveBeenCalledWith('https://auth-server/users/1-2-3/mfa')
     expect(request.send).toHaveBeenCalled()
   })
 
