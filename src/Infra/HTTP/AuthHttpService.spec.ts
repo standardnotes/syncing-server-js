@@ -1,22 +1,17 @@
+import { AxiosInstance } from 'axios'
 import 'reflect-metadata'
 
-import { SuperAgentRequest, SuperAgentStatic } from 'superagent'
 import { AuthHttpService } from './AuthHttpService'
 
 describe('AuthHttpService', () => {
-  let httpClient: SuperAgentStatic
-  let request: SuperAgentRequest
+  let httpClient: AxiosInstance
   const authServerUrl = 'https://auth-server'
 
   const createService = () => new AuthHttpService(httpClient, authServerUrl)
 
   beforeEach(() => {
-    request = {} as jest.Mocked<SuperAgentRequest>
-    request.query = jest.fn().mockReturnThis()
-    request.send = jest.fn().mockReturnThis()
-
-    httpClient = {} as jest.Mocked<SuperAgentStatic>
-    httpClient.get = jest.fn().mockReturnValue(request)
+    httpClient = {} as jest.Mocked<AxiosInstance>
+    httpClient.request = jest.fn().mockReturnValue({ data: { foo: 'bar' } })
   })
 
   it('should send a request to auth service in order to get user key params', async () => {
@@ -25,8 +20,17 @@ describe('AuthHttpService', () => {
       authenticated: false,
     })
 
-    expect(httpClient.get).toHaveBeenCalledWith('https://auth-server/users/params')
-    expect(request.query).toHaveBeenCalledWith({ email: 'test@test.com', authenticated: false })
-    expect(request.send).toHaveBeenCalled()
+    expect(httpClient.request).toHaveBeenCalledWith({
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+      url: 'https://auth-server/users/params',
+      params: {
+        authenticated: false,
+        email: 'test@test.com',
+      },
+      validateStatus: expect.any(Function),
+    })
   })
 })
