@@ -32,7 +32,7 @@ describe('MFAFilter', () => {
 
     serviceTransitionHelper = {} as jest.Mocked<ServiceTransitionHelperInterface>
     serviceTransitionHelper.markUserMFAAsMovedToUserSettings = jest.fn()
-    serviceTransitionHelper.deleteUserMFAAsUserSetting = jest.fn()
+    serviceTransitionHelper.markUserMFAAsUserSettingAsDeleted = jest.fn()
 
     timer = {} as jest.Mocked<TimerInterface>
     timer.convertStringDateToMicroseconds = jest.fn().mockReturnValue(1)
@@ -129,7 +129,10 @@ describe('MFAFilter', () => {
 
     expect(authHttpService.removeUserMFA).toHaveBeenCalledWith('1-2-3')
 
-    expect(serviceTransitionHelper.deleteUserMFAAsUserSetting).toHaveBeenCalledWith('1-2-3')
+    expect(serviceTransitionHelper.markUserMFAAsUserSettingAsDeleted).toHaveBeenCalledWith(
+      '1-2-3',
+      1
+    )
 
     expect(result).toEqual({
       passed: false,

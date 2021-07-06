@@ -132,7 +132,7 @@ describe('ItemService', () => {
     itemSaveValidator.validate = jest.fn().mockReturnValue({ passed: true })
 
     serviceTransitionHelper = {} as jest.Mocked<ServiceTransitionHelperInterface>
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue(false)
+    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'not found' })
     serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1)
 
     authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
@@ -196,7 +196,36 @@ describe('ItemService', () => {
   })
 
   it('should retrieve all items including MFA stub item for a user from last sync', async () => {
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue(true)
+    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'active' })
+    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241569)
+
+    expect(
+      await createService().getItems({
+        userUuid: '1-2-3',
+        syncToken,
+        limit: 100,
+      })
+    ).toEqual({
+      items: [ newItem, item1, item2 ],
+    })
+  })
+
+  it('should retrieve all items excluding a deleted MFA stub item for a user when last sync time is not defined', async () => {
+    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'deleted' })
+    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241569)
+
+    expect(
+      await createService().getItems({
+        userUuid: '1-2-3',
+        limit: 100,
+      })
+    ).toEqual({
+      items: [ item1, item2 ],
+    })
+  })
+
+  it('should retrieve all items including a deleted MFA stub item for a user when last sync time is defined', async () => {
+    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'deleted' })
     serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241569)
 
     expect(
@@ -211,7 +240,7 @@ describe('ItemService', () => {
   })
 
   it('should retrieve all items excluding MFA stub item if original MFA Item was retrieved', async () => {
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue(true)
+    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'active' })
     serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241569)
 
     item1.contentType = ContentType.MFA
@@ -228,7 +257,7 @@ describe('ItemService', () => {
   })
 
   it('should retrieve all items excluding MFA stub item if updated at time is lesser than the sync token', async () => {
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue(true)
+    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'active' })
     serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241550)
 
     expect(
@@ -293,7 +322,7 @@ describe('ItemService', () => {
   })
 
   it('should retrieve all items for a user from cursor token', async () => {
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue(true)
+    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'active' })
     serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633251569)
 
     const cursorToken = Buffer.from('2:1616164633.241123', 'utf-8').toString('base64')
@@ -311,7 +340,7 @@ describe('ItemService', () => {
   })
 
   it('should not retrieve mfa stub item if content type is declared', async () => {
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue(true)
+    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'active' })
     serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633251569)
 
     const cursorToken = Buffer.from('2:1616164633.241123', 'utf-8').toString('base64')

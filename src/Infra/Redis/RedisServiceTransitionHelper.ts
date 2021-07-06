@@ -14,15 +14,25 @@ export class RedisServiceTransitionHelper implements ServiceTransitionHelperInte
   ) {
   }
 
-  async deleteUserMFAAsUserSetting(userUuid: string): Promise<void> {
-    await this.redisClient.del(`${this.MFA_PREFIX}:${userUuid}`)
-    await this.redisClient.del(`${this.MFA_UPDATED_AT_PREFIX}:${userUuid}`)
+  async markUserMFAAsUserSettingAsDeleted(userUuid: string, updatedAt: number): Promise<void> {
+    await this.redisClient.set(`${this.MFA_PREFIX}:${userUuid}`, 0)
+    await this.redisClient.set(`${this.MFA_UPDATED_AT_PREFIX}:${userUuid}`, updatedAt)
   }
 
-  async userHasMovedMFAToUserSettings(userUuid: string): Promise<boolean> {
+  async userHasMovedMFAToUserSettings(userUuid: string): Promise<{ status: 'active' | 'deleted' | 'not found' }> {
     const mfaInUserSettings = await this.redisClient.get(`${this.MFA_PREFIX}:${userUuid}`)
 
-    return mfaInUserSettings !== null && +mfaInUserSettings === 1
+    if (mfaInUserSettings === null) {
+      return { status: 'not found' }
+    }
+
+    switch (+mfaInUserSettings) {
+    case 1:
+      return { status: 'active' }
+    case 0:
+    default:
+      return { status: 'deleted' }
+    }
   }
 
   async markUserMFAAsMovedToUserSettings(userUuid: string, updatedAt: number): Promise<void> {

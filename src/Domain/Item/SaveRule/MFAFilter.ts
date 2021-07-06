@@ -54,9 +54,11 @@ export class MFAFilter implements ItemSaveRuleInterface {
   }
 
   private async deleteUserMfaUserSetting(dto: ItemSaveValidationDTO): Promise<ItemSaveRuleResult> {
+    const updatedAt = this.calculateUpdatedAtTimestamp(dto)
+
     await this.authHttpService.removeUserMFA(dto.userUuid)
 
-    await this.serviceTransitionHelper.deleteUserMFAAsUserSetting(dto.userUuid)
+    await this.serviceTransitionHelper.markUserMFAAsUserSettingAsDeleted(dto.userUuid, updatedAt)
 
     const stubItem = this.itemFactory.create(dto.userUuid, dto.itemHash)
 
@@ -67,10 +69,8 @@ export class MFAFilter implements ItemSaveRuleInterface {
   }
 
   private async saveUserMFAUserSetting(dto: ItemSaveValidationDTO): Promise<ItemSaveRuleResult> {
-    const createdAt = dto.itemHash.created_at_timestamp ?
-      dto.itemHash.created_at_timestamp : this.timer.convertStringDateToMicroseconds(dto.itemHash.created_at as string)
-    const updatedAt = dto.itemHash.updated_at_timestamp ?
-      dto.itemHash.updated_at_timestamp : this.timer.convertStringDateToMicroseconds(dto.itemHash.updated_at as string)
+    const createdAt = this.calculateCreatedAtTimestamp(dto)
+    const updatedAt = this.calculateUpdatedAtTimestamp(dto)
 
     await this.authHttpService.saveUserMFA({
       uuid: dto.itemHash.uuid,
@@ -90,5 +90,15 @@ export class MFAFilter implements ItemSaveRuleInterface {
       passed: false,
       skipped: stubItem,
     }
+  }
+
+  private calculateUpdatedAtTimestamp(dto: ItemSaveValidationDTO): number {
+    return dto.itemHash.updated_at_timestamp ?
+      dto.itemHash.updated_at_timestamp : this.timer.convertStringDateToMicroseconds(dto.itemHash.updated_at as string)
+  }
+
+  private calculateCreatedAtTimestamp(dto: ItemSaveValidationDTO): number {
+    return dto.itemHash.created_at_timestamp ?
+      dto.itemHash.created_at_timestamp : this.timer.convertStringDateToMicroseconds(dto.itemHash.created_at as string)
   }
 }

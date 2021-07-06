@@ -75,12 +75,13 @@ export class ItemService implements ItemServiceInterface {
 
     const mfaIsToBeRetrieved = dto.contentType === undefined || dto.contentType === ContentType.MFA
 
-    if (mfaIsToBeRetrieved && userHasMovedMFAToUserSettings && !mfaItemWasRetrieved) {
+    if (mfaIsToBeRetrieved && userHasMovedMFAToUserSettings.status !== 'not found' && !mfaItemWasRetrieved) {
       items = await this.appendStubMFAItemBasedOnSyncToken({
         userUuid: dto.userUuid,
         items,
         lastSyncTime,
         syncTimeComparison,
+        mfaUserSettingStatusDeleted: userHasMovedMFAToUserSettings.status === 'deleted',
       })
     }
 
@@ -309,13 +310,19 @@ export class ItemService implements ItemServiceInterface {
     items: Array<Item>,
     lastSyncTime: number | undefined,
     syncTimeComparison: '>' | '>='
+    mfaUserSettingStatusDeleted: boolean
   }): Promise<Array<Item>> {
     const mfaUserSettingUpdatedAt = await this.serviceTransitionHelper.getUserMFAUpdatedAtTimestamp(dto.userUuid)
 
-    const mfaUserSettingShouldBeAppendedToItemsBatch =
+    const shouldMfaUserSettingBeAppendedBasedOnStatus = !dto.mfaUserSettingStatusDeleted || dto.lastSyncTime !== undefined
+    const shouldMfaUserSettingBeAppendedBasedOnLastSyncTime =
       dto.lastSyncTime === undefined ||
       dto.syncTimeComparison === '>' && mfaUserSettingUpdatedAt > dto.lastSyncTime ||
       dto.syncTimeComparison === '>=' && mfaUserSettingUpdatedAt >= dto.lastSyncTime
+
+    const mfaUserSettingShouldBeAppendedToItemsBatch =
+      shouldMfaUserSettingBeAppendedBasedOnStatus &&
+      shouldMfaUserSettingBeAppendedBasedOnLastSyncTime
 
     if (mfaUserSettingShouldBeAppendedToItemsBatch) {
       const mfaUserSetting = await this.authHttpService.getUserMFA(dto.userUuid)
@@ -324,6 +331,7 @@ export class ItemService implements ItemServiceInterface {
         uuid: mfaUserSetting.uuid,
         content_type: ContentType.MFA,
         content: mfaUserSetting.value,
+        deleted: dto.mfaUserSettingStatusDeleted,
         created_at_timestamp: mfaUserSetting.createdAt,
         updated_at_timestamp: mfaUserSetting.updatedAt,
       })
