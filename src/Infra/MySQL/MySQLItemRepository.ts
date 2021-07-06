@@ -85,4 +85,18 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
       )
       .getOne()
   }
+
+  async deleteMFAExtensionByUserUuid(userUuid: string): Promise<void> {
+    await this.createQueryBuilder('item')
+      .delete()
+      .from('items')
+      .where(
+        'user_uuid = :user_uuid AND content_type = :content_type',
+        {
+          user_uuid: userUuid,
+          content_type: ContentType.MFA,
+        }
+      )
+      .execute()
+  }
 }

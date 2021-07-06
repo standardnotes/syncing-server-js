@@ -7,6 +7,7 @@ import { ServiceTransitionHelperInterface } from '../../Transition/ServiceTransi
 import { ContentType } from '../ContentType'
 import { Item } from '../Item'
 import { ItemFactoryInterface } from '../ItemFactoryInterface'
+import { ItemRepositoryInterface } from '../ItemRepositoryInterface'
 
 import { MFAFilter } from './MFAFilter'
 
@@ -15,10 +16,11 @@ describe('MFAFilter', () => {
   let item: Item
   let authHttpService: AuthHttpServiceInterface
   let serviceTransitionHelper: ServiceTransitionHelperInterface
+  let itemRepository: ItemRepositoryInterface
   let timer: TimerInterface
   let logger: Logger
 
-  const createFilter = () => new MFAFilter(itemFactory, authHttpService, serviceTransitionHelper, timer, logger)
+  const createFilter = () => new MFAFilter(itemFactory, authHttpService, serviceTransitionHelper, itemRepository, timer, logger)
 
   beforeEach(() => {
     item = {} as jest.Mocked<Item>
@@ -33,6 +35,9 @@ describe('MFAFilter', () => {
     serviceTransitionHelper = {} as jest.Mocked<ServiceTransitionHelperInterface>
     serviceTransitionHelper.markUserMFAAsMovedToUserSettings = jest.fn()
     serviceTransitionHelper.markUserMFAAsUserSettingAsDeleted = jest.fn()
+
+    itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
+    itemRepository.deleteMFAExtensionByUserUuid = jest.fn()
 
     timer = {} as jest.Mocked<TimerInterface>
     timer.convertStringDateToMicroseconds = jest.fn().mockReturnValue(1)
@@ -68,6 +73,8 @@ describe('MFAFilter', () => {
         updated_at_timestamp: 1,
       },
     })
+
+    expect(itemRepository.deleteMFAExtensionByUserUuid).toHaveBeenCalledWith('1-2-3')
 
     expect(result).toEqual({
       passed: false,

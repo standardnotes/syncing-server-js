@@ -38,6 +38,26 @@ describe('MySQLItemRepository', () => {
     expect(result).toEqual(item)
   })
 
+  it('should delete MFA Extension item by user id', async () => {
+    queryBuilder.where = jest.fn().mockReturnThis()
+    queryBuilder.delete = jest.fn().mockReturnThis()
+    queryBuilder.from = jest.fn().mockReturnThis()
+    queryBuilder.execute = jest.fn()
+
+    await repository.deleteMFAExtensionByUserUuid('123')
+
+    expect(queryBuilder.delete).toHaveBeenCalled()
+    expect(queryBuilder.from).toHaveBeenCalledWith('items')
+    expect(queryBuilder.where).toHaveBeenCalledWith(
+      'user_uuid = :user_uuid AND content_type = :content_type',
+      {
+        user_uuid: '123',
+        content_type: 'SF|MFA',
+      }
+    )
+    expect(queryBuilder.execute).toHaveBeenCalled()
+  })
+
   it('should find one item by uuid and user uuid', async () => {
     queryBuilder.where = jest.fn().mockReturnThis()
     queryBuilder.getOne = jest.fn().mockReturnValue(item)

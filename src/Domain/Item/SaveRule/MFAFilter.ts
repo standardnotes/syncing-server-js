@@ -9,6 +9,7 @@ import { AuthHttpServiceInterface } from '../../Auth/AuthHttpServiceInterface'
 import { Logger } from 'winston'
 import { ServiceTransitionHelperInterface } from '../../Transition/ServiceTransitionHelperInterface'
 import { TimerInterface } from '@standardnotes/time'
+import { ItemRepositoryInterface } from '../ItemRepositoryInterface'
 
 @injectable()
 export class MFAFilter implements ItemSaveRuleInterface {
@@ -16,6 +17,7 @@ export class MFAFilter implements ItemSaveRuleInterface {
     @inject(TYPES.ItemFactory) private itemFactory: ItemFactoryInterface,
     @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
     @inject(TYPES.ServiceTransitionHelper) private serviceTransitionHelper: ServiceTransitionHelperInterface,
+    @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.Timer) private timer: TimerInterface,
     @inject(TYPES.Logger) private logger: Logger,
   ) {
@@ -81,6 +83,8 @@ export class MFAFilter implements ItemSaveRuleInterface {
     })
 
     await this.serviceTransitionHelper.markUserMFAAsMovedToUserSettings(dto.userUuid, updatedAt)
+
+    await this.itemRepository.deleteMFAExtensionByUserUuid(dto.userUuid)
 
     const stubItem = this.itemFactory.create(dto.userUuid, dto.itemHash)
 
