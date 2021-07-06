@@ -1,6 +1,6 @@
 import { DomainEventInterface, DomainEventPublisherInterface } from '@standardnotes/domain-events'
+import { AxiosInstance } from 'axios'
 import { inject, injectable } from 'inversify'
-import { SuperAgentStatic } from 'superagent'
 import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
@@ -15,7 +15,7 @@ import { SendItemsToExtensionsServerDTO } from './SendItemsToExtensionsServerDTO
 @injectable()
 export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
   constructor (
-    @inject(TYPES.HTTPClient) private httpClient: SuperAgentStatic,
+    @inject(TYPES.HTTPClient) private httpClient: AxiosInstance,
     @inject(TYPES.ExtensionSettingRepository) private extensionSettingRepository: ExtensionSettingRepositoryInterface,
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.ContentDecoder) private contentDecoder: ContentDecoderInterface,
@@ -31,18 +31,26 @@ export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
     let sent = false
     try {
       const response = await this.httpClient
-        .post(dto.extensionsServerUrl)
-        .set('Content-Type', 'application/json')
-        .send({
-          items: dto.items,
-          backup_filename: dto.backupFilename,
-          auth_params: dto.authParams,
-          silent: emailMuteSettings.muteEmails,
-          user_uuid: dto.userUuid,
-          settings_id: emailMuteSettings.extensionSetting.uuid,
+        .request({
+          method: 'POST',
+          url: dto.extensionsServerUrl,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          data: {
+            items: dto.items,
+            backup_filename: dto.backupFilename,
+            auth_params: dto.authParams,
+            silent: emailMuteSettings.muteEmails,
+            user_uuid: dto.userUuid,
+            settings_id: emailMuteSettings.extensionSetting.uuid,
+          },
+          validateStatus:
+          /* istanbul ignore next */
+          (status: number) => status >= 200 && status < 500,
         })
 
-      sent = response.ok
+      sent = response.status >= 200 && response.status < 300
     } catch (error) {
       this.logger.error(`Failed to send a request to extensions server: ${error.message}`)
     }

@@ -1,7 +1,6 @@
 import * as winston from 'winston'
 import * as IORedis from 'ioredis'
 import * as AWS from 'aws-sdk'
-import * as superagent from 'superagent'
 import { Container } from 'inversify'
 import {
   DomainEventHandlerInterface,
@@ -68,6 +67,7 @@ import { ItemFactoryInterface } from '../Domain/Item/ItemFactoryInterface'
 import { ItemFactory } from '../Domain/Item/ItemFactory'
 import { ServiceTransitionHelperInterface } from '../Domain/Transition/ServiceTransitionHelperInterface'
 import { RedisServiceTransitionHelper } from '../Infra/Redis/RedisServiceTransitionHelper'
+import axios, { AxiosInstance } from 'axios'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -204,7 +204,7 @@ export class ContainerConfigLoader {
     // Services
     container.bind<ContentDecoder>(TYPES.ContentDecoder).to(ContentDecoder)
     container.bind<DomainEventFactoryInterface>(TYPES.DomainEventFactory).to(DomainEventFactory)
-    container.bind<superagent.SuperAgentStatic>(TYPES.HTTPClient).toConstantValue(superagent)
+    container.bind<AxiosInstance>(TYPES.HTTPClient).toConstantValue(axios.create())
     container.bind<ItemServiceInterface>(TYPES.ItemService).to(ItemService)
     container.bind<TimerInterface>(TYPES.Timer).toConstantValue(new Timer())
     container.bind<SyncResponseFactory20161215>(TYPES.SyncResponseFactory20161215).to(SyncResponseFactory20161215)

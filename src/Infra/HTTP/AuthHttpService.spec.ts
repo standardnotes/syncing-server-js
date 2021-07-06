@@ -1,12 +1,12 @@
+import { AxiosInstance } from 'axios'
 import 'reflect-metadata'
 
-import { SuperAgentRequest, SuperAgentStatic } from 'superagent'
+
 import { Logger } from 'winston'
 import { AuthHttpService } from './AuthHttpService'
 
 describe('AuthHttpService', () => {
-  let httpClient: SuperAgentStatic
-  let request: SuperAgentRequest
+  let httpClient: AxiosInstance
   let logger: Logger
 
   const authServerUrl = 'https://auth-server'
@@ -14,14 +14,8 @@ describe('AuthHttpService', () => {
   const createService = () => new AuthHttpService(httpClient, authServerUrl, logger)
 
   beforeEach(() => {
-    request = {} as jest.Mocked<SuperAgentRequest>
-    request.query = jest.fn().mockReturnThis()
-    request.send = jest.fn().mockReturnThis()
-
-    httpClient = {} as jest.Mocked<SuperAgentStatic>
-    httpClient.get = jest.fn().mockReturnValue(request)
-    httpClient.put = jest.fn().mockReturnValue(request)
-    httpClient.delete = jest.fn().mockReturnValue(request)
+    httpClient = {} as jest.Mocked<AxiosInstance>
+    httpClient.request = jest.fn().mockReturnValue({ data: { foo: 'bar' } })
 
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
@@ -33,14 +27,23 @@ describe('AuthHttpService', () => {
       authenticated: false,
     })
 
-    expect(httpClient.get).toHaveBeenCalledWith('https://auth-server/users/params')
-    expect(request.query).toHaveBeenCalledWith({ email: 'test@test.com', authenticated: false })
-    expect(request.send).toHaveBeenCalled()
+    expect(httpClient.request).toHaveBeenCalledWith({
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+      url: 'https://auth-server/users/params',
+      params: {
+        authenticated: false,
+        email: 'test@test.com',
+      },
+      validateStatus: expect.any(Function),
+    })
   })
 
   it('should send a request to auth service in order to save mfa secret', async () => {
-    request.send = jest.fn().mockReturnValue({
-      body: {
+    httpClient.request = jest.fn().mockReturnValue({
+      data: {
         setting: {
           uuid: '3-4-5',
         },
@@ -53,8 +56,18 @@ describe('AuthHttpService', () => {
       encodedMfaSecret: 'test',
     })).toEqual({ uuid: '3-4-5' })
 
-    expect(httpClient.put).toHaveBeenCalledWith('https://auth-server/users/1-2-3/mfa')
-    expect(request.send).toHaveBeenCalledWith({ value: 'test', uuid: '2-3-4' })
+    expect(httpClient.request).toHaveBeenCalledWith({
+      method: 'PUT',
+      url: 'https://auth-server/users/1-2-3/mfa',
+      headers: {
+        'Accept': 'application/json',
+      },
+      validateStatus: expect.any(Function),
+      data: {
+        value: 'test',
+        uuid: '2-3-4',
+      },
+    })
   })
 
   it('should throw an error if sending a request to auth service in order to save mfa secret fails', async () => {
@@ -74,8 +87,8 @@ describe('AuthHttpService', () => {
   })
 
   it('should send a request to auth service in order to get user mfa secret', async () => {
-    request.send = jest.fn().mockReturnValue({
-      body: {
+    httpClient.request = jest.fn().mockReturnValue({
+      data: {
         setting: {
           value: 'top-secret',
         },
@@ -84,15 +97,27 @@ describe('AuthHttpService', () => {
 
     expect(await createService().getUserMFA('1-2-3')).toEqual({ value: 'top-secret' })
 
-    expect(httpClient.get).toHaveBeenCalledWith('https://auth-server/users/1-2-3/mfa')
-    expect(request.send).toHaveBeenCalled()
+    expect(httpClient.request).toHaveBeenCalledWith({
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+      validateStatus: expect.any(Function),
+      url: 'https://auth-server/users/1-2-3/mfa',
+    })
   })
 
   it('should send a request to auth service in order to delete user mfa secret', async () => {
     expect(await createService().removeUserMFA('1-2-3'))
 
-    expect(httpClient.delete).toHaveBeenCalledWith('https://auth-server/users/1-2-3/mfa')
-    expect(request.send).toHaveBeenCalled()
+    expect(httpClient.request).toHaveBeenCalledWith({
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+      },
+      validateStatus: expect.any(Function),
+      url: 'https://auth-server/users/1-2-3/mfa',
+    })
   })
 
   it('should throw an error if sending a request to auth service in order to get user mfa secret fails', async () => {
