@@ -97,12 +97,28 @@ export class MFAFilter implements ItemSaveRuleInterface {
   }
 
   private calculateUpdatedAtTimestamp(dto: ItemSaveValidationDTO): number {
-    return dto.itemHash.updated_at_timestamp ?
-      dto.itemHash.updated_at_timestamp : this.timer.convertStringDateToMicroseconds(dto.itemHash.updated_at as string)
+    if (dto.itemHash.updated_at_timestamp !== undefined) {
+      return dto.itemHash.updated_at_timestamp
+    }
+
+    if (dto.itemHash.updated_at !== undefined) {
+      const updatedAtTimestamp = this.timer.convertStringDateToMicroseconds(dto.itemHash.updated_at as string)
+
+      return updatedAtTimestamp > 0 ? updatedAtTimestamp : this.timer.getTimestampInMicroseconds()
+    }
+
+    return this.timer.getTimestampInMicroseconds()
   }
 
   private calculateCreatedAtTimestamp(dto: ItemSaveValidationDTO): number {
-    return dto.itemHash.created_at_timestamp ?
-      dto.itemHash.created_at_timestamp : this.timer.convertStringDateToMicroseconds(dto.itemHash.created_at as string)
+    if (dto.itemHash.created_at_timestamp !== undefined) {
+      return dto.itemHash.created_at_timestamp
+    }
+
+    if (dto.itemHash.created_at !== undefined) {
+      return this.timer.convertStringDateToMicroseconds(dto.itemHash.created_at as string)
+    }
+
+    return this.timer.getTimestampInMicroseconds()
   }
 }

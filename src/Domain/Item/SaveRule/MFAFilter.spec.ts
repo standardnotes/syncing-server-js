@@ -41,6 +41,7 @@ describe('MFAFilter', () => {
 
     timer = {} as jest.Mocked<TimerInterface>
     timer.convertStringDateToMicroseconds = jest.fn().mockReturnValue(1)
+    timer.getTimestampInMicroseconds = jest.fn().mockReturnValue(123)
 
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
@@ -71,6 +72,28 @@ describe('MFAFilter', () => {
         content_type: ContentType.MFA,
         created_at_timestamp: 1,
         updated_at_timestamp: 1,
+      },
+    })
+
+    expect(itemRepository.deleteMFAExtensionByUserUuid).toHaveBeenCalledWith('1-2-3')
+
+    expect(result).toEqual({
+      passed: false,
+      skipped: item,
+    })
+  })
+
+  it ('should filter out mfa item with 0 updated at so it can be skipped on database save', async () => {
+    timer.convertStringDateToMicroseconds = jest.fn().mockReturnValue(0)
+
+    const result = await createFilter().check({
+      userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
+      itemHash: {
+        uuid: '2-3-4',
+        content_type: ContentType.MFA,
+        created_at: '2021-07-08T11:43:36.342Z',
+        updated_at: '1970-01-01T00:00:00.000Z',
       },
     })
 
@@ -131,6 +154,8 @@ describe('MFAFilter', () => {
         uuid: '2-3-4',
         deleted: true,
         content_type: ContentType.MFA,
+        created_at: '2021-07-08T11:43:36.342Z',
+        updated_at: '2021-07-08T11:43:36.342Z',
       },
     })
 
