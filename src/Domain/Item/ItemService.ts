@@ -321,7 +321,7 @@ export class ItemService implements ItemServiceInterface {
     if (mfaUserSettingShouldBeAppendedToItemsBatch) {
       const mfaUserSetting = await this.authHttpService.getUserMFA(dto.userUuid)
 
-      const stubItem = this.itemFactory.create(dto.userUuid, {
+      const stubItem = this.itemFactory.createStub(dto.userUuid, {
         uuid: mfaUserSetting.uuid,
         content_type: ContentType.MFA,
         content: mfaUserSetting.value,

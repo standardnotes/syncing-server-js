@@ -41,6 +41,62 @@ describe('ItemFactory', () => {
     })
   })
 
+  it ('should create a stub item based on item hash with update_at date and timestamps overwritten', () => {
+    const itemHash = {
+      uuid: '1-2-3',
+      updated_at: '2021-03-25T09:37:37.943Z',
+    } as jest.Mocked<ItemHash>
+
+    const item = createFactory().createStub('a-b-c', itemHash)
+
+    expect(item).toEqual({
+      createdAtTimestamp: 1616164633241568,
+      createdAt: expect.any(Date),
+      lastUserAgent: null,
+      updatedAt: new Date('2021-03-25T09:37:37.943Z'),
+      updatedAtTimestamp: 1616665057943000,
+      userUuid: 'a-b-c',
+      uuid: '1-2-3',
+    })
+  })
+
+  it ('should create a stub item based on item hash with update_at_timestamp date and timestamps overwritten', () => {
+    const itemHash = {
+      uuid: '1-2-3',
+      updated_at_timestamp: 1616164633241568,
+    } as jest.Mocked<ItemHash>
+
+    const item = createFactory().createStub('a-b-c', itemHash)
+
+    expect(item).toEqual({
+      createdAtTimestamp: 1616164633241568,
+      createdAt: expect.any(Date),
+      lastUserAgent: null,
+      updatedAt: new Date('2021-03-19T14:37:13.241Z'),
+      updatedAtTimestamp: 1616164633241568,
+      userUuid: 'a-b-c',
+      uuid: '1-2-3',
+    })
+  })
+
+  it ('should create a stub item based on item hash without updated timestamps', () => {
+    const itemHash = {
+      uuid: '1-2-3',
+    } as jest.Mocked<ItemHash>
+
+    const item = createFactory().createStub('a-b-c', itemHash)
+
+    expect(item).toEqual({
+      createdAtTimestamp: 1616164633241568,
+      createdAt: expect.any(Date),
+      lastUserAgent: null,
+      updatedAt: expect.any(Date),
+      updatedAtTimestamp: 1616164633241568,
+      userUuid: 'a-b-c',
+      uuid: '1-2-3',
+    })
+  })
+
   it ('should create an item based on item hash with all fields filled', () => {
     const itemHash = {
       uuid: '1-2-3',

@@ -147,6 +147,7 @@ describe('ItemService', () => {
 
     itemFactory = {} as jest.Mocked<ItemFactoryInterface>
     itemFactory.create = jest.fn().mockReturnValue(newItem)
+    itemFactory.createStub = jest.fn().mockReturnValue(newItem)
   })
 
   it('should retrieve all items for a user from last sync with sync token version 1', async () => {
