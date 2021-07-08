@@ -45,6 +45,12 @@ describe('RedisServiceTransitionHelper', () => {
     expect(await createHelper().getUserMFAUpdatedAtTimestamp('1-2-3')).toEqual(123)
   })
 
+  it ('should get the 0 timestamp if not found when user moved mfa from items to user settings', async () => {
+    redisClient.get = jest.fn().mockReturnValue(null)
+
+    expect(await createHelper().getUserMFAUpdatedAtTimestamp('1-2-3')).toEqual(0)
+  })
+
   it ('should mark the user as not moved MFA from items to user settings', async () => {
     await createHelper().markUserMFAAsUserSettingAsDeleted('1-2-3', 125)
 

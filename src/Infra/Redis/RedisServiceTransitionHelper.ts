@@ -41,8 +41,12 @@ export class RedisServiceTransitionHelper implements ServiceTransitionHelperInte
   }
 
   async getUserMFAUpdatedAtTimestamp(userUuid: string): Promise<number> {
-    const timestamp = this.redisClient.get(`${this.MFA_UPDATED_AT_PREFIX}:${userUuid}`)
+    const timestamp = await this.redisClient.get(`${this.MFA_UPDATED_AT_PREFIX}:${userUuid}`)
 
-    return +timestamp
+    if (timestamp !== null) {
+      return +timestamp
+    }
+
+    return 0
   }
 }
