@@ -30,7 +30,13 @@ export class AuthHttpService implements AuthHttpServiceInterface {
     return keyParamsResponse.data
   }
 
-  async saveUserMFA(dto: { uuid: string, userUuid: string, encodedMfaSecret: string }): Promise<string> {
+  async saveUserMFA(dto: {
+    uuid: string,
+    userUuid: string,
+    encodedMfaSecret: string,
+    createdAt: number,
+    updatedAt: number
+  }): Promise<string> {
     const response = await this.httpClient
       .request({
         method: 'PUT',
@@ -44,6 +50,8 @@ export class AuthHttpService implements AuthHttpServiceInterface {
         data: {
           value: dto.encodedMfaSecret,
           uuid: dto.uuid,
+          createdAt: dto.createdAt,
+          updatedAt: dto.updatedAt,
         },
       })
 

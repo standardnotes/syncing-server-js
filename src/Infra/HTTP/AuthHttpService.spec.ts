@@ -54,6 +54,8 @@ describe('AuthHttpService', () => {
       uuid: '2-3-4',
       userUuid: '1-2-3',
       encodedMfaSecret: 'test',
+      createdAt: 1,
+      updatedAt: 1,
     })).toEqual({ uuid: '3-4-5' })
 
     expect(httpClient.request).toHaveBeenCalledWith({
@@ -66,6 +68,8 @@ describe('AuthHttpService', () => {
       data: {
         value: 'test',
         uuid: '2-3-4',
+        createdAt: 1,
+        updatedAt: 1,
       },
     })
   })
@@ -78,6 +82,8 @@ describe('AuthHttpService', () => {
         uuid: '2-3-4',
         userUuid: '1-2-3',
         encodedMfaSecret: 'test',
+        createdAt: 1,
+        updatedAt: 1,
       })
     } catch (caughtError) {
       error = caughtError
