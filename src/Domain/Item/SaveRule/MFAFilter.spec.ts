@@ -83,7 +83,7 @@ describe('MFAFilter', () => {
     })
   })
 
-  it ('should filter out mfa item with 0 updated at so it can be skipped on database save', async () => {
+  it ('should filter out mfa item given dates at so it can be skipped on database save', async () => {
     timer.convertStringDateToMicroseconds = jest.fn().mockReturnValue(0)
 
     const result = await createFilter().check({
@@ -163,7 +163,7 @@ describe('MFAFilter', () => {
 
     expect(serviceTransitionHelper.markUserMFAAsUserSettingAsDeleted).toHaveBeenCalledWith(
       '1-2-3',
-      1
+      123
     )
 
     expect(result).toEqual({
