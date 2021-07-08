@@ -226,6 +226,12 @@ describe('ItemService', () => {
   })
 
   it('should retrieve all items including a deleted MFA stub item for a user when last sync time is defined', async () => {
+    authHttpService.getUserMFA = jest.fn().mockReturnValue({
+      uuid: '9-8-7',
+      value: null,
+      createdAt: 1,
+      updatedAt: 2,
+    })
     serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'deleted' })
     serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241569)
 

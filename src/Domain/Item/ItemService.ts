@@ -324,7 +324,7 @@ export class ItemService implements ItemServiceInterface {
       const stubItem = this.itemFactory.createStub(dto.userUuid, {
         uuid: mfaUserSetting.uuid,
         content_type: ContentType.MFA,
-        content: mfaUserSetting.value,
+        content: mfaUserSetting.value ?? undefined,
         deleted: dto.mfaUserSettingStatusDeleted,
         created_at_timestamp: mfaUserSetting.createdAt,
         updated_at_timestamp: mfaUserSetting.updatedAt,

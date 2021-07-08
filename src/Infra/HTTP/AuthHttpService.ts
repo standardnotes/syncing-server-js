@@ -83,7 +83,7 @@ export class AuthHttpService implements AuthHttpServiceInterface {
   async getUserMFA(userUuid: string): Promise<{
     uuid: string,
     name: string,
-    value: string,
+    value: string | null,
     createdAt: number,
     updatedAt: number
   }> {
