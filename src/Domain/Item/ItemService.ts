@@ -69,13 +69,13 @@ export class ItemService implements ItemServiceInterface {
 
     let items = await this.itemRepository.findAll(itemQuery)
 
-    const mfaItemWasRetrieved = this.mfaItemWasRetrievedInBatch(items)
-
     const userHasMovedMFAToUserSettings = await this.serviceTransitionHelper.userHasMovedMFAToUserSettings(dto.userUuid)
 
     const mfaIsToBeRetrieved = dto.contentType === undefined || dto.contentType === ContentType.MFA
 
-    if (mfaIsToBeRetrieved && userHasMovedMFAToUserSettings.status !== 'not found' && !mfaItemWasRetrieved) {
+    this.logger.debug(`user has mfa in user settings: ${userHasMovedMFAToUserSettings.status !== 'not found'}, mfa to be retrieved: ${mfaIsToBeRetrieved}`)
+
+    if (mfaIsToBeRetrieved && userHasMovedMFAToUserSettings.status !== 'not found') {
       items = await this.appendStubMFAItemBasedOnSyncToken({
         userUuid: dto.userUuid,
         items,
@@ -295,16 +295,6 @@ export class ItemService implements ItemServiceInterface {
     }
   }
 
-  private mfaItemWasRetrievedInBatch(items: Array<Item>): boolean {
-    for (const item of items ) {
-      if (item.contentType === ContentType.MFA) {
-        return true
-      }
-    }
-
-    return false
-  }
-
   private async appendStubMFAItemBasedOnSyncToken(dto: {
     userUuid: string,
     items: Array<Item>,
@@ -314,11 +304,15 @@ export class ItemService implements ItemServiceInterface {
   }): Promise<Array<Item>> {
     const mfaUserSettingUpdatedAt = await this.serviceTransitionHelper.getUserMFAUpdatedAtTimestamp(dto.userUuid)
 
+    this.logger.debug(`MFA user setting update at: ${mfaUserSettingUpdatedAt}`)
+
     const shouldMfaUserSettingBeAppendedBasedOnStatus = !dto.mfaUserSettingStatusDeleted || dto.lastSyncTime !== undefined
     const shouldMfaUserSettingBeAppendedBasedOnLastSyncTime =
       dto.lastSyncTime === undefined ||
       dto.syncTimeComparison === '>' && mfaUserSettingUpdatedAt > dto.lastSyncTime ||
       dto.syncTimeComparison === '>=' && mfaUserSettingUpdatedAt >= dto.lastSyncTime
+
+    this.logger.debug(`MFA should be appeneded based on status: ${shouldMfaUserSettingBeAppendedBasedOnStatus}, based on syncTime (${dto.lastSyncTime}): ${shouldMfaUserSettingBeAppendedBasedOnLastSyncTime}`)
 
     const mfaUserSettingShouldBeAppendedToItemsBatch =
       shouldMfaUserSettingBeAppendedBasedOnStatus &&

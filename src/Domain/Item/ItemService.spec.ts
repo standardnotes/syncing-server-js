@@ -239,23 +239,6 @@ describe('ItemService', () => {
     })
   })
 
-  it('should retrieve all items excluding MFA stub item if original MFA Item was retrieved', async () => {
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'active' })
-    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241569)
-
-    item1.contentType = ContentType.MFA
-
-    expect(
-      await createService().getItems({
-        userUuid: '1-2-3',
-        syncToken,
-        limit: 100,
-      })
-    ).toEqual({
-      items: [ item1, item2 ],
-    })
-  })
-
   it('should retrieve all items excluding MFA stub item if updated at time is lesser than the sync token', async () => {
     serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'active' })
     serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241550)
