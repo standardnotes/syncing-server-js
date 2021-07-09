@@ -101,8 +101,8 @@ export class AuthHttpService implements AuthHttpServiceInterface {
 
     this.logger.debug('Auth server response (%s) for getting MFA: %O', response.status, response.data)
 
-    if (!response.data.setting?.value) {
-      throw new Error('Missing mfa setting value from auth service response')
+    if (!response.data.setting) {
+      throw new Error('Missing mfa setting from auth service response')
     }
 
     const setting = response.data.setting
