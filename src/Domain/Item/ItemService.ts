@@ -48,6 +48,13 @@ export class ItemService implements ItemServiceInterface {
 
     const timestampsInMilliseconds = timestampsInMicroseconds.map(timestampInMicroseconds => this.timer.convertMicrosecondsToMilliseconds(timestampInMicroseconds))
 
+    const mfaFromUserSettings = await this.serviceTransitionHelper.userHasMovedMFAToUserSettings(userUuid)
+    if (mfaFromUserSettings.status === 'active') {
+      const timestamp = await this.serviceTransitionHelper.getUserMFAUpdatedAtTimestamp(userUuid)
+      timestampsInMilliseconds.unshift(this.timer.convertMicrosecondsToMilliseconds(timestamp))
+      timestampsInMilliseconds.sort().reverse()
+    }
+
     const stringToHash = timestampsInMilliseconds.join(',')
 
     return crypto.createHash('sha256').update(stringToHash).digest('hex')

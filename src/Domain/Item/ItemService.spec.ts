@@ -913,4 +913,42 @@ describe('ItemService', () => {
 
     expect(await createService().computeIntegrityHash('1-2-3')).toEqual(expected)
   })
+
+  it('should compute an integrity hash with mfa user setting if one is active', async () => {
+    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'active' })
+    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633242314)
+
+    itemRepository.findDatesForComputingIntegrityHash = jest.fn().mockReturnValue([
+      1616164633242313,
+      1616164633242315,
+    ])
+
+    timer.convertMicrosecondsToMilliseconds = jest.fn()
+      .mockReturnValueOnce(1616164633243)
+      .mockReturnValueOnce(1616164633245)
+      .mockReturnValueOnce(1616164633244)
+
+    const expected = crypto.createHash('sha256').update('1616164633245,1616164633244,1616164633243').digest('hex')
+
+    expect(await createService().computeIntegrityHash('1-2-3')).toEqual(expected)
+  })
+
+  it('should compute an integrity hash without mfa user setting if one is not active', async () => {
+    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'deleted' })
+    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633242314)
+
+    itemRepository.findDatesForComputingIntegrityHash = jest.fn().mockReturnValue([
+      1616164633242313,
+      1616164633242315,
+    ])
+
+    timer.convertMicrosecondsToMilliseconds = jest.fn()
+      .mockReturnValueOnce(1616164633245)
+      .mockReturnValueOnce(1616164633243)
+      .mockReturnValueOnce(1616164633244)
+
+    const expected = crypto.createHash('sha256').update('1616164633245,1616164633243').digest('hex')
+
+    expect(await createService().computeIntegrityHash('1-2-3')).toEqual(expected)
+  })
 })
