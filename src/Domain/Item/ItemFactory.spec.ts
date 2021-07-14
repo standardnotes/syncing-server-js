@@ -57,6 +57,7 @@ describe('ItemFactory', () => {
       updatedAtTimestamp: 1616665057943000,
       userUuid: 'a-b-c',
       uuid: '1-2-3',
+      content: null,
     })
   })
 
@@ -64,6 +65,7 @@ describe('ItemFactory', () => {
     const itemHash = {
       uuid: '1-2-3',
       updated_at_timestamp: 1616164633241568,
+      content: 'foobar',
     } as jest.Mocked<ItemHash>
 
     const item = createFactory().createStub('a-b-c', itemHash)
@@ -76,6 +78,7 @@ describe('ItemFactory', () => {
       updatedAtTimestamp: 1616164633241568,
       userUuid: 'a-b-c',
       uuid: '1-2-3',
+      content: 'foobar',
     })
   })
 
@@ -94,6 +97,7 @@ describe('ItemFactory', () => {
       updatedAtTimestamp: 1616164633241568,
       userUuid: 'a-b-c',
       uuid: '1-2-3',
+      content: null,
     })
   })
 

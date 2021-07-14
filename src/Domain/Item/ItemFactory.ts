@@ -15,6 +15,10 @@ export class ItemFactory implements ItemFactoryInterface {
   createStub(userUuid: string, itemHash: ItemHash, userAgent?: string): Item {
     const item = this.create(userUuid, itemHash, userAgent)
 
+    if(itemHash.content === undefined) {
+      item.content = null
+    }
+
     if (itemHash.updated_at_timestamp) {
       item.updatedAtTimestamp = itemHash.updated_at_timestamp
       item.updatedAt = this.timer.convertMicrosecondsToDate(itemHash.updated_at_timestamp)
