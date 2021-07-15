@@ -26,7 +26,7 @@ describe('MFAFilter', () => {
     item = {} as jest.Mocked<Item>
 
     itemFactory = {} as jest.Mocked<ItemFactoryInterface>
-    itemFactory.create = jest.fn().mockReturnValue(item)
+    itemFactory.createStub = jest.fn().mockReturnValue(item)
 
     authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
     authHttpService.saveUserMFA = jest.fn().mockReturnValue({ uuid: '5-6-7' })

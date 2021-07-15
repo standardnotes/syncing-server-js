@@ -66,7 +66,10 @@ export class MFAFilter implements ItemSaveRuleInterface {
 
     await this.serviceTransitionHelper.markUserMFAAsUserSettingAsDeleted(dto.userUuid, updatedAt)
 
-    const stubItem = this.itemFactory.create(dto.userUuid, dto.itemHash)
+    const stubItem = this.itemFactory.createStub(dto.userUuid, {
+      updated_at_timestamp: updatedAt,
+      ...dto.itemHash,
+    })
 
     return {
       passed: false,
@@ -90,7 +93,10 @@ export class MFAFilter implements ItemSaveRuleInterface {
 
     await this.itemRepository.deleteMFAExtensionByUserUuid(dto.userUuid)
 
-    const stubItem = this.itemFactory.create(dto.userUuid, dto.itemHash)
+    const stubItem = this.itemFactory.createStub(dto.userUuid, {
+      updated_at_timestamp: updatedAt,
+      ...dto.itemHash,
+    })
 
     this.logger.debug('Returning a stub item for MFA user setting: %O', stubItem)
 
