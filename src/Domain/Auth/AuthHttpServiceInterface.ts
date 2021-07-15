@@ -2,7 +2,11 @@ import { KeyParams } from '@standardnotes/auth'
 
 export interface AuthHttpServiceInterface {
   getUserKeyParams(dto: { email?: string, uuid?: string, authenticated: boolean }): Promise<KeyParams>
-  removeUserMFA(userUuid: string): Promise<void>
+  removeUserMFA(dto: {
+    uuid: string,
+    userUuid: string,
+    updatedAt: number
+  }): Promise<void>
   saveUserMFA(dto: {
     uuid: string,
     userUuid: string,

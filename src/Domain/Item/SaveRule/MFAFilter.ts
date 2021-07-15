@@ -58,7 +58,11 @@ export class MFAFilter implements ItemSaveRuleInterface {
   private async deleteUserMfaUserSetting(dto: ItemSaveValidationDTO): Promise<ItemSaveRuleResult> {
     const updatedAt = this.timer.getTimestampInMicroseconds()
 
-    await this.authHttpService.removeUserMFA(dto.userUuid)
+    await this.authHttpService.removeUserMFA({
+      userUuid: dto.userUuid,
+      updatedAt,
+      uuid: dto.itemHash.uuid,
+    })
 
     await this.serviceTransitionHelper.markUserMFAAsUserSettingAsDeleted(dto.userUuid, updatedAt)
 

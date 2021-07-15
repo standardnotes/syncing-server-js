@@ -159,7 +159,11 @@ describe('MFAFilter', () => {
       },
     })
 
-    expect(authHttpService.removeUserMFA).toHaveBeenCalledWith('1-2-3')
+    expect(authHttpService.removeUserMFA).toHaveBeenCalledWith({
+      userUuid: '1-2-3',
+      uuid: '2-3-4',
+      updatedAt: 123,
+    })
 
     expect(serviceTransitionHelper.markUserMFAAsUserSettingAsDeleted).toHaveBeenCalledWith(
       '1-2-3',

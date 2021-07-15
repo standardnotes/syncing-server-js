@@ -64,17 +64,25 @@ export class AuthHttpService implements AuthHttpServiceInterface {
     return response.data.setting
   }
 
-  async removeUserMFA(userUuid: string): Promise<void> {
+  async   removeUserMFA(dto: {
+    uuid: string,
+    userUuid: string,
+    updatedAt: number
+  }): Promise<void> {
     const response = await this.httpClient
       .request({
         method: 'DELETE',
         headers: {
           'Accept': 'application/json',
         },
+        data: {
+          uuid: dto.uuid,
+          updatedAt: dto.updatedAt,
+        },
         validateStatus:
           /* istanbul ignore next */
           (status: number) => status >= 200 && status < 500,
-        url: `${this.authServerUrl}/users/${userUuid}/mfa`,
+        url: `${this.authServerUrl}/users/${dto.userUuid}/mfa`,
       })
 
     this.logger.debug('Auth server response (%s) for deleting MFA: %O', response.status, response.data)

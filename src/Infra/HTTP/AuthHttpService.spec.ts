@@ -114,12 +114,20 @@ describe('AuthHttpService', () => {
   })
 
   it('should send a request to auth service in order to delete user mfa secret', async () => {
-    expect(await createService().removeUserMFA('1-2-3'))
+    expect(await createService().removeUserMFA({
+      userUuid: '1-2-3',
+      uuid: '2-3-4',
+      updatedAt: 123,
+    }))
 
     expect(httpClient.request).toHaveBeenCalledWith({
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
+      },
+      data: {
+        uuid: '2-3-4',
+        updatedAt: 123,
       },
       validateStatus: expect.any(Function),
       url: 'https://auth-server/users/1-2-3/mfa',
