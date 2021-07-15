@@ -64,7 +64,7 @@ export class AuthHttpService implements AuthHttpServiceInterface {
     return response.data.setting
   }
 
-  async   removeUserMFA(dto: {
+  async removeUserMFA(dto: {
     uuid: string,
     userUuid: string,
     updatedAt: number
@@ -88,18 +88,21 @@ export class AuthHttpService implements AuthHttpServiceInterface {
     this.logger.debug('Auth server response (%s) for deleting MFA: %O', response.status, response.data)
   }
 
-  async getUserMFA(userUuid: string): Promise<{
+  async getUserMFA(userUuid: string, lastSyncTime?: number): Promise<Array<{
     uuid: string,
     name: string,
     value: string | null,
     createdAt: number,
     updatedAt: number
-  }> {
+  }>> {
     const response = await this.httpClient
       .request({
         method: 'GET',
         headers: {
           'Accept': 'application/json',
+        },
+        data: {
+          lastSyncTime,
         },
         validateStatus:
           /* istanbul ignore next */
@@ -109,12 +112,10 @@ export class AuthHttpService implements AuthHttpServiceInterface {
 
     this.logger.debug('Auth server response (%s) for getting MFA: %O', response.status, response.data)
 
-    if (!response.data.setting) {
-      throw new Error('Missing mfa setting from auth service response')
+    if (!response.data.settings) {
+      throw new Error('Missing mfa settings from auth service response')
     }
 
-    const setting = response.data.setting
-
-    return setting
+    return response.data.settings
   }
 }

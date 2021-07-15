@@ -136,12 +136,12 @@ describe('ItemService', () => {
     serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1)
 
     authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
-    authHttpService.getUserMFA = jest.fn().mockReturnValue({
+    authHttpService.getUserMFA = jest.fn().mockReturnValue([{
       uuid: '9-8-7',
       value: 'encoded',
       createdAt: 1,
       updatedAt: 2,
-    })
+    }])
 
     newItem = {} as jest.Mocked<Item>
 
@@ -226,12 +226,12 @@ describe('ItemService', () => {
   })
 
   it('should retrieve all items including a deleted MFA stub item for a user when last sync time is defined', async () => {
-    authHttpService.getUserMFA = jest.fn().mockReturnValue({
+    authHttpService.getUserMFA = jest.fn().mockReturnValue([{
       uuid: '9-8-7',
       value: null,
       createdAt: 1,
       updatedAt: 2,
-    })
+    }])
     serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'deleted' })
     serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241569)
 
@@ -243,6 +243,40 @@ describe('ItemService', () => {
       })
     ).toEqual({
       items: [ newItem, item1, item2 ],
+    })
+  })
+
+  it('should retrieve all items including multiple MFA stub items for a user when last sync time is defined', async () => {
+    const secondNewItem = {} as jest.Mocked<Item>
+    itemFactory.createStub = jest.fn()
+      .mockReturnValueOnce(newItem)
+      .mockReturnValueOnce(secondNewItem)
+
+    authHttpService.getUserMFA = jest.fn().mockReturnValue([
+      {
+        uuid: '9-8-7',
+        value: null,
+        createdAt: 1,
+        updatedAt: 2,
+      },
+      {
+        uuid: '10-11-12',
+        value: 'encoded',
+        createdAt: 3,
+        updatedAt: 4,
+      },
+    ])
+    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'deleted' })
+    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241569)
+
+    expect(
+      await createService().getItems({
+        userUuid: '1-2-3',
+        syncToken,
+        limit: 100,
+      })
+    ).toEqual({
+      items: [ secondNewItem, newItem, item1, item2 ],
     })
   })
 

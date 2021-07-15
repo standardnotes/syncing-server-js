@@ -326,18 +326,20 @@ export class ItemService implements ItemServiceInterface {
       shouldMfaUserSettingBeAppendedBasedOnLastSyncTime
 
     if (mfaUserSettingShouldBeAppendedToItemsBatch) {
-      const mfaUserSetting = await this.authHttpService.getUserMFA(dto.userUuid)
+      const mfaUserSettings = await this.authHttpService.getUserMFA(dto.userUuid, dto.lastSyncTime)
 
-      const stubItem = this.itemFactory.createStub(dto.userUuid, {
-        uuid: mfaUserSetting.uuid,
-        content_type: ContentType.MFA,
-        content: mfaUserSetting.value ?? undefined,
-        deleted: dto.mfaUserSettingStatusDeleted,
-        created_at_timestamp: mfaUserSetting.createdAt,
-        updated_at_timestamp: mfaUserSetting.updatedAt,
-      })
-
-      dto.items.unshift(stubItem)
+      for (const mfaUserSetting of mfaUserSettings) {
+        dto.items.unshift(
+          this.itemFactory.createStub(dto.userUuid, {
+            uuid: mfaUserSetting.uuid,
+            content_type: ContentType.MFA,
+            content: mfaUserSetting.value ?? undefined,
+            deleted: mfaUserSetting.value === null,
+            created_at_timestamp: mfaUserSetting.createdAt,
+            updated_at_timestamp: mfaUserSetting.updatedAt,
+          })
+        )
+      }
     }
 
     return dto.items

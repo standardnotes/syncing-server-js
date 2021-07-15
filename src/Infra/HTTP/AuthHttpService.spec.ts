@@ -95,18 +95,21 @@ describe('AuthHttpService', () => {
   it('should send a request to auth service in order to get user mfa secret', async () => {
     httpClient.request = jest.fn().mockReturnValue({
       data: {
-        setting: {
+        settings: [{
           value: 'top-secret',
-        },
+        }],
       },
     })
 
-    expect(await createService().getUserMFA('1-2-3')).toEqual({ value: 'top-secret' })
+    expect(await createService().getUserMFA('1-2-3', 123)).toEqual([{ value: 'top-secret' }])
 
     expect(httpClient.request).toHaveBeenCalledWith({
       method: 'GET',
       headers: {
         'Accept': 'application/json',
+      },
+      data: {
+        lastSyncTime: 123,
       },
       validateStatus: expect.any(Function),
       url: 'https://auth-server/users/1-2-3/mfa',

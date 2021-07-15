@@ -14,11 +14,11 @@ export interface AuthHttpServiceInterface {
     createdAt: number,
     updatedAt: number
   }): Promise<string>
-  getUserMFA(userUuid: string): Promise<{
+  getUserMFA(userUuid: string, lastSyncTime?: number): Promise<Array<{
     uuid: string,
     name: string,
     value: string | null,
     createdAt: number,
     updatedAt: number
-  }>
+  }>>
 }
