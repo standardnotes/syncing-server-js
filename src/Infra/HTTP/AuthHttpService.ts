@@ -55,7 +55,7 @@ export class AuthHttpService implements AuthHttpServiceInterface {
         },
       })
 
-    this.logger.debug('Auth server response (%s) for saving MFA: %O', response.status, response.data)
+    this.logger.debug('[%s] Auth server response (%s) for saving MFA: %O', dto.userUuid, response.status, response.data)
 
     if (!response.data.setting) {
       throw new Error('Missing mfa setting uuid from auth service response')
@@ -85,7 +85,7 @@ export class AuthHttpService implements AuthHttpServiceInterface {
         url: `${this.authServerUrl}/users/${dto.userUuid}/mfa`,
       })
 
-    this.logger.debug('Auth server response (%s) for deleting MFA: %O', response.status, response.data)
+    this.logger.debug('[%s] Auth server response (%s) for deleting MFA: %O', dto.userUuid, response.status, response.data)
   }
 
   async getUserMFA(userUuid: string, lastSyncTime?: number): Promise<Array<{
@@ -110,7 +110,7 @@ export class AuthHttpService implements AuthHttpServiceInterface {
         url: `${this.authServerUrl}/users/${userUuid}/mfa`,
       })
 
-    this.logger.debug('Auth server response (%s) for getting MFA: %O', response.status, response.data)
+    this.logger.debug('[%s] Auth server response (%s) for getting MFA: %O', userUuid, response.status, response.data)
 
     if (!response.data.settings) {
       throw new Error('Missing mfa settings from auth service response')

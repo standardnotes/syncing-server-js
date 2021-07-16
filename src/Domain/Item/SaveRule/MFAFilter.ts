@@ -38,7 +38,7 @@ export class MFAFilter implements ItemSaveRuleInterface {
 
         return result
       } catch (error) {
-        this.logger.debug(`Could not save user MFA as user setting: ${error.message}`)
+        this.logger.debug(`[${dto.userUuid}] Could not save user MFA as user setting: ${error.message}`)
 
         return {
           passed: false,
@@ -98,7 +98,7 @@ export class MFAFilter implements ItemSaveRuleInterface {
       ...dto.itemHash,
     })
 
-    this.logger.debug('Returning a stub item for MFA user setting: %O', stubItem)
+    this.logger.debug('[%s] Returning a stub item for MFA user setting: %O', dto.userUuid, stubItem)
 
     return {
       passed: false,

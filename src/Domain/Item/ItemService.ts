@@ -80,7 +80,7 @@ export class ItemService implements ItemServiceInterface {
 
     const mfaIsToBeRetrieved = dto.contentType === undefined || dto.contentType === ContentType.MFA
 
-    this.logger.debug(`user has mfa in user settings: ${userHasMovedMFAToUserSettings.status !== 'not found'}, mfa to be retrieved: ${mfaIsToBeRetrieved}`)
+    this.logger.debug(`[${dto.userUuid}] user has mfa in user settings: ${userHasMovedMFAToUserSettings.status !== 'not found'}, mfa to be retrieved: ${mfaIsToBeRetrieved}`)
 
     if (mfaIsToBeRetrieved && userHasMovedMFAToUserSettings.status !== 'not found') {
       items = await this.appendStubMFAItemBasedOnSyncToken({
@@ -121,7 +121,7 @@ export class ItemService implements ItemServiceInterface {
         existingItem,
       })
       if (!processingResult.passed) {
-        this.logger.debug('Item %s filtered out from saving: %O', itemHash.uuid, processingResult)
+        this.logger.debug('[%s] Item %s filtered out from saving: %O', dto.userUuid, itemHash.uuid, processingResult)
 
         if (processingResult.conflict) {
           conflicts.push(processingResult.conflict)
@@ -134,18 +134,18 @@ export class ItemService implements ItemServiceInterface {
       }
 
       if(existingItem) {
-        this.logger.debug(`Updating existing item ${existingItem.uuid}`)
+        this.logger.debug(`[${dto.userUuid}] Updating existing item ${existingItem.uuid}`)
 
         const updatedItem = await this.updateExistingItem(existingItem, itemHash, dto.userAgent)
         savedItems.push(updatedItem)
       } else {
-        this.logger.debug(`Saving new item ${itemHash.uuid}`)
+        this.logger.debug(`[${dto.userUuid}] Saving new item ${itemHash.uuid}`)
 
         try {
           const newItem = await this.saveNewItem(dto.userUuid, itemHash, dto.userAgent)
           savedItems.push(newItem)
         } catch (error) {
-          this.logger.error(`Saving item ${itemHash.uuid} failed. Error: ${error.message}`)
+          this.logger.error(`[${dto.userUuid}] Saving item ${itemHash.uuid} failed. Error: ${error.message}`)
 
           conflicts.push({
             unsavedItem: itemHash,
@@ -311,7 +311,7 @@ export class ItemService implements ItemServiceInterface {
   }): Promise<Array<Item>> {
     const mfaUserSettingUpdatedAt = await this.serviceTransitionHelper.getUserMFAUpdatedAtTimestamp(dto.userUuid)
 
-    this.logger.debug(`MFA user setting update at: ${mfaUserSettingUpdatedAt}`)
+    this.logger.debug(`[${dto.userUuid}] MFA user setting update at: ${mfaUserSettingUpdatedAt}`)
 
     const shouldMfaUserSettingBeAppendedBasedOnStatus = !dto.mfaUserSettingStatusDeleted || dto.lastSyncTime !== undefined
     const shouldMfaUserSettingBeAppendedBasedOnLastSyncTime =
@@ -319,7 +319,7 @@ export class ItemService implements ItemServiceInterface {
       dto.syncTimeComparison === '>' && mfaUserSettingUpdatedAt > dto.lastSyncTime ||
       dto.syncTimeComparison === '>=' && mfaUserSettingUpdatedAt >= dto.lastSyncTime
 
-    this.logger.debug(`MFA should be appeneded based on status: ${shouldMfaUserSettingBeAppendedBasedOnStatus}, based on syncTime (${dto.lastSyncTime}): ${shouldMfaUserSettingBeAppendedBasedOnLastSyncTime}`)
+    this.logger.debug(`[${dto.userUuid}] MFA should be appeneded based on status: ${shouldMfaUserSettingBeAppendedBasedOnStatus}, based on syncTime (${dto.lastSyncTime}): ${shouldMfaUserSettingBeAppendedBasedOnLastSyncTime}`)
 
     const mfaUserSettingShouldBeAppendedToItemsBatch =
       shouldMfaUserSettingBeAppendedBasedOnStatus &&
