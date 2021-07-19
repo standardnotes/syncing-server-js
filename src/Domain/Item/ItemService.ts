@@ -80,8 +80,6 @@ export class ItemService implements ItemServiceInterface {
 
     const mfaIsToBeRetrieved = dto.contentType === undefined || dto.contentType === ContentType.MFA
 
-    this.logger.debug(`[${dto.userUuid}] user has mfa in user settings: ${userHasMovedMFAToUserSettings.status !== 'not found'}, mfa to be retrieved: ${mfaIsToBeRetrieved}`)
-
     if (mfaIsToBeRetrieved && userHasMovedMFAToUserSettings.status !== 'not found') {
       items = await this.appendStubMFAItemBasedOnSyncToken({
         userUuid: dto.userUuid,
@@ -121,8 +119,6 @@ export class ItemService implements ItemServiceInterface {
         existingItem,
       })
       if (!processingResult.passed) {
-        this.logger.debug('[%s] Item %s filtered out from saving: %O', dto.userUuid, itemHash.uuid, processingResult)
-
         if (processingResult.conflict) {
           conflicts.push(processingResult.conflict)
         }
@@ -307,15 +303,11 @@ export class ItemService implements ItemServiceInterface {
   }): Promise<Array<Item>> {
     const mfaUserSettingUpdatedAt = await this.serviceTransitionHelper.getUserMFAUpdatedAtTimestamp(dto.userUuid)
 
-    this.logger.debug(`[${dto.userUuid}] MFA user setting update at: ${mfaUserSettingUpdatedAt}`)
-
     const shouldMfaUserSettingBeAppendedBasedOnStatus = !dto.mfaUserSettingStatusDeleted || dto.lastSyncTime !== undefined
     const shouldMfaUserSettingBeAppendedBasedOnLastSyncTime =
       dto.lastSyncTime === undefined ||
       dto.syncTimeComparison === '>' && mfaUserSettingUpdatedAt > dto.lastSyncTime ||
       dto.syncTimeComparison === '>=' && mfaUserSettingUpdatedAt >= dto.lastSyncTime
-
-    this.logger.debug(`[${dto.userUuid}] MFA should be appeneded based on status: ${shouldMfaUserSettingBeAppendedBasedOnStatus}, based on syncTime (${dto.lastSyncTime}): ${shouldMfaUserSettingBeAppendedBasedOnLastSyncTime}`)
 
     const mfaUserSettingShouldBeAppendedToItemsBatch =
       shouldMfaUserSettingBeAppendedBasedOnStatus &&
