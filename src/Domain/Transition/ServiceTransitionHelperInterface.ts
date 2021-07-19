@@ -3,4 +3,5 @@ export interface ServiceTransitionHelperInterface {
   markUserMFAAsMovedToUserSettings(userUuid: string, updatedAt: number): Promise<void>
   markUserMFAAsUserSettingAsDeleted(userUuid: string, updatedAt: number): Promise<void>
   getUserMFAUpdatedAtTimestamp(userUuid: string): Promise<number>
+  deleteUserMFAUserSettings(userUuid: string): Promise<void>
 }

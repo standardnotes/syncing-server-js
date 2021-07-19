@@ -39,6 +39,13 @@ describe('RedisServiceTransitionHelper', () => {
     expect(redisClient.set).toHaveBeenNthCalledWith(2, 'mfa_ua:1-2-3', 123)
   })
 
+  it ('should delete the information about user mfa settings', async () => {
+    await createHelper().deleteUserMFAUserSettings('1-2-3')
+
+    expect(redisClient.del).toHaveBeenNthCalledWith(1, 'mfa:1-2-3')
+    expect(redisClient.del).toHaveBeenNthCalledWith(2, 'mfa_ua:1-2-3')
+  })
+
   it ('should get the timestamp on which the user moved mfa from items to user settings', async () => {
     redisClient.get = jest.fn().mockReturnValue('123')
 

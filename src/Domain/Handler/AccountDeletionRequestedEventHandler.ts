@@ -8,6 +8,7 @@ import { ContentDecoderInterface } from '../Item/ContentDecoderInterface'
 import { ContentType } from '../Item/ContentType'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
 import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
+import { ServiceTransitionHelperInterface } from '../Transition/ServiceTransitionHelperInterface'
 
 @injectable()
 export class AccountDeletionRequestedEventHandler implements DomainEventHandlerInterface {
@@ -17,6 +18,7 @@ export class AccountDeletionRequestedEventHandler implements DomainEventHandlerI
     @inject(TYPES.ContentDecoder) private contentDecoder: ContentDecoderInterface,
     @inject(TYPES.DomainEventPublisher) private domainEventPublisher: DomainEventPublisherInterface,
     @inject(TYPES.DomainEventFactory) private domainEventFactory: DomainEventFactoryInterface,
+    @inject(TYPES.ServiceTransitionHelper) private serviceTransitionHelper: ServiceTransitionHelperInterface,
     @inject(TYPES.Logger) private logger: Logger,
   ) {
   }
@@ -25,6 +27,8 @@ export class AccountDeletionRequestedEventHandler implements DomainEventHandlerI
     await this.syncExtensionsRemoval(event.payload.userUuid)
 
     await this.removeItemsAndRevisions(event.payload.userUuid)
+
+    await this.serviceTransitionHelper.deleteUserMFAUserSettings(event.payload.userUuid)
 
     this.logger.info(`Finished account cleanup for user: ${event.payload.userUuid}`)
   }
