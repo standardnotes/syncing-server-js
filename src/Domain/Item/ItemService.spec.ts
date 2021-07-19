@@ -123,7 +123,6 @@ describe('ItemService', () => {
     domainEventFactory.createDuplicateItemSyncedEvent = jest.fn()
 
     logger = {} as jest.Mocked<Logger>
-    logger.debug = jest.fn()
     logger.error = jest.fn()
 
     syncToken = Buffer.from('2:1616164633.241564', 'utf-8').toString('base64')

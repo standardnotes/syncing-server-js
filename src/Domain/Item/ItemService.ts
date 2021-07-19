@@ -134,13 +134,9 @@ export class ItemService implements ItemServiceInterface {
       }
 
       if(existingItem) {
-        this.logger.debug(`[${dto.userUuid}] Updating existing item ${existingItem.uuid}`)
-
         const updatedItem = await this.updateExistingItem(existingItem, itemHash, dto.userAgent)
         savedItems.push(updatedItem)
       } else {
-        this.logger.debug(`[${dto.userUuid}] Saving new item ${itemHash.uuid}`)
-
         try {
           const newItem = await this.saveNewItem(dto.userUuid, itemHash, dto.userAgent)
           savedItems.push(newItem)
