@@ -61,8 +61,6 @@ export class ItemService implements ItemServiceInterface {
 
     let items = await this.itemRepository.findAll(itemQuery)
 
-    this.logger.debug(`Fetched ${items.length} items. Limit defined: ${dto.limit}`)
-
     let cursorToken = undefined
     const limit = dto.limit === undefined || dto.limit < 1 ? this.DEFAULT_ITEMS_LIMIT : dto.limit
     if (items.length > limit) {
@@ -95,8 +93,6 @@ export class ItemService implements ItemServiceInterface {
       }
 
       if (!this.itemShouldBeSaved(itemHash, dto.apiVersion, existingItem)) {
-        this.logger.debug(`Item ${itemHash.uuid} should not be saved. Sync conflict.`)
-
         conflicts.push({
           serverItem: existingItem,
           type: 'sync_conflict',
@@ -106,13 +102,9 @@ export class ItemService implements ItemServiceInterface {
       }
 
       if(existingItem) {
-        this.logger.debug(`Updating existing item ${existingItem.uuid}`)
-
         const updatedItem = await this.updateExistingItem(existingItem, itemHash, dto.userAgent)
         savedItems.push(updatedItem)
       } else {
-        this.logger.debug(`Saving new item ${itemHash.uuid}`)
-
         try {
           const newItem = await this.saveNewItem(dto.userUuid, itemHash, dto.userAgent)
           savedItems.push(newItem)
@@ -296,8 +288,6 @@ export class ItemService implements ItemServiceInterface {
 
   private itemShouldBeSaved(itemHash: ItemHash, apiVersion: string, existingItem?: Item): boolean {
     if (!existingItem) {
-      this.logger.debug(`No previously existing item with uuid ${itemHash.uuid} . Item should be saved`)
-
       return true
     }
 
@@ -307,19 +297,13 @@ export class ItemService implements ItemServiceInterface {
         this.timer.convertStringDateToMicroseconds(new Date(0).toString())
     }
 
-    this.logger.debug(`Incoming updated at timestamp for item ${itemHash.uuid}: ${incomingUpdatedAtTimestamp}`)
-
     if (this.itemWasSentFromALegacyClient(incomingUpdatedAtTimestamp, apiVersion)) {
       return true
     }
 
     const ourUpdatedAtTimestamp = existingItem.updatedAtTimestamp
 
-    this.logger.debug(`Our updated at timestamp for item ${itemHash.uuid}: ${ourUpdatedAtTimestamp}`)
-
     const difference = incomingUpdatedAtTimestamp - ourUpdatedAtTimestamp
-
-    this.logger.debug(`Difference in timestamps for item ${itemHash.uuid}: ${Math.abs(difference)}`)
 
     if (this.itemHashHasMicrosecondsPrecision(itemHash)) {
       return difference === 0
