@@ -58,6 +58,15 @@ import { MySQLItemRevisionRepository } from '../Infra/MySQL/MySQLItemRevisionRep
 import { ItemRevision } from '../Domain/Revision/ItemRevision'
 import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
 import { Timer, TimerInterface } from '@standardnotes/time'
+import { ItemSaveValidatorInterface } from '../Domain/Item/SaveValidator/ItemSaveValidatorInterface'
+import { ItemSaveValidator } from '../Domain/Item/SaveValidator/ItemSaveValidator'
+import { OwnershipFilter } from '../Domain/Item/SaveRule/OwnershipFilter'
+import { MFAFilter } from '../Domain/Item/SaveRule/MFAFilter'
+import { TimeDifferenceFilter } from '../Domain/Item/SaveRule/TimeDifferenceFilter'
+import { ItemFactoryInterface } from '../Domain/Item/ItemFactoryInterface'
+import { ItemFactory } from '../Domain/Item/ItemFactory'
+import { ServiceTransitionHelperInterface } from '../Domain/Transition/ServiceTransitionHelperInterface'
+import { RedisServiceTransitionHelper } from '../Infra/Redis/RedisServiceTransitionHelper'
 import axios, { AxiosInstance } from 'axios'
 
 export class ContainerConfigLoader {
@@ -205,6 +214,7 @@ export class ContainerConfigLoader {
     container.bind<ExtensionsHttpServiceInterface>(TYPES.ExtensionsHttpService).to(ExtensionsHttpService)
     container.bind<ItemBackupServiceInterface>(TYPES.ItemBackupService).to(S3ItemBackupService)
     container.bind<RevisionServiceInterface>(TYPES.RevisionService).to(RevisionService)
+    container.bind<ServiceTransitionHelperInterface>(TYPES.ServiceTransitionHelper).to(RedisServiceTransitionHelper)
 
     if (env.get('SNS_TOPIC_ARN', true)) {
       container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
@@ -254,6 +264,20 @@ export class ContainerConfigLoader {
         )
       )
     }
+
+    container.bind<ItemFactoryInterface>(TYPES.ItemFactory).to(ItemFactory)
+
+    container.bind<OwnershipFilter>(TYPES.OwnershipFilter).to(OwnershipFilter)
+    container.bind<MFAFilter>(TYPES.MFAFilter).to(MFAFilter)
+    container.bind<TimeDifferenceFilter>(TYPES.TimeDifferenceFilter).to(TimeDifferenceFilter)
+
+    container.bind<ItemSaveValidatorInterface>(TYPES.ItemSaveValidator).toConstantValue(
+      new ItemSaveValidator([
+        container.get(TYPES.OwnershipFilter),
+        container.get(TYPES.MFAFilter),
+        container.get(TYPES.TimeDifferenceFilter),
+      ])
+    )
 
     return container
   }

@@ -1,5 +1,6 @@
 import { injectable } from 'inversify'
 import { EntityRepository, Repository } from 'typeorm'
+import { ContentType } from '../../Domain/Item/ContentType'
 import { Item } from '../../Domain/Item/Item'
 import { ItemQuery } from '../../Domain/Item/ItemQuery'
 import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterface'
@@ -78,10 +79,24 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
         'item.user_uuid = :user_uuid AND item.content_type = :content_type AND deleted = :deleted',
         {
           user_uuid: userUuid,
-          content_type: 'SF|MFA',
+          content_type: ContentType.MFA,
           deleted: false,
         }
       )
       .getOne()
+  }
+
+  async deleteMFAExtensionByUserUuid(userUuid: string): Promise<void> {
+    await this.createQueryBuilder('item')
+      .delete()
+      .from('items')
+      .where(
+        'user_uuid = :user_uuid AND content_type = :content_type',
+        {
+          user_uuid: userUuid,
+          content_type: ContentType.MFA,
+        }
+      )
+      .execute()
   }
 }

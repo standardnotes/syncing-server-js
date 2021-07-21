@@ -4,21 +4,24 @@ import * as crypto from 'crypto'
 import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
-import { ApiVersion } from '../Api/ApiVersion'
+import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
 import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
+import { ServiceTransitionHelperInterface } from '../Transition/ServiceTransitionHelperInterface'
 import { ContentType } from './ContentType'
 import { GetItemsDTO } from './GetItemsDTO'
 
 import { GetItemsResult } from './GetItemsResult'
 import { Item } from './Item'
 import { ItemConflict } from './ItemConflict'
+import { ItemFactoryInterface } from './ItemFactoryInterface'
 import { ItemHash } from './ItemHash'
 import { ItemQuery } from './ItemQuery'
 import { ItemRepositoryInterface } from './ItemRepositoryInterface'
 import { ItemServiceInterface } from './ItemServiceInterface'
 import { SaveItemsDTO } from './SaveItemsDTO'
 import { SaveItemsResult } from './SaveItemsResult'
+import { ItemSaveValidatorInterface } from './SaveValidator/ItemSaveValidatorInterface'
 
 @injectable()
 export class ItemService implements ItemServiceInterface {
@@ -26,6 +29,10 @@ export class ItemService implements ItemServiceInterface {
   private readonly SYNC_TOKEN_VERSION = 2
 
   constructor (
+    @inject(TYPES.ItemSaveValidator) private itemSaveValidator: ItemSaveValidatorInterface,
+    @inject(TYPES.ServiceTransitionHelper) private serviceTransitionHelper: ServiceTransitionHelperInterface,
+    @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
+    @inject(TYPES.ItemFactory) private itemFactory: ItemFactoryInterface,
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
     @inject(TYPES.DomainEventPublisher) private domainEventPublisher: DomainEventPublisherInterface,
@@ -41,6 +48,13 @@ export class ItemService implements ItemServiceInterface {
 
     const timestampsInMilliseconds = timestampsInMicroseconds.map(timestampInMicroseconds => this.timer.convertMicrosecondsToMilliseconds(timestampInMicroseconds))
 
+    const mfaFromUserSettings = await this.serviceTransitionHelper.userHasMovedMFAToUserSettings(userUuid)
+    if (mfaFromUserSettings.status === 'active') {
+      const timestamp = await this.serviceTransitionHelper.getUserMFAUpdatedAtTimestamp(userUuid)
+      timestampsInMilliseconds.unshift(this.timer.convertMicrosecondsToMilliseconds(timestamp))
+      timestampsInMilliseconds.sort().reverse()
+    }
+
     const stringToHash = timestampsInMilliseconds.join(',')
 
     return crypto.createHash('sha256').update(stringToHash).digest('hex')
@@ -48,11 +62,12 @@ export class ItemService implements ItemServiceInterface {
 
   async getItems(dto: GetItemsDTO): Promise<GetItemsResult> {
     const lastSyncTime = this.getLastSyncTime(dto)
+    const syncTimeComparison = dto.cursorToken ? '>=' : '>'
 
     const itemQuery: ItemQuery = {
       userUuid: dto.userUuid,
       lastSyncTime,
-      syncTimeComparison: dto.cursorToken ? '>=' : '>',
+      syncTimeComparison,
       contentType: dto.contentType,
       deleted: lastSyncTime ? undefined : false,
       sortBy: 'updated_at_timestamp',
@@ -60,6 +75,20 @@ export class ItemService implements ItemServiceInterface {
     }
 
     let items = await this.itemRepository.findAll(itemQuery)
+
+    const userHasMovedMFAToUserSettings = await this.serviceTransitionHelper.userHasMovedMFAToUserSettings(dto.userUuid)
+
+    const mfaIsToBeRetrieved = dto.contentType === undefined || dto.contentType === ContentType.MFA
+
+    if (mfaIsToBeRetrieved && userHasMovedMFAToUserSettings.status !== 'not found') {
+      items = await this.appendStubMFAItemBasedOnSyncToken({
+        userUuid: dto.userUuid,
+        items,
+        lastSyncTime,
+        syncTimeComparison,
+        mfaUserSettingStatusDeleted: userHasMovedMFAToUserSettings.status === 'deleted',
+      })
+    }
 
     let cursorToken = undefined
     const limit = dto.limit === undefined || dto.limit < 1 ? this.DEFAULT_ITEMS_LIMIT : dto.limit
@@ -83,20 +112,19 @@ export class ItemService implements ItemServiceInterface {
 
     for (const itemHash of dto.itemHashes) {
       const existingItem = await this.itemRepository.findByUuid(itemHash.uuid)
-      if (this.itemBelongsToADifferentUser(dto.userUuid, existingItem)) {
-        conflicts.push({
-          unsavedItem: itemHash,
-          type: 'uuid_conflict',
-        })
-
-        continue
-      }
-
-      if (!this.itemShouldBeSaved(itemHash, dto.apiVersion, existingItem)) {
-        conflicts.push({
-          serverItem: existingItem,
-          type: 'sync_conflict',
-        })
+      const processingResult = await this.itemSaveValidator.validate({
+        userUuid: dto.userUuid,
+        apiVersion: dto.apiVersion,
+        itemHash,
+        existingItem,
+      })
+      if (!processingResult.passed) {
+        if (processingResult.conflict) {
+          conflicts.push(processingResult.conflict)
+        }
+        if (processingResult.skipped) {
+          savedItems.push(processingResult.skipped)
+        }
 
         continue
       }
@@ -109,7 +137,7 @@ export class ItemService implements ItemServiceInterface {
           const newItem = await this.saveNewItem(dto.userUuid, itemHash, dto.userAgent)
           savedItems.push(newItem)
         } catch (error) {
-          this.logger.error(`Saving item ${itemHash.uuid} failed. Error: ${error.message}`)
+          this.logger.error(`[${dto.userUuid}] Saving item ${itemHash.uuid} failed. Error: ${error.message}`)
 
           conflicts.push({
             unsavedItem: itemHash,
@@ -226,48 +254,7 @@ export class ItemService implements ItemServiceInterface {
   }
 
   private async saveNewItem(userUuid: string, itemHash: ItemHash, userAgent?: string): Promise<Item> {
-    const newItem = new Item()
-    newItem.uuid = itemHash.uuid
-    if (itemHash.content) {
-      newItem.content = itemHash.content
-    }
-    newItem.userUuid = userUuid
-    if (itemHash.content_type) {
-      newItem.contentType = itemHash.content_type
-    }
-    if (itemHash.enc_item_key) {
-      newItem.encItemKey = itemHash.enc_item_key
-    }
-    if (itemHash.items_key_id) {
-      newItem.itemsKeyId = itemHash.items_key_id
-    }
-    if (itemHash.duplicate_of) {
-      newItem.duplicateOf = itemHash.duplicate_of
-    }
-    if (itemHash.deleted !== undefined) {
-      newItem.deleted = itemHash.deleted
-    }
-    if (itemHash.auth_hash) {
-      newItem.authHash = itemHash.auth_hash
-    }
-    newItem.lastUserAgent = userAgent ?? null
-
-    const now = this.timer.getTimestampInMicroseconds()
-    const nowDate = this.timer.convertMicrosecondsToDate(now)
-
-    newItem.updatedAtTimestamp = now
-    newItem.updatedAt = nowDate
-
-    newItem.createdAtTimestamp = now
-    newItem.createdAt = nowDate
-
-    if (itemHash.created_at_timestamp) {
-      newItem.createdAtTimestamp = itemHash.created_at_timestamp
-      newItem.createdAt = this.timer.convertMicrosecondsToDate(itemHash.created_at_timestamp)
-    } else if (itemHash.created_at) {
-      newItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
-      newItem.createdAt = this.timer.convertStringDateToDate(itemHash.created_at)
-    }
+    const newItem = this.itemFactory.create(userUuid, itemHash, userAgent)
 
     const savedItem = await this.itemRepository.save(newItem)
 
@@ -280,53 +267,6 @@ export class ItemService implements ItemServiceInterface {
     }
 
     return savedItem
-  }
-
-  private itemBelongsToADifferentUser(userUuid: string, existingItem?: Item) {
-    return existingItem !== undefined && existingItem.userUuid !== userUuid
-  }
-
-  private itemShouldBeSaved(itemHash: ItemHash, apiVersion: string, existingItem?: Item): boolean {
-    if (!existingItem) {
-      return true
-    }
-
-    let incomingUpdatedAtTimestamp = itemHash.updated_at_timestamp
-    if (incomingUpdatedAtTimestamp === undefined) {
-      incomingUpdatedAtTimestamp = itemHash.updated_at !== undefined ? this.timer.convertStringDateToMicroseconds(itemHash.updated_at) :
-        this.timer.convertStringDateToMicroseconds(new Date(0).toString())
-    }
-
-    if (this.itemWasSentFromALegacyClient(incomingUpdatedAtTimestamp, apiVersion)) {
-      return true
-    }
-
-    const ourUpdatedAtTimestamp = existingItem.updatedAtTimestamp
-
-    const difference = incomingUpdatedAtTimestamp - ourUpdatedAtTimestamp
-
-    if (this.itemHashHasMicrosecondsPrecision(itemHash)) {
-      return difference === 0
-    }
-
-    return Math.abs(difference) < this.getMinimalConflictIntervalMicroseconds(apiVersion)
-  }
-
-  private itemHashHasMicrosecondsPrecision(itemHash: ItemHash) {
-    return itemHash.updated_at_timestamp !== undefined
-  }
-
-  private itemWasSentFromALegacyClient(incomingUpdatedAtTimestamp: number, apiVersion: string) {
-    return incomingUpdatedAtTimestamp === 0 && apiVersion === ApiVersion.v20161215
-  }
-
-  private getMinimalConflictIntervalMicroseconds(apiVersion?: string): number {
-    switch(apiVersion) {
-    case ApiVersion.v20161215:
-      return Time.MicrosecondsInASecond
-    default:
-      return Time.MicrosecondsInAMillisecond
-    }
   }
 
   private getLastSyncTime(dto: GetItemsDTO): number | undefined {
@@ -352,6 +292,44 @@ export class ItemService implements ItemServiceInterface {
     default:
       throw Error('Sync token is missing version part')
     }
+  }
 
+  private async appendStubMFAItemBasedOnSyncToken(dto: {
+    userUuid: string,
+    items: Array<Item>,
+    lastSyncTime: number | undefined,
+    syncTimeComparison: '>' | '>='
+    mfaUserSettingStatusDeleted: boolean
+  }): Promise<Array<Item>> {
+    const mfaUserSettingUpdatedAt = await this.serviceTransitionHelper.getUserMFAUpdatedAtTimestamp(dto.userUuid)
+
+    const shouldMfaUserSettingBeAppendedBasedOnStatus = !dto.mfaUserSettingStatusDeleted || dto.lastSyncTime !== undefined
+    const shouldMfaUserSettingBeAppendedBasedOnLastSyncTime =
+      dto.lastSyncTime === undefined ||
+      dto.syncTimeComparison === '>' && mfaUserSettingUpdatedAt > dto.lastSyncTime ||
+      dto.syncTimeComparison === '>=' && mfaUserSettingUpdatedAt >= dto.lastSyncTime
+
+    const mfaUserSettingShouldBeAppendedToItemsBatch =
+      shouldMfaUserSettingBeAppendedBasedOnStatus &&
+      shouldMfaUserSettingBeAppendedBasedOnLastSyncTime
+
+    if (mfaUserSettingShouldBeAppendedToItemsBatch) {
+      const mfaUserSettings = await this.authHttpService.getUserMFA(dto.userUuid, dto.lastSyncTime)
+
+      for (const mfaUserSetting of mfaUserSettings) {
+        dto.items.unshift(
+          this.itemFactory.createStub(dto.userUuid, {
+            uuid: mfaUserSetting.uuid,
+            content_type: ContentType.MFA,
+            content: mfaUserSetting.value ?? undefined,
+            deleted: mfaUserSetting.value === null,
+            created_at_timestamp: mfaUserSetting.createdAt,
+            updated_at_timestamp: mfaUserSetting.updatedAt,
+          })
+        )
+      }
+    }
+
+    return dto.items
   }
 }

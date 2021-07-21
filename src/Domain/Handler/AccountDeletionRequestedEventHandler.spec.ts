@@ -8,6 +8,7 @@ import { AccountDeletionRequestedEventHandler } from './AccountDeletionRequested
 import { ContentDecoderInterface } from '../Item/ContentDecoderInterface'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
 import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
+import { ServiceTransitionHelperInterface } from '../Transition/ServiceTransitionHelperInterface'
 
 describe('AccountDeletionRequestedEventHandler', () => {
   let itemRepository: ItemRepositoryInterface
@@ -17,6 +18,7 @@ describe('AccountDeletionRequestedEventHandler', () => {
   let domainEventFactory: DomainEventFactoryInterface
   let logger: Logger
   let event: AccountDeletionRequestedEvent
+  let serviceTransitionHelper: ServiceTransitionHelperInterface
   let item: Item
 
   const createHandler = () => new AccountDeletionRequestedEventHandler(
@@ -25,6 +27,7 @@ describe('AccountDeletionRequestedEventHandler', () => {
     contentDecoder,
     domainEventPublisher,
     domainEventFactory,
+    serviceTransitionHelper,
     logger
   )
 
@@ -58,6 +61,9 @@ describe('AccountDeletionRequestedEventHandler', () => {
     event.payload = {
       userUuid: '2-3-4',
     }
+
+    serviceTransitionHelper = {} as jest.Mocked<ServiceTransitionHelperInterface>
+    serviceTransitionHelper.deleteUserMFAUserSettings = jest.fn()
   })
 
   it('should sync all extensions removal for a user', async () => {
@@ -95,5 +101,11 @@ describe('AccountDeletionRequestedEventHandler', () => {
 
     expect(revisionService.deleteRevisionsForItem).toHaveBeenCalledWith(item)
     expect(itemRepository.remove).toHaveBeenCalledWith(item)
+  })
+
+  it('should remove all mfa user settings from transition helping service', async () => {
+    await createHandler().handle(event)
+
+    expect(serviceTransitionHelper.deleteUserMFAUserSettings).toHaveBeenCalledWith('2-3-4')
   })
 })
