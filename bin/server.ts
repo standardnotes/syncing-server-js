@@ -10,12 +10,11 @@ import '../src/Controller/ExtensionSettingsController'
 import * as helmet from 'helmet'
 import * as cors from 'cors'
 import { urlencoded, json, Request, Response, NextFunction } from 'express'
-import * as prettyjson from 'prettyjson'
 import * as winston from 'winston'
 import * as dayjs from 'dayjs'
 import * as utc from 'dayjs/plugin/utc'
 
-import { InversifyExpressServer, getRouteInfo } from 'inversify-express-utils'
+import { InversifyExpressServer } from 'inversify-express-utils'
 import { ContainerConfigLoader } from '../src/Bootstrap/Container'
 import TYPES from '../src/Bootstrap/Types'
 import { Env } from '../src/Bootstrap/Env'
@@ -58,10 +57,6 @@ void container.load().then(container => {
   })
 
   const serverInstance = server.build()
-
-  const routeInfo = getRouteInfo(container)
-
-  console.log(prettyjson.render({ routes: routeInfo }))
 
   const env: Env = new Env()
   env.load()
