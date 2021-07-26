@@ -26,6 +26,10 @@ void container.load().then(container => {
   const server = new InversifyExpressServer(container)
 
   server.setConfig((app) => {
+    app.use((_request: Request, response: Response, next: NextFunction) => {
+      response.setHeader('X-SSJS-Version', container.get(TYPES.VERSION))
+      next()
+    })
     /* eslint-disable */
     app.use(helmet({
       contentSecurityPolicy: {

@@ -32,6 +32,7 @@ const TYPES = {
   EMAIL_ATTACHMENT_MAX_BYTE_SIZE: Symbol.for('EMAIL_ATTACHMENT_MAX_BYTE_SIZE'),
   REVISIONS_FREQUENCY: Symbol.for('REVISIONS_FREQUENCY'),
   NEW_RELIC_ENABLED: Symbol.for('NEW_RELIC_ENABLED'),
+  VERSION: Symbol.for('VERSION'),
   // use cases
   SyncItems: Symbol.for('SyncItems'),
   PostToRealtimeExtensions: Symbol.for('PostToRealtimeExtensions'),
