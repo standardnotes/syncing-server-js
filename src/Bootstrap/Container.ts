@@ -188,6 +188,7 @@ export class ContainerConfigLoader {
     container.bind(TYPES.EMAIL_ATTACHMENT_MAX_BYTE_SIZE).toConstantValue(env.get('EMAIL_ATTACHMENT_MAX_BYTE_SIZE'))
     container.bind(TYPES.REVISIONS_FREQUENCY).toConstantValue(env.get('REVISIONS_FREQUENCY'))
     container.bind(TYPES.NEW_RELIC_ENABLED).toConstantValue(env.get('NEW_RELIC_ENABLED', true))
+    container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
 
     // use cases
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
