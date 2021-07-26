@@ -87,7 +87,7 @@ jobs:
         aws ecs describe-task-definition --task-definition syncing-server-js-prod --query taskDefinition > task-definition.json
     - name: Fill in the new version in the Amazon ECS task definition
       run: |
-        jq '(.containerDefinitions[] | select(.name=="syncing-server-js-prod") | .environment[] | select(.name=="VERSION")).value = "${{ steps.get_version.outputs.version }}"' task-definition.json
+        jq '(.containerDefinitions[] | select(.name=="syncing-server-js-prod") | .environment[] | select(.name=="VERSION")).value = "${{ github.sha }}"' task-definition.json > tmp.json && mv tmp.json task-definition.json
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
@@ -118,6 +118,9 @@ jobs:
     - name: Download task definition
       run: |
         aws ecs describe-task-definition --task-definition syncing-server-js-worker-prod --query taskDefinition > task-definition.json
+    - name: Fill in the new version in the Amazon ECS task definition
+      run: |
+        jq '(.containerDefinitions[] | select(.name=="syncing-server-js-worker-prod") | .environment[] | select(.name=="VERSION")).value = "${{ github.sha }}"' task-definition.json > tmp.json && mv tmp.json task-definition.json
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
@@ -148,6 +151,9 @@ jobs:
     - name: Download task definition
       run: |
         aws ecs describe-task-definition --task-definition syncing-server-demo-dev --query taskDefinition > task-definition.json
+    - name: Fill in the new version in the Amazon ECS task definition
+      run: |
+        jq '(.containerDefinitions[] | select(.name=="syncing-server-demo-dev") | .environment[] | select(.name=="VERSION")).value = "${{ github.sha }}"' task-definition.json > tmp.json && mv tmp.json task-definition.json
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
