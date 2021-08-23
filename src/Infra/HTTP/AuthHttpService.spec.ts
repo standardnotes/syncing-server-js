@@ -53,7 +53,7 @@ describe('AuthHttpService', () => {
     expect(await createService().saveUserMFA({
       uuid: '2-3-4',
       userUuid: '1-2-3',
-      encodedMfaSecret: 'test',
+      mfaSecret: 'test',
       createdAt: 1,
       updatedAt: 1,
     })).toEqual({ uuid: '3-4-5' })
@@ -81,7 +81,7 @@ describe('AuthHttpService', () => {
       await createService().saveUserMFA({
         uuid: '2-3-4',
         userUuid: '1-2-3',
-        encodedMfaSecret: 'test',
+        mfaSecret: 'test',
         createdAt: 1,
         updatedAt: 1,
       })

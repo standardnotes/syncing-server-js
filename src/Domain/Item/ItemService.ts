@@ -8,6 +8,7 @@ import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
 import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 import { ServiceTransitionHelperInterface } from '../Transition/ServiceTransitionHelperInterface'
+import { ContentDecoderInterface } from './ContentDecoderInterface'
 import { ContentType } from './ContentType'
 import { GetItemsDTO } from './GetItemsDTO'
 
@@ -39,6 +40,7 @@ export class ItemService implements ItemServiceInterface {
     @inject(TYPES.DomainEventFactory) private domainEventFactory: DomainEventFactoryInterface,
     @inject(TYPES.REVISIONS_FREQUENCY) private revisionFrequency: number,
     @inject(TYPES.Timer) private timer: TimerInterface,
+    @inject(TYPES.ContentDecoder) private contentDecoder: ContentDecoderInterface,
     @inject(TYPES.Logger) private logger: Logger
   ) {
   }
@@ -317,11 +319,14 @@ export class ItemService implements ItemServiceInterface {
       const mfaUserSettings = await this.authHttpService.getUserMFA(dto.userUuid, dto.lastSyncTime)
 
       for (const mfaUserSetting of mfaUserSettings) {
+        const content = mfaUserSetting.value ?
+          this.contentDecoder.encode({ secret: mfaUserSetting.value }) : undefined
+
         dto.items.unshift(
           this.itemFactory.createStub(dto.userUuid, {
             uuid: mfaUserSetting.uuid,
             content_type: ContentType.MFA,
-            content: mfaUserSetting.value ?? undefined,
+            content,
             deleted: mfaUserSetting.value === null,
             created_at_timestamp: mfaUserSetting.createdAt,
             updated_at_timestamp: mfaUserSetting.updatedAt,

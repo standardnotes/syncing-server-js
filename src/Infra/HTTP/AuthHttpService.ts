@@ -33,7 +33,7 @@ export class AuthHttpService implements AuthHttpServiceInterface {
   async saveUserMFA(dto: {
     uuid: string,
     userUuid: string,
-    encodedMfaSecret: string,
+    mfaSecret: string,
     createdAt: number,
     updatedAt: number
   }): Promise<string> {
@@ -48,7 +48,7 @@ export class AuthHttpService implements AuthHttpServiceInterface {
           /* istanbul ignore next */
           (status: number) => status >= 200 && status < 500,
         data: {
-          value: dto.encodedMfaSecret,
+          value: dto.mfaSecret,
           uuid: dto.uuid,
           createdAt: dto.createdAt,
           updatedAt: dto.updatedAt,

@@ -10,7 +10,7 @@ export interface AuthHttpServiceInterface {
   saveUserMFA(dto: {
     uuid: string,
     userUuid: string,
-    encodedMfaSecret: string,
+    mfaSecret: string,
     createdAt: number,
     updatedAt: number
   }): Promise<string>
