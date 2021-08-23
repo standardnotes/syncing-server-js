@@ -4,6 +4,7 @@ import { Logger } from 'winston'
 import { ApiVersion } from '../../Api/ApiVersion'
 import { AuthHttpServiceInterface } from '../../Auth/AuthHttpServiceInterface'
 import { ServiceTransitionHelperInterface } from '../../Transition/ServiceTransitionHelperInterface'
+import { ContentDecoderInterface } from '../ContentDecoderInterface'
 import { ContentType } from '../ContentType'
 import { Item } from '../Item'
 import { ItemFactoryInterface } from '../ItemFactoryInterface'
@@ -18,9 +19,10 @@ describe('MFAFilter', () => {
   let serviceTransitionHelper: ServiceTransitionHelperInterface
   let itemRepository: ItemRepositoryInterface
   let timer: TimerInterface
+  let contentDecoder: ContentDecoderInterface
   let logger: Logger
 
-  const createFilter = () => new MFAFilter(itemFactory, authHttpService, serviceTransitionHelper, itemRepository, timer, logger)
+  const createFilter = () => new MFAFilter(itemFactory, authHttpService, serviceTransitionHelper, itemRepository, timer, contentDecoder, logger)
 
   beforeEach(() => {
     item = {} as jest.Mocked<Item>
@@ -42,6 +44,11 @@ describe('MFAFilter', () => {
     timer = {} as jest.Mocked<TimerInterface>
     timer.convertStringDateToMicroseconds = jest.fn().mockReturnValue(1)
     timer.getTimestampInMicroseconds = jest.fn().mockReturnValue(123)
+
+    contentDecoder = {} as jest.Mocked<ContentDecoderInterface>
+    contentDecoder.decode = jest.fn().mockReturnValue({
+      secret: 'foo',
+    })
 
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
