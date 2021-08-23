@@ -19,6 +19,7 @@ import { ItemFactoryInterface } from './ItemFactoryInterface'
 import { ItemConflict } from './ItemConflict'
 import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
 import { ServiceTransitionHelperInterface } from '../Transition/ServiceTransitionHelperInterface'
+import { ContentDecoderInterface } from './ContentDecoderInterface'
 
 describe('ItemService', () => {
   let itemRepository: ItemRepositoryInterface
@@ -38,6 +39,7 @@ describe('ItemService', () => {
   let authHttpService: AuthHttpServiceInterface
   let serviceTransitionHelper: ServiceTransitionHelperInterface
   let newItem: Item
+  let contentDecoder: ContentDecoderInterface
   let itemFactory: ItemFactoryInterface
 
   const createService = () => new ItemService(
@@ -51,6 +53,7 @@ describe('ItemService', () => {
     domainEventFactory,
     revisionFrequency,
     timer,
+    contentDecoder,
     logger
   )
 
@@ -147,6 +150,9 @@ describe('ItemService', () => {
     itemFactory = {} as jest.Mocked<ItemFactoryInterface>
     itemFactory.create = jest.fn().mockReturnValue(newItem)
     itemFactory.createStub = jest.fn().mockReturnValue(newItem)
+
+    contentDecoder = {} as jest.Mocked<ContentDecoderInterface>
+    contentDecoder.encode = jest.fn().mockReturnValue('000eyJmb28iOiJiYXIifQ==')
   })
 
   it('should retrieve all items for a user from last sync with sync token version 1', async () => {
@@ -207,6 +213,15 @@ describe('ItemService', () => {
       })
     ).toEqual({
       items: [ newItem, item1, item2 ],
+    })
+
+    expect(itemFactory.createStub).toHaveBeenNthCalledWith(1, '1-2-3', {
+      uuid: '9-8-7',
+      content_type: ContentType.MFA,
+      content: '000eyJmb28iOiJiYXIifQ==',
+      deleted: false,
+      created_at_timestamp: 1,
+      updated_at_timestamp: 2,
     })
   })
 
