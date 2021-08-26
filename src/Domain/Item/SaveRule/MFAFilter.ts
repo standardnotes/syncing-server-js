@@ -10,6 +10,7 @@ import { Logger } from 'winston'
 import { ServiceTransitionHelperInterface } from '../../Transition/ServiceTransitionHelperInterface'
 import { TimerInterface } from '@standardnotes/time'
 import { ItemRepositoryInterface } from '../ItemRepositoryInterface'
+import { ContentDecoderInterface } from '../ContentDecoderInterface'
 
 @injectable()
 export class MFAFilter implements ItemSaveRuleInterface {
@@ -19,6 +20,7 @@ export class MFAFilter implements ItemSaveRuleInterface {
     @inject(TYPES.ServiceTransitionHelper) private serviceTransitionHelper: ServiceTransitionHelperInterface,
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.Timer) private timer: TimerInterface,
+    @inject(TYPES.ContentDecoder) private contentDecoder: ContentDecoderInterface,
     @inject(TYPES.Logger) private logger: Logger,
   ) {
   }
@@ -81,10 +83,12 @@ export class MFAFilter implements ItemSaveRuleInterface {
     const createdAt = this.calculateCreatedAtTimestamp(dto)
     const updatedAt = this.timer.getTimestampInMicroseconds()
 
+    const mfaContent = this.contentDecoder.decode(dto.itemHash.content as string)
+
     await this.authHttpService.saveUserMFA({
       uuid: dto.itemHash.uuid,
       userUuid: dto.userUuid,
-      encodedMfaSecret: dto.itemHash.content as string,
+      mfaSecret: mfaContent.secret as string,
       createdAt,
       updatedAt,
     })
