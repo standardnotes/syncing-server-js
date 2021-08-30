@@ -28,7 +28,7 @@ export class ItemProjector implements ProjectorInterface<Item> {
       duplicate_of: item.duplicateOf,
       enc_item_key: item.encItemKey,
       content: item.content,
-      content_type: item.contentType,
+      content_type: item.contentType as string,
       auth_hash: item.authHash,
       deleted: !!item.deleted,
       created_at: this.timer.convertMicrosecondsToStringDate(item.createdAtTimestamp),
