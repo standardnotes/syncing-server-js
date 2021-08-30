@@ -46,7 +46,9 @@ export class ItemService implements ItemServiceInterface {
   }
 
   async computeIntegrityHash(userUuid: string): Promise<string> {
-    const timestampsInMilliseconds = await this.itemRepository.findDatesForComputingIntegrityHash(userUuid)
+    const items = await this.itemRepository.findDatesForComputingIntegrityHash(userUuid)
+
+    const timestampsInMilliseconds = items.map(item => this.timer.convertMicrosecondsToMilliseconds(item.updated_at_timestamp))
 
     const mfaFromUserSettings = await this.serviceTransitionHelper.userHasMovedMFAToUserSettings(userUuid)
     if (mfaFromUserSettings.status === 'active') {
