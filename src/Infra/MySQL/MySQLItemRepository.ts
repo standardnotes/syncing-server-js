@@ -43,7 +43,7 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
     for (const item of sortedItems) {
       if (item.content_type !== null) {
         timestampInMilliseconds.push(
-          await this.timer.convertMicrosecondsToMilliseconds(item.updated_at_timestamp)
+          this.timer.convertMicrosecondsToMilliseconds(item.updated_at_timestamp)
         )
       }
     }
