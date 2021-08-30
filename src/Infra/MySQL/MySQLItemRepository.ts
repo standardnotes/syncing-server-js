@@ -1,5 +1,7 @@
-import { injectable } from 'inversify'
+import { TimerInterface } from '@standardnotes/time'
+import { inject, injectable } from 'inversify'
 import { EntityRepository, Repository } from 'typeorm'
+import TYPES from '../../Bootstrap/Types'
 import { ContentType } from '../../Domain/Item/ContentType'
 import { Item } from '../../Domain/Item/Item'
 import { ItemQuery } from '../../Domain/Item/ItemQuery'
@@ -8,6 +10,12 @@ import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterfa
 @injectable()
 @EntityRepository(Item)
 export class MySQLItemRepository extends Repository<Item> implements ItemRepositoryInterface {
+  constructor(
+    @inject(TYPES.Timer) private timer: TimerInterface,
+  ) {
+    super()
+  }
+
   async findByUuid(uuid: string): Promise<Item | undefined> {
     return this.createQueryBuilder('item')
       .where(
@@ -22,14 +30,16 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
   async findDatesForComputingIntegrityHash(userUuid: string): Promise<number[]> {
     const queryBuilder = this.createQueryBuilder('item')
     queryBuilder.select('item.updated_at_timestamp')
+    queryBuilder.addSelect('item.content_type')
     queryBuilder.where('item.user_uuid = :userUuid', { userUuid: userUuid })
     queryBuilder.andWhere('item.deleted = :deleted', { deleted: false })
-    queryBuilder.andWhere('item.content_type IS NOT NULL')
-    queryBuilder.orderBy('item.updated_at_timestamp', 'DESC')
 
     const items = await queryBuilder.getRawMany()
 
-    return items.map(item => item.updated_at_timestamp)
+    return items
+      .filter(item => item.content_type !== null)
+      .sort((itemA, itemB) => itemB.updated_at_timestamp - itemA.updated_at_timestamp)
+      .map(item => this.timer.convertMicrosecondsToMilliseconds(item.updated_at_timestamp))
   }
 
   async findByUuidAndUserUuid(uuid: string, userUuid: string): Promise<Item | undefined> {

@@ -1,5 +1,6 @@
 import 'reflect-metadata'
 
+import { Time, TimerInterface } from '@standardnotes/time'
 import { SelectQueryBuilder } from 'typeorm'
 import { ContentType } from '../../Domain/Item/ContentType'
 import { Item } from '../../Domain/Item/Item'
@@ -9,6 +10,7 @@ import { MySQLItemRepository } from './MySQLItemRepository'
 describe('MySQLItemRepository', () => {
   let repository: MySQLItemRepository
   let queryBuilder: SelectQueryBuilder<Item>
+  let timer: TimerInterface
   let item: Item
 
   beforeEach(() => {
@@ -16,7 +18,12 @@ describe('MySQLItemRepository', () => {
 
     item = {} as jest.Mocked<Item>
 
-    repository = new MySQLItemRepository()
+    timer = {} as jest.Mocked<TimerInterface>
+    timer.convertMicrosecondsToMilliseconds = jest.fn().mockImplementation((microseconds) => {
+      return Math.floor(microseconds / Time.MicrosecondsInAMillisecond)
+    })
+
+    repository = new MySQLItemRepository(timer)
     jest.spyOn(repository, 'createQueryBuilder')
     repository.createQueryBuilder = jest.fn().mockImplementation(() => queryBuilder)
   })
@@ -141,22 +148,26 @@ describe('MySQLItemRepository', () => {
   })
 
   it('should find dates for computing integrity hash', async () => {
-    queryBuilder.getRawMany = jest.fn().mockReturnValue([ { updated_at_timestamp: 123 } ])
+    queryBuilder.getRawMany = jest.fn().mockReturnValue([
+      { updated_at_timestamp: 1616164633241312, content_type: ContentType.Note },
+      { updated_at_timestamp: 1616164633242313, content_type: null },
+      { updated_at_timestamp: 1616164633242313, content_type: ContentType.ServerExtension },
+    ])
     queryBuilder.select = jest.fn()
+    queryBuilder.addSelect = jest.fn()
     queryBuilder.where = jest.fn()
     queryBuilder.andWhere = jest.fn()
-    queryBuilder.orderBy = jest.fn()
 
     const result = await repository.findDatesForComputingIntegrityHash('1-2-3')
 
     expect(queryBuilder.select).toHaveBeenCalledWith('item.updated_at_timestamp')
     expect(queryBuilder.where).toHaveBeenCalledTimes(1)
     expect(queryBuilder.where).toHaveBeenNthCalledWith(1, 'item.user_uuid = :userUuid', { userUuid: '1-2-3' })
-    expect(queryBuilder.andWhere).toHaveBeenCalledTimes(2)
+    expect(queryBuilder.andWhere).toHaveBeenCalledTimes(1)
     expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(1, 'item.deleted = :deleted', { deleted: false })
-    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(2, 'item.content_type IS NOT NULL')
-    expect(queryBuilder.orderBy).toHaveBeenCalledWith('item.updated_at_timestamp', 'DESC')
 
-    expect(result).toEqual([ 123 ])
+    expect(result.length).toEqual(2)
+    expect(result[0]).toEqual(1616164633242)
+    expect(result[1]).toEqual(1616164633241)
   })
 })
