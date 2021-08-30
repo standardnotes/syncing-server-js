@@ -36,10 +36,19 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
 
     const items = await queryBuilder.getRawMany()
 
-    return items
-      .filter(item => item.content_type !== null)
+    const sortedItems = items
       .sort((itemA, itemB) => itemB.updated_at_timestamp - itemA.updated_at_timestamp)
-      .map(item => this.timer.convertMicrosecondsToMilliseconds(item.updated_at_timestamp))
+
+    const timestampInMilliseconds = []
+    for (const item of sortedItems) {
+      if (item.content_type !== null) {
+        timestampInMilliseconds.push(
+          await this.timer.convertMicrosecondsToMilliseconds(item.updated_at_timestamp)
+        )
+      }
+    }
+
+    return timestampInMilliseconds
   }
 
   async findByUuidAndUserUuid(uuid: string, userUuid: string): Promise<Item | undefined> {
