@@ -17,13 +17,13 @@ export class initDatabase1606470249552 implements MigrationInterface {
 
     private async fixUpdatedAtTimestampsFromLegacyMigration(queryRunner: QueryRunner): Promise<void> {
       const itemsTableExistsQueryResult = await queryRunner.manager.query('SELECT COUNT(*) as count FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = "items"')
-      const itemsTableExists = itemsTableExistsQueryResult[0].count === '1'
+      const itemsTableExists = itemsTableExistsQueryResult[0].count === 1
       if (!itemsTableExists) {
         return
       }
 
       const updatedAtTimestampColumnExistsQueryResult = await queryRunner.manager.query('SELECT COUNT(*) as count FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = "items" AND column_name = "updated_at_timestamp"')
-      const updatedAtTimestampColumnExists = updatedAtTimestampColumnExistsQueryResult[0].count === '1'
+      const updatedAtTimestampColumnExists = updatedAtTimestampColumnExistsQueryResult[0].count === 1
       if (updatedAtTimestampColumnExists) {
         return
       }
