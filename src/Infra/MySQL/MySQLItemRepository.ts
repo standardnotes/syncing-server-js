@@ -1,7 +1,5 @@
-import { TimerInterface } from '@standardnotes/time'
-import { inject, injectable } from 'inversify'
+import { injectable } from 'inversify'
 import { EntityRepository, Repository } from 'typeorm'
-import TYPES from '../../Bootstrap/Types'
 import { ContentType } from '../../Domain/Item/ContentType'
 import { Item } from '../../Domain/Item/Item'
 import { ItemQuery } from '../../Domain/Item/ItemQuery'
@@ -10,12 +8,6 @@ import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterfa
 @injectable()
 @EntityRepository(Item)
 export class MySQLItemRepository extends Repository<Item> implements ItemRepositoryInterface {
-  constructor(
-    @inject(TYPES.Timer) private timer: TimerInterface,
-  ) {
-    super()
-  }
-
   async findByUuid(uuid: string): Promise<Item | undefined> {
     return this.createQueryBuilder('item')
       .where(
@@ -27,7 +19,7 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
       .getOne()
   }
 
-  async findDatesForComputingIntegrityHash(userUuid: string): Promise<number[]> {
+  async findDatesForComputingIntegrityHash(userUuid: string): Promise<Array<{content_type: string, updated_at_timestamp: number}>> {
     const queryBuilder = this.createQueryBuilder('item')
     queryBuilder.select('item.updated_at_timestamp')
     queryBuilder.addSelect('item.content_type')
@@ -36,19 +28,9 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
 
     const items = await queryBuilder.getRawMany()
 
-    const sortedItems = items
+    return items
+      .filter(item => item.content_type !== null)
       .sort((itemA, itemB) => itemB.updated_at_timestamp - itemA.updated_at_timestamp)
-
-    const timestampInMilliseconds = []
-    for (const item of sortedItems) {
-      if (item.content_type !== null) {
-        timestampInMilliseconds.push(
-          this.timer.convertMicrosecondsToMilliseconds(item.updated_at_timestamp)
-        )
-      }
-    }
-
-    return timestampInMilliseconds
   }
 
   async findByUuidAndUserUuid(uuid: string, userUuid: string): Promise<Item | undefined> {
