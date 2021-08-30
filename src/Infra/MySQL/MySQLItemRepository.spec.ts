@@ -1,6 +1,5 @@
 import 'reflect-metadata'
 
-import { Time, TimerInterface } from '@standardnotes/time'
 import { SelectQueryBuilder } from 'typeorm'
 import { ContentType } from '../../Domain/Item/ContentType'
 import { Item } from '../../Domain/Item/Item'
@@ -10,7 +9,6 @@ import { MySQLItemRepository } from './MySQLItemRepository'
 describe('MySQLItemRepository', () => {
   let repository: MySQLItemRepository
   let queryBuilder: SelectQueryBuilder<Item>
-  let timer: TimerInterface
   let item: Item
 
   beforeEach(() => {
@@ -18,12 +16,7 @@ describe('MySQLItemRepository', () => {
 
     item = {} as jest.Mocked<Item>
 
-    timer = {} as jest.Mocked<TimerInterface>
-    timer.convertMicrosecondsToMilliseconds = jest.fn().mockImplementation((microseconds) => {
-      return Math.floor(microseconds / Time.MicrosecondsInAMillisecond)
-    })
-
-    repository = new MySQLItemRepository(timer)
+    repository = new MySQLItemRepository()
     jest.spyOn(repository, 'createQueryBuilder')
     repository.createQueryBuilder = jest.fn().mockImplementation(() => queryBuilder)
   })
@@ -167,7 +160,7 @@ describe('MySQLItemRepository', () => {
     expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(1, 'item.deleted = :deleted', { deleted: false })
 
     expect(result.length).toEqual(2)
-    expect(result[0]).toEqual(1616164633242)
-    expect(result[1]).toEqual(1616164633241)
+    expect(result[0]).toEqual({ content_type: 'SF|Extension', updated_at_timestamp: 1616164633242313 })
+    expect(result[1]).toEqual({ content_type: 'Note', updated_at_timestamp: 1616164633241312 })
   })
 })
