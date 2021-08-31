@@ -4,6 +4,7 @@ import { ProjectorInterface } from '../../Projection/ProjectorInterface'
 import { Item } from './Item'
 import { ItemConflict } from './ItemConflict'
 import { ItemConflictProjector } from './ItemConflictProjector'
+import { ItemConflictType } from './ItemConflictType'
 import { ItemHash } from './ItemHash'
 import { ItemProjection } from './ItemProjection'
 
@@ -29,19 +30,19 @@ describe('ItemConflictProjector', () => {
 
     itemConflict1 = {
       serverItem: item,
-      type: 'sync_conflict',
+      type: ItemConflictType.SyncConflict,
     }
 
     itemConflict2 = {
       unsavedItem: itemHash,
-      type: 'uuid_conflict',
+      type: ItemConflictType.UuidConflict,
     }
   })
 
   it('should create a full projection of a server item conflict', () => {
     expect(createProjector().projectFull(itemConflict1)).toMatchObject({
       server_item: itemProjection,
-      type: 'sync_conflict',
+      type: ItemConflictType.SyncConflict,
     })
   })
 

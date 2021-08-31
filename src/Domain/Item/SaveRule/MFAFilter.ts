@@ -11,6 +11,7 @@ import { ServiceTransitionHelperInterface } from '../../Transition/ServiceTransi
 import { TimerInterface } from '@standardnotes/time'
 import { ItemRepositoryInterface } from '../ItemRepositoryInterface'
 import { ContentDecoderInterface } from '../ContentDecoderInterface'
+import { ItemConflictType } from '../ItemConflictType'
 
 @injectable()
 export class MFAFilter implements ItemSaveRuleInterface {
@@ -46,7 +47,7 @@ export class MFAFilter implements ItemSaveRuleInterface {
           passed: false,
           conflict: {
             unsavedItem: dto.itemHash,
-            type: 'sync_conflict',
+            type: ItemConflictType.SyncConflict,
           },
         }
       }

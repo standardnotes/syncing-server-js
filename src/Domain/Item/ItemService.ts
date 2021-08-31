@@ -15,6 +15,7 @@ import { GetItemsDTO } from './GetItemsDTO'
 import { GetItemsResult } from './GetItemsResult'
 import { Item } from './Item'
 import { ItemConflict } from './ItemConflict'
+import { ItemConflictType } from './ItemConflictType'
 import { ItemFactoryInterface } from './ItemFactoryInterface'
 import { ItemHash } from './ItemHash'
 import { ItemQuery } from './ItemQuery'
@@ -143,7 +144,7 @@ export class ItemService implements ItemServiceInterface {
 
           conflicts.push({
             unsavedItem: itemHash,
-            type: 'uuid_conflict',
+            type: ItemConflictType.UuidConflict,
           })
 
           continue

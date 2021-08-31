@@ -6,6 +6,7 @@ import { ItemHash } from '../ItemHash'
 import { ItemSaveValidationDTO } from '../SaveValidator/ItemSaveValidationDTO'
 import { ItemSaveRuleResult } from './ItemSaveRuleResult'
 import { ItemSaveRuleInterface } from './ItemSaveRuleInterface'
+import { ItemConflictType } from '../ItemConflictType'
 
 @injectable()
 export class TimeDifferenceFilter implements ItemSaveRuleInterface {
@@ -43,7 +44,7 @@ export class TimeDifferenceFilter implements ItemSaveRuleInterface {
         passed,
         conflict: passed ? undefined : {
           serverItem: dto.existingItem,
-          type: 'sync_conflict',
+          type: ItemConflictType.SyncConflict,
         },
       }
     }
@@ -54,7 +55,7 @@ export class TimeDifferenceFilter implements ItemSaveRuleInterface {
       passed,
       conflict: passed ? undefined : {
         serverItem: dto.existingItem,
-        type: 'sync_conflict',
+        type: ItemConflictType.SyncConflict,
       },
     }
   }

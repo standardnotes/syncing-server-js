@@ -1,21 +1,21 @@
 import { injectable } from 'inversify'
-import { validate } from 'uuid'
 import { ItemSaveValidationDTO } from '../SaveValidator/ItemSaveValidationDTO'
 import { ItemSaveRuleResult } from './ItemSaveRuleResult'
 import { ItemSaveRuleInterface } from './ItemSaveRuleInterface'
+import { ContentType } from '../ContentType'
 import { ItemConflictType } from '../ItemConflictType'
 
 @injectable()
-export class UuidFilter implements ItemSaveRuleInterface {
+export class ContentTypeFilter implements ItemSaveRuleInterface {
   async check(dto: ItemSaveValidationDTO): Promise<ItemSaveRuleResult> {
-    const validUuid = validate(dto.itemHash.uuid)
+    const validContentType = Object.values(ContentType).includes(dto.itemHash.content_type as ContentType)
 
-    if (!validUuid) {
+    if (!validContentType) {
       return {
         passed: false,
         conflict: {
           unsavedItem: dto.itemHash,
-          type: ItemConflictType.UuidConflict,
+          type: ItemConflictType.ContentTypeConflict,
         },
       }
     }

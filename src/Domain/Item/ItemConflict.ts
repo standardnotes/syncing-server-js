@@ -1,8 +1,9 @@
 import { Item } from './Item'
+import { ItemConflictType } from './ItemConflictType'
 import { ItemHash } from './ItemHash'
 
 export type ItemConflict = {
   serverItem?: Item
   unsavedItem?: ItemHash
-  type: 'sync_conflict' | 'uuid_conflict'
+  type: ItemConflictType
 }
