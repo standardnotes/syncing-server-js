@@ -1,5 +1,6 @@
 import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import { Time, TimerInterface } from '@standardnotes/time'
+import { ContentType } from '@standardnotes/common'
 import * as crypto from 'crypto'
 import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
@@ -9,12 +10,12 @@ import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterfac
 import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 import { ServiceTransitionHelperInterface } from '../Transition/ServiceTransitionHelperInterface'
 import { ContentDecoderInterface } from './ContentDecoderInterface'
-import { ContentType } from './ContentType'
 import { GetItemsDTO } from './GetItemsDTO'
 
 import { GetItemsResult } from './GetItemsResult'
 import { Item } from './Item'
 import { ItemConflict } from './ItemConflict'
+import { ItemConflictType } from './ItemConflictType'
 import { ItemFactoryInterface } from './ItemFactoryInterface'
 import { ItemHash } from './ItemHash'
 import { ItemQuery } from './ItemQuery'
@@ -80,7 +81,7 @@ export class ItemService implements ItemServiceInterface {
 
     const userHasMovedMFAToUserSettings = await this.serviceTransitionHelper.userHasMovedMFAToUserSettings(dto.userUuid)
 
-    const mfaIsToBeRetrieved = dto.contentType === undefined || dto.contentType === ContentType.MFA
+    const mfaIsToBeRetrieved = dto.contentType === undefined || dto.contentType === ContentType.Mfa
 
     if (mfaIsToBeRetrieved && userHasMovedMFAToUserSettings.status !== 'not found') {
       items = await this.appendStubMFAItemBasedOnSyncToken({
@@ -143,7 +144,7 @@ export class ItemService implements ItemServiceInterface {
 
           conflicts.push({
             unsavedItem: itemHash,
-            type: 'uuid_conflict',
+            type: ItemConflictType.UuidConflict,
           })
 
           continue
@@ -325,7 +326,7 @@ export class ItemService implements ItemServiceInterface {
         dto.items.unshift(
           this.itemFactory.createStub(dto.userUuid, {
             uuid: mfaUserSetting.uuid,
-            content_type: ContentType.MFA,
+            content_type: ContentType.Mfa,
             content,
             deleted: mfaUserSetting.value === null,
             created_at_timestamp: mfaUserSetting.createdAt,

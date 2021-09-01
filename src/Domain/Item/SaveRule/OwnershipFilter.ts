@@ -2,6 +2,7 @@ import { injectable } from 'inversify'
 import { ItemSaveValidationDTO } from '../SaveValidator/ItemSaveValidationDTO'
 import { ItemSaveRuleResult } from './ItemSaveRuleResult'
 import { ItemSaveRuleInterface } from './ItemSaveRuleInterface'
+import { ItemConflictType } from '../ItemConflictType'
 
 @injectable()
 export class OwnershipFilter implements ItemSaveRuleInterface {
@@ -12,7 +13,7 @@ export class OwnershipFilter implements ItemSaveRuleInterface {
         passed: false,
         conflict: {
           unsavedItem: dto.itemHash,
-          type: 'uuid_conflict',
+          type: ItemConflictType.UuidConflict,
         },
       }
     }

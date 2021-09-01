@@ -1,12 +1,12 @@
 import 'reflect-metadata'
 
 import * as express from 'express'
+import { ContentType } from '@standardnotes/common'
 
 import { ItemsController } from './ItemsController'
 import { results } from 'inversify-express-utils'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
 import { ApiVersion } from '../Domain/Api/ApiVersion'
-import { ContentType } from '../Domain/Item/ContentType'
 import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
 import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
 import { SyncResponseFactoryInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryInterface'

@@ -64,6 +64,7 @@ const TYPES = {
   MFAFilter: Symbol.for('MFAFilter'),
   TimeDifferenceFilter: Symbol.for('TimeDifferenceFilter'),
   UuidFilter: Symbol.for('UuidFilter'),
+  ContentTypeFilter: Symbol.for('ContentTypeFilter'),
   ItemFactory: Symbol.for('ItemFactory'),
   ServiceTransitionHelper: Symbol.for('ServiceTransitionHelper'),
 }

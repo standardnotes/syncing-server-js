@@ -1,6 +1,6 @@
 import { injectable } from 'inversify'
 import { EntityRepository, Repository } from 'typeorm'
-import { ContentType } from '../../Domain/Item/ContentType'
+import { ContentType } from '@standardnotes/common'
 import { Item } from '../../Domain/Item/Item'
 import { ItemQuery } from '../../Domain/Item/ItemQuery'
 import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterface'
@@ -80,7 +80,7 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
         'item.user_uuid = :user_uuid AND item.content_type = :content_type AND deleted = :deleted',
         {
           user_uuid: userUuid,
-          content_type: ContentType.MFA,
+          content_type: ContentType.Mfa,
           deleted: false,
         }
       )
@@ -95,7 +95,7 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
         'user_uuid = :user_uuid AND content_type = :content_type',
         {
           user_uuid: userUuid,
-          content_type: ContentType.MFA,
+          content_type: ContentType.Mfa,
         }
       )
       .execute()

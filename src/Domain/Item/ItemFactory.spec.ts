@@ -2,8 +2,8 @@ import 'reflect-metadata'
 
 import * as dayjs from 'dayjs'
 import { Time, TimerInterface } from '@standardnotes/time'
+import { ContentType } from '@standardnotes/common'
 
-import { ContentType } from './ContentType'
 import { ItemFactory } from './ItemFactory'
 import { ItemHash } from './ItemHash'
 

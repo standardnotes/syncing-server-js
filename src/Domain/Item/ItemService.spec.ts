@@ -1,5 +1,6 @@
 import 'reflect-metadata'
 
+import { ContentType } from '@standardnotes/common'
 import * as crypto from 'crypto'
 import * as dayjs from 'dayjs'
 import { Item } from './Item'
@@ -7,7 +8,6 @@ import { ItemHash } from './ItemHash'
 
 import { ItemRepositoryInterface } from './ItemRepositoryInterface'
 import { ItemService } from './ItemService'
-import { ContentType } from './ContentType'
 import { ApiVersion } from '../Api/ApiVersion'
 import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
@@ -217,7 +217,7 @@ describe('ItemService', () => {
 
     expect(itemFactory.createStub).toHaveBeenNthCalledWith(1, '1-2-3', {
       uuid: '9-8-7',
-      content_type: ContentType.MFA,
+      content_type: ContentType.Mfa,
       content: '000eyJmb28iOiJiYXIifQ==',
       deleted: false,
       created_at_timestamp: 1,

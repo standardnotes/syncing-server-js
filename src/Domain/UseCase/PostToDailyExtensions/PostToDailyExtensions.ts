@@ -1,4 +1,5 @@
 import { DomainEventInterface, DomainEventPublisherInterface } from '@standardnotes/domain-events'
+import { ContentType } from '@standardnotes/common'
 import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
 import TYPES from '../../../Bootstrap/Types'
@@ -6,7 +7,6 @@ import { DomainEventFactoryInterface } from '../../Event/DomainEventFactoryInter
 import { Frequency } from '../../ExtensionSetting/Frequency'
 import { ContentDecoderInterface } from '../../Item/ContentDecoderInterface'
 import { ContentSubtype } from '../../Item/ContentSubtype'
-import { ContentType } from '../../Item/ContentType'
 import { Item } from '../../Item/Item'
 import { UseCaseInterface } from '../UseCaseInterface'
 import { PostToDailyExtensionsDTO } from './PostToDailyExtensionsDTO'

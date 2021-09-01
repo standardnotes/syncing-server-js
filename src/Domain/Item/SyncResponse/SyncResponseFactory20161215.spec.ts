@@ -2,6 +2,7 @@ import 'reflect-metadata'
 import { ProjectorInterface } from '../../../Projection/ProjectorInterface'
 
 import { Item } from '../Item'
+import { ItemConflictType } from '../ItemConflictType'
 import { ItemHash } from '../ItemHash'
 import { ItemProjection } from '../ItemProjection'
 import { SyncResponseFactory20161215 } from './SyncResponseFactory20161215'
@@ -52,11 +53,11 @@ describe('SyncResponseFactory20161215', () => {
       conflicts: [
         {
           serverItem: item1,
-          type: 'sync_conflict',
+          type: ItemConflictType.SyncConflict,
         },
         {
           unsavedItem: itemHash1,
-          type: 'uuid_conflict',
+          type: ItemConflictType.UuidConflict,
         },
       ],
       syncToken: 'sync-test',
@@ -93,7 +94,7 @@ describe('SyncResponseFactory20161215', () => {
       conflicts: [
         {
           unsavedItem: itemHash1,
-          type: 'uuid_conflict',
+          type: ItemConflictType.UuidConflict,
         },
       ],
       syncToken: 'sync-test',

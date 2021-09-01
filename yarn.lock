@@ -638,6 +638,11 @@
   resolved "https://registry.yarnpkg.com/@standardnotes/auth/-/auth-3.1.0.tgz#1caed42e2f4d4ca869e1532f996b7708ae68422e"
   integrity sha512-Bkh1zdMYuDTadztr4Cq+BmL4hK/UishXFQbNmH7AgMiTAWhuea+n9VBwm6dyDVfAr83hWpRG6U3TQZSc8yniqA==
 
+"@standardnotes/common@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@standardnotes/common/-/common-1.1.0.tgz#5ffb0a50f9947471e236bb66d097f153ad9a148f"
+  integrity sha512-Nm2IFWbMSfZDD7cnKtN+Gjic0f+PhPq/da/o4eOoUKg21VeOaQkTn+jlQKraKIs6Lmf+w9mmPNAgMc5o4hj7Lg==
+
 "@standardnotes/config@1.3.0":
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@standardnotes/config/-/config-1.3.0.tgz#2c4bed8d266ca8e8ea2d8fb2e2d5d000d50289e8"

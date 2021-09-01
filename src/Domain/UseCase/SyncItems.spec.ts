@@ -1,6 +1,8 @@
 import 'reflect-metadata'
+
+import { ContentType } from '@standardnotes/common'
+
 import { ApiVersion } from '../Api/ApiVersion'
-import { ContentType } from '../Item/ContentType'
 import { Item } from '../Item/Item'
 import { ItemHash } from '../Item/ItemHash'
 import { ItemServiceInterface } from '../Item/ItemServiceInterface'

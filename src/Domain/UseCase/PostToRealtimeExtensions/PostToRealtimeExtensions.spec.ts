@@ -1,8 +1,8 @@
 import 'reflect-metadata'
 
 import { DomainEventPublisherInterface, ItemsSyncedEvent } from '@standardnotes/domain-events'
+import { ContentType } from '@standardnotes/common'
 import { ContentDecoderInterface } from '../../Item/ContentDecoderInterface'
-import { ContentType } from '../../Item/ContentType'
 import { Item } from '../../Item/Item'
 import { ItemHash } from '../../Item/ItemHash'
 import { ItemRepositoryInterface } from '../../Item/ItemRepositoryInterface'
