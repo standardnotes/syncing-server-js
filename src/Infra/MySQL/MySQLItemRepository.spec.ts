@@ -1,7 +1,8 @@
 import 'reflect-metadata'
 
 import { SelectQueryBuilder } from 'typeorm'
-import { ContentType } from '../../Domain/Item/ContentType'
+import { ContentType } from '@standardnotes/common'
+
 import { Item } from '../../Domain/Item/Item'
 
 import { MySQLItemRepository } from './MySQLItemRepository'

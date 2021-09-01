@@ -1,4 +1,5 @@
-import { ContentType } from '../Item/ContentType'
+import { ContentType } from '@standardnotes/common'
+
 import { Item } from '../Item/Item'
 import { ItemRevisionRepositoryInterface } from './ItemRevisionRepositoryInterface'
 import { Revision } from './Revision'

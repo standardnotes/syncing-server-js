@@ -1,6 +1,8 @@
 import 'reflect-metadata'
+
+import { ContentType } from '@standardnotes/common'
+
 import { ApiVersion } from '../../Api/ApiVersion'
-import { ContentType } from '../ContentType'
 import { Item } from '../Item'
 
 import { UuidFilter } from './UuidFilter'

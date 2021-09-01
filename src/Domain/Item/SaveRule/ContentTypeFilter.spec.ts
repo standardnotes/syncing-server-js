@@ -9,7 +9,7 @@ describe('ContentTypeFilter', () => {
   const createFilter = () => new ContentTypeFilter()
 
   it ('should filter out items with invalid content type', async () => {
-    const invalidContenTypes = [
+    const invalidContentTypes = [
       '',
       'c73bcdcc26694bf681d3e4ae73fb11fd',
       'definitely-not-a-content-type',
@@ -20,13 +20,13 @@ describe('ContentTypeFilter', () => {
       'eval(compile(\'for x in range(1):\\n i',
     ]
 
-    for (const invalidContenType of invalidContenTypes) {
+    for (const invalidContentType of invalidContentTypes) {
       const result = await createFilter().check({
         userUuid: '1-2-3',
         apiVersion: ApiVersion.v20200115,
         itemHash: {
           uuid: '123e4567-e89b-12d3-a456-426655440000',
-          content_type: invalidContenType,
+          content_type: invalidContentType,
         },
       })
 
@@ -35,7 +35,7 @@ describe('ContentTypeFilter', () => {
         conflict: {
           unsavedItem: {
             uuid: '123e4567-e89b-12d3-a456-426655440000',
-            content_type: invalidContenType,
+            content_type: invalidContentType,
           },
           type: 'content_type_conflict',
         },

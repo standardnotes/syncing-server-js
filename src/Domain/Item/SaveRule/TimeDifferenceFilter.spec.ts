@@ -1,11 +1,11 @@
 import 'reflect-metadata'
 
 import * as dayjs from 'dayjs'
+import { ContentType } from '@standardnotes/common'
 
 import { Time, TimerInterface } from '@standardnotes/time'
 
 import { ApiVersion } from '../../Api/ApiVersion'
-import { ContentType } from '../ContentType'
 
 import { TimeDifferenceFilter } from './TimeDifferenceFilter'
 import { ItemHash } from '../ItemHash'
