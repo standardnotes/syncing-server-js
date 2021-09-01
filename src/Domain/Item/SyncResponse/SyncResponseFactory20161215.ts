@@ -4,6 +4,7 @@ import { ProjectorInterface } from '../../../Projection/ProjectorInterface'
 import { SyncItemsResponse } from '../../UseCase/SyncItemsResponse'
 import { Item } from '../Item'
 import { ItemConflict } from '../ItemConflict'
+import { ItemConflictType } from '../ItemConflictType'
 import { ItemHash } from '../ItemHash'
 import { ItemProjection } from '../ItemProjection'
 import { SyncResponse20161215 } from './SyncResponse20161215'
@@ -19,7 +20,7 @@ export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface
   }
 
   createResponse(syncItemsResponse: SyncItemsResponse): SyncResponse20161215 {
-    const conflicts = syncItemsResponse.conflicts.filter((itemConflict: ItemConflict) => itemConflict.type === 'uuid_conflict')
+    const conflicts = syncItemsResponse.conflicts.filter((itemConflict: ItemConflict) => itemConflict.type === ItemConflictType.UuidConflict)
 
     const pickOutConflictsResult = this.pickOutConflicts(
       syncItemsResponse.savedItems,
@@ -68,7 +69,7 @@ export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface
       if (Math.abs(difference) > this.LEGACY_MIN_CONFLICT_INTERVAL) {
         unsavedItems.push({
           serverItem: conflictedItem,
-          type: 'sync_conflict',
+          type: ItemConflictType.SyncConflict,
         })
       }
 

@@ -1,11 +1,12 @@
-import { TimerInterface } from '@standardnotes/time'
 import 'reflect-metadata'
+
+import { TimerInterface } from '@standardnotes/time'
+import { ContentType } from '@standardnotes/common'
 import { Logger } from 'winston'
 import { ApiVersion } from '../../Api/ApiVersion'
 import { AuthHttpServiceInterface } from '../../Auth/AuthHttpServiceInterface'
 import { ServiceTransitionHelperInterface } from '../../Transition/ServiceTransitionHelperInterface'
 import { ContentDecoderInterface } from '../ContentDecoderInterface'
-import { ContentType } from '../ContentType'
 import { Item } from '../Item'
 import { ItemFactoryInterface } from '../ItemFactoryInterface'
 import { ItemRepositoryInterface } from '../ItemRepositoryInterface'
@@ -60,7 +61,7 @@ describe('MFAFilter', () => {
       apiVersion: ApiVersion.v20200115,
       itemHash: {
         uuid: '2-3-4',
-        content_type: ContentType.MFA,
+        content_type: ContentType.Mfa,
       },
     })
 
@@ -76,7 +77,7 @@ describe('MFAFilter', () => {
       apiVersion: ApiVersion.v20200115,
       itemHash: {
         uuid: '2-3-4',
-        content_type: ContentType.MFA,
+        content_type: ContentType.Mfa,
         created_at_timestamp: 1,
         updated_at_timestamp: 1,
       },
@@ -98,7 +99,7 @@ describe('MFAFilter', () => {
       apiVersion: ApiVersion.v20200115,
       itemHash: {
         uuid: '2-3-4',
-        content_type: ContentType.MFA,
+        content_type: ContentType.Mfa,
         created_at: '2021-07-08T11:43:36.342Z',
         updated_at: '1970-01-01T00:00:00.000Z',
       },
@@ -122,7 +123,7 @@ describe('MFAFilter', () => {
       apiVersion: ApiVersion.v20200115,
       itemHash: {
         uuid: '2-3-4',
-        content_type: ContentType.MFA,
+        content_type: ContentType.Mfa,
       },
     })
 
@@ -131,7 +132,7 @@ describe('MFAFilter', () => {
       conflict: {
         unsavedItem: {
           uuid: '2-3-4',
-          content_type: ContentType.MFA,
+          content_type: ContentType.Mfa,
         },
         type: 'sync_conflict',
       },
@@ -160,7 +161,7 @@ describe('MFAFilter', () => {
       itemHash: {
         uuid: '2-3-4',
         deleted: true,
-        content_type: ContentType.MFA,
+        content_type: ContentType.Mfa,
         created_at: '2021-07-08T11:43:36.342Z',
         updated_at: '2021-07-08T11:43:36.342Z',
       },

@@ -68,6 +68,8 @@ import { ItemFactory } from '../Domain/Item/ItemFactory'
 import { ServiceTransitionHelperInterface } from '../Domain/Transition/ServiceTransitionHelperInterface'
 import { RedisServiceTransitionHelper } from '../Infra/Redis/RedisServiceTransitionHelper'
 import axios, { AxiosInstance } from 'axios'
+import { UuidFilter } from '../Domain/Item/SaveRule/UuidFilter'
+import { ContentTypeFilter } from '../Domain/Item/SaveRule/ContentTypeFilter'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -271,12 +273,16 @@ export class ContainerConfigLoader {
     container.bind<OwnershipFilter>(TYPES.OwnershipFilter).to(OwnershipFilter)
     container.bind<MFAFilter>(TYPES.MFAFilter).to(MFAFilter)
     container.bind<TimeDifferenceFilter>(TYPES.TimeDifferenceFilter).to(TimeDifferenceFilter)
+    container.bind<UuidFilter>(TYPES.UuidFilter).to(UuidFilter)
+    container.bind<ContentTypeFilter>(TYPES.ContentTypeFilter).to(ContentTypeFilter)
 
     container.bind<ItemSaveValidatorInterface>(TYPES.ItemSaveValidator).toConstantValue(
       new ItemSaveValidator([
         container.get(TYPES.OwnershipFilter),
         container.get(TYPES.MFAFilter),
         container.get(TYPES.TimeDifferenceFilter),
+        container.get(TYPES.UuidFilter),
+        container.get(TYPES.ContentTypeFilter),
       ])
     )
 

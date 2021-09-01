@@ -1,11 +1,11 @@
 import 'reflect-metadata'
 
 import { DomainEventPublisherInterface, EmailArchiveExtensionSyncedEvent, ItemsSyncedEvent } from '@standardnotes/domain-events'
+import { ContentType } from '@standardnotes/common'
 import { DomainEventFactoryInterface } from '../../Event/DomainEventFactoryInterface'
 import { ContentDecoderInterface } from '../../Item/ContentDecoderInterface'
 import { Item } from '../../Item/Item'
 import { PostToDailyExtensions } from './PostToDailyExtensions'
-import { ContentType } from '../../Item/ContentType'
 import { Logger } from 'winston'
 
 describe('PostToDailyExtensions', () => {

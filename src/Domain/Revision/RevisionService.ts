@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify'
+import { ContentType } from '@standardnotes/common'
+
 import TYPES from '../../Bootstrap/Types'
-import { ContentType } from '../Item/ContentType'
 import { Item } from '../Item/Item'
 import { ItemRevision } from './ItemRevision'
 import { ItemRevisionRepositoryInterface } from './ItemRevisionRepositoryInterface'

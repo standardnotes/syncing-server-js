@@ -1,7 +1,7 @@
 export type ItemHash = {
   uuid: string
   content?: string
-  content_type?: string
+  content_type: string
   deleted?: boolean
   duplicate_of?: string | null
   auth_hash?: string

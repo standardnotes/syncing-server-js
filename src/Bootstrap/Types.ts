@@ -63,6 +63,8 @@ const TYPES = {
   OwnershipFilter: Symbol.for('OwnershipFilter'),
   MFAFilter: Symbol.for('MFAFilter'),
   TimeDifferenceFilter: Symbol.for('TimeDifferenceFilter'),
+  UuidFilter: Symbol.for('UuidFilter'),
+  ContentTypeFilter: Symbol.for('ContentTypeFilter'),
   ItemFactory: Symbol.for('ItemFactory'),
   ServiceTransitionHelper: Symbol.for('ServiceTransitionHelper'),
 }

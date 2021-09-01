@@ -1,14 +1,16 @@
 import { injectable } from 'inversify'
+import { validate } from 'uuid'
 import { ItemSaveValidationDTO } from '../SaveValidator/ItemSaveValidationDTO'
 import { ItemSaveRuleResult } from './ItemSaveRuleResult'
 import { ItemSaveRuleInterface } from './ItemSaveRuleInterface'
 import { ItemConflictType } from '../ItemConflictType'
 
 @injectable()
-export class OwnershipFilter implements ItemSaveRuleInterface {
+export class UuidFilter implements ItemSaveRuleInterface {
   async check(dto: ItemSaveValidationDTO): Promise<ItemSaveRuleResult> {
-    const itemBelongsToADifferentUser = dto.existingItem !== undefined && dto.existingItem.userUuid !== dto.userUuid
-    if (itemBelongsToADifferentUser) {
+    const validUuid = validate(dto.itemHash.uuid)
+
+    if (!validUuid) {
       return {
         passed: false,
         conflict: {

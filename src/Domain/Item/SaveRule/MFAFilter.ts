@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify'
+import { ContentType } from '@standardnotes/common'
+
 import TYPES from '../../../Bootstrap/Types'
-import { ContentType } from '../ContentType'
 import { ItemFactoryInterface } from '../ItemFactoryInterface'
 import { ItemSaveValidationDTO } from '../SaveValidator/ItemSaveValidationDTO'
 import { ItemSaveRuleResult } from './ItemSaveRuleResult'
@@ -11,6 +12,7 @@ import { ServiceTransitionHelperInterface } from '../../Transition/ServiceTransi
 import { TimerInterface } from '@standardnotes/time'
 import { ItemRepositoryInterface } from '../ItemRepositoryInterface'
 import { ContentDecoderInterface } from '../ContentDecoderInterface'
+import { ItemConflictType } from '../ItemConflictType'
 
 @injectable()
 export class MFAFilter implements ItemSaveRuleInterface {
@@ -26,7 +28,7 @@ export class MFAFilter implements ItemSaveRuleInterface {
   }
 
   async check(dto: ItemSaveValidationDTO): Promise<ItemSaveRuleResult> {
-    if (dto.itemHash.content_type === ContentType.MFA) {
+    if (dto.itemHash.content_type === ContentType.Mfa) {
       try {
         let result: ItemSaveRuleResult
         switch (dto.itemHash.deleted) {
@@ -46,7 +48,7 @@ export class MFAFilter implements ItemSaveRuleInterface {
           passed: false,
           conflict: {
             unsavedItem: dto.itemHash,
-            type: 'sync_conflict',
+            type: ItemConflictType.SyncConflict,
           },
         }
       }
