@@ -104,7 +104,7 @@ export class ItemsController extends BaseHttpController {
       sortOrder: 'DESC',
     })
 
-    const deletedExtensions = extensions.filter(extension => {
+    const extensionsToDelete = extensions.filter(extension => {
       if (!extension.content) {
         return false
       }
