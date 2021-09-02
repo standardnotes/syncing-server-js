@@ -117,12 +117,12 @@ export class ItemsController extends BaseHttpController {
       return true
     })
 
-    if (deletedExtensions.length === 0) {
+    if (extensionsToDelete.length === 0) {
       return this.notFound()
     }
 
     await Promise.all(
-      deletedExtensions.map(extension => this.itemRepository.remove(extension))
+      extensionsToDelete.map(extension => this.itemRepository.remove(extension))
     )
 
     return this.ok()
