@@ -6,6 +6,7 @@ import { Logger } from 'winston'
 import TYPES from '../Bootstrap/Types'
 import { ApiVersion } from '../Domain/Api/ApiVersion'
 import { ContentDecoderInterface } from '../Domain/Item/ContentDecoderInterface'
+import { ContentSubtype } from '../Domain/Item/ContentSubtype'
 import { ItemRepositoryInterface } from '../Domain/Item/ItemRepositoryInterface'
 import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
 import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
@@ -110,7 +111,7 @@ export class ItemsController extends BaseHttpController {
       }
 
       const decodedContent = this.contentDecoder.decode(extension.content)
-      return 'subtype' in decodedContent && decodedContent.subtype === 'backup.email_archive'
+      return decodedContent.subtype === ContentSubtype.BackupEmailArchive
     })
 
     if (extensionsToDelete.length === 0) {
