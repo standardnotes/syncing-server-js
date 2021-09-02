@@ -1,3 +1,4 @@
+import { ContentType } from '@standardnotes/common'
 import { Request, Response } from 'express'
 import { inject } from 'inversify'
 import { BaseHttpController, controller, httpDelete, httpGet, httpPost, results } from 'inversify-express-utils'
@@ -89,6 +90,40 @@ export class ItemsController extends BaseHttpController {
     }
 
     await this.itemRepository.remove(mfaExtension)
+
+    return this.ok()
+  }
+
+  @httpDelete('/email-backups/:userUuid')
+  public async disableEmailBackups(request: Request): Promise<results.NotFoundResult | results.OkResult> {
+    const extensions = await this.itemRepository.findAll({
+      userUuid: request.params.userUuid,
+      contentType: ContentType.ServerExtension,
+      deleted: false,
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'DESC',
+    })
+
+    const deletedExtensions = extensions.filter(extension => {
+      if (!extension.content) {
+        return false
+      }
+
+      const decodedContent = this.contentDecoder.decode(extension.content)
+      if (!('subtype' in decodedContent) || decodedContent.subtype !== 'backup.email_archive') {
+        return false
+      }
+
+      return true
+    })
+
+    if (deletedExtensions.length === 0) {
+      return this.notFound()
+    }
+
+    await Promise.all(
+      deletedExtensions.map(extension => this.itemRepository.remove(extension))
+    )
 
     return this.ok()
   }
