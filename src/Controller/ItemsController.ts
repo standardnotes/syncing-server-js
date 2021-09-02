@@ -110,11 +110,7 @@ export class ItemsController extends BaseHttpController {
       }
 
       const decodedContent = this.contentDecoder.decode(extension.content)
-      if (!('subtype' in decodedContent) || decodedContent.subtype !== 'backup.email_archive') {
-        return false
-      }
-
-      return true
+      return 'subtype' in decodedContent && decodedContent.subtype === 'backup.email_archive'
     })
 
     if (extensionsToDelete.length === 0) {
