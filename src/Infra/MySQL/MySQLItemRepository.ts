@@ -4,6 +4,7 @@ import { ContentType } from '@standardnotes/common'
 import { Item } from '../../Domain/Item/Item'
 import { ItemQuery } from '../../Domain/Item/ItemQuery'
 import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterface'
+import { Timer } from '@standardnotes/time'
 
 @injectable()
 @EntityRepository(Item)
@@ -96,6 +97,28 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
         {
           user_uuid: userUuid,
           content_type: ContentType.Mfa,
+        }
+      )
+      .execute()
+  }
+
+  async markAsDeleted(item: Item): Promise<void> {
+    const timer = new Timer()
+    const timestamp = timer.getTimestampInMicroseconds()
+
+    await this.createQueryBuilder('item')
+      .update()
+      .set({
+        deleted: true,
+        content: null,
+        encItemKey: null,
+        authHash: null,
+        updatedAtTimestamp: timestamp,
+      })
+      .where(
+        'uuid = :uuid',
+        {
+          uuid: item.uuid,
         }
       )
       .execute()

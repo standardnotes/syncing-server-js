@@ -164,4 +164,30 @@ describe('MySQLItemRepository', () => {
     expect(result[0]).toEqual({ content_type: 'SF|Extension', updated_at_timestamp: 1616164633242313 })
     expect(result[1]).toEqual({ content_type: 'Note', updated_at_timestamp: 1616164633241312 })
   })
+
+  it('should find item by uuid and mark it for deletion', async () => {
+    queryBuilder.where = jest.fn().mockReturnThis()
+    queryBuilder.update = jest.fn().mockReturnThis()
+    queryBuilder.update().set = jest.fn().mockReturnThis()
+    queryBuilder.execute = jest.fn()
+
+    const item = { uuid: 'e-1-2-3' } as jest.Mocked<Item>
+    await repository.markAsDeleted(item)
+
+    expect(queryBuilder.update).toHaveBeenCalled()
+    expect(queryBuilder.update().set).toHaveBeenCalledWith(expect.objectContaining({
+      deleted: true,
+      content: null,
+      encItemKey: null,
+      authHash: null,
+      updatedAtTimestamp: expect.anything(),
+    }))
+    expect(queryBuilder.where).toHaveBeenCalledWith(
+      'uuid = :uuid',
+      {
+        uuid: 'e-1-2-3',
+      }
+    )
+    expect(queryBuilder.execute).toHaveBeenCalled()
+  })
 })

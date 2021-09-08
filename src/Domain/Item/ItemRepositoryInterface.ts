@@ -10,4 +10,5 @@ export interface ItemRepositoryInterface {
   findByUuid(uuid: string): Promise<Item | undefined>
   remove(item: Item): Promise<Item>
   save(item: Item): Promise<Item>
+  markAsDeleted(item: Item): Promise<void>
 }
