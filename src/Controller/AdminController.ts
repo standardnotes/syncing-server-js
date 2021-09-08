@@ -17,7 +17,7 @@ export class AdminController extends BaseHttpController {
   }
 
   @httpDelete('/email-backups/:userUuid')
-  public async disableEmailBackups(request: Request): Promise<results.NotFoundResult | results.OkResult> {
+  public async disableEmailBackups(request: Request): Promise<results.BadRequestErrorMessageResult | results.OkResult> {
     const extensions = await this.itemRepository.findAll({
       userUuid: request.params.userUuid,
       contentType: ContentType.ServerExtension,
@@ -36,11 +36,11 @@ export class AdminController extends BaseHttpController {
     })
 
     if (extensionsToDelete.length === 0) {
-      return this.notFound()
+      return this.badRequest('No email backups found')
     }
 
     await Promise.all(
-      extensionsToDelete.map(extension => this.itemRepository.remove(extension))
+      extensionsToDelete.map(extension => this.itemRepository.markAsDeleted(extension))
     )
 
     return this.ok()

@@ -53,13 +53,14 @@ describe('AdminController', () => {
     }
 
     itemRepository.findAll = jest.fn().mockReturnValue([])
-    itemRepository.remove = jest.fn()
+    itemRepository.markAsDeleted = jest.fn()
 
     const httpResponse = <results.OkResult> await createController().disableEmailBackups(request)
     const result = await httpResponse.executeAsync()
 
-    expect(result.statusCode).toEqual(404)
-    expect(itemRepository.remove).not.toHaveBeenCalled()
+    expect(result.statusCode).toEqual(400)
+    expect(await result.content.readAsStringAsync()).toEqual('No email backups found')
+    expect(itemRepository.markAsDeleted).not.toHaveBeenCalled()
   })
 
   it('should skip email backups items that do not have a content', async () => {
@@ -72,13 +73,14 @@ describe('AdminController', () => {
       uuid: 'e-1-2-3',
     } as jest.Mocked<Item>
     itemRepository.findAll = jest.fn().mockReturnValue([extension])
-    itemRepository.remove = jest.fn()
+    itemRepository.markAsDeleted = jest.fn()
 
     const httpResponse = <results.OkResult> await createController().disableEmailBackups(request)
     const result = await httpResponse.executeAsync()
 
-    expect(result.statusCode).toEqual(404)
-    expect(itemRepository.remove).not.toHaveBeenCalled()
+    expect(result.statusCode).toEqual(400)
+    expect(await result.content.readAsStringAsync()).toEqual('No email backups found')
+    expect(itemRepository.markAsDeleted).not.toHaveBeenCalled()
   })
 
   it('should skip email backups items that do not have a subtype of backup.email_archive', async () => {
@@ -92,13 +94,14 @@ describe('AdminController', () => {
       content: 'something',
     } as jest.Mocked<Item>
     itemRepository.findAll = jest.fn().mockReturnValue([extension])
-    itemRepository.remove = jest.fn()
+    itemRepository.markAsDeleted = jest.fn()
 
     const httpResponse = <results.OkResult> await createController().disableEmailBackups(request)
     const result = await httpResponse.executeAsync()
 
-    expect(result.statusCode).toEqual(404)
-    expect(itemRepository.remove).not.toHaveBeenCalled()
+    expect(result.statusCode).toEqual(400)
+    expect(await result.content.readAsStringAsync()).toEqual('No email backups found')
+    expect(itemRepository.markAsDeleted).not.toHaveBeenCalledWith(extension)
   })
 
   it('should disable email backups by deleting SF|Extension items', async () => {
@@ -112,13 +115,13 @@ describe('AdminController', () => {
       content: 'something',
     } as jest.Mocked<Item>
     itemRepository.findAll = jest.fn().mockReturnValue([extension])
-    itemRepository.remove = jest.fn()
+    itemRepository.markAsDeleted = jest.fn()
     contentDecoder.decode = jest.fn().mockReturnValue({ subtype: 'backup.email_archive' })
 
     const httpResponse = <results.OkResult> await createController().disableEmailBackups(request)
     const result = await httpResponse.executeAsync()
 
     expect(result.statusCode).toEqual(200)
-    expect(itemRepository.remove).toHaveBeenCalledWith(extension)
+    expect(itemRepository.markAsDeleted).toHaveBeenCalledWith(extension)
   })
 })
