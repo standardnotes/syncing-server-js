@@ -1,14 +1,21 @@
-import { injectable } from 'inversify'
+import { inject, injectable } from 'inversify'
 import { EntityRepository, Repository } from 'typeorm'
 import { ContentType } from '@standardnotes/common'
 import { Item } from '../../Domain/Item/Item'
 import { ItemQuery } from '../../Domain/Item/ItemQuery'
 import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterface'
 import { Timer } from '@standardnotes/time'
+import TYPES from '../../Bootstrap/Types'
 
 @injectable()
 @EntityRepository(Item)
 export class MySQLItemRepository extends Repository<Item> implements ItemRepositoryInterface {
+  constructor(
+    @inject(TYPES.Timer) private timer: Timer,
+  ) {
+    super()
+  }
+
   async findByUuid(uuid: string): Promise<Item | undefined> {
     return this.createQueryBuilder('item')
       .where(
@@ -103,9 +110,7 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
   }
 
   async markAsDeleted(item: Item): Promise<void> {
-    const timer = new Timer()
-    const timestamp = timer.getTimestampInMicroseconds()
-
+    const timestamp = this.timer.getTimestampInMicroseconds()
     await this.createQueryBuilder('item')
       .update()
       .set({

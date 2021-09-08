@@ -6,6 +6,7 @@ import { ContentType } from '@standardnotes/common'
 import { Item } from '../../Domain/Item/Item'
 
 import { MySQLItemRepository } from './MySQLItemRepository'
+import { Timer } from '@standardnotes/time'
 
 describe('MySQLItemRepository', () => {
   let repository: MySQLItemRepository
@@ -16,8 +17,9 @@ describe('MySQLItemRepository', () => {
     queryBuilder = {} as jest.Mocked<SelectQueryBuilder<Item>>
 
     item = {} as jest.Mocked<Item>
+    const timer = new Timer()
 
-    repository = new MySQLItemRepository()
+    repository = new MySQLItemRepository(timer)
     jest.spyOn(repository, 'createQueryBuilder')
     repository.createQueryBuilder = jest.fn().mockImplementation(() => queryBuilder)
   })
