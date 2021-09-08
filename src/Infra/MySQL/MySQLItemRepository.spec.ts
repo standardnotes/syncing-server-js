@@ -6,20 +6,22 @@ import { ContentType } from '@standardnotes/common'
 import { Item } from '../../Domain/Item/Item'
 
 import { MySQLItemRepository } from './MySQLItemRepository'
-import { Timer } from '@standardnotes/time'
+import { TimerInterface } from '@standardnotes/time'
 
 describe('MySQLItemRepository', () => {
   let repository: MySQLItemRepository
   let queryBuilder: SelectQueryBuilder<Item>
   let item: Item
+  let timer: TimerInterface
 
   beforeEach(() => {
     queryBuilder = {} as jest.Mocked<SelectQueryBuilder<Item>>
 
     item = {} as jest.Mocked<Item>
-    const timer = new Timer()
+    timer = {} as jest.Mocked<TimerInterface>
+    timer.getTimestampInMicroseconds = jest.fn(() => 1616161616161616)
 
-    repository = new MySQLItemRepository(timer)
+    repository = new MySQLItemRepository()
     jest.spyOn(repository, 'createQueryBuilder')
     repository.createQueryBuilder = jest.fn().mockImplementation(() => queryBuilder)
   })
@@ -174,7 +176,8 @@ describe('MySQLItemRepository', () => {
     queryBuilder.execute = jest.fn()
 
     const item = { uuid: 'e-1-2-3' } as jest.Mocked<Item>
-    await repository.markAsDeleted(item)
+    const updatedAtTimestamp = timer.getTimestampInMicroseconds()
+    await repository.markItemsAsDeleted([item.uuid], updatedAtTimestamp)
 
     expect(queryBuilder.update).toHaveBeenCalled()
     expect(queryBuilder.update().set).toHaveBeenCalledWith(expect.objectContaining({
@@ -185,9 +188,9 @@ describe('MySQLItemRepository', () => {
       updatedAtTimestamp: expect.anything(),
     }))
     expect(queryBuilder.where).toHaveBeenCalledWith(
-      'uuid = :uuid',
+      'item.uuid IN (:...uuids)',
       {
-        uuid: 'e-1-2-3',
+        uuids: ['e-1-2-3'],
       }
     )
     expect(queryBuilder.execute).toHaveBeenCalled()
