@@ -8,16 +8,19 @@ import { ApiVersion } from '../Domain/Api/ApiVersion'
 import { ItemRepositoryInterface } from '../Domain/Item/ItemRepositoryInterface'
 import { Item } from '../Domain/Item/Item'
 import { ContentDecoderInterface } from '../Domain/Item/ContentDecoderInterface'
+import { TimerInterface } from '@standardnotes/time'
 
 describe('AdminController', () => {
   let request: express.Request
   let response: express.Response
   let itemRepository: ItemRepositoryInterface
   let contentDecoder: ContentDecoderInterface
+  let timer: TimerInterface
 
   const createController = () => new AdminController(
     itemRepository,
     contentDecoder,
+    timer
   )
 
   beforeEach(() => {
@@ -44,6 +47,9 @@ describe('AdminController', () => {
     contentDecoder.decode = jest.fn().mockReturnValue({
       secret: 'foo',
     })
+
+    timer = {} as jest.Mocked<TimerInterface>
+    timer.getTimestampInMicroseconds = jest.fn(() => 1616161616161616)
   })
 
   it('should not delete email backups items if none are found', async () => {
@@ -53,14 +59,14 @@ describe('AdminController', () => {
     }
 
     itemRepository.findAll = jest.fn().mockReturnValue([])
-    itemRepository.markAsDeleted = jest.fn()
+    itemRepository.markItemsAsDeleted = jest.fn()
 
     const httpResponse = <results.OkResult> await createController().disableEmailBackups(request)
     const result = await httpResponse.executeAsync()
 
     expect(result.statusCode).toEqual(400)
     expect(await result.content.readAsStringAsync()).toEqual('No email backups found')
-    expect(itemRepository.markAsDeleted).not.toHaveBeenCalled()
+    expect(itemRepository.markItemsAsDeleted).not.toHaveBeenCalled()
   })
 
   it('should skip email backups items that do not have a content', async () => {
@@ -73,14 +79,14 @@ describe('AdminController', () => {
       uuid: 'e-1-2-3',
     } as jest.Mocked<Item>
     itemRepository.findAll = jest.fn().mockReturnValue([extension])
-    itemRepository.markAsDeleted = jest.fn()
+    itemRepository.markItemsAsDeleted = jest.fn()
 
     const httpResponse = <results.OkResult> await createController().disableEmailBackups(request)
     const result = await httpResponse.executeAsync()
 
     expect(result.statusCode).toEqual(400)
     expect(await result.content.readAsStringAsync()).toEqual('No email backups found')
-    expect(itemRepository.markAsDeleted).not.toHaveBeenCalled()
+    expect(itemRepository.markItemsAsDeleted).not.toHaveBeenCalled()
   })
 
   it('should skip email backups items that do not have a subtype of backup.email_archive', async () => {
@@ -94,14 +100,14 @@ describe('AdminController', () => {
       content: 'something',
     } as jest.Mocked<Item>
     itemRepository.findAll = jest.fn().mockReturnValue([extension])
-    itemRepository.markAsDeleted = jest.fn()
+    itemRepository.markItemsAsDeleted = jest.fn()
 
     const httpResponse = <results.OkResult> await createController().disableEmailBackups(request)
     const result = await httpResponse.executeAsync()
 
     expect(result.statusCode).toEqual(400)
     expect(await result.content.readAsStringAsync()).toEqual('No email backups found')
-    expect(itemRepository.markAsDeleted).not.toHaveBeenCalledWith(extension)
+    expect(itemRepository.markItemsAsDeleted).not.toHaveBeenCalledWith(extension)
   })
 
   it('should disable email backups by deleting SF|Extension items', async () => {
@@ -115,13 +121,16 @@ describe('AdminController', () => {
       content: 'something',
     } as jest.Mocked<Item>
     itemRepository.findAll = jest.fn().mockReturnValue([extension])
-    itemRepository.markAsDeleted = jest.fn()
+    itemRepository.markItemsAsDeleted = jest.fn()
     contentDecoder.decode = jest.fn().mockReturnValue({ subtype: 'backup.email_archive' })
 
     const httpResponse = <results.OkResult> await createController().disableEmailBackups(request)
     const result = await httpResponse.executeAsync()
 
     expect(result.statusCode).toEqual(200)
-    expect(itemRepository.markAsDeleted).toHaveBeenCalledWith(extension)
+    expect(itemRepository.markItemsAsDeleted).toHaveBeenCalledWith(
+      ['e-1-2-3'],
+      1616161616161616
+    )
   })
 })

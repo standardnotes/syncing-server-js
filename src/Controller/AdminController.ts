@@ -1,4 +1,5 @@
 import { ContentType } from '@standardnotes/common'
+import { TimerInterface } from '@standardnotes/time'
 import { Request } from 'express'
 import { inject } from 'inversify'
 import { BaseHttpController, controller, httpDelete, results } from 'inversify-express-utils'
@@ -12,6 +13,7 @@ export class AdminController extends BaseHttpController {
   constructor(
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.ContentDecoder) private contentDecoder: ContentDecoderInterface,
+    @inject(TYPES.Timer) private timer: TimerInterface
   ) {
     super()
   }
@@ -39,9 +41,9 @@ export class AdminController extends BaseHttpController {
       return this.badRequest('No email backups found')
     }
 
-    await Promise.all(
-      extensionsToDelete.map(extension => this.itemRepository.markAsDeleted(extension))
-    )
+    const extensionsUuids = extensionsToDelete.map(extension => extension.uuid)
+    const deletedAtTimestamp = this.timer.getTimestampInMicroseconds()
+    await this.itemRepository.markItemsAsDeleted(extensionsUuids, deletedAtTimestamp)
 
     return this.ok()
   }
