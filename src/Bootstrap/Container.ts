@@ -285,6 +285,7 @@ export class ContainerConfigLoader {
         container.get(TYPES.TimeDifferenceFilter),
         container.get(TYPES.UuidFilter),
         container.get(TYPES.ContentTypeFilter),
+        container.get(TYPES.ContentFilter),
       ])
     )
 
