@@ -100,4 +100,23 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
       )
       .execute()
   }
+
+  async markItemsAsDeleted(itemUuids: Array<string>, updatedAtTimestamp: number): Promise<void> {
+    await this.createQueryBuilder('item')
+      .update()
+      .set({
+        deleted: true,
+        content: null,
+        encItemKey: null,
+        authHash: null,
+        updatedAtTimestamp,
+      })
+      .where(
+        'item.uuid IN (:...uuids)',
+        {
+          uuids: itemUuids,
+        }
+      )
+      .execute()
+  }
 }
