@@ -39,7 +39,7 @@ describe('ContentFilter', () => {
             content: invalidContent,
             content_type: ContentType.Note,
           },
-          type: 'content_conflict',
+          type: 'content_error',
         },
       })
     }

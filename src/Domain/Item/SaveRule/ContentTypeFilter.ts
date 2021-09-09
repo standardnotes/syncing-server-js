@@ -3,7 +3,7 @@ import { injectable } from 'inversify'
 import { ItemSaveValidationDTO } from '../SaveValidator/ItemSaveValidationDTO'
 import { ItemSaveRuleResult } from './ItemSaveRuleResult'
 import { ItemSaveRuleInterface } from './ItemSaveRuleInterface'
-import { ItemConflictType } from '../ItemConflictType'
+import { ItemErrorType } from '../ItemErrorType'
 
 @injectable()
 export class ContentTypeFilter implements ItemSaveRuleInterface {
@@ -15,7 +15,7 @@ export class ContentTypeFilter implements ItemSaveRuleInterface {
         passed: false,
         conflict: {
           unsavedItem: dto.itemHash,
-          type: ItemConflictType.ContentTypeConflict,
+          type: ItemErrorType.ContentTypeError,
         },
       }
     }
