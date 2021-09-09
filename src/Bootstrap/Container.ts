@@ -70,6 +70,7 @@ import { RedisServiceTransitionHelper } from '../Infra/Redis/RedisServiceTransit
 import axios, { AxiosInstance } from 'axios'
 import { UuidFilter } from '../Domain/Item/SaveRule/UuidFilter'
 import { ContentTypeFilter } from '../Domain/Item/SaveRule/ContentTypeFilter'
+import { ContentFilter } from '../Domain/Item/SaveRule/ContentFilter'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -275,6 +276,7 @@ export class ContainerConfigLoader {
     container.bind<TimeDifferenceFilter>(TYPES.TimeDifferenceFilter).to(TimeDifferenceFilter)
     container.bind<UuidFilter>(TYPES.UuidFilter).to(UuidFilter)
     container.bind<ContentTypeFilter>(TYPES.ContentTypeFilter).to(ContentTypeFilter)
+    container.bind<ContentFilter>(TYPES.ContentFilter).to(ContentFilter)
 
     container.bind<ItemSaveValidatorInterface>(TYPES.ItemSaveValidator).toConstantValue(
       new ItemSaveValidator([
