@@ -65,6 +65,7 @@ const TYPES = {
   TimeDifferenceFilter: Symbol.for('TimeDifferenceFilter'),
   UuidFilter: Symbol.for('UuidFilter'),
   ContentTypeFilter: Symbol.for('ContentTypeFilter'),
+  ContentFilter: Symbol.for('ContentFilter'),
   ItemFactory: Symbol.for('ItemFactory'),
   ServiceTransitionHelper: Symbol.for('ServiceTransitionHelper'),
 }
