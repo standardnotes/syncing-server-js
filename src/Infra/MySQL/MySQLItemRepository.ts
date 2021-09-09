@@ -112,7 +112,7 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
         updatedAtTimestamp,
       })
       .where(
-        'item.uuid IN (:...uuids)',
+        'uuid IN (:...uuids)',
         {
           uuids: itemUuids,
         }
