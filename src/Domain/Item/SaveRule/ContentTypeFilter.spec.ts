@@ -37,7 +37,7 @@ describe('ContentTypeFilter', () => {
             uuid: '123e4567-e89b-12d3-a456-426655440000',
             content_type: invalidContentType,
           },
-          type: 'content_type_conflict',
+          type: 'content_type_error',
         },
       })
     }
