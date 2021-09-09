@@ -40,7 +40,7 @@ describe('UuidFilter', () => {
             uuid: invalidUuid,
             content_type: ContentType.Note,
           },
-          type: 'uuid_conflict',
+          type: 'uuid_error',
         },
       })
     }
