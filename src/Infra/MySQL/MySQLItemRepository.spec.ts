@@ -188,7 +188,7 @@ describe('MySQLItemRepository', () => {
       updatedAtTimestamp: expect.anything(),
     }))
     expect(queryBuilder.where).toHaveBeenCalledWith(
-      'item.uuid IN (:...uuids)',
+      'uuid IN (:...uuids)',
       {
         uuids: ['e-1-2-3'],
       }
