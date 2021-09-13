@@ -4,8 +4,6 @@ import { ContentType } from '@standardnotes/common'
 
 import TYPES from '../../Bootstrap/Types'
 import { Item } from '../Item/Item'
-import { ItemRevision } from './ItemRevision'
-import { ItemRevisionRepositoryInterface } from './ItemRevisionRepositoryInterface'
 import { Revision } from './Revision'
 import { RevisionRepositoryInterface } from './RevisionRepositoryInterface'
 import { RevisionServiceInterface } from './RevisionServiceInterface'
@@ -14,7 +12,6 @@ import { RevisionServiceInterface } from './RevisionServiceInterface'
 export class RevisionService implements RevisionServiceInterface {
   constructor (
     @inject(TYPES.RevisionRepository) private revisionRepository: RevisionRepositoryInterface,
-    @inject(TYPES.ItemRevisionRepository) private itemRevisionRepository: ItemRevisionRepositoryInterface,
   ) {
   }
 
@@ -24,20 +21,12 @@ export class RevisionService implements RevisionServiceInterface {
     for (const existingRevision of revisions) {
       const revisionCopy = Object.assign({}, existingRevision, { uuid: undefined, itemUuid: toItemUuid })
 
-      const savedRevision = await this.revisionRepository.save(revisionCopy)
-
-      const itemRevisionCopy = new ItemRevision()
-      itemRevisionCopy.itemUuid = toItemUuid
-      itemRevisionCopy.revisionUuid = savedRevision.uuid
-
-      await this.itemRevisionRepository.save(itemRevisionCopy)
+      await this.revisionRepository.save(revisionCopy)
     }
   }
 
   async deleteRevisionsForItem(item: Item): Promise<void> {
     await this.revisionRepository.removeByItem(item.uuid)
-
-    await this.itemRevisionRepository.removeByItem(item.uuid)
   }
 
   async createRevision(item: Item): Promise<void> {
@@ -58,12 +47,6 @@ export class RevisionService implements RevisionServiceInterface {
     revision.createdAt = now
     revision.updatedAt = now
 
-    const savedRevision = await this.revisionRepository.save(revision)
-
-    const itemRevision = new ItemRevision()
-    itemRevision.itemUuid = item.uuid
-    itemRevision.revisionUuid = savedRevision.uuid
-
-    await this.itemRevisionRepository.save(itemRevision)
+    await this.revisionRepository.save(revision)
   }
 }
