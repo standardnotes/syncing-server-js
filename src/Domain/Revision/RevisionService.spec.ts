@@ -89,7 +89,7 @@ describe('RevisionService', () => {
     })
   })
 
-  it('should delete all revisions and item_revisions for a given item', async () => {
+  it('should delete all revisions for a given item', async () => {
     await createService().deleteRevisionsForItem(item)
 
     expect(revisionRepository.removeByItem).toHaveBeenCalledWith('1-2-3')
