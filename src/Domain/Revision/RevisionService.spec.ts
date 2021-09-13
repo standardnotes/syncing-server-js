@@ -10,6 +10,8 @@ describe('RevisionService', () => {
   let revisionRepository: RevisionRepositoryInterface
   let itemRevisionRepository: ItemRevisionRepositoryInterface
   let item: Item
+  let revision1: Revision
+  let revision2: Revision
 
   const createService = () => new RevisionService(revisionRepository, itemRevisionRepository)
 
@@ -20,7 +22,21 @@ describe('RevisionService', () => {
 
       return revision
     })
+
+    revision1 = {
+      uuid: '1-2-3',
+      itemUuid: '1-2-3',
+      content: 'content1',
+    } as jest.Mocked<Revision>
+
+    revision2 = {
+      uuid: '2-3-4',
+      itemUuid: '1-2-3',
+      content: 'content2',
+    } as jest.Mocked<Revision>
+
     revisionRepository.removeByItem = jest.fn()
+    revisionRepository.findByItemId = jest.fn().mockReturnValue([ revision1, revision2 ])
 
     itemRevisionRepository = {} as jest.Mocked<ItemRevisionRepositoryInterface>
     itemRevisionRepository.save = jest.fn()
@@ -66,17 +82,40 @@ describe('RevisionService', () => {
   })
 
   it('should copy revisions from one item unto another', async() => {
-    const itemRevision = {
-      itemUuid: '1-2-3',
-      revisionUuid: '3-4-5',
-    }
-    itemRevisionRepository.findByItem = jest.fn().mockReturnValue([ itemRevision ])
+    revisionRepository.save = jest.fn().mockImplementation(revision => revision)
 
     await createService().copyRevisions('1-2-3', '2-3-4')
 
-    expect(itemRevisionRepository.save).toHaveBeenCalledWith({
+    expect(revisionRepository.findByItemId).toHaveBeenCalledWith('1-2-3')
+
+    expect(revisionRepository.save).toHaveBeenNthCalledWith(1, {
       itemUuid: '2-3-4',
-      revisionUuid: '3-4-5',
+      content: 'content1',
+      uuid: undefined,
+    })
+    expect(revisionRepository.save).toHaveBeenNthCalledWith(2, {
+      itemUuid: '2-3-4',
+      content: 'content2',
+      uuid: undefined,
+    })
+  })
+
+  it('should copy revision connections from one item unto another', async() => {
+    revisionRepository.save = jest.fn()
+      .mockImplementationOnce(revision => Object.assign({}, revision, { uuid: 'copy-1-2-3' }))
+      .mockImplementationOnce(revision => Object.assign({}, revision, { uuid: 'copy-2-3-4' }))
+
+    await createService().copyRevisions('1-2-3', '2-3-4')
+
+    expect(revisionRepository.findByItemId).toHaveBeenCalledWith('1-2-3')
+
+    expect(itemRevisionRepository.save).toHaveBeenNthCalledWith(1, {
+      revisionUuid: 'copy-1-2-3',
+      itemUuid: '2-3-4',
+    })
+    expect(itemRevisionRepository.save).toHaveBeenNthCalledWith(2, {
+      revisionUuid: 'copy-2-3-4',
+      itemUuid: '2-3-4',
     })
   })
 
