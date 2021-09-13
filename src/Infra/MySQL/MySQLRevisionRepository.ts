@@ -16,10 +16,8 @@ export class MySQLRevisionRepository extends Repository<Revision> implements Rev
 
   async findByItemId(itemId: string): Promise<Array<Revision>> {
     return this.createQueryBuilder('revision')
-      .innerJoin(
-        'item_revisions',
-        'ir',
-        'ir.revision_uuid = revision.uuid AND ir.item_uuid = :item_uuid',
+      .where(
+        'revision.item_uuid = :item_uuid',
         { item_uuid: itemId }
       )
       .orderBy('revision.created_at', 'DESC')
@@ -28,13 +26,9 @@ export class MySQLRevisionRepository extends Repository<Revision> implements Rev
 
   async findOneById(itemId: string, id: string): Promise<Revision | undefined> {
     return this.createQueryBuilder('revision')
-      .where('revision.uuid = :uuid', { uuid: id })
-      .innerJoin(
-        'item_revisions',
-        'ir',
-        'ir.revision_uuid = revision.uuid AND ir.item_uuid = :item_uuid',
-        { item_uuid: itemId }
-      )
+      .where(
+        'revision.uuid = :uuid AND revision.item_uuid = :item_uuid',
+        { uuid: id, item_uuid: itemId })
       .getOne()
   }
 }

@@ -53,9 +53,6 @@ import { DuplicateItemSyncedEventHandler } from '../Domain/Handler/DuplicateItem
 import { AccountDeletionRequestedEventHandler } from '../Domain/Handler/AccountDeletionRequestedEventHandler'
 import { ItemProjector } from '../Domain/Item/ItemProjector'
 import { ItemConflictProjector } from '../Domain/Item/ItemConflictProjector'
-import { ItemRevisionRepositoryInterface } from '../Domain/Revision/ItemRevisionRepositoryInterface'
-import { MySQLItemRevisionRepository } from '../Infra/MySQL/MySQLItemRevisionRepository'
-import { ItemRevision } from '../Domain/Revision/ItemRevision'
 import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
 import { Timer, TimerInterface } from '@standardnotes/time'
 import { ItemSaveValidatorInterface } from '../Domain/Item/SaveValidator/ItemSaveValidatorInterface'
@@ -105,7 +102,6 @@ export class ContainerConfigLoader {
       entities: [
         Item,
         Revision,
-        ItemRevision,
         ExtensionSetting,
       ],
       migrations: [
@@ -164,7 +160,6 @@ export class ContainerConfigLoader {
 
     // Repositories
     container.bind<MySQLRevisionRepository>(TYPES.RevisionRepository).toConstantValue(connection.getCustomRepository(MySQLRevisionRepository))
-    container.bind<ItemRevisionRepositoryInterface>(TYPES.ItemRevisionRepository).toConstantValue(connection.getCustomRepository(MySQLItemRevisionRepository))
     container.bind<MySQLItemRepository>(TYPES.ItemRepository).toConstantValue(connection.getCustomRepository(MySQLItemRepository))
     container.bind<ExtensionSettingRepositoryInterface>(TYPES.ExtensionSettingRepository).toConstantValue(connection.getCustomRepository(MySQLExtensionSettingRepository))
 

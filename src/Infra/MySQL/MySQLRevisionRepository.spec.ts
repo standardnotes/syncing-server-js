@@ -21,36 +21,24 @@ describe('MySQLRevisionRepository', () => {
   })
 
   it('should find revisions by item id', async () => {
-    queryBuilder.innerJoin = jest.fn().mockReturnThis()
+    queryBuilder.where = jest.fn().mockReturnThis()
     queryBuilder.orderBy = jest.fn().mockReturnThis()
     queryBuilder.getMany = jest.fn().mockReturnValue([revision])
 
     const result = await repository.findByItemId('123')
 
-    expect(queryBuilder.innerJoin).toHaveBeenCalledWith(
-      'item_revisions',
-      'ir',
-      'ir.revision_uuid = revision.uuid AND ir.item_uuid = :item_uuid',
-      { item_uuid: '123' }
-    )
+    expect(queryBuilder.where).toHaveBeenCalledWith('revision.item_uuid = :item_uuid', { item_uuid: '123' })
     expect(queryBuilder.orderBy).toHaveBeenCalledWith('revision.created_at', 'DESC')
     expect(result).toEqual([revision])
   })
 
   it('should find one revision by id and item id', async () => {
     queryBuilder.where = jest.fn().mockReturnThis()
-    queryBuilder.innerJoin = jest.fn().mockReturnThis()
     queryBuilder.getOne = jest.fn().mockReturnValue(revision)
 
     const result = await repository.findOneById('123', '234')
 
-    expect(queryBuilder.where).toHaveBeenCalledWith('revision.uuid = :uuid', { uuid: '234' })
-    expect(queryBuilder.innerJoin).toHaveBeenCalledWith(
-      'item_revisions',
-      'ir',
-      'ir.revision_uuid = revision.uuid AND ir.item_uuid = :item_uuid',
-      { item_uuid: '123' }
-    )
+    expect(queryBuilder.where).toHaveBeenCalledWith('revision.uuid = :uuid AND revision.item_uuid = :item_uuid', { uuid: '234', item_uuid: '123' })
     expect(result).toEqual(revision)
   })
 
