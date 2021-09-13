@@ -1,3 +1,4 @@
+
 import { inject, injectable } from 'inversify'
 import { ContentType } from '@standardnotes/common'
 
@@ -18,12 +19,16 @@ export class RevisionService implements RevisionServiceInterface {
   }
 
   async copyRevisions(fromItemUuid: string, toItemUuid: string): Promise<void> {
-    const itemRevisions = await this.itemRevisionRepository.findByItem(fromItemUuid)
+    const revisions = await this.revisionRepository.findByItemId(fromItemUuid)
 
-    for (const itemRevision of itemRevisions) {
+    for (const existingRevision of revisions) {
+      const revisionCopy = Object.assign({}, existingRevision, { uuid: undefined, itemUuid: toItemUuid })
+
+      const savedRevision = await this.revisionRepository.save(revisionCopy)
+
       const itemRevisionCopy = new ItemRevision()
       itemRevisionCopy.itemUuid = toItemUuid
-      itemRevisionCopy.revisionUuid = itemRevision.revisionUuid
+      itemRevisionCopy.revisionUuid = savedRevision.uuid
 
       await this.itemRevisionRepository.save(itemRevisionCopy)
     }
