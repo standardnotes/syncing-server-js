@@ -53,6 +53,7 @@ describe('MFAFilter', () => {
 
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
+    logger.error = jest.fn()
   })
 
   it ('should filter out mfa item so it can be skipped on database save', async () => {
@@ -134,7 +135,7 @@ describe('MFAFilter', () => {
           uuid: '2-3-4',
           content_type: ContentType.Mfa,
         },
-        type: 'sync_conflict',
+        type: 'sync_error',
       },
     })
   })
