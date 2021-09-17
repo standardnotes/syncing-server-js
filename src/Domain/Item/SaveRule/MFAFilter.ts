@@ -12,7 +12,7 @@ import { ServiceTransitionHelperInterface } from '../../Transition/ServiceTransi
 import { TimerInterface } from '@standardnotes/time'
 import { ItemRepositoryInterface } from '../ItemRepositoryInterface'
 import { ContentDecoderInterface } from '../ContentDecoderInterface'
-import { ItemConflictType } from '../ItemConflictType'
+import { ItemErrorType } from '../ItemErrorType'
 
 @injectable()
 export class MFAFilter implements ItemSaveRuleInterface {
@@ -42,13 +42,13 @@ export class MFAFilter implements ItemSaveRuleInterface {
 
         return result
       } catch (error) {
-        this.logger.debug(`[${dto.userUuid}] Could not save user MFA as user setting: ${error.message}`)
+        this.logger.error(`[${dto.userUuid}] Could not save user MFA as user setting: ${error.message}`)
 
         return {
           passed: false,
           conflict: {
             unsavedItem: dto.itemHash,
-            type: ItemConflictType.SyncConflict,
+            type: ItemErrorType.SyncError,
           },
         }
       }
