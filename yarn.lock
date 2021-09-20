@@ -663,7 +663,7 @@
     sqs-consumer "^5.5.0"
     winston "^3.3.3"
 
-"@standardnotes/features@^1.6.2":
+"@standardnotes/features@1.6.2":
   version "1.6.2"
   resolved "https://registry.yarnpkg.com/@standardnotes/features/-/features-1.6.2.tgz#98c5998426d9f93e06c2846c5bc7b6aef8d31063"
   integrity sha512-s/rqRyG7mrrgxJOzckPSYlB68wsRpM9jlFwDE+7zQO5/xKh+37ueWfy3RoqOgkKLey6lMpnTurofIJCvqLM3dQ==
