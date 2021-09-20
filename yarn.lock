@@ -670,10 +670,10 @@
   dependencies:
     "@standardnotes/common" "^1.1.0"
 
-"@standardnotes/time@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@standardnotes/time/-/time-1.0.0.tgz#2a382e6b038eafedc24686785cfb97e8996d65eb"
-  integrity sha512-aJOxQeunwViXzByWPDmJRyX8PUKXYRqdzqg/ws/Kr+LBH4BGFTucMsE/Edf6KZqPpxLGSMrEPuSyQLiv0KPX1w==
+"@standardnotes/time@1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@standardnotes/time/-/time-1.0.1.tgz#8ab7bee6e02dd13d902098f5528d70cb50999b1c"
+  integrity sha512-ekuNM1EFGjuQOO+IzbqJoFTGXrgepjpdl+4AUlY52EwnKurYHODpwcId43XhkcGqssYxfKgImy3fgx2eOOlEDA==
   dependencies:
     dayjs "^1.10.5"
     microtime "^3.0.0"

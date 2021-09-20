@@ -9,24 +9,32 @@ import { Revision } from './Revision'
 import { RevisionRepositoryInterface } from './RevisionRepositoryInterface'
 import { RevisionServiceInterface } from './RevisionServiceInterface'
 import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
+import { TimerInterface } from '@standardnotes/time'
 
 @injectable()
 export class RevisionService implements RevisionServiceInterface {
   constructor (
     @inject(TYPES.RevisionRepository) private revisionRepository: RevisionRepositoryInterface,
     @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
+    @inject(TYPES.Timer) private timer: TimerInterface,
   ) {
   }
 
   async getRevisions(userUuid: string, itemUuid: string): Promise<Revision[]> {
     const revisionDaysLimit = await this.getRevisionDaysLimit(userUuid)
 
+    const revisions = await this.revisionRepository.findByItemId({
+      itemUuid,
+      afterDate: revisionDaysLimit ? this.timer.getUTCDateNDaysAgo(revisionDaysLimit) : undefined,
+    })
 
-    const revisions = await this.revisionRepository.findByItemId(req.params.item_id)
+    return revisions
   }
 
   async copyRevisions(fromItemUuid: string, toItemUuid: string): Promise<void> {
-    const revisions = await this.revisionRepository.findByItemId(fromItemUuid)
+    const revisions = await this.revisionRepository.findByItemId({
+      itemUuid: fromItemUuid,
+    })
 
     for (const existingRevision of revisions) {
       const revisionCopy = Object.assign({}, existingRevision, { uuid: undefined, itemUuid: toItemUuid })
@@ -60,7 +68,7 @@ export class RevisionService implements RevisionServiceInterface {
     await this.revisionRepository.save(revision)
   }
 
-  private async getRevisionDaysLimit(userUuid: string): Promise<number> {
+  private async getRevisionDaysLimit(userUuid: string): Promise<number | undefined> {
     const userFeatures = await this.authHttpService.getUserFeatures(userUuid)
 
     for (const userFeature of userFeatures) {
@@ -73,7 +81,7 @@ export class RevisionService implements RevisionServiceInterface {
       }
 
       if (userFeature.identifier === FeatureIdentifier.NoteHistoryUnlimited) {
-        return -1
+        return undefined
       }
     }
 

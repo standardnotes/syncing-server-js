@@ -25,9 +25,23 @@ describe('MySQLRevisionRepository', () => {
     queryBuilder.orderBy = jest.fn().mockReturnThis()
     queryBuilder.getMany = jest.fn().mockReturnValue([revision])
 
-    const result = await repository.findByItemId('123')
+    const result = await repository.findByItemId({ itemUuid: '123' })
 
     expect(queryBuilder.where).toHaveBeenCalledWith('revision.item_uuid = :item_uuid', { item_uuid: '123' })
+    expect(queryBuilder.orderBy).toHaveBeenCalledWith('revision.created_at', 'DESC')
+    expect(result).toEqual([revision])
+  })
+
+  it('should find revisions by item id after certain date', async () => {
+    queryBuilder.where = jest.fn().mockReturnThis()
+    queryBuilder.andWhere = jest.fn().mockReturnThis()
+    queryBuilder.orderBy = jest.fn().mockReturnThis()
+    queryBuilder.getMany = jest.fn().mockReturnValue([revision])
+
+    const result = await repository.findByItemId({ itemUuid: '123', afterDate: new Date(2) })
+
+    expect(queryBuilder.where).toHaveBeenCalledWith('revision.item_uuid = :item_uuid', { item_uuid: '123' })
+    expect(queryBuilder.andWhere).toHaveBeenCalledWith('revision.creation_date >= :after_date', { after_date: new Date(2) })
     expect(queryBuilder.orderBy).toHaveBeenCalledWith('revision.created_at', 'DESC')
     expect(result).toEqual([revision])
   })
