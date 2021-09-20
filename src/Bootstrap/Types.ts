@@ -7,7 +7,6 @@ const TYPES = {
   S3: Symbol.for('S3'),
   // Repositories
   RevisionRepository: Symbol.for('RevisionRepository'),
-  ItemRevisionRepository: Symbol.for('ItemRevisionRepository'),
   ItemRepository: Symbol.for('ItemRepository'),
   ExtensionSettingRepository: Symbol.for('ExtensionSettingRepository'),
   // Middleware

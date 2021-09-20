@@ -6,16 +6,20 @@ import { ContentType } from '@standardnotes/common'
 import { Item } from '../../Domain/Item/Item'
 
 import { MySQLItemRepository } from './MySQLItemRepository'
+import { TimerInterface } from '@standardnotes/time'
 
 describe('MySQLItemRepository', () => {
   let repository: MySQLItemRepository
   let queryBuilder: SelectQueryBuilder<Item>
   let item: Item
+  let timer: TimerInterface
 
   beforeEach(() => {
     queryBuilder = {} as jest.Mocked<SelectQueryBuilder<Item>>
 
     item = {} as jest.Mocked<Item>
+    timer = {} as jest.Mocked<TimerInterface>
+    timer.getTimestampInMicroseconds = jest.fn(() => 1616161616161616)
 
     repository = new MySQLItemRepository()
     jest.spyOn(repository, 'createQueryBuilder')
@@ -163,5 +167,32 @@ describe('MySQLItemRepository', () => {
     expect(result.length).toEqual(2)
     expect(result[0]).toEqual({ content_type: 'SF|Extension', updated_at_timestamp: 1616164633242313 })
     expect(result[1]).toEqual({ content_type: 'Note', updated_at_timestamp: 1616164633241312 })
+  })
+
+  it('should find item by uuid and mark it for deletion', async () => {
+    queryBuilder.where = jest.fn().mockReturnThis()
+    queryBuilder.update = jest.fn().mockReturnThis()
+    queryBuilder.update().set = jest.fn().mockReturnThis()
+    queryBuilder.execute = jest.fn()
+
+    const item = { uuid: 'e-1-2-3' } as jest.Mocked<Item>
+    const updatedAtTimestamp = timer.getTimestampInMicroseconds()
+    await repository.markItemsAsDeleted([item.uuid], updatedAtTimestamp)
+
+    expect(queryBuilder.update).toHaveBeenCalled()
+    expect(queryBuilder.update().set).toHaveBeenCalledWith(expect.objectContaining({
+      deleted: true,
+      content: null,
+      encItemKey: null,
+      authHash: null,
+      updatedAtTimestamp: expect.anything(),
+    }))
+    expect(queryBuilder.where).toHaveBeenCalledWith(
+      'uuid IN (:...uuids)',
+      {
+        uuids: ['e-1-2-3'],
+      }
+    )
+    expect(queryBuilder.execute).toHaveBeenCalled()
   })
 })

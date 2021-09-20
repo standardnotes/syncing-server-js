@@ -135,7 +135,7 @@ describe('MFAFilter', () => {
           uuid: '2-3-4',
           content_type: ContentType.Mfa,
         },
-        type: 'sync_error',
+        type: 'uuid_conflict',
       },
     })
   })

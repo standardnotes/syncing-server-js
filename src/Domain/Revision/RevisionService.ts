@@ -1,43 +1,50 @@
 
 import { inject, injectable } from 'inversify'
 import { ContentType } from '@standardnotes/common'
+import { FeatureIdentifier } from '@standardnotes/features'
 
 import TYPES from '../../Bootstrap/Types'
 import { Item } from '../Item/Item'
-import { ItemRevision } from './ItemRevision'
-import { ItemRevisionRepositoryInterface } from './ItemRevisionRepositoryInterface'
 import { Revision } from './Revision'
 import { RevisionRepositoryInterface } from './RevisionRepositoryInterface'
 import { RevisionServiceInterface } from './RevisionServiceInterface'
+import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
+import { TimerInterface } from '@standardnotes/time'
 
 @injectable()
 export class RevisionService implements RevisionServiceInterface {
   constructor (
     @inject(TYPES.RevisionRepository) private revisionRepository: RevisionRepositoryInterface,
-    @inject(TYPES.ItemRevisionRepository) private itemRevisionRepository: ItemRevisionRepositoryInterface,
+    @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
+    @inject(TYPES.Timer) private timer: TimerInterface,
   ) {
   }
 
+  async getRevisions(userUuid: string, itemUuid: string): Promise<Revision[]> {
+    const revisionDaysLimit = await this.getRevisionDaysLimit(userUuid)
+
+    const revisions = await this.revisionRepository.findByItemId({
+      itemUuid,
+      afterDate: revisionDaysLimit ? this.timer.getUTCDateNDaysAgo(revisionDaysLimit) : undefined,
+    })
+
+    return revisions
+  }
+
   async copyRevisions(fromItemUuid: string, toItemUuid: string): Promise<void> {
-    const revisions = await this.revisionRepository.findByItemId(fromItemUuid)
+    const revisions = await this.revisionRepository.findByItemId({
+      itemUuid: fromItemUuid,
+    })
 
     for (const existingRevision of revisions) {
       const revisionCopy = Object.assign({}, existingRevision, { uuid: undefined, itemUuid: toItemUuid })
 
-      const savedRevision = await this.revisionRepository.save(revisionCopy)
-
-      const itemRevisionCopy = new ItemRevision()
-      itemRevisionCopy.itemUuid = toItemUuid
-      itemRevisionCopy.revisionUuid = savedRevision.uuid
-
-      await this.itemRevisionRepository.save(itemRevisionCopy)
+      await this.revisionRepository.save(revisionCopy)
     }
   }
 
   async deleteRevisionsForItem(item: Item): Promise<void> {
     await this.revisionRepository.removeByItem(item.uuid)
-
-    await this.itemRevisionRepository.removeByItem(item.uuid)
   }
 
   async createRevision(item: Item): Promise<void> {
@@ -58,12 +65,26 @@ export class RevisionService implements RevisionServiceInterface {
     revision.createdAt = now
     revision.updatedAt = now
 
-    const savedRevision = await this.revisionRepository.save(revision)
+    await this.revisionRepository.save(revision)
+  }
 
-    const itemRevision = new ItemRevision()
-    itemRevision.itemUuid = item.uuid
-    itemRevision.revisionUuid = savedRevision.uuid
+  private async getRevisionDaysLimit(userUuid: string): Promise<number | undefined> {
+    const userFeatures = await this.authHttpService.getUserFeatures(userUuid)
 
-    await this.itemRevisionRepository.save(itemRevision)
+    for (const userFeature of userFeatures) {
+      if (userFeature.identifier === FeatureIdentifier.NoteHistory30Days) {
+        return 30
+      }
+
+      if (userFeature.identifier === FeatureIdentifier.NoteHistory365Days) {
+        return 365
+      }
+
+      if (userFeature.identifier === FeatureIdentifier.NoteHistoryUnlimited) {
+        return undefined
+      }
+    }
+
+    return 30
   }
 }

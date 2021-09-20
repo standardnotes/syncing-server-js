@@ -8,14 +8,17 @@ import { RevisionRepositoryInterface } from '../Domain/Revision/RevisionReposito
 import { RevisionsController } from './RevisionsController'
 import { results } from 'inversify-express-utils'
 import { ProjectorInterface } from '../Projection/ProjectorInterface'
+import { RevisionServiceInterface } from '../Domain/Revision/RevisionServiceInterface'
 
 describe('RevisionsController', () => {
   let revisionsRepository: RevisionRepositoryInterface
   let revisionProjector: ProjectorInterface<Revision>
+  let revisionService: RevisionServiceInterface
   let revision: Revision
   let request: express.Request
+  let response: express.Response
 
-  const createController = () => new RevisionsController(revisionsRepository, revisionProjector)
+  const createController = () => new RevisionsController(revisionService, revisionsRepository, revisionProjector)
 
   beforeEach(() => {
     revisionsRepository = {} as jest.Mocked<RevisionRepositoryInterface>
@@ -24,18 +27,28 @@ describe('RevisionsController', () => {
 
     revisionProjector = {} as jest.Mocked<ProjectorInterface<Revision>>
 
+    revisionService = {} as jest.Mocked<RevisionServiceInterface>
+    revisionService.getRevisions = jest.fn().mockReturnValue([ revision ])
+
     request = {
       params: {},
     } as jest.Mocked<express.Request>
+
+    response = {
+      locals: {},
+    } as jest.Mocked<express.Response>
+    response.locals.user = {
+      uuid: '123',
+    }
   })
 
   it('should return revisions for an item', async () => {
     revisionsRepository.findByItemId = jest.fn().mockReturnValue([revision])
     revisionProjector.projectSimple = jest.fn().mockReturnValue({ foo: 'bar' })
 
-    const response = await createController().getRevisions(request)
+    const revisionResponse = await createController().getRevisions(request, response)
 
-    expect(response.json).toEqual([{ foo: 'bar' }])
+    expect(revisionResponse.json).toEqual([{ foo: 'bar' }])
   })
 
   it('should return a specific revision for an item', async () => {
