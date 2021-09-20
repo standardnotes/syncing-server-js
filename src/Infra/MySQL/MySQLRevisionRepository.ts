@@ -14,12 +14,24 @@ export class MySQLRevisionRepository extends Repository<Revision> implements Rev
       .execute()
   }
 
-  async findByItemId(itemId: string): Promise<Array<Revision>> {
-    return this.createQueryBuilder('revision')
+  async findByItemId(parameters: {
+    itemUuid: string,
+    afterDate?: Date,
+  }): Promise<Array<Revision>> {
+    const queryBuilder = this.createQueryBuilder('revision')
       .where(
         'revision.item_uuid = :item_uuid',
-        { item_uuid: itemId }
+        { item_uuid: parameters.itemUuid }
       )
+
+    if (parameters.afterDate !== undefined) {
+      queryBuilder.andWhere(
+        'revision.creation_date >= :after_date',
+        { after_date: parameters.afterDate }
+      )
+    }
+
+    return queryBuilder
       .orderBy('revision.created_at', 'DESC')
       .getMany()
   }

@@ -638,7 +638,7 @@
   resolved "https://registry.yarnpkg.com/@standardnotes/auth/-/auth-3.1.0.tgz#1caed42e2f4d4ca869e1532f996b7708ae68422e"
   integrity sha512-Bkh1zdMYuDTadztr4Cq+BmL4hK/UishXFQbNmH7AgMiTAWhuea+n9VBwm6dyDVfAr83hWpRG6U3TQZSc8yniqA==
 
-"@standardnotes/common@1.1.0":
+"@standardnotes/common@1.1.0", "@standardnotes/common@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@standardnotes/common/-/common-1.1.0.tgz#5ffb0a50f9947471e236bb66d097f153ad9a148f"
   integrity sha512-Nm2IFWbMSfZDD7cnKtN+Gjic0f+PhPq/da/o4eOoUKg21VeOaQkTn+jlQKraKIs6Lmf+w9mmPNAgMc5o4hj7Lg==
@@ -663,10 +663,17 @@
     sqs-consumer "^5.5.0"
     winston "^3.3.3"
 
-"@standardnotes/time@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@standardnotes/time/-/time-1.0.0.tgz#2a382e6b038eafedc24686785cfb97e8996d65eb"
-  integrity sha512-aJOxQeunwViXzByWPDmJRyX8PUKXYRqdzqg/ws/Kr+LBH4BGFTucMsE/Edf6KZqPpxLGSMrEPuSyQLiv0KPX1w==
+"@standardnotes/features@1.6.2":
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/@standardnotes/features/-/features-1.6.2.tgz#98c5998426d9f93e06c2846c5bc7b6aef8d31063"
+  integrity sha512-s/rqRyG7mrrgxJOzckPSYlB68wsRpM9jlFwDE+7zQO5/xKh+37ueWfy3RoqOgkKLey6lMpnTurofIJCvqLM3dQ==
+  dependencies:
+    "@standardnotes/common" "^1.1.0"
+
+"@standardnotes/time@1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@standardnotes/time/-/time-1.0.1.tgz#8ab7bee6e02dd13d902098f5528d70cb50999b1c"
+  integrity sha512-ekuNM1EFGjuQOO+IzbqJoFTGXrgepjpdl+4AUlY52EwnKurYHODpwcId43XhkcGqssYxfKgImy3fgx2eOOlEDA==
   dependencies:
     dayjs "^1.10.5"
     microtime "^3.0.0"
