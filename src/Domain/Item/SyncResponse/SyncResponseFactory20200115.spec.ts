@@ -2,8 +2,8 @@ import 'reflect-metadata'
 import { ProjectorInterface } from '../../../Projection/ProjectorInterface'
 import { Item } from '../Item'
 import { ItemConflict } from '../ItemConflict'
-import { ItemConflictProjection } from '../ItemConflictProjection'
-import { ItemProjection } from '../ItemProjection'
+import { ItemConflictProjection } from '../../../Projection/ItemConflictProjection'
+import { ItemProjection } from '../../../Projection/ItemProjection'
 
 import { SyncResponseFactory20200115 } from './SyncResponseFactory20200115'
 
@@ -32,8 +32,8 @@ describe('SyncResponseFactory20200115', () => {
     itemConflict = {} as jest.Mocked<ItemConflict>
   })
 
-  it('should turn sync items response into a sync response for API Version 20200115', () => {
-    expect(createFactory().createResponse({
+  it('should turn sync items response into a sync response for API Version 20200115', async () => {
+    expect(await createFactory().createResponse({
       retrievedItems: [ item1 ],
       savedItems: [ item2 ],
       conflicts: [ itemConflict ],

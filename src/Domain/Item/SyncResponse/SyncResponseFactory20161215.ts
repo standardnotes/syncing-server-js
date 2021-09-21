@@ -6,7 +6,7 @@ import { Item } from '../Item'
 import { ItemConflict } from '../ItemConflict'
 import { ItemConflictType } from '../ItemConflictType'
 import { ItemHash } from '../ItemHash'
-import { ItemProjection } from '../ItemProjection'
+import { ItemProjection } from '../../../Projection/ItemProjection'
 import { SyncResponse20161215 } from './SyncResponse20161215'
 import { SyncResponseFactoryInterface } from './SyncResponseFactoryInterface'
 
@@ -19,7 +19,7 @@ export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface
   ){
   }
 
-  createResponse(syncItemsResponse: SyncItemsResponse): SyncResponse20161215 {
+  async createResponse(syncItemsResponse: SyncItemsResponse): Promise<SyncResponse20161215> {
     const conflicts = syncItemsResponse.conflicts.filter((itemConflict: ItemConflict) => itemConflict.type === ItemConflictType.UuidConflict)
 
     const pickOutConflictsResult = this.pickOutConflicts(
@@ -28,18 +28,31 @@ export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface
       conflicts
     )
 
-    const unsaved = pickOutConflictsResult.unsavedItems.map((conflict: ItemConflict) => ({
-      item: conflict.serverItem ?
-        <ItemProjection> this.itemProjector.projectFull(conflict.serverItem) :
-        <ItemHash> conflict.unsavedItem,
-      error: {
-        tag: conflict.type,
-      },
-    }))
+    const unsaved = []
+    for (const conflict of pickOutConflictsResult.unsavedItems) {
+      unsaved.push({
+        item: conflict.serverItem ?
+          <ItemProjection> await this.itemProjector.projectFull(conflict.serverItem) :
+          <ItemHash> conflict.unsavedItem,
+        error: {
+          tag: conflict.type,
+        },
+      })
+    }
+
+    const retrievedItems = []
+    for (const item of pickOutConflictsResult.retrievedItems) {
+      retrievedItems.push(<ItemProjection> await this.itemProjector.projectFull(item))
+    }
+
+    const savedItems = []
+    for (const item of syncItemsResponse.savedItems) {
+      savedItems.push(<ItemProjection> await this.itemProjector.projectFull(item))
+    }
 
     return {
-      retrieved_items: pickOutConflictsResult.retrievedItems.map(item => <ItemProjection> this.itemProjector.projectFull(item)),
-      saved_items: syncItemsResponse.savedItems.map(item => <ItemProjection> this.itemProjector.projectFull(item)),
+      retrieved_items: retrievedItems,
+      saved_items: savedItems,
       unsaved,
       sync_token: syncItemsResponse.syncToken,
       cursor_token: syncItemsResponse.cursorToken,

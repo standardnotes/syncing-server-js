@@ -1,6 +1,6 @@
-import { ItemConflictType } from './ItemConflictType'
-import { ItemErrorType } from './ItemErrorType'
-import { ItemHash } from './ItemHash'
+import { ItemConflictType } from '../Domain/Item/ItemConflictType'
+import { ItemErrorType } from '../Domain/Item/ItemErrorType'
+import { ItemHash } from '../Domain/Item/ItemHash'
 import { ItemProjection } from './ItemProjection'
 
 export type ItemConflictProjection = {

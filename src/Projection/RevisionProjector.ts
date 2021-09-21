@@ -6,7 +6,7 @@ import { ProjectorInterface } from './ProjectorInterface'
 
 @injectable()
 export class RevisionProjector implements ProjectorInterface<Revision> {
-  projectSimple(revision: Revision): Record<string, unknown> {
+  async projectSimple(revision: Revision): Promise<Record<string, unknown>> {
     return {
       'uuid': revision.uuid,
       'content_type': revision.contentType,
@@ -15,10 +15,10 @@ export class RevisionProjector implements ProjectorInterface<Revision> {
     }
   }
 
-  projectFull(revision: Revision): Record<string, unknown> {
+  async projectFull(revision: Revision): Promise<Record<string, unknown>> {
     return {
       'uuid': revision.uuid,
-      'item_uuid': revision.itemUuid,
+      'item_uuid': (await revision.item).uuid,
       'content': revision.content,
       'content_type': revision.contentType,
       'items_key_id': revision.itemsKeyId,
@@ -30,7 +30,7 @@ export class RevisionProjector implements ProjectorInterface<Revision> {
     }
   }
 
-  projectCustom(_projectionType: string, _revision: Revision, ..._args: any[]): Record<string, unknown> {
+  async projectCustom(_projectionType: string, _revision: Revision, ..._args: any[]): Promise<Record<string, unknown>> {
     throw new Error('not implemented')
   }
 }

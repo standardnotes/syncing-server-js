@@ -1,9 +1,9 @@
 import { TimerInterface } from '@standardnotes/time'
 import { inject, injectable } from 'inversify'
-import TYPES from '../../Bootstrap/Types'
-import { ProjectorInterface } from '../../Projection/ProjectorInterface'
+import TYPES from '../Bootstrap/Types'
+import { ProjectorInterface } from './ProjectorInterface'
 
-import { Item } from './Item'
+import { Item } from '../Domain/Item/Item'
 import { ItemProjection } from './ItemProjection'
 
 @injectable()
@@ -13,15 +13,15 @@ export class ItemProjector implements ProjectorInterface<Item> {
   ) {
   }
 
-  projectSimple(_item: Item): Record<string, unknown> {
+  async projectSimple(_item: Item): Promise<Record<string, unknown>> {
     throw Error('not implemented')
   }
 
-  projectCustom(_projectionType: string, _item: Item): Record<string, unknown> {
+  async projectCustom(_projectionType: string, _item: Item): Promise<Record<string, unknown>> {
     throw Error('not implemented')
   }
 
-  projectFull(item: Item): ItemProjection {
+  async projectFull(item: Item): Promise<ItemProjection> {
     return {
       uuid: item.uuid,
       items_key_id: item.itemsKeyId,
