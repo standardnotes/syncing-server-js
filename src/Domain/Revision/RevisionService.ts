@@ -85,6 +85,6 @@ export class RevisionService implements RevisionServiceInterface {
       }
     }
 
-    return 30
+    return 3
   }
 }
