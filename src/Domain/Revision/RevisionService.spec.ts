@@ -70,7 +70,7 @@ describe('RevisionService', () => {
 
     expect(revisionRepository.findByItemId).toHaveBeenCalledWith({
       itemUuid: '2-3-4',
-      afterDate: new Date(30),
+      afterDate: new Date(3),
     })
   })
 
