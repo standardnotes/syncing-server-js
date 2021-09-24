@@ -15,14 +15,18 @@ describe('RevisionService', () => {
   let authHttpService: AuthHttpServiceInterface
   let revision1: Revision
   let revision2: Revision
+  let revisionsLimitEnabled: boolean
 
   const createService = () => new RevisionService(
     revisionRepository,
     authHttpService,
+    revisionsLimitEnabled,
     timer
   )
 
   beforeEach(() => {
+    revisionsLimitEnabled = true
+
     revisionRepository = {} as jest.Mocked<RevisionRepositoryInterface>
     revisionRepository.save = jest.fn().mockImplementation((revision: Revision) => {
       revision.uuid = '3-4-5'
@@ -63,6 +67,16 @@ describe('RevisionService', () => {
       uuid: '1-2-3',
       itemsKeyId: 'test-items-key-id',
     } as jest.Mocked<Item>
+  })
+
+  it('should get revisions for an item - limitation disabled', async () => {
+    revisionsLimitEnabled = false
+
+    await createService().getRevisions('1-2-3', '2-3-4')
+
+    expect(revisionRepository.findByItemId).toHaveBeenCalledWith({
+      itemUuid: '2-3-4',
+    })
   })
 
   it('should get revisions for an item - default days limitation', async () => {
