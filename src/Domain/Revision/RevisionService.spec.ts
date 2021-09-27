@@ -4,12 +4,14 @@ import { TimerInterface } from '@standardnotes/time'
 import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
 
 import { Item } from '../Item/Item'
+import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
 import { Revision } from './Revision'
 import { RevisionRepositoryInterface } from './RevisionRepositoryInterface'
 import { RevisionService } from './RevisionService'
 
 describe('RevisionService', () => {
   let revisionRepository: RevisionRepositoryInterface
+  let itemRepository: ItemRepositoryInterface
   let item: Item
   let timer: TimerInterface
   let authHttpService: AuthHttpServiceInterface
@@ -19,6 +21,7 @@ describe('RevisionService', () => {
 
   const createService = () => new RevisionService(
     revisionRepository,
+    itemRepository,
     authHttpService,
     revisionsLimitEnabled,
     timer
@@ -34,19 +37,25 @@ describe('RevisionService', () => {
       return revision
     })
 
+    itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
+    itemRepository.findByUuid = jest.fn().mockReturnValue({} as jest.Mocked<Item>)
+
     revision1 = {
       uuid: '1-2-3',
-      itemUuid: '1-2-3',
+      item: Promise.resolve({
+        uuid: '1-2-3',
+      }),
       content: 'content1',
     } as jest.Mocked<Revision>
 
     revision2 = {
       uuid: '2-3-4',
-      itemUuid: '1-2-3',
+      item: Promise.resolve({
+        uuid: '1-2-3',
+      }),
       content: 'content2',
     } as jest.Mocked<Revision>
 
-    revisionRepository.removeByItem = jest.fn()
     revisionRepository.findByItemId = jest.fn().mockReturnValue([ revision1, revision2 ])
 
     authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
@@ -141,7 +150,7 @@ describe('RevisionService', () => {
       content: 'test-content',
       contentType: 'Note',
       encItemKey: 'test-enc-item-key',
-      itemUuid: '1-2-3',
+      item: Promise.resolve(item),
       itemsKeyId: 'test-items-key-id',
       createdAt: expect.any(Date),
       creationDate: expect.any(Date),
@@ -164,20 +173,27 @@ describe('RevisionService', () => {
     expect(revisionRepository.findByItemId).toHaveBeenCalledWith({ itemUuid: '1-2-3' })
 
     expect(revisionRepository.save).toHaveBeenNthCalledWith(1, {
-      itemUuid: '2-3-4',
+      item: Promise.resolve(expect.any(Item)),
       content: 'content1',
       uuid: undefined,
     })
     expect(revisionRepository.save).toHaveBeenNthCalledWith(2, {
-      itemUuid: '2-3-4',
+      item: Promise.resolve(expect.any(Item)),
       content: 'content2',
       uuid: undefined,
     })
   })
 
-  it('should delete all revisions for a given item', async () => {
-    await createService().deleteRevisionsForItem(item)
+  it('should throw while copying revisions from one item unto another if the target item does not exist', async() => {
+    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
 
-    expect(revisionRepository.removeByItem).toHaveBeenCalledWith('1-2-3')
+    let error = null
+    try {
+      await createService().copyRevisions('1-2-3', '2-3-4')
+    } catch (caughtError) {
+      error = caughtError
+    }
+
+    expect(error).not.toBeNull()
   })
 })

@@ -1,5 +1,5 @@
-import { ItemConflictProjection } from '../ItemConflictProjection'
-import { ItemProjection } from '../ItemProjection'
+import { ItemConflictProjection } from '../../../Projection/ItemConflictProjection'
+import { ItemProjection } from '../../../Projection/ItemProjection'
 
 export type SyncResponse20200115 = {
   retrieved_items: Array<ItemProjection>

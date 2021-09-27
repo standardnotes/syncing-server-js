@@ -59,7 +59,7 @@ export class ItemsController extends BaseHttpController {
       this.logger.error(`Failed posting items to extensions after sync: ${error.message}`)
     }
 
-    const syncResponse = this.syncResponseFactoryResolver
+    const syncResponse = await this.syncResponseFactoryResolver
       .resolveSyncResponseFactoryVersion(request.body.api)
       .createResponse(syncResult)
 
