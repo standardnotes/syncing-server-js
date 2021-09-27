@@ -61,14 +61,26 @@ void container.load().then(container => {
     })
   })
 
+  const logger: winston.Logger = container.get(TYPES.Logger)
+
+  server.setErrorConfig((app) => {
+    app.use((error: Record<string, unknown>, _request: Request, response: Response, _next: NextFunction) => {
+      logger.error(error.stack)
+
+      response.status(500).send({
+        error: {
+          message: 'Unfortunately, we couldn\'t handle your request. Please try again or contact our support if the error persists.',
+        },
+      })
+    })
+  })
+
   const serverInstance = server.build()
 
   const env: Env = new Env()
   env.load()
 
   serverInstance.listen(env.get('PORT'))
-
-  const logger: winston.Logger = container.get(TYPES.Logger)
 
   logger.info(`Server started on port ${process.env.PORT}`)
 })
