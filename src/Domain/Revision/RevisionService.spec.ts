@@ -56,7 +56,6 @@ describe('RevisionService', () => {
       content: 'content2',
     } as jest.Mocked<Revision>
 
-    revisionRepository.removeByItem = jest.fn()
     revisionRepository.findByItemId = jest.fn().mockReturnValue([ revision1, revision2 ])
 
     authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
@@ -196,11 +195,5 @@ describe('RevisionService', () => {
     }
 
     expect(error).not.toBeNull()
-  })
-
-  it('should delete all revisions for a given item', async () => {
-    await createService().deleteRevisionsForItem(item)
-
-    expect(revisionRepository.removeByItem).toHaveBeenCalledWith('1-2-3')
   })
 })

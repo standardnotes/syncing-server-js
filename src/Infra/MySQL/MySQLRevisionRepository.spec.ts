@@ -55,20 +55,4 @@ describe('MySQLRevisionRepository', () => {
     expect(queryBuilder.where).toHaveBeenCalledWith('revision.uuid = :uuid AND revision.item_uuid = :item_uuid', { uuid: '234', item_uuid: '123' })
     expect(result).toEqual(revision)
   })
-
-  it('should delete all revisions for a given item', async () => {
-    queryBuilder.where = jest.fn().mockReturnThis()
-    queryBuilder.delete = jest.fn().mockReturnThis()
-    queryBuilder.from = jest.fn().mockReturnThis()
-    queryBuilder.execute = jest.fn()
-
-    await repository.removeByItem('123')
-
-    expect(queryBuilder.delete).toHaveBeenCalled()
-
-    expect(queryBuilder.from).toHaveBeenCalledWith('revisions')
-    expect(queryBuilder.where).toHaveBeenCalledWith('item_uuid = :itemUuid', { itemUuid: '123' })
-
-    expect(queryBuilder.execute).toHaveBeenCalled()
-  })
 })

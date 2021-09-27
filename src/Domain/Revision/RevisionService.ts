@@ -56,10 +56,6 @@ export class RevisionService implements RevisionServiceInterface {
     }
   }
 
-  async deleteRevisionsForItem(item: Item): Promise<void> {
-    await this.revisionRepository.removeByItem(item.uuid)
-  }
-
   async createRevision(item: Item): Promise<void> {
     if (item.contentType !== ContentType.Note) {
       return
