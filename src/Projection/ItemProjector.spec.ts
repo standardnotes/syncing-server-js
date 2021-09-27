@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import { TimerInterface } from '@standardnotes/time'
 
-import { Item } from './Item'
+import { Item } from '../Domain/Item/Item'
 import { ItemProjector } from './ItemProjector'
 
 describe('ItemProjector', () => {
@@ -27,8 +27,8 @@ describe('ItemProjector', () => {
     item.updatedAtTimestamp = 123
   })
 
-  it('should create a full projection of an item', () => {
-    expect(createProjector().projectFull(item)).toMatchObject({
+  it('should create a full projection of an item', async () => {
+    expect(await createProjector().projectFull(item)).toMatchObject({
       uuid: '1-2-3',
       items_key_id: '2-3-4',
       duplicate_of: null,
@@ -42,20 +42,20 @@ describe('ItemProjector', () => {
     })
   })
 
-  it('should throw error on custom projection', () => {
+  it('should throw error on custom projection', async () => {
     let error = null
     try {
-      createProjector().projectCustom('test', item)
+      await createProjector().projectCustom('test', item)
     } catch (e) {
       error = e
     }
     expect(error.message).toEqual('not implemented')
   })
 
-  it('should throw error on simple projection', () => {
+  it('should throw error on simple projection', async () => {
     let error = null
     try {
-      createProjector().projectSimple(item)
+      await createProjector().projectSimple(item)
     } catch (e) {
       error = e
     }

@@ -8,6 +8,14 @@ import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterfa
 @injectable()
 @EntityRepository(Item)
 export class MySQLItemRepository extends Repository<Item> implements ItemRepositoryInterface {
+  async deleteByUserUuid(userUuid: string): Promise<void> {
+    await this.createQueryBuilder('item')
+      .delete()
+      .from('items')
+      .where('user_uuid = :userUuid', { userUuid })
+      .execute()
+  }
+
   async findByUuid(uuid: string): Promise<Item | undefined> {
     return this.createQueryBuilder('item')
       .where(

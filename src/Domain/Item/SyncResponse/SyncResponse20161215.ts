@@ -1,7 +1,7 @@
 import { ItemConflictType } from '../ItemConflictType'
 import { ItemErrorType } from '../ItemErrorType'
 import { ItemHash } from '../ItemHash'
-import { ItemProjection } from '../ItemProjection'
+import { ItemProjection } from '../../../Projection/ItemProjection'
 
 export type SyncResponse20161215 = {
   retrieved_items: Array<ItemProjection>

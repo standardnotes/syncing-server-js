@@ -4,7 +4,7 @@ import { ProjectorInterface } from '../../../Projection/ProjectorInterface'
 import { Item } from '../Item'
 import { ItemConflictType } from '../ItemConflictType'
 import { ItemHash } from '../ItemHash'
-import { ItemProjection } from '../ItemProjection'
+import { ItemProjection } from '../../../Projection/ItemProjection'
 import { SyncResponseFactory20161215 } from './SyncResponseFactory20161215'
 
 describe('SyncResponseFactory20161215', () => {
@@ -45,9 +45,9 @@ describe('SyncResponseFactory20161215', () => {
     } as jest.Mocked<Item>
   })
 
-  it('should turn sync items response into a sync response for API Version 20161215', () => {
+  it('should turn sync items response into a sync response for API Version 20161215', async () => {
     const itemHash1 = {} as jest.Mocked<ItemHash>
-    expect(createFactory().createResponse({
+    expect(await createFactory().createResponse({
       retrievedItems: [ item1 ],
       savedItems: [ item2 ],
       conflicts: [
@@ -80,7 +80,7 @@ describe('SyncResponseFactory20161215', () => {
     })
   })
 
-  it('should pick out conflicts between saved and retrieved items and remove them from the later', () => {
+  it('should pick out conflicts between saved and retrieved items and remove them from the later', async () => {
     const itemHash1 = {} as jest.Mocked<ItemHash>
 
     const duplicateItem1 = Object.assign({}, item1)
@@ -88,7 +88,7 @@ describe('SyncResponseFactory20161215', () => {
 
     const duplicateItem2 = Object.assign({}, item2)
 
-    expect(createFactory().createResponse({
+    expect(await createFactory().createResponse({
       retrievedItems: [ duplicateItem1, duplicateItem2 ],
       savedItems: [ item1, item2],
       conflicts: [

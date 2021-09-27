@@ -1,11 +1,11 @@
 import 'reflect-metadata'
 
-import { ProjectorInterface } from '../../Projection/ProjectorInterface'
-import { Item } from './Item'
-import { ItemConflict } from './ItemConflict'
+import { ProjectorInterface } from './ProjectorInterface'
+import { Item } from '../Domain/Item/Item'
+import { ItemConflict } from '../Domain/Item/ItemConflict'
 import { ItemConflictProjector } from './ItemConflictProjector'
-import { ItemConflictType } from './ItemConflictType'
-import { ItemHash } from './ItemHash'
+import { ItemConflictType } from '../Domain/Item/ItemConflictType'
+import { ItemHash } from '../Domain/Item/ItemHash'
 import { ItemProjection } from './ItemProjection'
 
 describe('ItemConflictProjector', () => {
@@ -39,34 +39,34 @@ describe('ItemConflictProjector', () => {
     }
   })
 
-  it('should create a full projection of a server item conflict', () => {
-    expect(createProjector().projectFull(itemConflict1)).toMatchObject({
+  it('should create a full projection of a server item conflict', async () => {
+    expect(await createProjector().projectFull(itemConflict1)).toMatchObject({
       server_item: itemProjection,
       type: ItemConflictType.SyncConflict,
     })
   })
 
-  it('should create a full projection of an unsaved item conflict', () => {
-    expect(createProjector().projectFull(itemConflict2)).toMatchObject({
+  it('should create a full projection of an unsaved item conflict', async () => {
+    expect(await createProjector().projectFull(itemConflict2)).toMatchObject({
       unsaved_item: itemHash,
       type: 'uuid_conflict',
     })
   })
 
-  it('should throw error on custom projection', () => {
+  it('should throw error on custom projection', async () => {
     let error = null
     try {
-      createProjector().projectCustom('test', itemConflict1)
+      await createProjector().projectCustom('test', itemConflict1)
     } catch (e) {
       error = e
     }
     expect(error.message).toEqual('not implemented')
   })
 
-  it('should throw error on simple projection', () => {
+  it('should throw error on simple projection', async () => {
     let error = null
     try {
-      createProjector().projectSimple(itemConflict1)
+      await createProjector().projectSimple(itemConflict1)
     } catch (e) {
       error = e
     }

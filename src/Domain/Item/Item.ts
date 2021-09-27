@@ -1,4 +1,5 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import { Revision } from '../Revision/Revision'
 
 @Entity({ name: 'items' })
 @Index('index_items_on_user_uuid_and_content_type', ['userUuid', 'contentType'])
@@ -56,7 +57,6 @@ export class Item {
   @Column({
     name: 'user_uuid',
     length: 255,
-    nullable: true,
   })
   @Index('index_items_on_user_uuid')
   userUuid: string
@@ -103,4 +103,12 @@ export class Item {
   })
   @Index('updated_at_timestamp')
   updatedAtTimestamp: number
+
+  @OneToMany(
+    /* istanbul ignore next */
+    () => Revision,
+    /* istanbul ignore next */
+    revision => revision.item
+  )
+  revisions: Promise<Revision[]>
 }

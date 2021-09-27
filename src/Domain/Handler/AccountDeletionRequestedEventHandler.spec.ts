@@ -7,12 +7,10 @@ import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
 import { AccountDeletionRequestedEventHandler } from './AccountDeletionRequestedEventHandler'
 import { ContentDecoderInterface } from '../Item/ContentDecoderInterface'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
-import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 import { ServiceTransitionHelperInterface } from '../Transition/ServiceTransitionHelperInterface'
 
 describe('AccountDeletionRequestedEventHandler', () => {
   let itemRepository: ItemRepositoryInterface
-  let revisionService: RevisionServiceInterface
   let contentDecoder: ContentDecoderInterface
   let domainEventPublisher: DomainEventPublisherInterface
   let domainEventFactory: DomainEventFactoryInterface
@@ -23,7 +21,6 @@ describe('AccountDeletionRequestedEventHandler', () => {
 
   const createHandler = () => new AccountDeletionRequestedEventHandler(
     itemRepository,
-    revisionService,
     contentDecoder,
     domainEventPublisher,
     domainEventFactory,
@@ -39,10 +36,7 @@ describe('AccountDeletionRequestedEventHandler', () => {
 
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
     itemRepository.findAll = jest.fn().mockReturnValue([ item ])
-    itemRepository.remove = jest.fn()
-
-    revisionService = {} as jest.Mocked<RevisionServiceInterface>
-    revisionService.deleteRevisionsForItem = jest.fn()
+    itemRepository.deleteByUserUuid = jest.fn()
 
     contentDecoder = {} as jest.Mocked<ContentDecoderInterface>
     contentDecoder.decode = jest.fn().mockReturnValue({ frequency: 'realtime', url: 'http://test-url/extension1' })
@@ -99,8 +93,7 @@ describe('AccountDeletionRequestedEventHandler', () => {
   it('should remove all items and revision for a user', async () => {
     await createHandler().handle(event)
 
-    expect(revisionService.deleteRevisionsForItem).toHaveBeenCalledWith(item)
-    expect(itemRepository.remove).toHaveBeenCalledWith(item)
+    expect(itemRepository.deleteByUserUuid).toHaveBeenCalledWith('2-3-4')
   })
 
   it('should remove all mfa user settings from transition helping service', async () => {

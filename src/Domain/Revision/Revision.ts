@@ -1,17 +1,19 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { Item } from '../Item/Item'
 
 @Entity({ name: 'revisions' })
 export class Revision {
   @PrimaryGeneratedColumn('uuid')
   uuid: string
 
-  @Column({
-    name: 'item_uuid',
-    length: 255,
-    nullable: true,
-  })
-  @Index('index_revisions_on_item_uuid')
-  itemUuid: string
+  @ManyToOne(
+    /* istanbul ignore next */
+    () => Item,
+    /* istanbul ignore next */
+    item => item.revisions, { onDelete: 'CASCADE' }
+  )
+  @JoinColumn({ name: 'item_uuid', referencedColumnName: 'uuid' })
+  item: Promise<Item>
 
   @Column({
     type: 'mediumtext',

@@ -7,14 +7,12 @@ import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterfac
 import { Frequency } from '../ExtensionSetting/Frequency'
 import { ContentDecoderInterface } from '../Item/ContentDecoderInterface'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
-import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 import { ServiceTransitionHelperInterface } from '../Transition/ServiceTransitionHelperInterface'
 
 @injectable()
 export class AccountDeletionRequestedEventHandler implements DomainEventHandlerInterface {
   constructor (
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
-    @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
     @inject(TYPES.ContentDecoder) private contentDecoder: ContentDecoderInterface,
     @inject(TYPES.DomainEventPublisher) private domainEventPublisher: DomainEventPublisherInterface,
     @inject(TYPES.DomainEventFactory) private domainEventFactory: DomainEventFactoryInterface,
@@ -26,7 +24,7 @@ export class AccountDeletionRequestedEventHandler implements DomainEventHandlerI
   async handle(event: AccountDeletionRequestedEvent): Promise<void> {
     await this.syncExtensionsRemoval(event.payload.userUuid)
 
-    await this.removeItemsAndRevisions(event.payload.userUuid)
+    await this.itemRepository.deleteByUserUuid(event.payload.userUuid)
 
     await this.serviceTransitionHelper.deleteUserMFAUserSettings(event.payload.userUuid)
 
@@ -62,20 +60,6 @@ export class AccountDeletionRequestedEventHandler implements DomainEventHandlerI
           skipFileBackup: true,
         })
       )
-    }
-  }
-
-  private async removeItemsAndRevisions(userUuid: string): Promise<void> {
-    const items = await this.itemRepository.findAll({
-      userUuid,
-      sortBy: 'updated_at_timestamp',
-      sortOrder: 'DESC',
-    })
-
-    for (const item of items) {
-      await this.revisionService.deleteRevisionsForItem(item)
-
-      await this.itemRepository.remove(item)
     }
   }
 }

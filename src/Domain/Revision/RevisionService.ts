@@ -10,11 +10,13 @@ import { RevisionRepositoryInterface } from './RevisionRepositoryInterface'
 import { RevisionServiceInterface } from './RevisionServiceInterface'
 import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
 import { TimerInterface } from '@standardnotes/time'
+import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
 
 @injectable()
 export class RevisionService implements RevisionServiceInterface {
   constructor (
     @inject(TYPES.RevisionRepository) private revisionRepository: RevisionRepositoryInterface,
+    @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
     @inject(TYPES.REVISIONS_LIMIT_ENABLED) private revisionsLimitEnabled: boolean,
     @inject(TYPES.Timer) private timer: TimerInterface,
@@ -41,15 +43,17 @@ export class RevisionService implements RevisionServiceInterface {
       itemUuid: fromItemUuid,
     })
 
+    const toItem = await this.itemRepository.findByUuid(toItemUuid)
+    if (toItem === undefined) {
+      throw Error(`Item ${toItemUuid} does not exist`)
+    }
+
     for (const existingRevision of revisions) {
-      const revisionCopy = Object.assign({}, existingRevision, { uuid: undefined, itemUuid: toItemUuid })
+      const revisionCopy = Object.assign({}, existingRevision, { uuid: undefined }) as Revision
+      revisionCopy.item = Promise.resolve(toItem)
 
       await this.revisionRepository.save(revisionCopy)
     }
-  }
-
-  async deleteRevisionsForItem(item: Item): Promise<void> {
-    await this.revisionRepository.removeByItem(item.uuid)
   }
 
   async createRevision(item: Item): Promise<void> {
@@ -64,7 +68,7 @@ export class RevisionService implements RevisionServiceInterface {
     revision.content = item.content
     revision.contentType = item.contentType
     revision.encItemKey = item.encItemKey
-    revision.itemUuid = item.uuid
+    revision.item = Promise.resolve(item)
     revision.itemsKeyId = item.itemsKeyId
     revision.creationDate = now
     revision.createdAt = now
