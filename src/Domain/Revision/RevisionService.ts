@@ -49,8 +49,16 @@ export class RevisionService implements RevisionServiceInterface {
     }
 
     for (const existingRevision of revisions) {
-      const revisionCopy = Object.assign({}, existingRevision, { uuid: undefined }) as Revision
+      const revisionCopy = new Revision()
+      revisionCopy.authHash = existingRevision.authHash
+      revisionCopy.content = existingRevision.content
+      revisionCopy.contentType = existingRevision.contentType
+      revisionCopy.encItemKey = existingRevision.encItemKey
       revisionCopy.item = Promise.resolve(toItem)
+      revisionCopy.itemsKeyId = existingRevision.itemsKeyId
+      revisionCopy.creationDate = existingRevision.creationDate
+      revisionCopy.createdAt = existingRevision.createdAt
+      revisionCopy.updatedAt = existingRevision.updatedAt
 
       await this.revisionRepository.save(revisionCopy)
     }
