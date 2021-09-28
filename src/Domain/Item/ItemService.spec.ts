@@ -102,9 +102,8 @@ describe('ItemService', () => {
     } as jest.Mocked<ItemHash>
 
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
-    itemRepository.findAll = jest.fn().mockReturnValue([item1, item2])
+    itemRepository.findAllAndCount = jest.fn().mockReturnValue([ [item1, item2], 2 ])
     itemRepository.save = jest.fn().mockImplementation((item: Item) => item)
-    itemRepository.countAllByUserUuid = jest.fn().mockReturnValue(2)
 
     revisionService = {} as jest.Mocked<RevisionServiceInterface>
     revisionService.createRevision = jest.fn()
@@ -169,14 +168,14 @@ describe('ItemService', () => {
       items: [ item1, item2 ],
     })
 
-    expect(itemRepository.findAll).toHaveBeenCalledWith({
+    expect(itemRepository.findAllAndCount).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1615791600000000,
       syncTimeComparison: '>',
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
       userUuid: '1-2-3',
-      limit: 500,
+      limit: 150,
     })
   })
 
@@ -191,14 +190,14 @@ describe('ItemService', () => {
       items: [ item1, item2 ],
     })
 
-    expect(itemRepository.findAll).toHaveBeenCalledWith({
+    expect(itemRepository.findAllAndCount).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1616164633241564,
       syncTimeComparison: '>',
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
       userUuid: '1-2-3',
-      limit: 500,
+      limit: 150,
     })
   })
 
@@ -311,8 +310,7 @@ describe('ItemService', () => {
   })
 
   it('should return a cursor token if there are more items than requested with limit', async () => {
-    itemRepository.countAllByUserUuid = jest.fn().mockReturnValueOnce(2)
-    itemRepository.findAll = jest.fn().mockReturnValue([ item1 ])
+    itemRepository.findAllAndCount = jest.fn().mockReturnValue([ [item1 ], 2 ])
 
     const itemsResponse = await createService().getItems({
       userUuid: '1-2-3',
@@ -328,7 +326,7 @@ describe('ItemService', () => {
 
     expect(Buffer.from(<string> itemsResponse.cursorToken, 'base64').toString('utf-8')).toEqual('2:1616164633.241311')
 
-    expect(itemRepository.findAll).toHaveBeenCalledWith({
+    expect(itemRepository.findAllAndCount).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1616164633241564,
       syncTimeComparison: '>',
@@ -353,14 +351,14 @@ describe('ItemService', () => {
       items: [ item1, item2 ],
     })
 
-    expect(itemRepository.findAll).toHaveBeenCalledWith({
+    expect(itemRepository.findAllAndCount).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1616164633241123,
       syncTimeComparison: '>=',
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
       userUuid: '1-2-3',
-      limit: 500,
+      limit: 150,
     })
   })
 
@@ -411,14 +409,14 @@ describe('ItemService', () => {
       items: [ item1, item2 ],
     })
 
-    expect(itemRepository.findAll).toHaveBeenCalledWith({
+    expect(itemRepository.findAllAndCount).toHaveBeenCalledWith({
       contentType: 'Note',
       deleted: false,
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
       syncTimeComparison: '>',
       userUuid: '1-2-3',
-      limit: 500,
+      limit: 150,
     })
   })
 
@@ -429,14 +427,14 @@ describe('ItemService', () => {
       contentType: ContentType.Note,
     })
 
-    expect(itemRepository.findAll).toHaveBeenCalledWith({
+    expect(itemRepository.findAllAndCount).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1616164633241564,
       syncTimeComparison: '>',
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
       userUuid: '1-2-3',
-      limit: 500,
+      limit: 150,
     })
   })
 
@@ -448,14 +446,14 @@ describe('ItemService', () => {
       contentType: ContentType.Note,
     })
 
-    expect(itemRepository.findAll).toHaveBeenCalledWith({
+    expect(itemRepository.findAllAndCount).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1616164633241564,
       syncTimeComparison: '>',
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
       userUuid: '1-2-3',
-      limit: 500,
+      limit: 150,
     })
   })
 

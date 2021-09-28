@@ -110,21 +110,6 @@ describe('MySQLItemRepository', () => {
     expect(result).toEqual(item)
   })
 
-  it('should count all items by user uuid', async () => {
-    queryBuilder.where = jest.fn().mockReturnThis()
-    queryBuilder.getCount = jest.fn().mockReturnValue(1)
-
-    const result = await repository.countAllByUserUuid('1-2-3')
-
-    expect(queryBuilder.where).toHaveBeenCalledWith(
-      'item.user_uuid = :userUuid',
-      {
-        userUuid: '1-2-3',
-      }
-    )
-    expect(result).toEqual(1)
-  })
-
   it('should find items by all query criteria filled in', async () => {
     queryBuilder.getMany = jest.fn().mockReturnValue([ item ])
     queryBuilder.where = jest.fn()
@@ -159,6 +144,42 @@ describe('MySQLItemRepository', () => {
     expect(queryBuilder.orderBy).toHaveBeenCalledWith('item.updated_at_timestamp', 'DESC')
 
     expect(result).toEqual([ item ])
+  })
+
+  it('should find items with count by all query criteria filled in', async () => {
+    queryBuilder.getManyAndCount = jest.fn().mockReturnValue([ [ item ], 1 ])
+    queryBuilder.where = jest.fn()
+    queryBuilder.andWhere = jest.fn()
+    queryBuilder.orderBy = jest.fn()
+    queryBuilder.skip = jest.fn()
+    queryBuilder.take = jest.fn()
+
+    const result = await repository.findAllAndCount({
+      userUuid: '1-2-3',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'DESC',
+      deleted: false,
+      contentType: ContentType.Note,
+      lastSyncTime: 123,
+      syncTimeComparison: '>=',
+      uuids: [ '2-3-4' ],
+      offset: 1,
+      limit: 10,
+    })
+
+    expect(queryBuilder.where).toHaveBeenCalledTimes(1)
+    expect(queryBuilder.andWhere).toHaveBeenCalledTimes(4)
+    expect(queryBuilder.where).toHaveBeenNthCalledWith(1, 'item.user_uuid = :userUuid', { userUuid: '1-2-3' })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(1, 'item.uuid IN (:...uuids)', { uuids: [ '2-3-4' ] })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(2, 'item.deleted = :deleted', { deleted: false })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(3, 'item.content_type = :contentType', { contentType: 'Note' })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(4, 'item.updated_at_timestamp >= :lastSyncTime', { lastSyncTime: 123 })
+    expect(queryBuilder.skip).toHaveBeenCalledWith(1)
+    expect(queryBuilder.take).toHaveBeenCalledWith(10)
+
+    expect(queryBuilder.orderBy).toHaveBeenCalledWith('item.updated_at_timestamp', 'DESC')
+
+    expect(result).toEqual([ [ item ], 1 ])
   })
 
   it('should find items by only mandatory query criteria', async () => {

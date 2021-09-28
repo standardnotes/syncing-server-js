@@ -27,7 +27,7 @@ import { ItemSaveValidatorInterface } from './SaveValidator/ItemSaveValidatorInt
 
 @injectable()
 export class ItemService implements ItemServiceInterface {
-  private readonly DEFAULT_ITEMS_LIMIT = 500
+  private readonly DEFAULT_ITEMS_LIMIT = 150
   private readonly SYNC_TOKEN_VERSION = 2
 
   constructor (
@@ -79,8 +79,9 @@ export class ItemService implements ItemServiceInterface {
       limit,
     }
 
-    let items = await this.itemRepository.findAll(itemQuery)
-    const totalItemsCount = await this.itemRepository.countAllByUserUuid(dto.userUuid)
+    const itemsAndCount = await this.itemRepository.findAllAndCount(itemQuery)
+    let items = itemsAndCount[0]
+    const totalItemsCount = itemsAndCount[1]
 
     const userHasMovedMFAToUserSettings = await this.serviceTransitionHelper.userHasMovedMFAToUserSettings(dto.userUuid)
 

@@ -1,5 +1,5 @@
 import { injectable } from 'inversify'
-import { EntityRepository, Repository } from 'typeorm'
+import { EntityRepository, Repository, SelectQueryBuilder } from 'typeorm'
 import { ContentType } from '@standardnotes/common'
 import { Item } from '../../Domain/Item/Item'
 import { ItemQuery } from '../../Domain/Item/ItemQuery'
@@ -25,12 +25,6 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
         }
       )
       .getOne()
-  }
-
-  async countAllByUserUuid(userUuid: string): Promise<number> {
-    return this.createQueryBuilder('item')
-      .where('item.user_uuid = :userUuid', { userUuid })
-      .getCount()
   }
 
   async findDatesForComputingIntegrityHash(userUuid: string): Promise<Array<{content_type: string, updated_at_timestamp: number}>> {
@@ -60,32 +54,11 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
   }
 
   async findAll(query: ItemQuery): Promise<Item[]> {
-    const queryBuilder = this.createQueryBuilder('item')
-    queryBuilder.orderBy(`item.${query.sortBy}`, query.sortOrder)
+    return this.createFindAllQueryBuilder(query).getMany()
+  }
 
-    if (query.userUuid !== undefined) {
-      queryBuilder.where('item.user_uuid = :userUuid', { userUuid: query.userUuid })
-    }
-    if (query.uuids) {
-      queryBuilder.andWhere('item.uuid IN (:...uuids)', { uuids: query.uuids })
-    }
-    if (query.deleted !== undefined) {
-      queryBuilder.andWhere('item.deleted = :deleted', { deleted: query.deleted })
-    }
-    if (query.contentType) {
-      queryBuilder.andWhere('item.content_type = :contentType', { contentType: query.contentType })
-    }
-    if (query.lastSyncTime && query.syncTimeComparison) {
-      queryBuilder.andWhere(`item.updated_at_timestamp ${query.syncTimeComparison} :lastSyncTime`, { lastSyncTime: query.lastSyncTime })
-    }
-    if (query.offset !== undefined) {
-      queryBuilder.skip(query.offset)
-    }
-    if (query.limit !== undefined) {
-      queryBuilder.take(query.limit)
-    }
-
-    return queryBuilder.getMany()
+  async findAllAndCount(query: ItemQuery): Promise<[Item[], number]> {
+    return this.createFindAllQueryBuilder(query).getManyAndCount()
   }
 
   async findMFAExtensionByUserUuid(userUuid: string): Promise<Item | undefined> {
@@ -132,5 +105,34 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
         }
       )
       .execute()
+  }
+
+  private createFindAllQueryBuilder(query: ItemQuery): SelectQueryBuilder<Item> {
+    const queryBuilder = this.createQueryBuilder('item')
+    queryBuilder.orderBy(`item.${query.sortBy}`, query.sortOrder)
+
+    if (query.userUuid !== undefined) {
+      queryBuilder.where('item.user_uuid = :userUuid', { userUuid: query.userUuid })
+    }
+    if (query.uuids) {
+      queryBuilder.andWhere('item.uuid IN (:...uuids)', { uuids: query.uuids })
+    }
+    if (query.deleted !== undefined) {
+      queryBuilder.andWhere('item.deleted = :deleted', { deleted: query.deleted })
+    }
+    if (query.contentType) {
+      queryBuilder.andWhere('item.content_type = :contentType', { contentType: query.contentType })
+    }
+    if (query.lastSyncTime && query.syncTimeComparison) {
+      queryBuilder.andWhere(`item.updated_at_timestamp ${query.syncTimeComparison} :lastSyncTime`, { lastSyncTime: query.lastSyncTime })
+    }
+    if (query.offset !== undefined) {
+      queryBuilder.skip(query.offset)
+    }
+    if (query.limit !== undefined) {
+      queryBuilder.take(query.limit)
+    }
+
+    return queryBuilder
   }
 }
