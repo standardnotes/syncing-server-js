@@ -27,6 +27,12 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
       .getOne()
   }
 
+  async countAllByUserUuid(userUuid: string): Promise<number> {
+    return this.createQueryBuilder('item')
+      .where('item.user_uuid = :userUuid', { userUuid })
+      .getCount()
+  }
+
   async findDatesForComputingIntegrityHash(userUuid: string): Promise<Array<{content_type: string, updated_at_timestamp: number}>> {
     const queryBuilder = this.createQueryBuilder('item')
     queryBuilder.select('item.updated_at_timestamp')

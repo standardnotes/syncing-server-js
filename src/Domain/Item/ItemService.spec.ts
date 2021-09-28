@@ -104,6 +104,7 @@ describe('ItemService', () => {
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
     itemRepository.findAll = jest.fn().mockReturnValue([item1, item2])
     itemRepository.save = jest.fn().mockImplementation((item: Item) => item)
+    itemRepository.countAllByUserUuid = jest.fn().mockReturnValue(2)
 
     revisionService = {} as jest.Mocked<RevisionServiceInterface>
     revisionService.createRevision = jest.fn()
@@ -162,7 +163,6 @@ describe('ItemService', () => {
       await createService().getItems({
         userUuid: '1-2-3',
         syncToken,
-        limit: 100,
         contentType: ContentType.Note,
       })
     ).toEqual({
@@ -176,6 +176,7 @@ describe('ItemService', () => {
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
       userUuid: '1-2-3',
+      limit: 500,
     })
   })
 
@@ -184,7 +185,6 @@ describe('ItemService', () => {
       await createService().getItems({
         userUuid: '1-2-3',
         syncToken,
-        limit: 100,
         contentType: ContentType.Note,
       })
     ).toEqual({
@@ -198,6 +198,7 @@ describe('ItemService', () => {
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
       userUuid: '1-2-3',
+      limit: 500,
     })
   })
 
@@ -310,6 +311,9 @@ describe('ItemService', () => {
   })
 
   it('should return a cursor token if there are more items than requested with limit', async () => {
+    itemRepository.countAllByUserUuid = jest.fn().mockReturnValueOnce(2)
+    itemRepository.findAll = jest.fn().mockReturnValue([ item1 ])
+
     const itemsResponse = await createService().getItems({
       userUuid: '1-2-3',
       syncToken,
@@ -331,6 +335,7 @@ describe('ItemService', () => {
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
       userUuid: '1-2-3',
+      limit: 1,
     })
   })
 
@@ -342,7 +347,6 @@ describe('ItemService', () => {
         userUuid: '1-2-3',
         syncToken,
         cursorToken,
-        limit: 100,
         contentType: ContentType.Note,
       })
     ).toEqual({
@@ -356,10 +360,11 @@ describe('ItemService', () => {
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
       userUuid: '1-2-3',
+      limit: 500,
     })
   })
 
-  it('should retrieve all items for a user from cursor token', async () => {
+  it('should retrieve all items with stubbed mfa item for a user from cursor token', async () => {
     serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'active' })
     serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633251569)
 
@@ -400,7 +405,6 @@ describe('ItemService', () => {
     expect(
       await createService().getItems({
         userUuid: '1-2-3',
-        limit: 100,
         contentType: ContentType.Note,
       })
     ).toEqual({
@@ -414,6 +418,7 @@ describe('ItemService', () => {
       sortOrder: 'ASC',
       syncTimeComparison: '>',
       userUuid: '1-2-3',
+      limit: 500,
     })
   })
 
@@ -431,6 +436,7 @@ describe('ItemService', () => {
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
       userUuid: '1-2-3',
+      limit: 500,
     })
   })
 
@@ -449,6 +455,7 @@ describe('ItemService', () => {
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
       userUuid: '1-2-3',
+      limit: 500,
     })
   })
 

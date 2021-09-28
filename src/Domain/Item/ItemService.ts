@@ -27,7 +27,7 @@ import { ItemSaveValidatorInterface } from './SaveValidator/ItemSaveValidatorInt
 
 @injectable()
 export class ItemService implements ItemServiceInterface {
-  private readonly DEFAULT_ITEMS_LIMIT = 100000
+  private readonly DEFAULT_ITEMS_LIMIT = 500
   private readonly SYNC_TOKEN_VERSION = 2
 
   constructor (
@@ -66,6 +66,7 @@ export class ItemService implements ItemServiceInterface {
   async getItems(dto: GetItemsDTO): Promise<GetItemsResult> {
     const lastSyncTime = this.getLastSyncTime(dto)
     const syncTimeComparison = dto.cursorToken ? '>=' : '>'
+    const limit = dto.limit === undefined || dto.limit < 1 ? this.DEFAULT_ITEMS_LIMIT : dto.limit
 
     const itemQuery: ItemQuery = {
       userUuid: dto.userUuid,
@@ -75,9 +76,11 @@ export class ItemService implements ItemServiceInterface {
       deleted: lastSyncTime ? undefined : false,
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
+      limit,
     }
 
     let items = await this.itemRepository.findAll(itemQuery)
+    const totalItemsCount = await this.itemRepository.countAllByUserUuid(dto.userUuid)
 
     const userHasMovedMFAToUserSettings = await this.serviceTransitionHelper.userHasMovedMFAToUserSettings(dto.userUuid)
 
@@ -94,9 +97,7 @@ export class ItemService implements ItemServiceInterface {
     }
 
     let cursorToken = undefined
-    const limit = dto.limit === undefined || dto.limit < 1 ? this.DEFAULT_ITEMS_LIMIT : dto.limit
-    if (items.length > limit) {
-      items = items.slice(0, limit)
+    if (totalItemsCount > limit) {
       const lastSyncTime = (items[items.length - 1].updatedAtTimestamp) / Time.MicrosecondsInASecond
       cursorToken = Buffer.from(`${this.SYNC_TOKEN_VERSION}:${lastSyncTime}`, 'utf-8').toString('base64')
     }
