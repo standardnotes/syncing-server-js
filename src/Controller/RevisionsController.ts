@@ -22,7 +22,12 @@ export class RevisionsController extends BaseHttpController {
   public async getRevisions(req: Request, response: Response): Promise<results.JsonResult> {
     const revisions = await this.revisionService.getRevisions(response.locals.user.uuid, req.params.itemUuid)
 
-    return this.json(revisions.map((revision) => this.revisionProjector.projectSimple(revision)))
+    const revisionProjections = []
+    for (const revision of revisions) {
+      revisionProjections.push(await this.revisionProjector.projectSimple(revision))
+    }
+
+    return this.json(revisionProjections)
   }
 
   @httpGet('/:uuid')
@@ -33,6 +38,8 @@ export class RevisionsController extends BaseHttpController {
       return this.notFound()
     }
 
-    return this.json(this.revisionProjector.projectFull(revision))
+    const revisionProjection = await this.revisionProjector.projectFull(revision)
+
+    return this.json(revisionProjection)
   }
 }
