@@ -27,11 +27,16 @@ export class S3ItemBackupService implements ItemBackupServiceInterface {
 
     const fileName = uuid.v4()
 
+    const itemProjections = []
+    for (const item of items) {
+      itemProjections.push(await this.itemProjector.projectFull(item))
+    }
+
     const uploadResult = await this.s3Client.upload({
       Bucket: this.s3BackupBucketName,
       Key: fileName,
       Body: JSON.stringify({
-        items: items.map((item: Item) => this.itemProjector.projectFull(item)),
+        items: itemProjections,
         auth_params: authParams,
       }),
     }).promise()
