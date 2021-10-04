@@ -638,7 +638,12 @@
   resolved "https://registry.yarnpkg.com/@standardnotes/auth/-/auth-3.1.0.tgz#1caed42e2f4d4ca869e1532f996b7708ae68422e"
   integrity sha512-Bkh1zdMYuDTadztr4Cq+BmL4hK/UishXFQbNmH7AgMiTAWhuea+n9VBwm6dyDVfAr83hWpRG6U3TQZSc8yniqA==
 
-"@standardnotes/common@1.1.0", "@standardnotes/common@^1.1.0":
+"@standardnotes/common@1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@standardnotes/common/-/common-1.2.0.tgz#949c9d384c54fbabeacca9ea3f6485cbc78da4bf"
+  integrity sha512-QiOAG858BcXUGSRjsmtk854/4OLyGkdcbvixia8Xcfv4d76iL/pQf7JFTDbanr9Ygodrc6B+h+NuzliO41COcg==
+
+"@standardnotes/common@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@standardnotes/common/-/common-1.1.0.tgz#5ffb0a50f9947471e236bb66d097f153ad9a148f"
   integrity sha512-Nm2IFWbMSfZDD7cnKtN+Gjic0f+PhPq/da/o4eOoUKg21VeOaQkTn+jlQKraKIs6Lmf+w9mmPNAgMc5o4hj7Lg==
