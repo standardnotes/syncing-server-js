@@ -29,7 +29,7 @@
     "@standardnotes/auth": "3.1.0",
     "@standardnotes/common": "1.2.0",
     "@standardnotes/domain-events": "1.1.7",
-    "@standardnotes/features": "1.6.2",
+    "@standardnotes/features": "1.7.2",
     "@standardnotes/time": "1.0.1",
     "aws-sdk": "^2.880.0",
     "axios": "^0.21.1",

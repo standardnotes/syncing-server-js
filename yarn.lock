@@ -668,10 +668,10 @@
     sqs-consumer "^5.5.0"
     winston "^3.3.3"
 
-"@standardnotes/features@1.6.2":
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/@standardnotes/features/-/features-1.6.2.tgz#98c5998426d9f93e06c2846c5bc7b6aef8d31063"
-  integrity sha512-s/rqRyG7mrrgxJOzckPSYlB68wsRpM9jlFwDE+7zQO5/xKh+37ueWfy3RoqOgkKLey6lMpnTurofIJCvqLM3dQ==
+"@standardnotes/features@1.7.2":
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/@standardnotes/features/-/features-1.7.2.tgz#7a45a947f56c55d191614f7293af553c5209705a"
+  integrity sha512-zFTHzYAC+08Lbeni5x3RalR5FT8qVORgv3T/z6/Ye4mGvDyXSAddgDPn+o/NmzirwBTpaF6ogSzwZocsElm8zg==
   dependencies:
     "@standardnotes/common" "^1.1.0"
 
