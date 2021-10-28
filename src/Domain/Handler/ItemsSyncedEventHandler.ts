@@ -43,11 +43,12 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
     if (!event.payload.skipFileBackup) {
       backupFilename = await this.itemBackupService.backup(items, authParams)
     }
+    const backingUpViaProxyFile = backupFilename !== ''
 
     this.logger.debug(`Sending ${items.length} items to extensions server for user ${event.payload.userUuid}`)
 
     await this.extensionsHttpService.sendItemsToExtensionsServer({
-      items,
+      items: backingUpViaProxyFile ? undefined : items,
       authParams,
       backupFilename,
       forceMute: event.payload.forceMute,
