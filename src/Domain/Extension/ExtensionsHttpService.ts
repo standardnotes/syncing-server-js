@@ -30,6 +30,17 @@ export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
 
     let sent = false
     try {
+      const payload: Record<string, unknown> = {
+        backup_filename: dto.backupFilename,
+        auth_params: dto.authParams,
+        silent: emailMuteSettings.muteEmails,
+        user_uuid: dto.userUuid,
+        settings_id: emailMuteSettings.extensionSetting.uuid,
+      }
+      if (dto.items !== undefined) {
+        payload.items = dto.items
+      }
+
       const response = await this.httpClient
         .request({
           method: 'POST',
@@ -37,14 +48,7 @@ export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
           headers: {
             'Content-Type': 'application/json',
           },
-          data: {
-            items: dto.items,
-            backup_filename: dto.backupFilename,
-            auth_params: dto.authParams,
-            silent: emailMuteSettings.muteEmails,
-            user_uuid: dto.userUuid,
-            settings_id: emailMuteSettings.extensionSetting.uuid,
-          },
+          data: payload,
           validateStatus:
           /* istanbul ignore next */
           (status: number) => status >= 200 && status < 500,
@@ -52,7 +56,7 @@ export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
 
       sent = response.status >= 200 && response.status < 300
     } catch (error) {
-      this.logger.error(`Failed to send a request to extensions server: ${error.message}`)
+      this.logger.error(`[${dto.userUuid}] Failed to send a request to extensions server: ${error.message}`)
     }
 
     if (!sent && !emailMuteSettings.muteEmails) {

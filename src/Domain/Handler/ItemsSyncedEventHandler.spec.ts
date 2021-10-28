@@ -81,7 +81,6 @@ describe('ItemsSyncedEventHandler', () => {
       extensionId: '2-3-4',
       extensionsServerUrl: 'https://extensions-server/extension1',
       forceMute: false,
-      items: [ item ],
       userUuid: '1-2-3',
     })
   })
@@ -142,7 +141,6 @@ describe('ItemsSyncedEventHandler', () => {
       extensionId: '2-3-4',
       extensionsServerUrl: 'https://extensions-server/extension1',
       forceMute: false,
-      items: [ item ],
       userUuid: '1-2-3',
     })
   })
@@ -161,7 +159,6 @@ describe('ItemsSyncedEventHandler', () => {
       extensionId: '2-3-4',
       extensionsServerUrl: 'https://extensions-server/extension2',
       forceMute: false,
-      items: [ item ],
       userUuid: '1-2-3',
     })
   })

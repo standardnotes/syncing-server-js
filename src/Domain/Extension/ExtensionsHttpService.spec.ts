@@ -78,6 +78,34 @@ describe('ExtensionsHttpService', () => {
       extensionsServerUrl: 'https://extensions-server/extension1',
       forceMute: false,
       items: [ item ],
+      backupFilename: '',
+      authParams,
+    })
+
+    expect(httpClient.request).toHaveBeenCalledWith({
+      data:  {
+        auth_params: authParams,
+        backup_filename: '',
+        items:  [ item ],
+        settings_id: '3-4-5',
+        silent: false,
+        user_uuid: '1-2-3',
+      },
+      headers:  {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      url: 'https://extensions-server/extension1',
+      validateStatus: expect.any(Function),
+    })
+  })
+
+  it('should send items proxy backup file name only to extensions server', async () => {
+    await createService().sendItemsToExtensionsServer({
+      userUuid: '1-2-3',
+      extensionId: '2-3-4',
+      extensionsServerUrl: 'https://extensions-server/extension1',
+      forceMute: false,
       backupFilename: 'backup-file',
       authParams,
     })
@@ -86,7 +114,6 @@ describe('ExtensionsHttpService', () => {
       data:  {
         auth_params: authParams,
         backup_filename: 'backup-file',
-        items:  [ item ],
         settings_id: '3-4-5',
         silent: false,
         user_uuid: '1-2-3',
