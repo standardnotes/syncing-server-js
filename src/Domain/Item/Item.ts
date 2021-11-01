@@ -56,7 +56,7 @@ export class Item {
 
   @Column({
     name: 'user_uuid',
-    length: 255,
+    length: 36,
   })
   @Index('index_items_on_user_uuid')
   userUuid: string
