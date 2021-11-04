@@ -6,13 +6,6 @@ import {
   DomainEventHandlerInterface,
   DomainEventMessageHandlerInterface,
   DomainEventSubscriberFactoryInterface,
-  RedisDomainEventPublisher,
-  RedisDomainEventSubscriberFactory,
-  RedisEventMessageHandler,
-  SNSDomainEventPublisher,
-  SQSDomainEventSubscriberFactory,
-  SQSEventMessageHandler,
-  SQSNewRelicEventMessageHandler,
 } from '@standardnotes/domain-events'
 
 import { Env } from './Env'
@@ -68,6 +61,7 @@ import axios, { AxiosInstance } from 'axios'
 import { UuidFilter } from '../Domain/Item/SaveRule/UuidFilter'
 import { ContentTypeFilter } from '../Domain/Item/SaveRule/ContentTypeFilter'
 import { ContentFilter } from '../Domain/Item/SaveRule/ContentFilter'
+import { RedisDomainEventPublisher, RedisDomainEventSubscriberFactory, RedisEventMessageHandler, SNSDomainEventPublisher, SQSDomainEventSubscriberFactory, SQSEventMessageHandler, SQSNewRelicEventMessageHandler } from '@standardnotes/domain-events-infra'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
