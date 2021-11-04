@@ -1,4 +1,4 @@
-FROM node:15.11.0-alpine
+FROM node:16.11.1-alpine3.14
 
 ARG UID=1001
 ARG GID=1001
@@ -7,7 +7,7 @@ RUN addgroup -S syncingserver -g $GID && adduser -D -S syncingserver -G syncings
 
 RUN apk add --update --no-cache \
     alpine-sdk \
-    python
+    python3
 
 WORKDIR /var/www
 
