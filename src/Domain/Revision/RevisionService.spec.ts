@@ -17,19 +17,15 @@ describe('RevisionService', () => {
   let authHttpService: AuthHttpServiceInterface
   let revision1: Revision
   let revision2: Revision
-  let revisionsLimitEnabled: boolean
 
   const createService = () => new RevisionService(
     revisionRepository,
     itemRepository,
     authHttpService,
-    revisionsLimitEnabled,
     timer
   )
 
   beforeEach(() => {
-    revisionsLimitEnabled = true
-
     revisionRepository = {} as jest.Mocked<RevisionRepositoryInterface>
     revisionRepository.save = jest.fn().mockImplementation((revision: Revision) => {
       revision.uuid = '3-4-5'
@@ -78,16 +74,6 @@ describe('RevisionService', () => {
     } as jest.Mocked<Item>
   })
 
-  it('should get revisions for an item - limitation disabled', async () => {
-    revisionsLimitEnabled = false
-
-    await createService().getRevisions('1-2-3', '2-3-4')
-
-    expect(revisionRepository.findByItemId).toHaveBeenCalledWith({
-      itemUuid: '2-3-4',
-    })
-  })
-
   it('should get revisions for an item - default days limitation', async () => {
     await createService().getRevisions('1-2-3', '2-3-4')
 
@@ -116,6 +102,30 @@ describe('RevisionService', () => {
     authHttpService.getUserFeatures = jest.fn().mockReturnValue([
       {
         identifier: FeatureIdentifier.NoteHistory365Days,
+      },
+    ])
+
+    await createService().getRevisions('1-2-3', '2-3-4')
+
+    expect(revisionRepository.findByItemId).toHaveBeenCalledWith({
+      itemUuid: '2-3-4',
+      afterDate: new Date(365),
+    })
+  })
+
+  it('should get revisions for an item - 365 days limitation - older limitations available', async () => {
+    authHttpService.getUserFeatures = jest.fn().mockReturnValue([
+      {
+        identifier: FeatureIdentifier.NoteHistory30Days,
+        expires_at: 333,
+      },
+      {
+        identifier: FeatureIdentifier.NoteHistory365Days,
+        expires_at: 555,
+      },
+      {
+        identifier: FeatureIdentifier.NoteHistoryUnlimited,
+        expires_at: 444,
       },
     ])
 
