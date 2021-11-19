@@ -18,17 +18,14 @@ export class RevisionService implements RevisionServiceInterface {
     @inject(TYPES.RevisionRepository) private revisionRepository: RevisionRepositoryInterface,
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
-    @inject(TYPES.REVISIONS_LIMIT_ENABLED) private revisionsLimitEnabled: boolean,
     @inject(TYPES.Timer) private timer: TimerInterface,
   ) {
   }
 
   async getRevisions(userUuid: string, itemUuid: string): Promise<Revision[]> {
     let afterDate = undefined
-    if (this.revisionsLimitEnabled) {
-      const revisionDaysLimit = await this.getRevisionDaysLimit(userUuid)
-      afterDate = revisionDaysLimit ? this.timer.getUTCDateNDaysAgo(revisionDaysLimit) : undefined
-    }
+    const revisionDaysLimit = await this.getRevisionDaysLimit(userUuid)
+    afterDate = revisionDaysLimit ? this.timer.getUTCDateNDaysAgo(revisionDaysLimit) : undefined
 
     const revisions = await this.revisionRepository.findByItemId({
       itemUuid,
@@ -87,6 +84,7 @@ export class RevisionService implements RevisionServiceInterface {
 
   private async getRevisionDaysLimit(userUuid: string): Promise<number | undefined> {
     const userFeatures = await this.authHttpService.getUserFeatures(userUuid)
+    userFeatures.sort((a, b) => (a.expires_at as number) > (b.expires_at as number) ? -1 : 1)
 
     for (const userFeature of userFeatures) {
       if (userFeature.identifier === FeatureIdentifier.NoteHistory30Days) {
