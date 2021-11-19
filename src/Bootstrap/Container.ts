@@ -178,7 +178,6 @@ export class ContainerConfigLoader {
     container.bind(TYPES.REDIS_EVENTS_CHANNEL).toConstantValue(env.get('REDIS_EVENTS_CHANNEL'))
     container.bind(TYPES.AUTH_JWT_SECRET).toConstantValue(env.get('AUTH_JWT_SECRET'))
     container.bind(TYPES.INTERNAL_DNS_REROUTE_ENABLED).toConstantValue(env.get('INTERNAL_DNS_REROUTE_ENABLED', true) === 'true')
-    container.bind(TYPES.REVISIONS_LIMIT_ENABLED).toConstantValue(env.get('REVISIONS_LIMIT_ENABLED', true) === 'true')
     container.bind(TYPES.EXTENSIONS_SERVER_URL).toConstantValue(env.get('EXTENSIONS_SERVER_URL', true))
     container.bind(TYPES.AUTH_SERVER_URL).toConstantValue(env.get('AUTH_SERVER_URL'))
     container.bind(TYPES.S3_AWS_REGION).toConstantValue(env.get('S3_AWS_REGION', true))
