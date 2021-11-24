@@ -124,7 +124,7 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
     if (query.userUuid !== undefined) {
       queryBuilder.where('item.user_uuid = :userUuid', { userUuid: query.userUuid })
     }
-    if (query.uuids) {
+    if (query.uuids && query.uuids.length > 0) {
       queryBuilder.andWhere('item.uuid IN (:...uuids)', { uuids: query.uuids })
     }
     if (query.deleted !== undefined) {

@@ -81,12 +81,14 @@ export class ItemService implements ItemServiceInterface {
     }
 
     const itemUuidsToFetch = await this.computeItemIdsToFetchBasedOnTransferLimit(itemQuery)
-
-    let items = await this.itemRepository.findAll({
-      uuids: itemUuidsToFetch,
-      sortBy: 'updated_at_timestamp',
-      sortOrder: 'ASC',
-    })
+    let items: Array<Item> = []
+    if (itemUuidsToFetch.length > 0) {
+      items = await this.itemRepository.findAll({
+        uuids: itemUuidsToFetch,
+        sortBy: 'updated_at_timestamp',
+        sortOrder: 'ASC',
+      })
+    }
     const totalItemsCount = await this.itemRepository.countAll(itemQuery)
 
     const userHasMovedMFAToUserSettings = await this.serviceTransitionHelper.userHasMovedMFAToUserSettings(dto.userUuid)

@@ -339,6 +339,40 @@ describe('ItemService', () => {
     })
   })
 
+  it('should retrieve no items for a user if there are none from last sync', async () => {
+    itemRepository.findContentSizeForComputingTransferLimit = jest.fn().mockReturnValue([])
+
+    expect(
+      await createService().getItems({
+        userUuid: '1-2-3',
+        syncToken,
+        contentType: ContentType.Note,
+      })
+    ).toEqual({
+      items: [],
+    })
+
+    expect(itemRepository.findAll).not.toHaveBeenCalled()
+    expect(itemRepository.findContentSizeForComputingTransferLimit).toHaveBeenCalledWith({
+      contentType: 'Note',
+      lastSyncTime: 1616164633241564,
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      limit: 150,
+    })
+    expect(itemRepository.countAll).toHaveBeenCalledWith({
+      contentType: 'Note',
+      lastSyncTime: 1616164633241564,
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      limit: 150,
+    })
+  })
+
   it('should retrieve all items including MFA stub item for a user from last sync', async () => {
     serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'active' })
     serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241569)
