@@ -197,8 +197,10 @@ export class ItemService implements ItemServiceInterface {
   }
 
   private async updateExistingItem(existingItem: Item, itemHash: ItemHash, userAgent?: string): Promise<Item> {
+    existingItem.contentSize = 0
     if (itemHash.content) {
       existingItem.content = itemHash.content
+      existingItem.contentSize = Buffer.byteLength(itemHash.content)
     }
     if (itemHash.content_type) {
       existingItem.contentType = itemHash.content_type
@@ -225,6 +227,7 @@ export class ItemService implements ItemServiceInterface {
     if (itemHash.deleted === true) {
       existingItem.deleted = true
       existingItem.content = null
+      existingItem.contentSize = 0,
       existingItem.encItemKey = null
       existingItem.authHash = null
     }

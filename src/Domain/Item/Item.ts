@@ -40,6 +40,13 @@ export class Item {
   contentType: string | null
 
   @Column({
+    name: 'content_size',
+    type: 'bigint',
+    nullable: true,
+  })
+  contentSize: number | null
+
+  @Column({
     name: 'enc_item_key',
     type: 'text',
     nullable: true,

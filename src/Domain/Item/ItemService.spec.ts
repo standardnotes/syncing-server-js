@@ -647,6 +647,7 @@ describe('ItemService', () => {
       savedItems: [
         {
           content: 'asdqwe1',
+          contentSize: 7,
           contentType: 'Note',
           createdAtTimestamp: expect.any(Number),
           createdAt: expect.any(Date),
@@ -681,6 +682,7 @@ describe('ItemService', () => {
       savedItems: [
         {
           content: 'asdqwe1',
+          contentSize: 7,
           contentType: 'Note',
           createdAtTimestamp: expect.any(Number),
           createdAt: expect.any(Date),
@@ -714,6 +716,7 @@ describe('ItemService', () => {
       savedItems: [
         {
           content: 'asdqwe1',
+          contentSize: 7,
           contentType: 'Note',
           createdAtTimestamp: 123,
           createdAt: expect.any(Date),
@@ -745,6 +748,7 @@ describe('ItemService', () => {
       conflicts: [],
       savedItems: [
         {
+          contentSize: 0,
           createdAtTimestamp: expect.any(Number),
           createdAt: expect.any(Date),
           lastUserAgent: 'Brave',
@@ -774,6 +778,7 @@ describe('ItemService', () => {
       savedItems: [
         {
           content: 'asdqwe1',
+          contentSize: 7,
           contentType: 'Note',
           createdAtTimestamp: expect.any(Number),
           createdAt: expect.any(Date),
@@ -804,6 +809,7 @@ describe('ItemService', () => {
       savedItems: [
         {
           content: 'asdqwe1',
+          contentSize: 7,
           contentType: 'Note',
           createdAtTimestamp: expect.any(Number),
           createdAt: expect.any(Date),
@@ -837,6 +843,7 @@ describe('ItemService', () => {
       savedItems: [
         {
           content: 'asdqwe1',
+          contentSize: 7,
           contentType: 'Note',
           createdAtTimestamp: expect.any(Number),
           createdAt: expect.any(Date),
@@ -870,6 +877,7 @@ describe('ItemService', () => {
       savedItems: [
         {
           content: null,
+          contentSize: 0,
           authHash: null,
           contentType: 'Note',
           createdAtTimestamp: expect.any(Number),
@@ -904,6 +912,7 @@ describe('ItemService', () => {
       savedItems: [
         {
           content: 'asdqwe1',
+          contentSize: 7,
           contentType: 'Note',
           createdAtTimestamp: expect.any(Number),
           createdAt: expect.any(Date),

@@ -33,8 +33,10 @@ export class ItemFactory implements ItemFactoryInterface {
   create(userUuid: string, itemHash: ItemHash, userAgent?: string): Item {
     const newItem = new Item()
     newItem.uuid = itemHash.uuid
+    newItem.contentSize = 0
     if (itemHash.content) {
       newItem.content = itemHash.content
+      newItem.contentSize = Buffer.byteLength(itemHash.content)
     }
     newItem.userUuid = userUuid
     if (itemHash.content_type) {

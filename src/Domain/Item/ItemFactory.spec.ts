@@ -38,6 +38,7 @@ describe('ItemFactory', () => {
       updatedAtTimestamp: 1616164633241568,
       userUuid: 'a-b-c',
       uuid: '1-2-3',
+      contentSize: 0,
     })
   })
 
@@ -58,6 +59,7 @@ describe('ItemFactory', () => {
       userUuid: 'a-b-c',
       uuid: '1-2-3',
       content: null,
+      contentSize: 0,
     })
   })
 
@@ -79,6 +81,7 @@ describe('ItemFactory', () => {
       userUuid: 'a-b-c',
       uuid: '1-2-3',
       content: 'foobar',
+      contentSize: 6,
     })
   })
 
@@ -98,6 +101,7 @@ describe('ItemFactory', () => {
       userUuid: 'a-b-c',
       uuid: '1-2-3',
       content: null,
+      contentSize: 0,
     })
   })
 
@@ -119,6 +123,7 @@ describe('ItemFactory', () => {
 
     expect(item).toEqual({
       content: 'asdqwe1',
+      contentSize: 7,
       contentType: 'Note',
       createdAt: expect.any(Date),
       createdAtTimestamp: 1616164633241000,
@@ -151,6 +156,7 @@ describe('ItemFactory', () => {
 
     expect(item).toEqual({
       content: 'asdqwe1',
+      contentSize: 7,
       contentType: 'Note',
       createdAt: expect.any(Date),
       createdAtTimestamp: 1616164633241312,
