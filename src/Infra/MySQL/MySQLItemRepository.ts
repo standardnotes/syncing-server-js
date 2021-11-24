@@ -8,6 +8,16 @@ import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterfa
 @injectable()
 @EntityRepository(Item)
 export class MySQLItemRepository extends Repository<Item> implements ItemRepositoryInterface {
+  async findContentSizeForComputingTransferLimit(query: ItemQuery): Promise<{ uuid: string; contentSize: number | null }[]> {
+    const queryBuilder = this.createFindAllQueryBuilder(query)
+    queryBuilder.select('item.uuid', 'uuid')
+    queryBuilder.addSelect('item.content_size', 'contentSize')
+
+    const items = await queryBuilder.getRawMany()
+
+    return items
+  }
+
   async deleteByUserUuid(userUuid: string): Promise<void> {
     await this.createQueryBuilder('item')
       .delete()
@@ -57,8 +67,8 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
     return this.createFindAllQueryBuilder(query).getMany()
   }
 
-  async findAllAndCount(query: ItemQuery): Promise<[Item[], number]> {
-    return this.createFindAllQueryBuilder(query).getManyAndCount()
+  async countAll(query: ItemQuery): Promise<number> {
+    return this.createFindAllQueryBuilder(query).getCount()
   }
 
   async findMFAExtensionByUserUuid(userUuid: string): Promise<Item | undefined> {

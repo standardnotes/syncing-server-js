@@ -27,6 +27,7 @@ describe('ItemService', () => {
   let domainEventPublisher: DomainEventPublisherInterface
   let domainEventFactory: DomainEventFactoryInterface
   const revisionFrequency = 300
+  const contentSizeTransferLimit = 100
   let timer: TimerInterface
   let item1: Item
   let item2: Item
@@ -52,6 +53,7 @@ describe('ItemService', () => {
     domainEventPublisher,
     domainEventFactory,
     revisionFrequency,
+    contentSizeTransferLimit,
     timer,
     contentDecoder,
     logger
@@ -102,7 +104,18 @@ describe('ItemService', () => {
     } as jest.Mocked<ItemHash>
 
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
-    itemRepository.findAllAndCount = jest.fn().mockReturnValue([ [item1, item2], 2 ])
+    itemRepository.findContentSizeForComputingTransferLimit = jest.fn().mockReturnValue([
+      {
+        uuid: item1.uuid,
+        contentSize: Buffer.byteLength(itemHash1.content as string),
+      },
+      {
+        uuid: item2.uuid,
+        contentSize: Buffer.byteLength(itemHash2.content as string),
+      },
+    ])
+    itemRepository.findAll = jest.fn().mockReturnValue([ item1, item2 ])
+    itemRepository.countAll = jest.fn().mockReturnValue(2)
     itemRepository.save = jest.fn().mockImplementation((item: Item) => item)
 
     revisionService = {} as jest.Mocked<RevisionServiceInterface>
@@ -127,6 +140,7 @@ describe('ItemService', () => {
 
     logger = {} as jest.Mocked<Logger>
     logger.error = jest.fn()
+    logger.warn = jest.fn()
 
     syncToken = Buffer.from('2:1616164633.241564', 'utf-8').toString('base64')
 
@@ -168,7 +182,7 @@ describe('ItemService', () => {
       items: [ item1, item2 ],
     })
 
-    expect(itemRepository.findAllAndCount).toHaveBeenCalledWith({
+    expect(itemRepository.findContentSizeForComputingTransferLimit).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1615791600000000,
       syncTimeComparison: '>',
@@ -176,6 +190,20 @@ describe('ItemService', () => {
       sortOrder: 'ASC',
       userUuid: '1-2-3',
       limit: 150,
+    })
+    expect(itemRepository.countAll).toHaveBeenCalledWith({
+      contentType: 'Note',
+      lastSyncTime: 1615791600000000,
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      limit: 150,
+    })
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      uuids: [ '1-2-3', '2-3-4' ],
+      sortOrder: 'ASC',
+      sortBy: 'updated_at_timestamp',
     })
   })
 
@@ -190,7 +218,117 @@ describe('ItemService', () => {
       items: [ item1, item2 ],
     })
 
-    expect(itemRepository.findAllAndCount).toHaveBeenCalledWith({
+    expect(itemRepository.findContentSizeForComputingTransferLimit).toHaveBeenCalledWith({
+      contentType: 'Note',
+      lastSyncTime: 1616164633241564,
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      limit: 150,
+    })
+    expect(itemRepository.countAll).toHaveBeenCalledWith({
+      contentType: 'Note',
+      lastSyncTime: 1616164633241564,
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      limit: 150,
+    })
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      uuids: [ '1-2-3', '2-3-4' ],
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+    })
+  })
+
+  it('should retrieve at least one item if it breaches the data transfer limit', async () => {
+    itemRepository.findAll = jest.fn().mockReturnValue([ item1 ])
+    itemRepository.findContentSizeForComputingTransferLimit = jest.fn().mockReturnValue([
+      {
+        uuid: item1.uuid,
+        contentSize: 101,
+      },
+      {
+        uuid: item2.uuid,
+        contentSize: Buffer.byteLength(itemHash2.content as string),
+      },
+    ])
+
+    expect(
+      await createService().getItems({
+        userUuid: '1-2-3',
+        syncToken,
+        contentType: ContentType.Note,
+      })
+    ).toEqual({
+      items: [ item1 ],
+    })
+
+    expect(logger.warn).toHaveBeenCalled()
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      uuids: [ '1-2-3' ],
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+    })
+    expect(itemRepository.findContentSizeForComputingTransferLimit).toHaveBeenCalledWith({
+      contentType: 'Note',
+      lastSyncTime: 1616164633241564,
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      limit: 150,
+    })
+    expect(itemRepository.countAll).toHaveBeenCalledWith({
+      contentType: 'Note',
+      lastSyncTime: 1616164633241564,
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      limit: 150,
+    })
+  })
+
+  it('should retrieve all items for a user from last sync without the transfer breach check if their content size is not defined', async () => {
+    itemRepository.findContentSizeForComputingTransferLimit = jest.fn().mockReturnValue([
+      {
+        uuid: item1.uuid,
+        contentSize: null,
+      },
+      {
+        uuid: item2.uuid,
+        contentSize: 101,
+      },
+    ])
+
+    expect(
+      await createService().getItems({
+        userUuid: '1-2-3',
+        syncToken,
+        contentType: ContentType.Note,
+      })
+    ).toEqual({
+      items: [ item1, item2 ],
+    })
+
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      uuids: [ '1-2-3', '2-3-4' ],
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+    })
+    expect(itemRepository.findContentSizeForComputingTransferLimit).toHaveBeenCalledWith({
+      contentType: 'Note',
+      lastSyncTime: 1616164633241564,
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      limit: 150,
+    })
+    expect(itemRepository.countAll).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1616164633241564,
       syncTimeComparison: '>',
@@ -310,7 +448,7 @@ describe('ItemService', () => {
   })
 
   it('should return a cursor token if there are more items than requested with limit', async () => {
-    itemRepository.findAllAndCount = jest.fn().mockReturnValue([ [item1 ], 2 ])
+    itemRepository.findAll = jest.fn().mockReturnValue([ item1 ])
 
     const itemsResponse = await createService().getItems({
       userUuid: '1-2-3',
@@ -326,7 +464,7 @@ describe('ItemService', () => {
 
     expect(Buffer.from(<string> itemsResponse.cursorToken, 'base64').toString('utf-8')).toEqual('2:1616164633.241311')
 
-    expect(itemRepository.findAllAndCount).toHaveBeenCalledWith({
+    expect(itemRepository.findContentSizeForComputingTransferLimit).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1616164633241564,
       syncTimeComparison: '>',
@@ -334,6 +472,20 @@ describe('ItemService', () => {
       sortOrder: 'ASC',
       userUuid: '1-2-3',
       limit: 1,
+    })
+    expect(itemRepository.countAll).toHaveBeenCalledWith({
+      contentType: 'Note',
+      lastSyncTime: 1616164633241564,
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      limit: 1,
+    })
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      uuids: [ '1-2-3', '2-3-4' ],
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
     })
   })
 
@@ -351,7 +503,7 @@ describe('ItemService', () => {
       items: [ item1, item2 ],
     })
 
-    expect(itemRepository.findAllAndCount).toHaveBeenCalledWith({
+    expect(itemRepository.findContentSizeForComputingTransferLimit).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1616164633241123,
       syncTimeComparison: '>=',
@@ -359,6 +511,20 @@ describe('ItemService', () => {
       sortOrder: 'ASC',
       userUuid: '1-2-3',
       limit: 150,
+    })
+    expect(itemRepository.countAll).toHaveBeenCalledWith({
+      contentType: 'Note',
+      lastSyncTime: 1616164633241123,
+      syncTimeComparison: '>=',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      limit: 150,
+    })
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      uuids: [ '1-2-3', '2-3-4' ],
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
     })
   })
 
@@ -409,7 +575,7 @@ describe('ItemService', () => {
       items: [ item1, item2 ],
     })
 
-    expect(itemRepository.findAllAndCount).toHaveBeenCalledWith({
+    expect(itemRepository.findContentSizeForComputingTransferLimit).toHaveBeenCalledWith({
       contentType: 'Note',
       deleted: false,
       sortBy: 'updated_at_timestamp',
@@ -417,6 +583,20 @@ describe('ItemService', () => {
       syncTimeComparison: '>',
       userUuid: '1-2-3',
       limit: 150,
+    })
+    expect(itemRepository.countAll).toHaveBeenCalledWith({
+      contentType: 'Note',
+      deleted: false,
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      syncTimeComparison: '>',
+      userUuid: '1-2-3',
+      limit: 150,
+    })
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      uuids: [ '1-2-3', '2-3-4' ],
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
     })
   })
 
@@ -427,7 +607,7 @@ describe('ItemService', () => {
       contentType: ContentType.Note,
     })
 
-    expect(itemRepository.findAllAndCount).toHaveBeenCalledWith({
+    expect(itemRepository.findContentSizeForComputingTransferLimit).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1616164633241564,
       syncTimeComparison: '>',
@@ -435,6 +615,20 @@ describe('ItemService', () => {
       sortOrder: 'ASC',
       userUuid: '1-2-3',
       limit: 150,
+    })
+    expect(itemRepository.countAll).toHaveBeenCalledWith({
+      contentType: 'Note',
+      lastSyncTime: 1616164633241564,
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      limit: 150,
+    })
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      uuids: [ '1-2-3', '2-3-4' ],
+      sortOrder: 'ASC',
+      sortBy: 'updated_at_timestamp',
     })
   })
 
@@ -446,7 +640,7 @@ describe('ItemService', () => {
       contentType: ContentType.Note,
     })
 
-    expect(itemRepository.findAllAndCount).toHaveBeenCalledWith({
+    expect(itemRepository.findContentSizeForComputingTransferLimit).toHaveBeenCalledWith({
       contentType: 'Note',
       lastSyncTime: 1616164633241564,
       syncTimeComparison: '>',
@@ -454,6 +648,20 @@ describe('ItemService', () => {
       sortOrder: 'ASC',
       userUuid: '1-2-3',
       limit: 150,
+    })
+    expect(itemRepository.countAll).toHaveBeenCalledWith({
+      contentType: 'Note',
+      lastSyncTime: 1616164633241564,
+      syncTimeComparison: '>',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      limit: 150,
+    })
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      uuids: [ '1-2-3', '2-3-4' ],
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
     })
   })
 

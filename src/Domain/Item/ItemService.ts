@@ -40,6 +40,7 @@ export class ItemService implements ItemServiceInterface {
     @inject(TYPES.DomainEventPublisher) private domainEventPublisher: DomainEventPublisherInterface,
     @inject(TYPES.DomainEventFactory) private domainEventFactory: DomainEventFactoryInterface,
     @inject(TYPES.REVISIONS_FREQUENCY) private revisionFrequency: number,
+    @inject(TYPES.CONTENT_SIZE_TRANSFER_LIMIT) private contentSizeTransferLimit: number,
     @inject(TYPES.Timer) private timer: TimerInterface,
     @inject(TYPES.ContentDecoder) private contentDecoder: ContentDecoderInterface,
     @inject(TYPES.Logger) private logger: Logger
@@ -79,9 +80,14 @@ export class ItemService implements ItemServiceInterface {
       limit,
     }
 
-    const itemsAndCount = await this.itemRepository.findAllAndCount(itemQuery)
-    let items = itemsAndCount[0]
-    const totalItemsCount = itemsAndCount[1]
+    const itemUuidsToFetch = await this.computeItemIdsToFetchBasedOnTransferLimit(itemQuery)
+
+    let items = await this.itemRepository.findAll({
+      uuids: itemUuidsToFetch,
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+    })
+    const totalItemsCount = await this.itemRepository.countAll(itemQuery)
 
     const userHasMovedMFAToUserSettings = await this.serviceTransitionHelper.userHasMovedMFAToUserSettings(dto.userUuid)
 
@@ -342,5 +348,28 @@ export class ItemService implements ItemServiceInterface {
     }
 
     return dto.items
+  }
+
+  private async computeItemIdsToFetchBasedOnTransferLimit(itemQuery: ItemQuery): Promise<Array<string>> {
+    const itemUuidsToFetch = []
+    const itemContentSizes = await this.itemRepository.findContentSizeForComputingTransferLimit(itemQuery)
+    let totalContentSizeInBytes = 0
+    for (const itemContentSize of itemContentSizes) {
+      const contentSize = itemContentSize.contentSize ?? 0
+
+      itemUuidsToFetch.push(itemContentSize.uuid)
+      totalContentSizeInBytes += contentSize
+
+      if (totalContentSizeInBytes >= this.contentSizeTransferLimit) {
+        break
+      }
+    }
+
+    const singleItemIsBiggerThanTheContentSizeTransferLimit = itemUuidsToFetch.length === 1 && itemContentSizes.length > 1
+    if (singleItemIsBiggerThanTheContentSizeTransferLimit) {
+      this.logger.warn(`Item ${itemUuidsToFetch[0]} is breaching the content size transfer limit: ${this.contentSizeTransferLimit}`)
+    }
+
+    return itemUuidsToFetch
   }
 }

@@ -64,6 +64,8 @@ import { ContentFilter } from '../Domain/Item/SaveRule/ContentFilter'
 import { RedisDomainEventPublisher, RedisDomainEventSubscriberFactory, RedisEventMessageHandler, SNSDomainEventPublisher, SQSDomainEventSubscriberFactory, SQSEventMessageHandler, SQSNewRelicEventMessageHandler } from '@standardnotes/domain-events-infra'
 
 export class ContainerConfigLoader {
+  private readonly DEFAULT_CONTENT_SIZE_TRANSFER_LIMIT = 10_000_000
+
   async load(): Promise<Container> {
     const env: Env = new Env()
     env.load()
@@ -186,6 +188,9 @@ export class ContainerConfigLoader {
     container.bind(TYPES.REVISIONS_FREQUENCY).toConstantValue(env.get('REVISIONS_FREQUENCY'))
     container.bind(TYPES.NEW_RELIC_ENABLED).toConstantValue(env.get('NEW_RELIC_ENABLED', true))
     container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
+    container.bind(TYPES.CONTENT_SIZE_TRANSFER_LIMIT).toConstantValue(
+      env.get('CONTENT_SIZE_TRANSFER_LIMIT', true) ?? this.DEFAULT_CONTENT_SIZE_TRANSFER_LIMIT
+    )
 
     // use cases
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
