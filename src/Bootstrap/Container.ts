@@ -75,6 +75,8 @@ export class ContainerConfigLoader {
     const maxQueryExecutionTime = env.get('DB_MAX_QUERY_EXECUTION_TIME', true) ?
       +env.get('DB_MAX_QUERY_EXECUTION_TIME', true) : 45_000
 
+    const databaseLoggingLevel = env.get('DB_DEBUG_LEVEL') === 'true' ? true : [ env.get('DB_DEBUG_LEVEL') ]
+
     const connection: Connection = await createConnection({
       type: 'mysql',
       supportBigNumbers: true,
@@ -109,7 +111,7 @@ export class ContainerConfigLoader {
         env.get('DB_MIGRATIONS_PATH'),
       ],
       migrationsRun: true,
-      logging: <LoggerOptions> env.get('DB_DEBUG_LEVEL'),
+      logging: databaseLoggingLevel as LoggerOptions,
     })
     container.bind<Connection>(TYPES.DBConnection).toConstantValue(connection)
 
