@@ -41,7 +41,7 @@ export class Item {
 
   @Column({
     name: 'content_size',
-    type: 'int',
+    type: 'bigint',
     nullable: true,
   })
   contentSize: number | null
