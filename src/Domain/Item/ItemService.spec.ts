@@ -243,8 +243,7 @@ describe('ItemService', () => {
     })
   })
 
-  it('should retrieve at least one item if it breaches the data transfer limit', async () => {
-    itemRepository.findAll = jest.fn().mockReturnValue([ item1 ])
+  it('should retrieve at least two items if the first one breaches the data transfer limit to prevent cursor token being stuck on first item', async () => {
     itemRepository.findContentSizeForComputingTransferLimit = jest.fn().mockReturnValue([
       {
         uuid: item1.uuid,
@@ -263,12 +262,12 @@ describe('ItemService', () => {
         contentType: ContentType.Note,
       })
     ).toEqual({
-      items: [ item1 ],
+      items: [ item1, item2 ],
     })
 
     expect(logger.warn).toHaveBeenCalled()
     expect(itemRepository.findAll).toHaveBeenCalledWith({
-      uuids: [ '1-2-3' ],
+      uuids: [ '1-2-3', '2-3-4' ],
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
     })
