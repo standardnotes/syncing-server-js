@@ -362,14 +362,15 @@ export class ItemService implements ItemServiceInterface {
       itemUuidsToFetch.push(itemContentSize.uuid)
       totalContentSizeInBytes += contentSize
 
-      if (totalContentSizeInBytes >= this.contentSizeTransferLimit) {
+      const transferLimitBreached = totalContentSizeInBytes >= this.contentSizeTransferLimit
+      const transferLimitBreachedAtFirstItem = transferLimitBreached && itemUuidsToFetch.length === 1 && itemContentSizes.length > 1
+      if (transferLimitBreachedAtFirstItem) {
+        this.logger.warn(`Item ${itemUuidsToFetch[0]} is breaching the content size transfer limit: ${this.contentSizeTransferLimit}`)
+      }
+
+      if (transferLimitBreached && !transferLimitBreachedAtFirstItem) {
         break
       }
-    }
-
-    const singleItemIsBiggerThanTheContentSizeTransferLimit = itemUuidsToFetch.length === 1 && itemContentSizes.length > 1
-    if (singleItemIsBiggerThanTheContentSizeTransferLimit) {
-      this.logger.warn(`Item ${itemUuidsToFetch[0]} is breaching the content size transfer limit: ${this.contentSizeTransferLimit}`)
     }
 
     return itemUuidsToFetch
