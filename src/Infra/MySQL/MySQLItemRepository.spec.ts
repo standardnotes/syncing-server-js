@@ -7,6 +7,7 @@ import { Item } from '../../Domain/Item/Item'
 
 import { MySQLItemRepository } from './MySQLItemRepository'
 import { TimerInterface } from '@standardnotes/time'
+import { ReadStream } from 'fs'
 
 describe('MySQLItemRepository', () => {
   let repository: MySQLItemRepository
@@ -144,6 +145,43 @@ describe('MySQLItemRepository', () => {
     expect(queryBuilder.orderBy).toHaveBeenCalledWith('item.updated_at_timestamp', 'DESC')
 
     expect(result).toEqual([ item ])
+  })
+
+  it('should stream items by all query criteria filled in', async () => {
+    const stream = {} as jest.Mocked<ReadStream>
+    queryBuilder.stream = jest.fn().mockReturnValue(stream)
+    queryBuilder.where = jest.fn()
+    queryBuilder.andWhere = jest.fn()
+    queryBuilder.orderBy = jest.fn()
+    queryBuilder.skip = jest.fn()
+    queryBuilder.take = jest.fn()
+
+    const result = await repository.streamAll({
+      userUuid: '1-2-3',
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'DESC',
+      deleted: false,
+      contentType: ContentType.Note,
+      lastSyncTime: 123,
+      syncTimeComparison: '>=',
+      uuids: [ '2-3-4' ],
+      offset: 1,
+      limit: 10,
+    })
+
+    expect(queryBuilder.where).toHaveBeenCalledTimes(1)
+    expect(queryBuilder.andWhere).toHaveBeenCalledTimes(4)
+    expect(queryBuilder.where).toHaveBeenNthCalledWith(1, 'item.user_uuid = :userUuid', { userUuid: '1-2-3' })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(1, 'item.uuid IN (:...uuids)', { uuids: [ '2-3-4' ] })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(2, 'item.deleted = :deleted', { deleted: false })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(3, 'item.content_type = :contentType', { contentType: 'Note' })
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(4, 'item.updated_at_timestamp >= :lastSyncTime', { lastSyncTime: 123 })
+    expect(queryBuilder.skip).toHaveBeenCalledWith(1)
+    expect(queryBuilder.take).toHaveBeenCalledWith(10)
+
+    expect(queryBuilder.orderBy).toHaveBeenCalledWith('item.updated_at_timestamp', 'DESC')
+
+    expect(result).toEqual(stream)
   })
 
   it('should find items content sizes by all query criteria filled in', async () => {
@@ -319,6 +357,27 @@ describe('MySQLItemRepository', () => {
       'uuid IN (:...uuids)',
       {
         uuids: ['e-1-2-3'],
+      }
+    )
+    expect(queryBuilder.execute).toHaveBeenCalled()
+  })
+
+  it('should update item content size', async () => {
+    queryBuilder.where = jest.fn().mockReturnThis()
+    queryBuilder.update = jest.fn().mockReturnThis()
+    queryBuilder.update().set = jest.fn().mockReturnThis()
+    queryBuilder.execute = jest.fn()
+
+    await repository.updateContentSize('1-2-3', 345)
+
+    expect(queryBuilder.update).toHaveBeenCalled()
+    expect(queryBuilder.update().set).toHaveBeenCalledWith(expect.objectContaining({
+      contentSize: 345,
+    }))
+    expect(queryBuilder.where).toHaveBeenCalledWith(
+      'uuid = :itemUuid',
+      {
+        itemUuid: '1-2-3',
       }
     )
     expect(queryBuilder.execute).toHaveBeenCalled()
