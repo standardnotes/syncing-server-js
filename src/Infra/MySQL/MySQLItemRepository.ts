@@ -4,10 +4,26 @@ import { ContentType } from '@standardnotes/common'
 import { Item } from '../../Domain/Item/Item'
 import { ItemQuery } from '../../Domain/Item/ItemQuery'
 import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterface'
+import { ReadStream } from 'fs'
 
 @injectable()
 @EntityRepository(Item)
 export class MySQLItemRepository extends Repository<Item> implements ItemRepositoryInterface {
+  async updateContentSize(itemUuid: string, contentSize: number): Promise<void> {
+    await this.createQueryBuilder('item')
+      .update()
+      .set({
+        contentSize,
+      })
+      .where(
+        'uuid = :itemUuid',
+        {
+          itemUuid,
+        }
+      )
+      .execute()
+  }
+
   async findContentSizeForComputingTransferLimit(query: ItemQuery): Promise<{ uuid: string; contentSize: number | null }[]> {
     const queryBuilder = this.createFindAllQueryBuilder(query)
     queryBuilder.select('item.uuid', 'uuid')
@@ -65,6 +81,10 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
 
   async findAll(query: ItemQuery): Promise<Item[]> {
     return this.createFindAllQueryBuilder(query).getMany()
+  }
+
+  async streamAll(query: ItemQuery): Promise<ReadStream> {
+    return this.createFindAllQueryBuilder(query).stream()
   }
 
   async countAll(query: ItemQuery): Promise<number> {

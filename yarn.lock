@@ -666,7 +666,14 @@
     sqs-consumer "^5.5.0"
     winston "^3.3.3"
 
-"@standardnotes/domain-events@2.5.1", "@standardnotes/domain-events@^2.5.1":
+"@standardnotes/domain-events@2.5.8":
+  version "2.5.8"
+  resolved "https://registry.yarnpkg.com/@standardnotes/domain-events/-/domain-events-2.5.8.tgz#c305ecf3ea6204bd1d418ee038505dded5fce678"
+  integrity sha512-ABJ4/3T3GKiBoFDrPa3XxGYbYcOEQ0ixOTrjeHUgcNKDhe19UP6c1PZdMGfHkzsvLvtQXaEJMgNz9IFE+yzXCA==
+  dependencies:
+    "@standardnotes/auth" "^3.8.1"
+
+"@standardnotes/domain-events@^2.5.1":
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/@standardnotes/domain-events/-/domain-events-2.5.1.tgz#e6433e940ae616683d1c24f76133c70755504c44"
   integrity sha512-p0VB4Al/ZcVqcj9ztU7TNqzc3jjjG6/U7x9lBW/QURHxpB+PnwJq3kFU5V5JA9QpCOYlXLT71CMERMf/O5QX6g==
