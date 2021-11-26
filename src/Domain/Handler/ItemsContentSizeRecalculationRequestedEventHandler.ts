@@ -1,6 +1,7 @@
 import { DomainEventHandlerInterface, ItemsContentSizeRecalculationRequestedEvent } from '@standardnotes/domain-events'
 import { inject, injectable } from 'inversify'
 import { Stream } from 'stream'
+import { ReadStream } from 'fs'
 import TYPES from '../../Bootstrap/Types'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
 
@@ -18,15 +19,23 @@ export class ItemsContentSizeRecalculationRequestedEventHandler implements Domai
       sortOrder: 'ASC',
     })
 
-    stream.pipe(new Stream.Transform({
-      objectMode: true,
-      transform: async (item, _encoding, callback) => {
-        const contentSize = item.content !== null ? Buffer.byteLength(item.content) : 0
+    await this.handleStream(stream)
+  }
 
-        await this.itemRepository.updateContentSize(item.uuid, contentSize)
+  private async handleStream(stream: ReadStream): Promise<void> {
+    return new Promise((resolve, reject) => {
+      stream.pipe(new Stream.Transform({
+        objectMode: true,
+        transform: async (item, _encoding, callback) => {
+          const contentSize = item.content !== null ? Buffer.byteLength(item.content) : 0
 
-        callback()
-      },
-    }))
+          await this.itemRepository.updateContentSize(item.uuid, contentSize)
+
+          callback()
+        },
+      }))
+        .on('finish', resolve)
+        .on('error', reject)
+    })
   }
 }
