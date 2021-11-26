@@ -13,6 +13,7 @@ export class ItemsContentSizeRecalculationRequestedEventHandler implements Domai
   }
 
   async handle(event: ItemsContentSizeRecalculationRequestedEvent): Promise<void> {
+    console.log(`[ItemsContentSizeRecalculationRequestedEvent] ${event.payload.userUuid}`)
     const stream = await this.itemRepository.streamAll({
       userUuid: event.payload.userUuid,
       sortBy: 'updated_at_timestamp',
@@ -27,6 +28,7 @@ export class ItemsContentSizeRecalculationRequestedEventHandler implements Domai
       stream.pipe(new Stream.Transform({
         objectMode: true,
         transform: async (item, _encoding, callback) => {
+          console.log(`[ItemsContentSizeRecalculationRequestedEvent] item: ${item}`)
           const contentSize = item.content !== null ? Buffer.byteLength(item.content) : 0
 
           await this.itemRepository.updateContentSize(item.uuid, contentSize)
