@@ -32,6 +32,7 @@ const TYPES = {
   REVISIONS_FREQUENCY: Symbol.for('REVISIONS_FREQUENCY'),
   NEW_RELIC_ENABLED: Symbol.for('NEW_RELIC_ENABLED'),
   VERSION: Symbol.for('VERSION'),
+  CONTENT_SIZE_TRANSFER_LIMIT: Symbol.for('CONTENT_SIZE_TRANSFER_LIMIT'),
   // use cases
   SyncItems: Symbol.for('SyncItems'),
   PostToRealtimeExtensions: Symbol.for('PostToRealtimeExtensions'),
@@ -39,6 +40,7 @@ const TYPES = {
   MuteNotifications: Symbol.for('MuteNotifications'),
   // Handlers
   AccountDeletionRequestedEventHandler: Symbol.for('AccountDeletionRequestedEventHandler'),
+  ItemsContentSizeRecalculationRequestedEventHandler: Symbol.for('ItemsContentSizeRecalculationRequestedEventHandler'),
   DuplicateItemSyncedEventHandler: Symbol.for('DuplicateItemSyncedEventHandler'),
   ItemsSyncedEventHandler: Symbol.for('ItemsSyncedEventHandler'),
   EmailArchiveExtensionSyncedEventHandler: Symbol.for('EmailArchiveExtensionSyncedEventHandler'),

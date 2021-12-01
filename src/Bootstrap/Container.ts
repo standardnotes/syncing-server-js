@@ -62,8 +62,11 @@ import { UuidFilter } from '../Domain/Item/SaveRule/UuidFilter'
 import { ContentTypeFilter } from '../Domain/Item/SaveRule/ContentTypeFilter'
 import { ContentFilter } from '../Domain/Item/SaveRule/ContentFilter'
 import { RedisDomainEventPublisher, RedisDomainEventSubscriberFactory, RedisEventMessageHandler, SNSDomainEventPublisher, SQSDomainEventSubscriberFactory, SQSEventMessageHandler, SQSNewRelicEventMessageHandler } from '@standardnotes/domain-events-infra'
+import { ItemsContentSizeRecalculationRequestedEventHandler } from '../Domain/Handler/ItemsContentSizeRecalculationRequestedEventHandler'
 
 export class ContainerConfigLoader {
+  private readonly DEFAULT_CONTENT_SIZE_TRANSFER_LIMIT = 10_000_000
+
   async load(): Promise<Container> {
     const env: Env = new Env()
     env.load()
@@ -72,6 +75,8 @@ export class ContainerConfigLoader {
 
     const maxQueryExecutionTime = env.get('DB_MAX_QUERY_EXECUTION_TIME', true) ?
       +env.get('DB_MAX_QUERY_EXECUTION_TIME', true) : 45_000
+
+    const databaseLoggingLevel = env.get('DB_DEBUG_LEVEL') === 'true' ? true : [ env.get('DB_DEBUG_LEVEL') ]
 
     const connection: Connection = await createConnection({
       type: 'mysql',
@@ -107,7 +112,7 @@ export class ContainerConfigLoader {
         env.get('DB_MIGRATIONS_PATH'),
       ],
       migrationsRun: true,
-      logging: <LoggerOptions> env.get('DB_DEBUG_LEVEL'),
+      logging: databaseLoggingLevel as LoggerOptions,
     })
     container.bind<Connection>(TYPES.DBConnection).toConstantValue(connection)
 
@@ -186,6 +191,9 @@ export class ContainerConfigLoader {
     container.bind(TYPES.REVISIONS_FREQUENCY).toConstantValue(env.get('REVISIONS_FREQUENCY'))
     container.bind(TYPES.NEW_RELIC_ENABLED).toConstantValue(env.get('NEW_RELIC_ENABLED', true))
     container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
+    container.bind(TYPES.CONTENT_SIZE_TRANSFER_LIMIT).toConstantValue(
+      env.get('CONTENT_SIZE_TRANSFER_LIMIT', true) ?? this.DEFAULT_CONTENT_SIZE_TRANSFER_LIMIT
+    )
 
     // use cases
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
@@ -198,6 +206,7 @@ export class ContainerConfigLoader {
     container.bind<EmailArchiveExtensionSyncedEventHandler>(TYPES.EmailArchiveExtensionSyncedEventHandler).to(EmailArchiveExtensionSyncedEventHandler)
     container.bind<DuplicateItemSyncedEventHandler>(TYPES.DuplicateItemSyncedEventHandler).to(DuplicateItemSyncedEventHandler)
     container.bind<AccountDeletionRequestedEventHandler>(TYPES.AccountDeletionRequestedEventHandler).to(AccountDeletionRequestedEventHandler)
+    container.bind<ItemsContentSizeRecalculationRequestedEventHandler>(TYPES.ItemsContentSizeRecalculationRequestedEventHandler).to(ItemsContentSizeRecalculationRequestedEventHandler)
 
     // Services
     container.bind<ContentDecoder>(TYPES.ContentDecoder).to(ContentDecoder)
@@ -235,6 +244,7 @@ export class ContainerConfigLoader {
       ['ITEMS_SYNCED', container.get(TYPES.ItemsSyncedEventHandler)],
       ['EMAIL_ARCHIVE_EXTENSION_SYNCED', container.get(TYPES.EmailArchiveExtensionSyncedEventHandler)],
       ['ACCOUNT_DELETION_REQUESTED', container.get(TYPES.AccountDeletionRequestedEventHandler)],
+      ['ITEMS_CONTENT_SIZE_RECALCULATION_REQUESTED', container.get(TYPES.ItemsContentSizeRecalculationRequestedEventHandler)],
     ])
 
     if (env.get('SQS_QUEUE_URL', true)) {

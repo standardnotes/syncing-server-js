@@ -4,10 +4,36 @@ import { ContentType } from '@standardnotes/common'
 import { Item } from '../../Domain/Item/Item'
 import { ItemQuery } from '../../Domain/Item/ItemQuery'
 import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterface'
+import { ReadStream } from 'fs'
 
 @injectable()
 @EntityRepository(Item)
 export class MySQLItemRepository extends Repository<Item> implements ItemRepositoryInterface {
+  async updateContentSize(itemUuid: string, contentSize: number): Promise<void> {
+    await this.createQueryBuilder('item')
+      .update()
+      .set({
+        contentSize,
+      })
+      .where(
+        'uuid = :itemUuid',
+        {
+          itemUuid,
+        }
+      )
+      .execute()
+  }
+
+  async findContentSizeForComputingTransferLimit(query: ItemQuery): Promise<{ uuid: string; contentSize: number | null }[]> {
+    const queryBuilder = this.createFindAllQueryBuilder(query)
+    queryBuilder.select('item.uuid', 'uuid')
+    queryBuilder.addSelect('item.content_size', 'contentSize')
+
+    const items = await queryBuilder.getRawMany()
+
+    return items
+  }
+
   async deleteByUserUuid(userUuid: string): Promise<void> {
     await this.createQueryBuilder('item')
       .delete()
@@ -57,8 +83,12 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
     return this.createFindAllQueryBuilder(query).getMany()
   }
 
-  async findAllAndCount(query: ItemQuery): Promise<[Item[], number]> {
-    return this.createFindAllQueryBuilder(query).getManyAndCount()
+  async streamAll(query: ItemQuery): Promise<ReadStream> {
+    return this.createFindAllQueryBuilder(query).stream()
+  }
+
+  async countAll(query: ItemQuery): Promise<number> {
+    return this.createFindAllQueryBuilder(query).getCount()
   }
 
   async findMFAExtensionByUserUuid(userUuid: string): Promise<Item | undefined> {
@@ -114,7 +144,7 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
     if (query.userUuid !== undefined) {
       queryBuilder.where('item.user_uuid = :userUuid', { userUuid: query.userUuid })
     }
-    if (query.uuids) {
+    if (query.uuids && query.uuids.length > 0) {
       queryBuilder.andWhere('item.uuid IN (:...uuids)', { uuids: query.uuids })
     }
     if (query.deleted !== undefined) {
