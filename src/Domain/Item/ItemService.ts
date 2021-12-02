@@ -238,6 +238,7 @@ export class ItemService implements ItemServiceInterface {
       existingItem.contentSize = 0,
       existingItem.encItemKey = null
       existingItem.authHash = null
+      existingItem.itemsKeyId = null
     }
 
     const updatedAt = this.timer.getTimestampInMicroseconds()

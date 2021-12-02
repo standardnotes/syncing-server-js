@@ -1,6 +1,6 @@
 export type ItemProjection = {
   uuid: string
-  items_key_id: string
+  items_key_id: string | null
   duplicate_of: string | null
   enc_item_key: string | null
   content: string | null

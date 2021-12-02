@@ -22,7 +22,7 @@ export class Item {
     length: 255,
     nullable: true,
   })
-  itemsKeyId: string
+  itemsKeyId: string | null
 
   @Column({
     type: 'mediumtext',
