@@ -242,8 +242,7 @@ jobs:
 
     steps:
     - name: Run Discord Webhook
-      uses: Mist3r-Robot/classic-discord-webhook@main
+      uses: johnnyhuy/actions-discord-git-webhook@main
       with:
-        id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-        token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+        webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
 
