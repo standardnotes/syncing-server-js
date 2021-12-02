@@ -1125,7 +1125,7 @@ describe('ItemService', () => {
           createdAt: expect.any(Date),
           encItemKey: null,
           deleted: true,
-          itemsKeyId: 'asdasd1',
+          itemsKeyId: null,
           lastUserAgent: 'Brave',
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),

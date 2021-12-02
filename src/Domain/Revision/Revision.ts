@@ -33,7 +33,7 @@ export class Revision {
     length: 255,
     nullable: true,
   })
-  itemsKeyId: string
+  itemsKeyId: string | null
 
   @Column({
     name: 'enc_item_key',
