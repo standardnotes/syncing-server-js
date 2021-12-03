@@ -18,6 +18,7 @@ export class Item {
   duplicateOf: string | null
 
   @Column({
+    type: 'varchar',
     name: 'items_key_id',
     length: 255,
     nullable: true,
