@@ -29,6 +29,7 @@ export class Revision {
   contentType: string
 
   @Column({
+    type: 'varchar',
     name: 'items_key_id',
     length: 255,
     nullable: true,
