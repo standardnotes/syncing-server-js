@@ -1,11 +1,9 @@
 import { Request, Response } from 'express'
 import { inject } from 'inversify'
-import { BaseHttpController, controller, httpDelete, httpGet, httpPost, results } from 'inversify-express-utils'
+import { BaseHttpController, controller, httpPost, results } from 'inversify-express-utils'
 import { Logger } from 'winston'
 import TYPES from '../Bootstrap/Types'
 import { ApiVersion } from '../Domain/Api/ApiVersion'
-import { ContentDecoderInterface } from '../Domain/Item/ContentDecoderInterface'
-import { ItemRepositoryInterface } from '../Domain/Item/ItemRepositoryInterface'
 import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
 import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
 import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
@@ -18,8 +16,6 @@ export class ItemsController extends BaseHttpController {
     @inject(TYPES.SyncResponseFactoryResolver) private syncResponseFactoryResolver: SyncResponseFactoryResolverInterface,
     @inject(TYPES.PostToRealtimeExtensions) private postToRealtimeExtensions: PostToRealtimeExtensions,
     @inject(TYPES.PostToDailyExtensions) private postToDailyExtensions: PostToDailyExtensions,
-    @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
-    @inject(TYPES.ContentDecoder) private contentDecoder: ContentDecoderInterface,
     @inject(TYPES.Logger) private logger: Logger
   ) {
     super()
@@ -64,32 +60,5 @@ export class ItemsController extends BaseHttpController {
       .createResponse(syncResult)
 
     return this.json(syncResponse)
-  }
-
-  @httpGet('/mfa/:userUuid')
-  public async findMFASecret(request: Request): Promise<results.NotFoundResult | results.JsonResult> {
-    const mfaExtension = await this.itemRepository.findMFAExtensionByUserUuid(request.params.userUuid)
-    if (mfaExtension === undefined || mfaExtension.deleted) {
-      return this.notFound()
-    }
-
-    const mfaContent = this.contentDecoder.decode(mfaExtension.content as string)
-
-    return this.json({
-      secret: mfaContent.secret,
-      extensionUuid: mfaExtension.uuid,
-    })
-  }
-
-  @httpDelete('/mfa/:userUuid')
-  public async removeMFASecret(request: Request): Promise<results.NotFoundResult | results.OkResult> {
-    const mfaExtension = await this.itemRepository.findMFAExtensionByUserUuid(request.params.userUuid)
-    if (mfaExtension === undefined) {
-      return this.notFound()
-    }
-
-    await this.itemRepository.remove(mfaExtension)
-
-    return this.ok()
   }
 }

@@ -41,7 +41,6 @@ describe('AdminController', () => {
     }
 
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
-    itemRepository.findMFAExtensionByUserUuid = jest.fn()
 
     contentDecoder = {} as jest.Mocked<ContentDecoderInterface>
     contentDecoder.decode = jest.fn().mockReturnValue({

@@ -13,9 +13,6 @@ import { SyncResponseFactoryInterface } from '../Domain/Item/SyncResponse/SyncRe
 import { SyncResponse20200115 } from '../Domain/Item/SyncResponse/SyncResponse20200115'
 import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
 import { Logger } from 'winston'
-import { ItemRepositoryInterface } from '../Domain/Item/ItemRepositoryInterface'
-import { Item } from '../Domain/Item/Item'
-import { ContentDecoderInterface } from '../Domain/Item/ContentDecoderInterface'
 
 describe('ItemsController', () => {
   let syncItems: SyncItems
@@ -26,8 +23,6 @@ describe('ItemsController', () => {
   let syncResponseFactory: SyncResponseFactoryInterface
   let syncResponse: SyncResponse20200115
   let postToDailyExtensions: PostToDailyExtensions
-  let itemRepository: ItemRepositoryInterface
-  let contentDecoder: ContentDecoderInterface
   let logger: Logger
 
   const createController = () => new ItemsController(
@@ -35,8 +30,6 @@ describe('ItemsController', () => {
     syncResponceFactoryResolver,
     postToRealtimeExtensions,
     postToDailyExtensions,
-    itemRepository,
-    contentDecoder,
     logger
   )
 
@@ -94,14 +87,6 @@ describe('ItemsController', () => {
 
     syncResponceFactoryResolver = {} as jest.Mocked<SyncResponseFactoryResolverInterface>
     syncResponceFactoryResolver.resolveSyncResponseFactoryVersion = jest.fn().mockReturnValue(syncResponseFactory)
-
-    itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
-    itemRepository.findMFAExtensionByUserUuid = jest.fn()
-
-    contentDecoder = {} as jest.Mocked<ContentDecoderInterface>
-    contentDecoder.decode = jest.fn().mockReturnValue({
-      secret: 'foo',
-    })
   })
 
   it('should sync items', async () => {
@@ -215,82 +200,5 @@ describe('ItemsController', () => {
 
     expect(result.statusCode).toEqual(200)
     expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
-  })
-
-  it('should not find mfa secret if one does not exist', async () => {
-    request.body = {}
-    request.params = {
-      userUuid: '1-2-3',
-    }
-
-    const httpResponse = <results.JsonResult> await createController().findMFASecret(request)
-    const result = await httpResponse.executeAsync()
-
-    expect(result.statusCode).toEqual(404)
-  })
-
-  it('should not find mfa secret if one is deleted', async () => {
-    request.body = {}
-    request.params = {
-      userUuid: '1-2-3',
-    }
-
-    const extension = {} as jest.Mocked<Item>
-    extension.deleted = true
-    itemRepository.findMFAExtensionByUserUuid = jest.fn().mockReturnValue(extension)
-
-    const httpResponse = <results.JsonResult> await createController().findMFASecret(request)
-    const result = await httpResponse.executeAsync()
-
-    expect(result.statusCode).toEqual(404)
-  })
-
-  it('should find mfa secret by user uuid', async () => {
-    request.body = {}
-    request.params = {
-      userUuid: '1-2-3',
-    }
-
-    const extension = {
-      uuid: 'e-1-2-3',
-    } as jest.Mocked<Item>
-    itemRepository.findMFAExtensionByUserUuid = jest.fn().mockReturnValue(extension)
-
-    const httpResponse = <results.JsonResult> await createController().findMFASecret(request)
-    const result = await httpResponse.executeAsync()
-
-    expect(result.statusCode).toEqual(200)
-    expect(await result.content.readAsStringAsync()).toEqual('{"secret":"foo","extensionUuid":"e-1-2-3"}')
-  })
-
-  it('should not delete mfa secret if one does not exist', async () => {
-    request.body = {}
-    request.params = {
-      userUuid: '1-2-3',
-    }
-
-    const httpResponse = <results.NotFoundResult> await createController().removeMFASecret(request)
-    const result = await httpResponse.executeAsync()
-
-    expect(result.statusCode).toEqual(404)
-  })
-
-  it('should delete mfa secret by user uuid', async () => {
-    request.body = {}
-    request.params = {
-      userUuid: '1-2-3',
-    }
-
-    const extension = {
-      uuid: 'e-1-2-3',
-    } as jest.Mocked<Item>
-    itemRepository.findMFAExtensionByUserUuid = jest.fn().mockReturnValue(extension)
-    itemRepository.remove = jest.fn()
-
-    const httpResponse = <results.OkResult> await createController().removeMFASecret(request)
-    const result = await httpResponse.executeAsync()
-
-    expect(result.statusCode).toEqual(200)
-    expect(itemRepository.remove).toHaveBeenCalledWith(extension)
   })
 })

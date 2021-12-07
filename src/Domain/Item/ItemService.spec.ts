@@ -17,9 +17,6 @@ import { Time, TimerInterface } from '@standardnotes/time'
 import { ItemSaveValidatorInterface } from './SaveValidator/ItemSaveValidatorInterface'
 import { ItemFactoryInterface } from './ItemFactoryInterface'
 import { ItemConflict } from './ItemConflict'
-import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
-import { ServiceTransitionHelperInterface } from '../Transition/ServiceTransitionHelperInterface'
-import { ContentDecoderInterface } from './ContentDecoderInterface'
 
 describe('ItemService', () => {
   let itemRepository: ItemRepositoryInterface
@@ -37,16 +34,11 @@ describe('ItemService', () => {
   let syncToken: string
   let logger: Logger
   let itemSaveValidator: ItemSaveValidatorInterface
-  let authHttpService: AuthHttpServiceInterface
-  let serviceTransitionHelper: ServiceTransitionHelperInterface
   let newItem: Item
-  let contentDecoder: ContentDecoderInterface
   let itemFactory: ItemFactoryInterface
 
   const createService = () => new ItemService(
     itemSaveValidator,
-    serviceTransitionHelper,
-    authHttpService,
     itemFactory,
     itemRepository,
     revisionService,
@@ -55,7 +47,6 @@ describe('ItemService', () => {
     revisionFrequency,
     contentSizeTransferLimit,
     timer,
-    contentDecoder,
     logger
   )
 
@@ -147,26 +138,11 @@ describe('ItemService', () => {
     itemSaveValidator = {} as jest.Mocked<ItemSaveValidatorInterface>
     itemSaveValidator.validate = jest.fn().mockReturnValue({ passed: true })
 
-    serviceTransitionHelper = {} as jest.Mocked<ServiceTransitionHelperInterface>
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'not found' })
-    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1)
-
-    authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
-    authHttpService.getUserMFA = jest.fn().mockReturnValue([{
-      uuid: '9-8-7',
-      value: 'encoded',
-      createdAt: 1,
-      updatedAt: 2,
-    }])
-
     newItem = {} as jest.Mocked<Item>
 
     itemFactory = {} as jest.Mocked<ItemFactoryInterface>
     itemFactory.create = jest.fn().mockReturnValue(newItem)
     itemFactory.createStub = jest.fn().mockReturnValue(newItem)
-
-    contentDecoder = {} as jest.Mocked<ContentDecoderInterface>
-    contentDecoder.encode = jest.fn().mockReturnValue('000eyJmb28iOiJiYXIifQ==')
   })
 
   it('should retrieve all items for a user from last sync with sync token version 1', async () => {
@@ -372,114 +348,6 @@ describe('ItemService', () => {
     })
   })
 
-  it('should retrieve all items including MFA stub item for a user from last sync', async () => {
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'active' })
-    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241569)
-
-    expect(
-      await createService().getItems({
-        userUuid: '1-2-3',
-        syncToken,
-        limit: 100,
-      })
-    ).toEqual({
-      items: [ newItem, item1, item2 ],
-    })
-
-    expect(itemFactory.createStub).toHaveBeenNthCalledWith(1, '1-2-3', {
-      uuid: '9-8-7',
-      content_type: ContentType.Mfa,
-      content: '000eyJmb28iOiJiYXIifQ==',
-      deleted: false,
-      created_at_timestamp: 1,
-      updated_at_timestamp: 2,
-    })
-  })
-
-  it('should retrieve all items excluding a deleted MFA stub item for a user when last sync time is not defined', async () => {
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'deleted' })
-    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241569)
-
-    expect(
-      await createService().getItems({
-        userUuid: '1-2-3',
-        limit: 100,
-      })
-    ).toEqual({
-      items: [ item1, item2 ],
-    })
-  })
-
-  it('should retrieve all items including a deleted MFA stub item for a user when last sync time is defined', async () => {
-    authHttpService.getUserMFA = jest.fn().mockReturnValue([{
-      uuid: '9-8-7',
-      value: null,
-      createdAt: 1,
-      updatedAt: 2,
-    }])
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'deleted' })
-    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241569)
-
-    expect(
-      await createService().getItems({
-        userUuid: '1-2-3',
-        syncToken,
-        limit: 100,
-      })
-    ).toEqual({
-      items: [ newItem, item1, item2 ],
-    })
-  })
-
-  it('should retrieve all items including multiple MFA stub items for a user when last sync time is defined', async () => {
-    const secondNewItem = {} as jest.Mocked<Item>
-    itemFactory.createStub = jest.fn()
-      .mockReturnValueOnce(newItem)
-      .mockReturnValueOnce(secondNewItem)
-
-    authHttpService.getUserMFA = jest.fn().mockReturnValue([
-      {
-        uuid: '9-8-7',
-        value: null,
-        createdAt: 1,
-        updatedAt: 2,
-      },
-      {
-        uuid: '10-11-12',
-        value: 'encoded',
-        createdAt: 3,
-        updatedAt: 4,
-      },
-    ])
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'deleted' })
-    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241569)
-
-    expect(
-      await createService().getItems({
-        userUuid: '1-2-3',
-        syncToken,
-        limit: 100,
-      })
-    ).toEqual({
-      items: [ secondNewItem, newItem, item1, item2 ],
-    })
-  })
-
-  it('should retrieve all items excluding MFA stub item if updated at time is lesser than the sync token', async () => {
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'active' })
-    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633241550)
-
-    expect(
-      await createService().getItems({
-        userUuid: '1-2-3',
-        syncToken,
-        limit: 100,
-      })
-    ).toEqual({
-      items: [ item1, item2 ],
-    })
-  })
-
   it('should return a cursor token if there are more items than requested with limit', async () => {
     itemRepository.findAll = jest.fn().mockReturnValue([ item1 ])
 
@@ -558,43 +426,6 @@ describe('ItemService', () => {
       uuids: [ '1-2-3', '2-3-4' ],
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
-    })
-  })
-
-  it('should retrieve all items with stubbed mfa item for a user from cursor token', async () => {
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'active' })
-    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633251569)
-
-    const cursorToken = Buffer.from('2:1616164633.241123', 'utf-8').toString('base64')
-
-    expect(
-      await createService().getItems({
-        userUuid: '1-2-3',
-        syncToken,
-        cursorToken,
-        limit: 100,
-      })
-    ).toEqual({
-      items: [ newItem, item1, item2 ],
-    })
-  })
-
-  it('should not retrieve mfa stub item if content type is declared', async () => {
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'active' })
-    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633251569)
-
-    const cursorToken = Buffer.from('2:1616164633.241123', 'utf-8').toString('base64')
-
-    expect(
-      await createService().getItems({
-        userUuid: '1-2-3',
-        syncToken,
-        cursorToken,
-        limit: 100,
-        contentType: ContentType.Note,
-      })
-    ).toEqual({
-      items: [ item1, item2 ],
     })
   })
 
@@ -1213,44 +1044,6 @@ describe('ItemService', () => {
       .mockReturnValueOnce(1616164633241)
 
     const expected = crypto.createHash('sha256').update('1616164633242,1616164633241').digest('hex')
-
-    expect(await createService().computeIntegrityHash('1-2-3')).toEqual(expected)
-  })
-
-  it('should compute an integrity hash with mfa user setting if one is active', async () => {
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'active' })
-    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633242314)
-
-    itemRepository.findDatesForComputingIntegrityHash = jest.fn().mockReturnValue([
-      1616164633242313,
-      1616164633242315,
-    ])
-
-    timer.convertMicrosecondsToMilliseconds = jest.fn()
-      .mockReturnValueOnce(1616164633243)
-      .mockReturnValueOnce(1616164633245)
-      .mockReturnValueOnce(1616164633244)
-
-    const expected = crypto.createHash('sha256').update('1616164633245,1616164633244,1616164633243').digest('hex')
-
-    expect(await createService().computeIntegrityHash('1-2-3')).toEqual(expected)
-  })
-
-  it('should compute an integrity hash without mfa user setting if one is not active', async () => {
-    serviceTransitionHelper.userHasMovedMFAToUserSettings = jest.fn().mockReturnValue({ status: 'deleted' })
-    serviceTransitionHelper.getUserMFAUpdatedAtTimestamp = jest.fn().mockReturnValue(1616164633242314)
-
-    itemRepository.findDatesForComputingIntegrityHash = jest.fn().mockReturnValue([
-      1616164633242313,
-      1616164633242315,
-    ])
-
-    timer.convertMicrosecondsToMilliseconds = jest.fn()
-      .mockReturnValueOnce(1616164633245)
-      .mockReturnValueOnce(1616164633243)
-      .mockReturnValueOnce(1616164633244)
-
-    const expected = crypto.createHash('sha256').update('1616164633245,1616164633243').digest('hex')
 
     expect(await createService().computeIntegrityHash('1-2-3')).toEqual(expected)
   })

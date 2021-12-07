@@ -1,6 +1,5 @@
 import { injectable } from 'inversify'
 import { EntityRepository, Repository, SelectQueryBuilder } from 'typeorm'
-import { ContentType } from '@standardnotes/common'
 import { Item } from '../../Domain/Item/Item'
 import { ItemQuery } from '../../Domain/Item/ItemQuery'
 import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterface'
@@ -89,33 +88,6 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
 
   async countAll(query: ItemQuery): Promise<number> {
     return this.createFindAllQueryBuilder(query).getCount()
-  }
-
-  async findMFAExtensionByUserUuid(userUuid: string): Promise<Item | undefined> {
-    return this.createQueryBuilder('item')
-      .where(
-        'item.user_uuid = :user_uuid AND item.content_type = :content_type AND deleted = :deleted',
-        {
-          user_uuid: userUuid,
-          content_type: ContentType.Mfa,
-          deleted: false,
-        }
-      )
-      .getOne()
-  }
-
-  async deleteMFAExtensionByUserUuid(userUuid: string): Promise<void> {
-    await this.createQueryBuilder('item')
-      .delete()
-      .from('items')
-      .where(
-        'user_uuid = :user_uuid AND content_type = :content_type',
-        {
-          user_uuid: userUuid,
-          content_type: ContentType.Mfa,
-        }
-      )
-      .execute()
   }
 
   async markItemsAsDeleted(itemUuids: Array<string>, updatedAtTimestamp: number): Promise<void> {
