@@ -3,8 +3,6 @@ import { ItemQuery } from './ItemQuery'
 import { ReadStream } from 'fs'
 
 export interface ItemRepositoryInterface {
-  findMFAExtensionByUserUuid(userUuid: string): Promise<Item | undefined>
-  deleteMFAExtensionByUserUuid(userUuid: string): Promise<void>
   deleteByUserUuid(userUuid: string): Promise<void>
   findAll(query: ItemQuery): Promise<Item[]>
   streamAll(query: ItemQuery): Promise<ReadStream>
