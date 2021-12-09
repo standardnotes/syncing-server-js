@@ -40,10 +40,10 @@ const TYPES = {
   MuteNotifications: Symbol.for('MuteNotifications'),
   // Handlers
   AccountDeletionRequestedEventHandler: Symbol.for('AccountDeletionRequestedEventHandler'),
-  ItemsContentSizeRecalculationRequestedEventHandler: Symbol.for('ItemsContentSizeRecalculationRequestedEventHandler'),
   DuplicateItemSyncedEventHandler: Symbol.for('DuplicateItemSyncedEventHandler'),
   ItemsSyncedEventHandler: Symbol.for('ItemsSyncedEventHandler'),
   EmailArchiveExtensionSyncedEventHandler: Symbol.for('EmailArchiveExtensionSyncedEventHandler'),
+  EmailBackupRequestedEventHandler: Symbol.for('EmailBackupRequestedEventHandler'),
   // Services
   ContentDecoder: Symbol.for('ContentDecoder'),
   DomainEventPublisher: Symbol.for('DomainEventPublisher'),

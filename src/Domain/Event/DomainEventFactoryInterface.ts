@@ -5,7 +5,7 @@ export interface DomainEventFactoryInterface {
   createDropboxBackupFailedEvent(extensionSettingUuid: string, email: string): DropboxBackupFailedEvent
   createGoogleDriveBackupFailedEvent(extensionSettingUuid: string, email: string): GoogleDriveBackupFailedEvent
   createOneDriveBackupFailedEvent(extensionSettingUuid: string, email: string): OneDriveBackupFailedEvent
-  createMailBackupAttachmentTooBigEvent(dto: { allowedSize: string, attachmentSize: string, extensionSettingUuid: string, email: string }): MailBackupAttachmentTooBigEvent
+  createMailBackupAttachmentTooBigEvent(dto: { allowedSize: string, attachmentSize: string, extensionSettingUuid?: string, email: string }): MailBackupAttachmentTooBigEvent
   createItemsSyncedEvent(dto: { userUuid: string, extensionUrl: string, extensionId: string, itemUuids: Array<string>, forceMute: boolean, skipFileBackup: boolean }): ItemsSyncedEvent
   createEmailArchiveExtensionSyncedEvent(userUuid: string, extensionId: string): EmailArchiveExtensionSyncedEvent
   createEmailBackupAttachmentCreatedEvent(backupFileName: string, email: string): EmailBackupAttachmentCreatedEvent
