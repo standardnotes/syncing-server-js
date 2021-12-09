@@ -51,18 +51,15 @@ import { Timer, TimerInterface } from '@standardnotes/time'
 import { ItemSaveValidatorInterface } from '../Domain/Item/SaveValidator/ItemSaveValidatorInterface'
 import { ItemSaveValidator } from '../Domain/Item/SaveValidator/ItemSaveValidator'
 import { OwnershipFilter } from '../Domain/Item/SaveRule/OwnershipFilter'
-import { MFAFilter } from '../Domain/Item/SaveRule/MFAFilter'
 import { TimeDifferenceFilter } from '../Domain/Item/SaveRule/TimeDifferenceFilter'
 import { ItemFactoryInterface } from '../Domain/Item/ItemFactoryInterface'
 import { ItemFactory } from '../Domain/Item/ItemFactory'
-import { ServiceTransitionHelperInterface } from '../Domain/Transition/ServiceTransitionHelperInterface'
-import { RedisServiceTransitionHelper } from '../Infra/Redis/RedisServiceTransitionHelper'
 import axios, { AxiosInstance } from 'axios'
 import { UuidFilter } from '../Domain/Item/SaveRule/UuidFilter'
 import { ContentTypeFilter } from '../Domain/Item/SaveRule/ContentTypeFilter'
 import { ContentFilter } from '../Domain/Item/SaveRule/ContentFilter'
 import { RedisDomainEventPublisher, RedisDomainEventSubscriberFactory, RedisEventMessageHandler, SNSDomainEventPublisher, SQSDomainEventSubscriberFactory, SQSEventMessageHandler, SQSNewRelicEventMessageHandler } from '@standardnotes/domain-events-infra'
-import { ItemsContentSizeRecalculationRequestedEventHandler } from '../Domain/Handler/ItemsContentSizeRecalculationRequestedEventHandler'
+import { EmailBackupRequestedEventHandler } from '../Domain/Handler/EmailBackupRequestedEventHandler'
 
 export class ContainerConfigLoader {
   private readonly DEFAULT_CONTENT_SIZE_TRANSFER_LIMIT = 10_000_000
@@ -206,7 +203,7 @@ export class ContainerConfigLoader {
     container.bind<EmailArchiveExtensionSyncedEventHandler>(TYPES.EmailArchiveExtensionSyncedEventHandler).to(EmailArchiveExtensionSyncedEventHandler)
     container.bind<DuplicateItemSyncedEventHandler>(TYPES.DuplicateItemSyncedEventHandler).to(DuplicateItemSyncedEventHandler)
     container.bind<AccountDeletionRequestedEventHandler>(TYPES.AccountDeletionRequestedEventHandler).to(AccountDeletionRequestedEventHandler)
-    container.bind<ItemsContentSizeRecalculationRequestedEventHandler>(TYPES.ItemsContentSizeRecalculationRequestedEventHandler).to(ItemsContentSizeRecalculationRequestedEventHandler)
+    container.bind<EmailBackupRequestedEventHandler>(TYPES.EmailBackupRequestedEventHandler).to(EmailBackupRequestedEventHandler)
 
     // Services
     container.bind<ContentDecoder>(TYPES.ContentDecoder).to(ContentDecoder)
@@ -221,7 +218,6 @@ export class ContainerConfigLoader {
     container.bind<ExtensionsHttpServiceInterface>(TYPES.ExtensionsHttpService).to(ExtensionsHttpService)
     container.bind<ItemBackupServiceInterface>(TYPES.ItemBackupService).to(S3ItemBackupService)
     container.bind<RevisionServiceInterface>(TYPES.RevisionService).to(RevisionService)
-    container.bind<ServiceTransitionHelperInterface>(TYPES.ServiceTransitionHelper).to(RedisServiceTransitionHelper)
 
     if (env.get('SNS_TOPIC_ARN', true)) {
       container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
@@ -244,7 +240,7 @@ export class ContainerConfigLoader {
       ['ITEMS_SYNCED', container.get(TYPES.ItemsSyncedEventHandler)],
       ['EMAIL_ARCHIVE_EXTENSION_SYNCED', container.get(TYPES.EmailArchiveExtensionSyncedEventHandler)],
       ['ACCOUNT_DELETION_REQUESTED', container.get(TYPES.AccountDeletionRequestedEventHandler)],
-      ['ITEMS_CONTENT_SIZE_RECALCULATION_REQUESTED', container.get(TYPES.ItemsContentSizeRecalculationRequestedEventHandler)],
+      ['EMAIL_BACKUP_REQUESTED', container.get(TYPES.EmailBackupRequestedEventHandler)],
     ])
 
     if (env.get('SQS_QUEUE_URL', true)) {
@@ -276,7 +272,6 @@ export class ContainerConfigLoader {
     container.bind<ItemFactoryInterface>(TYPES.ItemFactory).to(ItemFactory)
 
     container.bind<OwnershipFilter>(TYPES.OwnershipFilter).to(OwnershipFilter)
-    container.bind<MFAFilter>(TYPES.MFAFilter).to(MFAFilter)
     container.bind<TimeDifferenceFilter>(TYPES.TimeDifferenceFilter).to(TimeDifferenceFilter)
     container.bind<UuidFilter>(TYPES.UuidFilter).to(UuidFilter)
     container.bind<ContentTypeFilter>(TYPES.ContentTypeFilter).to(ContentTypeFilter)
@@ -285,7 +280,6 @@ export class ContainerConfigLoader {
     container.bind<ItemSaveValidatorInterface>(TYPES.ItemSaveValidator).toConstantValue(
       new ItemSaveValidator([
         container.get(TYPES.OwnershipFilter),
-        container.get(TYPES.MFAFilter),
         container.get(TYPES.TimeDifferenceFilter),
         container.get(TYPES.UuidFilter),
         container.get(TYPES.ContentTypeFilter),

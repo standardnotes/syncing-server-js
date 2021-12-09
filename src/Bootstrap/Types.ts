@@ -40,10 +40,10 @@ const TYPES = {
   MuteNotifications: Symbol.for('MuteNotifications'),
   // Handlers
   AccountDeletionRequestedEventHandler: Symbol.for('AccountDeletionRequestedEventHandler'),
-  ItemsContentSizeRecalculationRequestedEventHandler: Symbol.for('ItemsContentSizeRecalculationRequestedEventHandler'),
   DuplicateItemSyncedEventHandler: Symbol.for('DuplicateItemSyncedEventHandler'),
   ItemsSyncedEventHandler: Symbol.for('ItemsSyncedEventHandler'),
   EmailArchiveExtensionSyncedEventHandler: Symbol.for('EmailArchiveExtensionSyncedEventHandler'),
+  EmailBackupRequestedEventHandler: Symbol.for('EmailBackupRequestedEventHandler'),
   // Services
   ContentDecoder: Symbol.for('ContentDecoder'),
   DomainEventPublisher: Symbol.for('DomainEventPublisher'),
@@ -62,13 +62,11 @@ const TYPES = {
   RevisionService: Symbol.for('RevisionService'),
   ItemSaveValidator: Symbol.for('ItemSaveValidator'),
   OwnershipFilter: Symbol.for('OwnershipFilter'),
-  MFAFilter: Symbol.for('MFAFilter'),
   TimeDifferenceFilter: Symbol.for('TimeDifferenceFilter'),
   UuidFilter: Symbol.for('UuidFilter'),
   ContentTypeFilter: Symbol.for('ContentTypeFilter'),
   ContentFilter: Symbol.for('ContentFilter'),
   ItemFactory: Symbol.for('ItemFactory'),
-  ServiceTransitionHelper: Symbol.for('ServiceTransitionHelper'),
 }
 
 export default TYPES

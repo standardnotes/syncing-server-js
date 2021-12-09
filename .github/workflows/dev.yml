@@ -14,9 +14,7 @@ jobs:
       with:
         node-version: '16.x'
     - run: yarn install --pure-lockfile
-    - run: yarn build
-    - run: yarn lint
-    - run: yarn coverage
+    - run: yarn test
 
   publish-aws-ecr:
     needs: test

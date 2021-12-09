@@ -43,43 +43,6 @@ describe('MySQLItemRepository', () => {
     expect(queryBuilder.execute).toHaveBeenCalled()
   })
 
-  it('should find one MFA Extension item by user id', async () => {
-    queryBuilder.where = jest.fn().mockReturnThis()
-    queryBuilder.getOne = jest.fn().mockReturnValue(item)
-
-    const result = await repository.findMFAExtensionByUserUuid('123')
-
-    expect(queryBuilder.where).toHaveBeenCalledWith(
-      'item.user_uuid = :user_uuid AND item.content_type = :content_type AND deleted = :deleted',
-      {
-        user_uuid: '123',
-        content_type: 'SF|MFA',
-        deleted: false,
-      }
-    )
-    expect(result).toEqual(item)
-  })
-
-  it('should delete MFA Extension item by user id', async () => {
-    queryBuilder.where = jest.fn().mockReturnThis()
-    queryBuilder.delete = jest.fn().mockReturnThis()
-    queryBuilder.from = jest.fn().mockReturnThis()
-    queryBuilder.execute = jest.fn()
-
-    await repository.deleteMFAExtensionByUserUuid('123')
-
-    expect(queryBuilder.delete).toHaveBeenCalled()
-    expect(queryBuilder.from).toHaveBeenCalledWith('items')
-    expect(queryBuilder.where).toHaveBeenCalledWith(
-      'user_uuid = :user_uuid AND content_type = :content_type',
-      {
-        user_uuid: '123',
-        content_type: 'SF|MFA',
-      }
-    )
-    expect(queryBuilder.execute).toHaveBeenCalled()
-  })
-
   it('should find one item by uuid and user uuid', async () => {
     queryBuilder.where = jest.fn().mockReturnThis()
     queryBuilder.getOne = jest.fn().mockReturnValue(item)
