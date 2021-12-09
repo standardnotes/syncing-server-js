@@ -49,7 +49,7 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
     }
   }
 
-  createMailBackupAttachmentTooBigEvent(dto: { allowedSize: string, attachmentSize: string, extensionSettingUuid: string, email: string }): MailBackupAttachmentTooBigEvent {
+  createMailBackupAttachmentTooBigEvent(dto: { allowedSize: string, attachmentSize: string, extensionSettingUuid?: string, email: string }): MailBackupAttachmentTooBigEvent {
     return {
       type: 'MAIL_BACKUP_ATTACHMENT_TOO_BIG',
       createdAt: dayjs.utc().toDate(),

@@ -15,9 +15,8 @@
     "prebuild": "yarn clean",
     "build": "tsc --rootDir ./",
     "lint": "eslint . --ext .ts",
-    "coverage": "jest --coverage",
     "pretest": "yarn lint && yarn build",
-    "test": "jest spec",
+    "test": "jest --coverage",
     "start": "node dist/bin/server.js",
     "start:local": "npx nodemon -L bin/server.ts",
     "worker": "node dist/bin/worker.js",
@@ -28,7 +27,7 @@
     "@newrelic/native-metrics": "7.0.2",
     "@standardnotes/auth": "3.8.3",
     "@standardnotes/common": "1.3.0",
-    "@standardnotes/domain-events": "2.5.8",
+    "@standardnotes/domain-events": "2.7.0",
     "@standardnotes/domain-events-infra": "1.0.2",
     "@standardnotes/features": "1.8.0",
     "@standardnotes/time": "1.0.4",
@@ -86,8 +85,7 @@
       "/node_modules/",
       "/Bootstrap/",
       "HealthCheckController",
-      "/InMemory/",
-      "ItemsContentSizeRecalculationRequestedEventHandler"
+      "/InMemory/"
     ],
     "setupFilesAfterEnv": [
       "<rootDir>/test-setup.ts"
