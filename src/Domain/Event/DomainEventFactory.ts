@@ -9,6 +9,12 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
     return {
       type: 'DUPLICATE_ITEM_SYNCED',
       createdAt: dayjs.utc().toDate(),
+      meta: {
+        correlation: {
+          userIdentifier: userUuid,
+          userIdentifierType: 'uuid',
+        },
+      },
       payload: {
         itemUuid,
         userUuid,
@@ -16,51 +22,94 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
     }
   }
 
-  createDropboxBackupFailedEvent(extensionSettingUuid: string, email: string): DropboxBackupFailedEvent {
+  createDropboxBackupFailedEvent(muteCloudEmailsSettingUuid: string, email: string): DropboxBackupFailedEvent {
     return {
       type: 'DROPBOX_BACKUP_FAILED',
       createdAt: dayjs.utc().toDate(),
+      meta: {
+        correlation: {
+          userIdentifier: email,
+          userIdentifierType: 'email',
+        },
+      },
       payload: {
-        extensionSettingUuid,
+        muteCloudEmailsSettingUuid,
         email,
       },
     }
   }
 
-  createGoogleDriveBackupFailedEvent(extensionSettingUuid: string, email: string): GoogleDriveBackupFailedEvent {
+  createGoogleDriveBackupFailedEvent(muteCloudEmailsSettingUuid: string, email: string): GoogleDriveBackupFailedEvent {
     return {
       type: 'GOOGLE_DRIVE_BACKUP_FAILED',
       createdAt: dayjs.utc().toDate(),
+      meta: {
+        correlation: {
+          userIdentifier: email,
+          userIdentifierType: 'email',
+        },
+      },
       payload: {
-        extensionSettingUuid,
+        muteCloudEmailsSettingUuid,
         email,
       },
     }
   }
 
-  createOneDriveBackupFailedEvent(extensionSettingUuid: string, email: string): OneDriveBackupFailedEvent {
+  createOneDriveBackupFailedEvent(muteCloudEmailsSettingUuid: string, email: string): OneDriveBackupFailedEvent {
     return {
       type: 'ONE_DRIVE_BACKUP_FAILED',
       createdAt: dayjs.utc().toDate(),
+      meta: {
+        correlation: {
+          userIdentifier: email,
+          userIdentifierType: 'email',
+        },
+      },
       payload: {
-        extensionSettingUuid,
+        muteCloudEmailsSettingUuid,
         email,
       },
     }
   }
 
-  createMailBackupAttachmentTooBigEvent(dto: { allowedSize: string, attachmentSize: string, extensionSettingUuid?: string, email: string }): MailBackupAttachmentTooBigEvent {
+  createMailBackupAttachmentTooBigEvent(dto: {
+    allowedSize: string,
+    attachmentSize: string,
+    muteEmailsSettingUuid: string,
+    email: string
+  }): MailBackupAttachmentTooBigEvent {
     return {
       type: 'MAIL_BACKUP_ATTACHMENT_TOO_BIG',
       createdAt: dayjs.utc().toDate(),
+      meta: {
+        correlation: {
+          userIdentifier: dto.email,
+          userIdentifierType: 'email',
+        },
+      },
       payload: dto,
     }
   }
 
-  createItemsSyncedEvent(dto: { userUuid: string, extensionUrl: string, extensionId: string, itemUuids: Array<string>, forceMute: boolean, skipFileBackup: boolean }): ItemsSyncedEvent {
+  createItemsSyncedEvent(dto: {
+    userUuid: string,
+    extensionUrl: string,
+    extensionId: string,
+    itemUuids: Array<string>,
+    forceMute: boolean,
+    skipFileBackup: boolean,
+    source: 'backup' | 'account-deletion' | 'realtime-extensions-sync' | 'daily-extensions-sync'
+  }): ItemsSyncedEvent {
     return {
       type: 'ITEMS_SYNCED',
       createdAt: dayjs.utc().toDate(),
+      meta: {
+        correlation: {
+          userIdentifier: dto.userUuid,
+          userIdentifierType: 'uuid',
+        },
+      },
       payload: dto,
     }
   }
@@ -69,6 +118,12 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
     return {
       type: 'USER_REGISTERED',
       createdAt: dayjs.utc().toDate(),
+      meta: {
+        correlation: {
+          userIdentifier: userUuid,
+          userIdentifierType: 'uuid',
+        },
+      },
       payload: {
         userUuid,
         email,
@@ -80,6 +135,12 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
     return {
       type: 'EMAIL_ARCHIVE_EXTENSION_SYNCED',
       createdAt: dayjs.utc().toDate(),
+      meta: {
+        correlation: {
+          userIdentifier: userUuid,
+          userIdentifierType: 'uuid',
+        },
+      },
       payload: {
         userUuid,
         extensionId,
@@ -91,6 +152,12 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
     return {
       type: 'EMAIL_BACKUP_ATTACHMENT_CREATED',
       createdAt: dayjs.utc().toDate(),
+      meta: {
+        correlation: {
+          userIdentifier: email,
+          userIdentifierType: 'email',
+        },
+      },
       payload: {
         backupFileName,
         email,

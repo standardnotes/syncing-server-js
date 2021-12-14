@@ -12,7 +12,7 @@ import TYPES from '../src/Bootstrap/Types'
 import { Env } from '../src/Bootstrap/Env'
 import { ItemRepositoryInterface } from '../src/Domain/Item/ItemRepositoryInterface'
 import { ContentDecoderInterface } from '../src/Domain/Item/ContentDecoderInterface'
-import { Frequency } from '../src/Domain/ExtensionSetting/Frequency'
+import { Frequency } from '../src/Domain/Extension/Frequency'
 import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import { ContentSubtype } from '../src/Domain/Item/ContentSubtype'
 import { DomainEventFactoryInterface } from '../src/Domain/Event/DomainEventFactoryInterface'
@@ -93,6 +93,7 @@ const runDailyBackup = async (
           itemUuids: [],
           forceMute: muteEmails,
           skipFileBackup: false,
+          source: 'backup',
         })
       )
     }

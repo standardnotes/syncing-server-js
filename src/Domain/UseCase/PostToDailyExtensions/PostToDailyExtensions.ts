@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
 import TYPES from '../../../Bootstrap/Types'
 import { DomainEventFactoryInterface } from '../../Event/DomainEventFactoryInterface'
-import { Frequency } from '../../ExtensionSetting/Frequency'
+import { Frequency } from '../../Extension/Frequency'
 import { ContentDecoderInterface } from '../../Item/ContentDecoderInterface'
 import { ContentSubtype } from '../../Item/ContentSubtype'
 import { Item } from '../../Item/Item'
@@ -50,6 +50,7 @@ export class PostToDailyExtensions implements UseCaseInterface {
           itemUuids: [],
           forceMute: false,
           skipFileBackup: false,
+          source: 'daily-extensions-sync',
         })
       }
 

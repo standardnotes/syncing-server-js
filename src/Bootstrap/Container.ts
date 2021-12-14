@@ -25,13 +25,9 @@ import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncRespons
 import { SyncResponseFactoryResolver } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolver'
 import { ItemServiceInterface } from '../Domain/Item/ItemServiceInterface'
 import { ItemService } from '../Domain/Item/ItemService'
-import { ExtensionSettingRepositoryInterface } from '../Domain/ExtensionSetting/ExtensionSettingRepositoryInterface'
-import { MySQLExtensionSettingRepository } from '../Infra/MySQL/MySQLExtensionSettingRepository'
 import { AuthHttpServiceInterface } from '../Domain/Auth/AuthHttpServiceInterface'
 import { AuthHttpService } from '../Infra/HTTP/AuthHttpService'
-import { ExtensionSetting } from '../Domain/ExtensionSetting/ExtensionSetting'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
-import { MuteNotifications } from '../Domain/UseCase/MuteNotifications/MuteNotifications'
 import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
 import { ExtensionsHttpServiceInterface } from '../Domain/Extension/ExtensionsHttpServiceInterface'
 import { ExtensionsHttpService } from '../Domain/Extension/ExtensionsHttpService'
@@ -103,7 +99,6 @@ export class ContainerConfigLoader {
       entities: [
         Item,
         Revision,
-        ExtensionSetting,
       ],
       migrations: [
         env.get('DB_MIGRATIONS_PATH'),
@@ -162,7 +157,6 @@ export class ContainerConfigLoader {
     // Repositories
     container.bind<MySQLRevisionRepository>(TYPES.RevisionRepository).toConstantValue(connection.getCustomRepository(MySQLRevisionRepository))
     container.bind<MySQLItemRepository>(TYPES.ItemRepository).toConstantValue(connection.getCustomRepository(MySQLItemRepository))
-    container.bind<ExtensionSettingRepositoryInterface>(TYPES.ExtensionSettingRepository).toConstantValue(connection.getCustomRepository(MySQLExtensionSettingRepository))
 
     // Middleware
     container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
@@ -196,7 +190,6 @@ export class ContainerConfigLoader {
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
     container.bind<PostToRealtimeExtensions>(TYPES.PostToRealtimeExtensions).to(PostToRealtimeExtensions)
     container.bind<PostToDailyExtensions>(TYPES.PostToDailyExtensions).to(PostToDailyExtensions)
-    container.bind<MuteNotifications>(TYPES.MuteNotifications).to(MuteNotifications)
 
     // Handlers
     container.bind<ItemsSyncedEventHandler>(TYPES.ItemsSyncedEventHandler).to(ItemsSyncedEventHandler)

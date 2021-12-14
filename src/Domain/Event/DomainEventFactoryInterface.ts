@@ -2,11 +2,19 @@ import { DropboxBackupFailedEvent, DuplicateItemSyncedEvent, EmailArchiveExtensi
 
 export interface DomainEventFactoryInterface {
   createUserRegisteredEvent(userUuid: string, email: string): UserRegisteredEvent
-  createDropboxBackupFailedEvent(extensionSettingUuid: string, email: string): DropboxBackupFailedEvent
-  createGoogleDriveBackupFailedEvent(extensionSettingUuid: string, email: string): GoogleDriveBackupFailedEvent
-  createOneDriveBackupFailedEvent(extensionSettingUuid: string, email: string): OneDriveBackupFailedEvent
-  createMailBackupAttachmentTooBigEvent(dto: { allowedSize: string, attachmentSize: string, extensionSettingUuid?: string, email: string }): MailBackupAttachmentTooBigEvent
-  createItemsSyncedEvent(dto: { userUuid: string, extensionUrl: string, extensionId: string, itemUuids: Array<string>, forceMute: boolean, skipFileBackup: boolean }): ItemsSyncedEvent
+  createDropboxBackupFailedEvent(muteCloudEmailsSettingUuid: string, email: string): DropboxBackupFailedEvent
+  createGoogleDriveBackupFailedEvent(muteCloudEmailsSettingUuid: string, email: string): GoogleDriveBackupFailedEvent
+  createOneDriveBackupFailedEvent(muteCloudEmailsSettingUuid: string, email: string): OneDriveBackupFailedEvent
+  createMailBackupAttachmentTooBigEvent(dto: { allowedSize: string, attachmentSize: string, muteEmailsSettingUuid: string, email: string }): MailBackupAttachmentTooBigEvent
+  createItemsSyncedEvent(dto: {
+    userUuid: string,
+    extensionUrl: string,
+    extensionId: string,
+    itemUuids: Array<string>,
+    forceMute: boolean,
+    skipFileBackup: boolean,
+    source: 'backup' | 'account-deletion' | 'realtime-extensions-sync' | 'daily-extensions-sync'
+  }): ItemsSyncedEvent
   createEmailArchiveExtensionSyncedEvent(userUuid: string, extensionId: string): EmailArchiveExtensionSyncedEvent
   createEmailBackupAttachmentCreatedEvent(backupFileName: string, email: string): EmailBackupAttachmentCreatedEvent
   createDuplicateItemSyncedEvent(itemUuid: string, userUuid: string): DuplicateItemSyncedEvent

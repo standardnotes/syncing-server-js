@@ -41,7 +41,6 @@ export class EmailBackupRequestedEventHandler implements DomainEventHandlerInter
       return
     }
 
-
     const data = JSON.stringify({
       items,
       auth_params: authParams,
@@ -60,6 +59,7 @@ export class EmailBackupRequestedEventHandler implements DomainEventHandlerInter
           allowedSize: `${this.emailAttachmentMaxByteSize}`,
           attachmentSize: `${data.length}`,
           email: authParams.identifier,
+          muteEmailsSettingUuid: event.payload.muteEmailsSettingUuid,
         })
       )
 
