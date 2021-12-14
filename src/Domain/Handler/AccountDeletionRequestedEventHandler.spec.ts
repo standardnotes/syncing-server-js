@@ -65,6 +65,7 @@ describe('AccountDeletionRequestedEventHandler', () => {
       itemUuids: [],
       userUuid: '2-3-4',
       skipFileBackup: true,
+      source: 'account-deletion',
     })
   })
 

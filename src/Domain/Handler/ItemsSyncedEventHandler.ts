@@ -10,6 +10,7 @@ import { ExtensionsHttpServiceInterface } from '../Extension/ExtensionsHttpServi
 import { ItemBackupServiceInterface } from '../Item/ItemBackupServiceInterface'
 import { Logger } from 'winston'
 import { KeyParams } from '@standardnotes/auth'
+import { MuteFailedCloudBackupsEmailsOption, SettingName } from '@standardnotes/settings'
 
 @injectable()
 export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
@@ -47,15 +48,34 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
 
     this.logger.debug(`Sending ${items.length} items to extensions server for user ${event.payload.userUuid}`)
 
+    let userHasFailedCloudBackupsEmailsMuted = false
+    let muteEmailsSettingUuid = undefined
+    if (this.thisIsACloudBackupSync(event)) {
+      try {
+        const muteEmailsSetting = await this.authHttpService.getUserSetting(event.payload.userUuid, SettingName.MuteFailedBackupsEmails)
+        if (muteEmailsSetting.value === MuteFailedCloudBackupsEmailsOption.Muted) {
+          userHasFailedCloudBackupsEmailsMuted = true
+        }
+        muteEmailsSettingUuid = muteEmailsSetting.uuid
+      } catch (error) {
+        this.logger.warn(`Could not get mute failed backups emails setting from auth service: ${error.message}`)
+      }
+    }
+
     await this.extensionsHttpService.sendItemsToExtensionsServer({
       items: backingUpViaProxyFile ? undefined : items,
       authParams,
       backupFilename,
-      forceMute: event.payload.forceMute,
+      forceMute: event.payload.forceMute || userHasFailedCloudBackupsEmailsMuted,
+      muteEmailsSettingUuid,
       extensionsServerUrl: this.getExtensionsServerUrl(event),
       userUuid: event.payload.userUuid,
       extensionId: event.payload.extensionId,
     })
+  }
+
+  private thisIsACloudBackupSync(event: ItemsSyncedEvent) {
+    return event.payload.source === 'daily-extensions-sync' || event.payload.source === 'backup'
   }
 
   private getExtensionsServerUrl(event: ItemsSyncedEvent): string {

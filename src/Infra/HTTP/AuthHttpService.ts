@@ -13,6 +13,25 @@ export class AuthHttpService implements AuthHttpServiceInterface {
   ) {
   }
 
+  async getUserSetting(userUuid: string, settingName: string): Promise<{ uuid: string; value: string | null }> {
+    const response = await this.httpClient.request({
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+      url: `${this.authServerUrl}/internal/users/${userUuid}/settings/${settingName}`,
+      validateStatus:
+        /* istanbul ignore next */
+        (status: number) => status >= 200 && status < 500,
+    })
+
+    if (!response.data.setting) {
+      throw new Error('Missing user setting from auth service response')
+    }
+
+    return response.data.setting
+  }
+
   async getUserFeatures(userUuid: string): Promise<FeatureDescription[]> {
     const response = await this.httpClient.request({
       method: 'GET',

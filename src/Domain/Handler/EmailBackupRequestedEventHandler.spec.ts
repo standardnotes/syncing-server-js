@@ -44,6 +44,7 @@ describe('EmailBackupRequestedEventHandler', () => {
     event.payload = {
       userUuid: '1-2-3',
       userHasEmailsMuted: false,
+      muteEmailsSettingUuid: '1-2-3',
     }
 
     itemBackupService = {} as jest.Mocked<ItemBackupServiceInterface>
@@ -101,6 +102,7 @@ describe('EmailBackupRequestedEventHandler', () => {
       allowedSize: '100',
       attachmentSize: '118',
       email: 'test@test.com',
+      muteEmailsSettingUuid: '1-2-3',
     })
     expect(domainEventFactory.createEmailBackupAttachmentCreatedEvent).not.toHaveBeenCalled()
   })

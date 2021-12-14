@@ -3,8 +3,6 @@ import 'reflect-metadata'
 import { KeyParams } from '@standardnotes/auth'
 import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import { Logger } from 'winston'
-import { ExtensionSetting } from '../ExtensionSetting/ExtensionSetting'
-import { ExtensionSettingRepositoryInterface } from '../ExtensionSetting/ExtensionSettingRepositoryInterface'
 import { ContentDecoderInterface } from '../Item/ContentDecoderInterface'
 import { Item } from '../Item/Item'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
@@ -14,8 +12,6 @@ import { AxiosInstance } from 'axios'
 
 describe('ExtensionsHttpService', () => {
   let httpClient: AxiosInstance
-  let extensionSetting: ExtensionSetting
-  let extensionSettingRepository: ExtensionSettingRepositoryInterface
   let itemRepository: ItemRepositoryInterface
   let contentDecoder: ContentDecoderInterface
   let domainEventPublisher: DomainEventPublisherInterface
@@ -26,7 +22,6 @@ describe('ExtensionsHttpService', () => {
 
   const createService = () => new ExtensionsHttpService(
     httpClient,
-    extensionSettingRepository,
     itemRepository,
     contentDecoder,
     domainEventPublisher,
@@ -46,15 +41,6 @@ describe('ExtensionsHttpService', () => {
 
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
     itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item)
-
-    extensionSetting = {
-      muteEmails: false,
-      uuid: '3-4-5',
-    } as jest.Mocked<ExtensionSetting>
-
-    extensionSettingRepository = {} as jest.Mocked<ExtensionSettingRepositoryInterface>
-    extensionSettingRepository.findOneByExtensionId = jest.fn().mockReturnValue(extensionSetting)
-    extensionSettingRepository.save = jest.fn().mockImplementation(input => input)
 
     logger = {} as jest.Mocked<Logger>
     logger.error = jest.fn()
@@ -80,6 +66,7 @@ describe('ExtensionsHttpService', () => {
       items: [ item ],
       backupFilename: '',
       authParams,
+      muteEmailsSettingUuid: '3-4-5',
     })
 
     expect(httpClient.request).toHaveBeenCalledWith({
@@ -108,6 +95,7 @@ describe('ExtensionsHttpService', () => {
       forceMute: false,
       backupFilename: 'backup-file',
       authParams,
+      muteEmailsSettingUuid: '3-4-5',
     })
 
     expect(httpClient.request).toHaveBeenCalledWith({
@@ -127,25 +115,6 @@ describe('ExtensionsHttpService', () => {
     })
   })
 
-  it('should create a new extension setting if one does not exist', async () => {
-    extensionSettingRepository.findOneByExtensionId = jest.fn().mockReturnValue(undefined)
-
-    await createService().sendItemsToExtensionsServer({
-      userUuid: '1-2-3',
-      extensionId: '2-3-4',
-      extensionsServerUrl: 'https://extensions-server/extension1',
-      forceMute: false,
-      items: [ item ],
-      backupFilename: 'backup-file',
-      authParams,
-    })
-
-    expect(extensionSettingRepository.save).toHaveBeenCalledWith({
-      extensionId: '2-3-4',
-      muteEmails: false,
-    })
-  })
-
   it('should publish a failed Dropbox backup event if request was not sent successfully', async () => {
     contentDecoder.decode = jest.fn().mockReturnValue({ name: 'Dropbox' })
 
@@ -161,6 +130,7 @@ describe('ExtensionsHttpService', () => {
       items: [ item ],
       backupFilename: 'backup-file',
       authParams,
+      muteEmailsSettingUuid: '3-4-5',
     })
 
     expect(domainEventPublisher.publish).toHaveBeenCalled()
@@ -180,6 +150,7 @@ describe('ExtensionsHttpService', () => {
       items: [ item ],
       backupFilename: 'backup-file',
       authParams,
+      muteEmailsSettingUuid: '3-4-5',
     })
 
     expect(domainEventPublisher.publish).toHaveBeenCalled()
@@ -201,6 +172,7 @@ describe('ExtensionsHttpService', () => {
       items: [ item ],
       backupFilename: 'backup-file',
       authParams,
+      muteEmailsSettingUuid: '3-4-5',
     })
 
     expect(domainEventPublisher.publish).toHaveBeenCalled()
@@ -222,6 +194,7 @@ describe('ExtensionsHttpService', () => {
       items: [ item ],
       backupFilename: 'backup-file',
       authParams,
+      muteEmailsSettingUuid: '3-4-5',
     })
 
     expect(domainEventPublisher.publish).toHaveBeenCalled()
@@ -243,6 +216,7 @@ describe('ExtensionsHttpService', () => {
       items: [ item ],
       backupFilename: 'backup-file',
       authParams,
+      muteEmailsSettingUuid: '3-4-5',
     })
 
     expect(domainEventPublisher.publish).not.toHaveBeenCalled()
@@ -265,6 +239,7 @@ describe('ExtensionsHttpService', () => {
         items: [ item ],
         backupFilename: 'backup-file',
         authParams,
+        muteEmailsSettingUuid: '3-4-5',
       })
     } catch (e) {
       error = e
@@ -291,6 +266,7 @@ describe('ExtensionsHttpService', () => {
         items: [ item ],
         backupFilename: 'backup-file',
         authParams,
+        muteEmailsSettingUuid: '3-4-5',
       })
     } catch (e) {
       error = e
@@ -314,6 +290,7 @@ describe('ExtensionsHttpService', () => {
       items: [ item ],
       backupFilename: 'backup-file',
       authParams,
+      muteEmailsSettingUuid: '3-4-5',
     })
 
     expect(domainEventPublisher.publish).toHaveBeenCalled()
@@ -335,6 +312,7 @@ describe('ExtensionsHttpService', () => {
       items: [ item ],
       backupFilename: 'backup-file',
       authParams,
+      muteEmailsSettingUuid: '3-4-5',
     })
 
     expect(domainEventPublisher.publish).toHaveBeenCalled()
@@ -356,6 +334,7 @@ describe('ExtensionsHttpService', () => {
       items: [ item ],
       backupFilename: 'backup-file',
       authParams,
+      muteEmailsSettingUuid: '3-4-5',
     })
 
     expect(domainEventPublisher.publish).toHaveBeenCalled()
@@ -379,6 +358,7 @@ describe('ExtensionsHttpService', () => {
         items: [ item ],
         backupFilename: 'backup-file',
         authParams,
+        muteEmailsSettingUuid: '3-4-5',
       })
     } catch (e) {
       error = e
@@ -404,6 +384,7 @@ describe('ExtensionsHttpService', () => {
         items: [ item ],
         backupFilename: 'backup-file',
         authParams,
+        muteEmailsSettingUuid: '3-4-5',
       })
     } catch (e) {
       error = e

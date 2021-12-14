@@ -38,6 +38,7 @@ describe('ItemsSyncedEventHandler', () => {
 
     authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
     authHttpService.getUserKeyParams = jest.fn().mockReturnValue({ foo: 'bar' })
+    // authHttpService.getUserSetting = jest.fn().mockReturnValue
 
     extensionsHttpService = {} as jest.Mocked<ExtensionsHttpServiceInterface>
     extensionsHttpService.sendItemsToExtensionsServer = jest.fn()
@@ -51,6 +52,7 @@ describe('ItemsSyncedEventHandler', () => {
       forceMute: false,
       itemUuids: [ '4-5-6' ],
       skipFileBackup: false,
+      source: 'realtime-extensions-sync',
     }
 
     itemBackupService = {} as jest.Mocked<ItemBackupServiceInterface>
@@ -81,6 +83,123 @@ describe('ItemsSyncedEventHandler', () => {
       extensionId: '2-3-4',
       extensionsServerUrl: 'https://extensions-server/extension1',
       forceMute: false,
+      userUuid: '1-2-3',
+    })
+  })
+
+  it('should send synced items to extensions server with not muted emails if fetching settings for user fails', async () => {
+    event.payload.source = 'backup'
+
+    authHttpService.getUserSetting = jest.fn().mockImplementation(() => {
+      throw new Error('oops')
+    })
+
+    await createHandler().handle(event)
+
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      uuids:  [
+        '4-5-6',
+      ],
+    })
+
+    expect(extensionsHttpService.sendItemsToExtensionsServer).toHaveBeenCalledWith({
+      authParams: {
+        foo: 'bar',
+      },
+      backupFilename: 'backup-file-name',
+      extensionId: '2-3-4',
+      extensionsServerUrl: 'https://extensions-server/extension1',
+      forceMute: false,
+      userUuid: '1-2-3',
+    })
+  })
+
+  it('should send synced items to extensions server with not muted emails for backup sync', async () => {
+    event.payload.source = 'backup'
+
+    authHttpService.getUserSetting = jest.fn().mockReturnValue({ uuid: '4-5-6', value: 'not_muted' })
+
+    await createHandler().handle(event)
+
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      uuids:  [
+        '4-5-6',
+      ],
+    })
+
+    expect(extensionsHttpService.sendItemsToExtensionsServer).toHaveBeenCalledWith({
+      authParams: {
+        foo: 'bar',
+      },
+      backupFilename: 'backup-file-name',
+      extensionId: '2-3-4',
+      extensionsServerUrl: 'https://extensions-server/extension1',
+      muteEmailsSettingUuid: '4-5-6',
+      forceMute: false,
+      userUuid: '1-2-3',
+    })
+  })
+
+  it('should send synced items to extensions server with muted emails for backup sync', async () => {
+    event.payload.source = 'backup'
+
+    authHttpService.getUserSetting = jest.fn().mockReturnValue({ uuid: '4-5-6', value: 'muted' })
+
+    await createHandler().handle(event)
+
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      uuids:  [
+        '4-5-6',
+      ],
+    })
+
+    expect(extensionsHttpService.sendItemsToExtensionsServer).toHaveBeenCalledWith({
+      authParams: {
+        foo: 'bar',
+      },
+      backupFilename: 'backup-file-name',
+      extensionId: '2-3-4',
+      extensionsServerUrl: 'https://extensions-server/extension1',
+      muteEmailsSettingUuid: '4-5-6',
+      forceMute: true,
+      userUuid: '1-2-3',
+    })
+  })
+
+  it('should send synced items to extensions server with muted emails for daily extensions sync', async () => {
+    event.payload.source = 'daily-extensions-sync'
+
+    authHttpService.getUserSetting = jest.fn().mockReturnValue({ uuid: '4-5-6', value: 'muted' })
+
+    await createHandler().handle(event)
+
+    expect(itemRepository.findAll).toHaveBeenCalledWith({
+      sortBy: 'updated_at_timestamp',
+      sortOrder: 'ASC',
+      userUuid: '1-2-3',
+      uuids:  [
+        '4-5-6',
+      ],
+    })
+
+    expect(extensionsHttpService.sendItemsToExtensionsServer).toHaveBeenCalledWith({
+      authParams: {
+        foo: 'bar',
+      },
+      backupFilename: 'backup-file-name',
+      extensionId: '2-3-4',
+      extensionsServerUrl: 'https://extensions-server/extension1',
+      muteEmailsSettingUuid: '4-5-6',
+      forceMute: true,
       userUuid: '1-2-3',
     })
   })

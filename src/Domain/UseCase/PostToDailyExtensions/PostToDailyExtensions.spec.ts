@@ -97,6 +97,7 @@ describe('PostToDailyExtensions', () => {
       itemUuids: [],
       forceMute: false,
       skipFileBackup: false,
+      source: 'daily-extensions-sync',
     })
   })
 

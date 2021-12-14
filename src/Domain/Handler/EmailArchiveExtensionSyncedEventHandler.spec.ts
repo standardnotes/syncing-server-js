@@ -4,8 +4,6 @@ import { DomainEventPublisherInterface, EmailArchiveExtensionSyncedEvent, EmailB
 import { Logger } from 'winston'
 import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
-import { ExtensionSetting } from '../ExtensionSetting/ExtensionSetting'
-import { ExtensionSettingRepositoryInterface } from '../ExtensionSetting/ExtensionSettingRepositoryInterface'
 import { Item } from '../Item/Item'
 import { ItemBackupServiceInterface } from '../Item/ItemBackupServiceInterface'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
@@ -14,8 +12,6 @@ import { EmailArchiveExtensionSyncedEventHandler } from './EmailArchiveExtension
 describe('EmailArchiveExtensionSyncedEventHandler', () => {
   let itemRepository: ItemRepositoryInterface
   let authHttpService: AuthHttpServiceInterface
-  let extensionSetting: ExtensionSetting
-  let extensionSettingRepository: ExtensionSettingRepositoryInterface
   let itemBackupService: ItemBackupServiceInterface
   let domainEventPublisher: DomainEventPublisherInterface
   let domainEventFactory: DomainEventFactoryInterface
@@ -27,7 +23,6 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
   const createHandler = () => new EmailArchiveExtensionSyncedEventHandler(
     itemRepository,
     authHttpService,
-    extensionSettingRepository,
     itemBackupService,
     domainEventPublisher,
     domainEventFactory,
@@ -43,15 +38,7 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
 
     authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
     authHttpService.getUserKeyParams = jest.fn().mockReturnValue({ identifier: 'test@test.com' })
-
-    extensionSetting = {
-      muteEmails: false,
-      uuid: '3-4-5',
-    } as jest.Mocked<ExtensionSetting>
-
-    extensionSettingRepository = {} as jest.Mocked<ExtensionSettingRepositoryInterface>
-    extensionSettingRepository.findOneByExtensionId = jest.fn().mockReturnValue(extensionSetting)
-    extensionSettingRepository.save = jest.fn().mockImplementation(input => input)
+    authHttpService.getUserSetting = jest.fn().mockReturnValue({ uuid: '3-4-5', value: 'not_muted' })
 
     event = {} as jest.Mocked<EmailArchiveExtensionSyncedEvent>
     event.createdAt = new Date(1)
@@ -115,7 +102,7 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
       allowedSize: '100',
       attachmentSize: '118',
       email: 'test@test.com',
-      extensionSettingUuid: '3-4-5',
+      muteEmailsSettingUuid: '3-4-5',
     })
     expect(domainEventFactory.createEmailBackupAttachmentCreatedEvent).not.toHaveBeenCalled()
   })
@@ -125,11 +112,7 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
       content: 'This content is too large so should not be sent',
     } as jest.Mocked<Item>
     itemRepository.findAll = jest.fn().mockReturnValue([ item ])
-    extensionSetting = {
-      muteEmails: true,
-      uuid: '3-4-5',
-    } as jest.Mocked<ExtensionSetting>
-    extensionSettingRepository.findOneByExtensionId = jest.fn().mockReturnValue(extensionSetting)
+    authHttpService.getUserSetting = jest.fn().mockReturnValue({ uuid: '3-4-5', value: 'muted' })
 
     await createHandler().handle(event)
 
@@ -138,18 +121,19 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
     expect(domainEventFactory.createEmailBackupAttachmentCreatedEvent).not.toHaveBeenCalled()
   })
 
-  it('should create an extension setting if one does not already exist', async () => {
+  it('should not inform that backup attachment for email was too big if it fails to fetch user settings from auth', async () => {
     item = {
       content: 'This content is too large so should not be sent',
     } as jest.Mocked<Item>
     itemRepository.findAll = jest.fn().mockReturnValue([ item ])
-    extensionSettingRepository.findOneByExtensionId = jest.fn().mockReturnValue(undefined)
+    authHttpService.getUserSetting = jest.fn().mockImplementation(() => {
+      throw new Error('ooops')
+    })
 
     await createHandler().handle(event)
 
-    expect(extensionSettingRepository.save).toHaveBeenLastCalledWith({
-      extensionId: '2-3-4',
-      muteEmails: false,
-    })
+    expect(domainEventPublisher.publish).not.toHaveBeenCalled()
+    expect(domainEventFactory.createMailBackupAttachmentTooBigEvent).not.toHaveBeenCalled()
+    expect(domainEventFactory.createEmailBackupAttachmentCreatedEvent).not.toHaveBeenCalled()
   })
 })

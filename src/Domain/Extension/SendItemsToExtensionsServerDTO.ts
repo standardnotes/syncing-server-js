@@ -8,5 +8,6 @@ export type SendItemsToExtensionsServerDTO = {
   authParams: KeyParams
   forceMute: boolean
   userUuid: string
+  muteEmailsSettingUuid?: string
   items?: Array<Item>
 }

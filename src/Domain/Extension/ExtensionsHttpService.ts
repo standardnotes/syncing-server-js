@@ -4,8 +4,6 @@ import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
-import { ExtensionSetting } from '../ExtensionSetting/ExtensionSetting'
-import { ExtensionSettingRepositoryInterface } from '../ExtensionSetting/ExtensionSettingRepositoryInterface'
 import { ContentDecoderInterface } from '../Item/ContentDecoderInterface'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
 import { ExtensionName } from './ExtensionName'
@@ -16,7 +14,6 @@ import { SendItemsToExtensionsServerDTO } from './SendItemsToExtensionsServerDTO
 export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
   constructor (
     @inject(TYPES.HTTPClient) private httpClient: AxiosInstance,
-    @inject(TYPES.ExtensionSettingRepository) private extensionSettingRepository: ExtensionSettingRepositoryInterface,
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.ContentDecoder) private contentDecoder: ContentDecoderInterface,
     @inject(TYPES.DomainEventPublisher) private domainEventPublisher: DomainEventPublisherInterface,
@@ -26,16 +23,14 @@ export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
   }
 
   async sendItemsToExtensionsServer(dto: SendItemsToExtensionsServerDTO): Promise<void> {
-    const emailMuteSettings = await this.shouldEmailsBeMuted(dto.forceMute, dto.extensionId)
-
     let sent = false
     try {
       const payload: Record<string, unknown> = {
         backup_filename: dto.backupFilename,
         auth_params: dto.authParams,
-        silent: emailMuteSettings.muteEmails,
+        silent: dto.forceMute,
         user_uuid: dto.userUuid,
-        settings_id: emailMuteSettings.extensionSetting.uuid,
+        settings_id: dto.muteEmailsSettingUuid,
       }
       if (dto.items !== undefined) {
         payload.items = dto.items
@@ -59,10 +54,10 @@ export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
       this.logger.error(`[${dto.userUuid}] Failed to send a request to extensions server: ${error.message}`)
     }
 
-    if (!sent && !emailMuteSettings.muteEmails) {
+    if (!sent && !dto.forceMute && dto.muteEmailsSettingUuid !== undefined) {
       await this.domainEventPublisher.publish(
         await this.getBackupFailedEvent(
-          emailMuteSettings.extensionSetting.uuid,
+          dto.muteEmailsSettingUuid,
           dto.extensionId,
           dto.userUuid,
           dto.authParams.identifier
@@ -71,7 +66,7 @@ export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
     }
   }
 
-  private async getBackupFailedEvent(extensionSettingUuid: string, extensionId: string, userUuid: string, email: string): Promise<DomainEventInterface> {
+  private async getBackupFailedEvent(muteCloudEmailsSettingUuid: string, extensionId: string, userUuid: string, email: string): Promise<DomainEventInterface> {
     const extension = await this.itemRepository.findByUuidAndUserUuid(extensionId, userUuid)
     if (extension === undefined || !extension.content) {
       throw Error(`Could not find extensions with id ${extensionId}`)
@@ -80,11 +75,11 @@ export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
     const content = this.contentDecoder.decode(extension.content)
     switch(this.getExtensionName(content)) {
     case ExtensionName.Dropbox:
-      return this.domainEventFactory.createDropboxBackupFailedEvent(extensionSettingUuid, email)
+      return this.domainEventFactory.createDropboxBackupFailedEvent(muteCloudEmailsSettingUuid, email)
     case ExtensionName.GoogleDrive:
-      return this.domainEventFactory.createGoogleDriveBackupFailedEvent(extensionSettingUuid, email)
+      return this.domainEventFactory.createGoogleDriveBackupFailedEvent(muteCloudEmailsSettingUuid, email)
     case ExtensionName.OneDrive:
-      return this.domainEventFactory.createOneDriveBackupFailedEvent(extensionSettingUuid, email)
+      return this.domainEventFactory.createOneDriveBackupFailedEvent(muteCloudEmailsSettingUuid, email)
     }
 
   }
@@ -107,20 +102,5 @@ export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
     }
 
     throw Error('Could not deduce extension name from extension content')
-  }
-
-  private async shouldEmailsBeMuted(forceMute: boolean, extensionId: string): Promise<{ muteEmails: boolean, extensionSetting: ExtensionSetting }> {
-    let extensionSetting = await this.extensionSettingRepository.findOneByExtensionId(extensionId)
-    if (!extensionSetting) {
-      extensionSetting = new ExtensionSetting()
-      extensionSetting.muteEmails = false
-      extensionSetting.extensionId = extensionId
-      extensionSetting = await this.extensionSettingRepository.save(extensionSetting)
-    }
-
-    return {
-      muteEmails: forceMute || extensionSetting.muteEmails,
-      extensionSetting,
-    }
   }
 }

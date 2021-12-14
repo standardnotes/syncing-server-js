@@ -74,6 +74,7 @@ describe('PostToRealtimeExtensions', () => {
       itemUuids: ['2-3-4'],
       forceMute: true,
       skipFileBackup: true,
+      source: 'realtime-extensions-sync',
     })
   })
 

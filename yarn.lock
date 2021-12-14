@@ -676,12 +676,12 @@
     "@typescript-eslint/eslint-plugin" "^4.14.0"
     "@typescript-eslint/parser" "^4.14.0"
 
-"@standardnotes/domain-events-infra@1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@standardnotes/domain-events-infra/-/domain-events-infra-1.0.2.tgz#0b2e9c280599a68e8fc8a8bb00a1f39dbb520e87"
-  integrity sha512-+26Kb423j/QnCVlyuzuArSiubcfCFiO5UF6BuMBLJkVdYkQinYAdsO9FZcYrxTfI2YG1UFSy96gLuSvXgK0X5w==
+"@standardnotes/domain-events-infra@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@standardnotes/domain-events-infra/-/domain-events-infra-1.1.0.tgz#b24570e65156397d635aa3fe21d8248b69a2d7ab"
+  integrity sha512-rrOxninREfXRL3+tqDbr34VUgBEdY4dz91LgCVMOPjSn6mmg+5RGT/Kn36doErJWy51iFrRlWEpqJKHFcE1rRQ==
   dependencies:
-    "@standardnotes/domain-events" "^2.5.1"
+    "@standardnotes/domain-events" "^2.8.0"
     aws-sdk "^2.824.0"
     ioredis "^4.19.4"
     newrelic "^7.4.0"
@@ -689,17 +689,17 @@
     sqs-consumer "^5.5.0"
     winston "^3.3.3"
 
-"@standardnotes/domain-events@2.7.0":
-  version "2.7.0"
-  resolved "https://registry.yarnpkg.com/@standardnotes/domain-events/-/domain-events-2.7.0.tgz#e0a112cf5fb8068d3673622f8c01337eb6c28bbf"
-  integrity sha512-oHSqz3h/eefoFUrlLBGXEP8cCyMcmFlaeY+n7jBC6a2FpWQ6BFtKU4dMz2KP0jhSbqiZYTUR5IhYrCPO3t1B7A==
+"@standardnotes/domain-events@2.10.0":
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/@standardnotes/domain-events/-/domain-events-2.10.0.tgz#719c430d1736daffcb4233aa3381b58280564dc0"
+  integrity sha512-8jvkhNjoYrXN81RA8Q4vGEKH9R002Y/aEK29GyxmQmijT5+JwlA4f0ySycz5sJxWGULohL1k96RueYPs97hV3g==
   dependencies:
     "@standardnotes/auth" "^3.8.1"
 
-"@standardnotes/domain-events@^2.5.1":
-  version "2.5.1"
-  resolved "https://registry.yarnpkg.com/@standardnotes/domain-events/-/domain-events-2.5.1.tgz#e6433e940ae616683d1c24f76133c70755504c44"
-  integrity sha512-p0VB4Al/ZcVqcj9ztU7TNqzc3jjjG6/U7x9lBW/QURHxpB+PnwJq3kFU5V5JA9QpCOYlXLT71CMERMf/O5QX6g==
+"@standardnotes/domain-events@^2.8.0":
+  version "2.9.0"
+  resolved "https://registry.yarnpkg.com/@standardnotes/domain-events/-/domain-events-2.9.0.tgz#19558064bae6975bfff78c64f317013a7b073aab"
+  integrity sha512-Cpnj/Yz7Sk7Qux66EJBZLc7pRfTWYPSdHaXqMm5DhHX5v+I1bAD5ArW4dndOPBjG5qbj3Gx3WYDia0E8qwggFQ==
   dependencies:
     "@standardnotes/auth" "^3.8.1"
 
@@ -709,6 +709,11 @@
   integrity sha512-gkBM82kEeKj4tve25WFsvPMb7MLqK2C3HcjKxk4RfoGouLAGjnSAVqs4AKZsDqdOrDZr5cAv55Uychr5qZMJTw==
   dependencies:
     "@standardnotes/common" "^1.2.1"
+
+"@standardnotes/settings@1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@standardnotes/settings/-/settings-1.4.0.tgz#b8f43383fa1b469d609f5ac6c2ce571efb8bfe71"
+  integrity sha512-mGptrIaM/3UWOkc9xmzuRRM2A75caX6vyqCeKhyqPdM3ZR/YpYH7I6qYDsO6wpkoF3soD2nRJ6pLV7HBjGdGag==
 
 "@standardnotes/time@1.0.4":
   version "1.0.4"

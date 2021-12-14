@@ -8,7 +8,6 @@ const TYPES = {
   // Repositories
   RevisionRepository: Symbol.for('RevisionRepository'),
   ItemRepository: Symbol.for('ItemRepository'),
-  ExtensionSettingRepository: Symbol.for('ExtensionSettingRepository'),
   // Middleware
   AuthMiddleware: Symbol.for('AuthMiddleware'),
   // Projectors
@@ -37,7 +36,6 @@ const TYPES = {
   SyncItems: Symbol.for('SyncItems'),
   PostToRealtimeExtensions: Symbol.for('PostToRealtimeExtensions'),
   PostToDailyExtensions: Symbol.for('PostToDailyExtensions'),
-  MuteNotifications: Symbol.for('MuteNotifications'),
   // Handlers
   AccountDeletionRequestedEventHandler: Symbol.for('AccountDeletionRequestedEventHandler'),
   DuplicateItemSyncedEventHandler: Symbol.for('DuplicateItemSyncedEventHandler'),
