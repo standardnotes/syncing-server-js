@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@newrelic/native-metrics": "7.0.2",
+    "@sentry/node": "^6.16.1",
     "@standardnotes/auth": "3.8.3",
     "@standardnotes/common": "1.3.0",
     "@standardnotes/domain-events": "2.10.0",
