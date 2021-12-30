@@ -2,6 +2,8 @@ import 'reflect-metadata'
 
 import 'newrelic'
 
+import * as Sentry from '@sentry/node'
+
 import '../src/Controller/HealthCheckController'
 import '../src/Controller/RevisionsController'
 import '../src/Controller/ItemsController'
@@ -10,7 +12,7 @@ import '../src/Controller/AdminController'
 
 import * as helmet from 'helmet'
 import * as cors from 'cors'
-import { urlencoded, json, Request, Response, NextFunction } from 'express'
+import { urlencoded, json, Request, Response, NextFunction, RequestHandler, ErrorRequestHandler } from 'express'
 import * as winston from 'winston'
 import * as dayjs from 'dayjs'
 import * as utc from 'dayjs/plugin/utc'
@@ -23,6 +25,9 @@ import { Env } from '../src/Bootstrap/Env'
 const container = new ContainerConfigLoader
 void container.load().then(container => {
   dayjs.extend(utc)
+
+  const env: Env = new Env()
+  env.load()
 
   const server = new InversifyExpressServer(container)
 
@@ -56,11 +61,27 @@ void container.load().then(container => {
     app.use(json({ limit: '50mb' }))
     app.use(urlencoded({ extended: true, limit: '50mb', parameterLimit: 5000 }))
     app.use(cors())
+
+    if (env.get('SENTRY_DSN', true)) {
+      Sentry.init({
+        dsn: env.get('SENTRY_DSN'),
+        integrations: [
+          new Sentry.Integrations.Http({ tracing: false, breadcrumbs: true }),
+        ],
+        tracesSampleRate: 0,
+      })
+
+      app.use(Sentry.Handlers.requestHandler() as RequestHandler)
+    }
   })
 
   const logger: winston.Logger = container.get(TYPES.Logger)
 
   server.setErrorConfig((app) => {
+    if (env.get('SENTRY_DSN', true)) {
+      app.use(Sentry.Handlers.errorHandler() as ErrorRequestHandler)
+    }
+
     app.use((error: Record<string, unknown>, _request: Request, response: Response, _next: NextFunction) => {
       logger.error(error.stack)
 
@@ -73,9 +94,6 @@ void container.load().then(container => {
   })
 
   const serverInstance = server.build()
-
-  const env: Env = new Env()
-  env.load()
 
   serverInstance.listen(env.get('PORT'))
 
