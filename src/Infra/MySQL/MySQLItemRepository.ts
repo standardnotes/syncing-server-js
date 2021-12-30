@@ -4,6 +4,7 @@ import { Item } from '../../Domain/Item/Item'
 import { ItemQuery } from '../../Domain/Item/ItemQuery'
 import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterface'
 import { ReadStream } from 'fs'
+import { ContentType } from '@standardnotes/common'
 
 @injectable()
 @EntityRepository(Item)
@@ -62,7 +63,7 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
     const items = await queryBuilder.getRawMany()
 
     return items
-      .filter(item => item.content_type !== null)
+      .filter(item => item.content_type !== null && item.content_type !== ContentType.ServerExtension)
       .sort((itemA, itemB) => itemB.updated_at_timestamp - itemA.updated_at_timestamp)
   }
 
