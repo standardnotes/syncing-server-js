@@ -19,16 +19,6 @@ case "$COMMAND" in
     yarn worker
     ;;
 
-  'daily-backup' )
-    echo "Starting Daily Backup..."
-    yarn daily-backup
-    ;;
-
-  'daily-backup-no-email' )
-    echo "Starting Daily Backup Without Emails..."
-    yarn daily-backup-no-email
-    ;;
-
    * )
     echo "Unknown command"
     ;;

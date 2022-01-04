@@ -42,7 +42,6 @@ import { DuplicateItemSyncedEventHandler } from '../Domain/Handler/DuplicateItem
 import { AccountDeletionRequestedEventHandler } from '../Domain/Handler/AccountDeletionRequestedEventHandler'
 import { ItemProjector } from '../Projection/ItemProjector'
 import { ItemConflictProjector } from '../Projection/ItemConflictProjector'
-import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
 import { Timer, TimerInterface } from '@standardnotes/time'
 import { ItemSaveValidatorInterface } from '../Domain/Item/SaveValidator/ItemSaveValidatorInterface'
 import { ItemSaveValidator } from '../Domain/Item/SaveValidator/ItemSaveValidator'
@@ -190,7 +189,6 @@ export class ContainerConfigLoader {
     // use cases
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
     container.bind<PostToRealtimeExtensions>(TYPES.PostToRealtimeExtensions).to(PostToRealtimeExtensions)
-    container.bind<PostToDailyExtensions>(TYPES.PostToDailyExtensions).to(PostToDailyExtensions)
 
     // Handlers
     container.bind<ItemsSyncedEventHandler>(TYPES.ItemsSyncedEventHandler).to(ItemsSyncedEventHandler)

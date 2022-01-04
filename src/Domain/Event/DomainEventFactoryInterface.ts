@@ -13,7 +13,7 @@ export interface DomainEventFactoryInterface {
     itemUuids: Array<string>,
     forceMute: boolean,
     skipFileBackup: boolean,
-    source: 'backup' | 'account-deletion' | 'realtime-extensions-sync' | 'daily-extensions-sync'
+    source: 'account-deletion' | 'realtime-extensions-sync'
   }): ItemsSyncedEvent
   createEmailArchiveExtensionSyncedEvent(userUuid: string, extensionId: string): EmailArchiveExtensionSyncedEvent
   createEmailBackupAttachmentCreatedEvent(backupFileName: string, email: string): EmailBackupAttachmentCreatedEvent
