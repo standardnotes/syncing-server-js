@@ -11,7 +11,6 @@ import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtens
 import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
 import { SyncResponseFactoryInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryInterface'
 import { SyncResponse20200115 } from '../Domain/Item/SyncResponse/SyncResponse20200115'
-import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
 import { Logger } from 'winston'
 
 describe('ItemsController', () => {
@@ -22,14 +21,12 @@ describe('ItemsController', () => {
   let syncResponceFactoryResolver: SyncResponseFactoryResolverInterface
   let syncResponseFactory: SyncResponseFactoryInterface
   let syncResponse: SyncResponse20200115
-  let postToDailyExtensions: PostToDailyExtensions
   let logger: Logger
 
   const createController = () => new ItemsController(
     syncItems,
     syncResponceFactoryResolver,
     postToRealtimeExtensions,
-    postToDailyExtensions,
     logger
   )
 
@@ -39,9 +36,6 @@ describe('ItemsController', () => {
 
     postToRealtimeExtensions = {} as jest.Mocked<PostToRealtimeExtensions>
     postToRealtimeExtensions.execute = jest.fn()
-
-    postToDailyExtensions = {} as jest.Mocked<PostToDailyExtensions>
-    postToDailyExtensions.execute = jest.fn()
 
     logger = {} as jest.Mocked<Logger>
     logger.error = jest.fn()

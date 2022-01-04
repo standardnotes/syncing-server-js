@@ -19,9 +19,7 @@
     "test": "jest --coverage",
     "start": "node dist/bin/server.js",
     "start:local": "npx nodemon -L bin/server.ts",
-    "worker": "node dist/bin/worker.js",
-    "daily-backup": "node dist/bin/backup.js",
-    "daily-backup-no-email": "node dist/bin/backup.js mute-emails"
+    "worker": "node dist/bin/worker.js"
   },
   "dependencies": {
     "@newrelic/native-metrics": "7.0.2",

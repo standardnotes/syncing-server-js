@@ -31,7 +31,7 @@ describe('DomainEventFactory', () => {
       itemUuids: ['3-4-5'],
       forceMute: false,
       skipFileBackup: false,
-      source: 'backup',
+      source: 'realtime-extensions-sync',
     }))
       .toEqual({
         createdAt: expect.any(Date),
@@ -48,7 +48,7 @@ describe('DomainEventFactory', () => {
           itemUuids: [ '3-4-5' ],
           forceMute: false,
           skipFileBackup: false,
-          source: 'backup',
+          source: 'realtime-extensions-sync',
         },
         type: 'ITEMS_SYNCED',
       })

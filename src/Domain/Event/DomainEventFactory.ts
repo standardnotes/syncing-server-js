@@ -99,7 +99,7 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
     itemUuids: Array<string>,
     forceMute: boolean,
     skipFileBackup: boolean,
-    source: 'backup' | 'account-deletion' | 'realtime-extensions-sync' | 'daily-extensions-sync'
+    source: 'account-deletion' | 'realtime-extensions-sync'
   }): ItemsSyncedEvent {
     return {
       type: 'ITEMS_SYNCED',

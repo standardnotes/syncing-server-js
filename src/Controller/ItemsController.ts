@@ -5,7 +5,6 @@ import { Logger } from 'winston'
 import TYPES from '../Bootstrap/Types'
 import { ApiVersion } from '../Domain/Api/ApiVersion'
 import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
-import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
 import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
 
@@ -15,7 +14,6 @@ export class ItemsController extends BaseHttpController {
     @inject(TYPES.SyncItems) private syncItems: SyncItems,
     @inject(TYPES.SyncResponseFactoryResolver) private syncResponseFactoryResolver: SyncResponseFactoryResolverInterface,
     @inject(TYPES.PostToRealtimeExtensions) private postToRealtimeExtensions: PostToRealtimeExtensions,
-    @inject(TYPES.PostToDailyExtensions) private postToDailyExtensions: PostToDailyExtensions,
     @inject(TYPES.Logger) private logger: Logger
   ) {
     super()
@@ -44,11 +42,6 @@ export class ItemsController extends BaseHttpController {
       await this.postToRealtimeExtensions.execute({
         userUuid: response.locals.user.uuid,
         itemHashes,
-      })
-
-      await this.postToDailyExtensions.execute({
-        userUuid: response.locals.user.uuid,
-        extensions: syncResult.savedItems,
       })
 
     } catch (error) {
