@@ -1,3 +1,4 @@
+import { KeyParams } from '@standardnotes/auth'
 import { DomainEventInterface, DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import { AxiosInstance } from 'axios'
 import { inject, injectable } from 'inversify'
@@ -20,6 +21,54 @@ export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
     @inject(TYPES.DomainEventFactory) private domainEventFactory: DomainEventFactoryInterface,
     @inject(TYPES.Logger) private logger: Logger
   ) {
+  }
+
+  async triggerCloudBackupOnExtensionsServer(dto: {
+    cloudProvider: 'DROPBOX' | 'GOOGLE_DRIVE' | 'ONE_DRIVE',
+    extensionsServerUrl: string
+    backupFilename: string
+    authParams: KeyParams
+    forceMute: boolean
+    userUuid: string
+    muteEmailsSettingUuid: string
+  }): Promise<void> {
+    let sent = false
+    try {
+      const payload: Record<string, unknown> = {
+        backup_filename: dto.backupFilename,
+        auth_params: dto.authParams,
+        silent: dto.forceMute,
+        user_uuid: dto.userUuid,
+        settings_id: dto.muteEmailsSettingUuid,
+      }
+
+      const response = await this.httpClient
+        .request({
+          method: 'POST',
+          url: dto.extensionsServerUrl,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          data: payload,
+          validateStatus:
+          /* istanbul ignore next */
+          (status: number) => status >= 200 && status < 500,
+        })
+
+      sent = response.status >= 200 && response.status < 300
+    } catch (error) {
+      this.logger.error(`[${dto.userUuid}] Failed to send a request to extensions server: ${error.message}`)
+    }
+
+    if (!sent && !dto.forceMute && dto.muteEmailsSettingUuid !== undefined) {
+      await this.domainEventPublisher.publish(
+        this.createCloudBackupFailedEventBasedOnProvider(
+          dto.cloudProvider,
+          dto.authParams.identifier,
+          dto.muteEmailsSettingUuid
+        )
+      )
+    }
   }
 
   async sendItemsToExtensionsServer(dto: SendItemsToExtensionsServerDTO): Promise<void> {
@@ -66,6 +115,21 @@ export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
     }
   }
 
+  private createCloudBackupFailedEventBasedOnProvider(
+    cloudProvider: 'DROPBOX' | 'GOOGLE_DRIVE' | 'ONE_DRIVE',
+    email: string,
+    muteCloudEmailsSettingUuid: string
+  ): DomainEventInterface {
+    switch(cloudProvider) {
+    case 'DROPBOX':
+      return this.domainEventFactory.createDropboxBackupFailedEvent(muteCloudEmailsSettingUuid, email)
+    case 'GOOGLE_DRIVE':
+      return this.domainEventFactory.createGoogleDriveBackupFailedEvent(muteCloudEmailsSettingUuid, email)
+    case 'ONE_DRIVE':
+      return this.domainEventFactory.createOneDriveBackupFailedEvent(muteCloudEmailsSettingUuid, email)
+    }
+  }
+
   private async getBackupFailedEvent(muteCloudEmailsSettingUuid: string, extensionId: string, userUuid: string, email: string): Promise<DomainEventInterface> {
     const extension = await this.itemRepository.findByUuidAndUserUuid(extensionId, userUuid)
     if (extension === undefined || !extension.content) {
@@ -75,13 +139,12 @@ export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
     const content = this.contentDecoder.decode(extension.content)
     switch(this.getExtensionName(content)) {
     case ExtensionName.Dropbox:
-      return this.domainEventFactory.createDropboxBackupFailedEvent(muteCloudEmailsSettingUuid, email)
+      return this.createCloudBackupFailedEventBasedOnProvider('DROPBOX', muteCloudEmailsSettingUuid, email)
     case ExtensionName.GoogleDrive:
-      return this.domainEventFactory.createGoogleDriveBackupFailedEvent(muteCloudEmailsSettingUuid, email)
+      return this.createCloudBackupFailedEventBasedOnProvider('GOOGLE_DRIVE', muteCloudEmailsSettingUuid, email)
     case ExtensionName.OneDrive:
-      return this.domainEventFactory.createOneDriveBackupFailedEvent(muteCloudEmailsSettingUuid, email)
+      return this.createCloudBackupFailedEventBasedOnProvider('ONE_DRIVE', muteCloudEmailsSettingUuid, email)
     }
-
   }
 
   private getExtensionName(content: Record<string, unknown>): ExtensionName {

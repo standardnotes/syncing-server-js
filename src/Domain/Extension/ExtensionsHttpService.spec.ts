@@ -57,6 +57,55 @@ describe('ExtensionsHttpService', () => {
     contentDecoder.decode = jest.fn().mockReturnValue({ name: 'Dropbox' })
   })
 
+  it('should trigger cloud backup on extensions server', async () => {
+    await createService().triggerCloudBackupOnExtensionsServer({
+      userUuid: '1-2-3',
+      extensionsServerUrl: 'https://extensions-server/extension1',
+      forceMute: false,
+      backupFilename: 'test',
+      authParams,
+      muteEmailsSettingUuid: '3-4-5',
+      cloudProvider: 'DROPBOX',
+    })
+
+    expect(httpClient.request).toHaveBeenCalledWith({
+      data:  {
+        auth_params: authParams,
+        backup_filename: 'test',
+        settings_id: '3-4-5',
+        silent: false,
+        user_uuid: '1-2-3',
+      },
+      headers:  {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      url: 'https://extensions-server/extension1',
+      validateStatus: expect.any(Function),
+    })
+  })
+
+  it('should publish a failed Dropbox backup event if request was not sent successfully', async () => {
+    contentDecoder.decode = jest.fn().mockReturnValue({ name: 'Dropbox' })
+
+    httpClient.request = jest.fn().mockImplementation(() => {
+      throw new Error('Could not reach the extensions server')
+    })
+
+    await createService().triggerCloudBackupOnExtensionsServer({
+      userUuid: '1-2-3',
+      extensionsServerUrl: 'https://extensions-server/extension1',
+      forceMute: false,
+      backupFilename: 'test',
+      authParams,
+      muteEmailsSettingUuid: '3-4-5',
+      cloudProvider: 'DROPBOX',
+    })
+
+    expect(domainEventPublisher.publish).toHaveBeenCalled()
+    expect(domainEventFactory.createDropboxBackupFailedEvent).toHaveBeenCalled()
+  })
+
   it('should send items to extensions server', async () => {
     await createService().sendItemsToExtensionsServer({
       userUuid: '1-2-3',
