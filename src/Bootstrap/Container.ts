@@ -234,6 +234,7 @@ export class ContainerConfigLoader {
       ['EMAIL_ARCHIVE_EXTENSION_SYNCED', container.get(TYPES.EmailArchiveExtensionSyncedEventHandler)],
       ['ACCOUNT_DELETION_REQUESTED', container.get(TYPES.AccountDeletionRequestedEventHandler)],
       ['EMAIL_BACKUP_REQUESTED', container.get(TYPES.EmailBackupRequestedEventHandler)],
+      ['CLOUD_BACKUP_REQUESTED', container.get(TYPES.CloudBackupRequestedEventHandler)],
     ])
 
     if (env.get('SQS_QUEUE_URL', true)) {
