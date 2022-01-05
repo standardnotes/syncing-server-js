@@ -32,6 +32,7 @@ const TYPES = {
   NEW_RELIC_ENABLED: Symbol.for('NEW_RELIC_ENABLED'),
   VERSION: Symbol.for('VERSION'),
   CONTENT_SIZE_TRANSFER_LIMIT: Symbol.for('CONTENT_SIZE_TRANSFER_LIMIT'),
+  DISABLE_INTEGRITY_HASH: Symbol.for('DISABLE_INTEGRITY_HASH'),
   // use cases
   SyncItems: Symbol.for('SyncItems'),
   PostToRealtimeExtensions: Symbol.for('PostToRealtimeExtensions'),

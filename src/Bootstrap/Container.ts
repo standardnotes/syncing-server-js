@@ -185,6 +185,7 @@ export class ContainerConfigLoader {
     container.bind(TYPES.CONTENT_SIZE_TRANSFER_LIMIT).toConstantValue(
       env.get('CONTENT_SIZE_TRANSFER_LIMIT', true) ?? this.DEFAULT_CONTENT_SIZE_TRANSFER_LIMIT
     )
+    container.bind(TYPES.DISABLE_INTEGRITY_HASH).toConstantValue(env.get('DISABLE_INTEGRITY_HASH', true) === 'true')
 
     // use cases
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
