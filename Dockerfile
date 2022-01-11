@@ -1,4 +1,4 @@
-FROM node:16.11.1-alpine3.14
+FROM node:16.13.1-alpine3.15
 
 ARG UID=1001
 ARG GID=1001
