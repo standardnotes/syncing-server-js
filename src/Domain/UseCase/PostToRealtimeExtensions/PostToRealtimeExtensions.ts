@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
 import TYPES from '../../../Bootstrap/Types'
 import { DomainEventFactoryInterface } from '../../Event/DomainEventFactoryInterface'
-import { Frequency } from '../../ExtensionSetting/Frequency'
+import { Frequency } from '../../Extension/Frequency'
 import { ContentDecoderInterface } from '../../Item/ContentDecoderInterface'
 import { ItemHash } from '../../Item/ItemHash'
 import { ItemRepositoryInterface } from '../../Item/ItemRepositoryInterface'
@@ -59,6 +59,7 @@ export class PostToRealtimeExtensions implements UseCaseInterface {
             itemUuids: dto.itemHashes.map((itemHash: ItemHash) => itemHash.uuid),
             forceMute: true,
             skipFileBackup: true,
+            source: 'realtime-extensions-sync',
           })
         )
       }

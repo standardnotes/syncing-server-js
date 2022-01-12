@@ -9,6 +9,12 @@ describe('DomainEventFactory', () => {
     expect(createFactory().createUserRegisteredEvent('1-2-3', 'test@test.te'))
       .toEqual({
         createdAt: expect.any(Date),
+        meta: {
+          correlation: {
+            userIdentifier: '1-2-3',
+            userIdentifierType: 'uuid',
+          },
+        },
         payload: {
           userUuid: '1-2-3',
           email: 'test@test.te',
@@ -25,9 +31,16 @@ describe('DomainEventFactory', () => {
       itemUuids: ['3-4-5'],
       forceMute: false,
       skipFileBackup: false,
+      source: 'realtime-extensions-sync',
     }))
       .toEqual({
         createdAt: expect.any(Date),
+        meta: {
+          correlation: {
+            userIdentifier: '1-2-3',
+            userIdentifierType: 'uuid',
+          },
+        },
         payload: {
           userUuid: '1-2-3',
           extensionUrl: 'https://test.com',
@@ -35,6 +48,7 @@ describe('DomainEventFactory', () => {
           itemUuids: [ '3-4-5' ],
           forceMute: false,
           skipFileBackup: false,
+          source: 'realtime-extensions-sync',
         },
         type: 'ITEMS_SYNCED',
       })
@@ -44,9 +58,15 @@ describe('DomainEventFactory', () => {
     expect(createFactory().createDropboxBackupFailedEvent('1-2-3', 'test@test.com'))
       .toEqual({
         createdAt: expect.any(Date),
+        meta: {
+          correlation: {
+            userIdentifier: 'test@test.com',
+            userIdentifierType: 'email',
+          },
+        },
         payload: {
           email: 'test@test.com',
-          extensionSettingUuid: '1-2-3',
+          muteCloudEmailsSettingUuid: '1-2-3',
         },
         type: 'DROPBOX_BACKUP_FAILED',
       })
@@ -56,9 +76,15 @@ describe('DomainEventFactory', () => {
     expect(createFactory().createGoogleDriveBackupFailedEvent('1-2-3', 'test@test.com'))
       .toEqual({
         createdAt: expect.any(Date),
+        meta: {
+          correlation: {
+            userIdentifier: 'test@test.com',
+            userIdentifierType: 'email',
+          },
+        },
         payload: {
           email: 'test@test.com',
-          extensionSettingUuid: '1-2-3',
+          muteCloudEmailsSettingUuid: '1-2-3',
         },
         type: 'GOOGLE_DRIVE_BACKUP_FAILED',
       })
@@ -68,9 +94,15 @@ describe('DomainEventFactory', () => {
     expect(createFactory().createOneDriveBackupFailedEvent('1-2-3', 'test@test.com'))
       .toEqual({
         createdAt: expect.any(Date),
+        meta: {
+          correlation: {
+            userIdentifier: 'test@test.com',
+            userIdentifierType: 'email',
+          },
+        },
         payload: {
           email: 'test@test.com',
-          extensionSettingUuid: '1-2-3',
+          muteCloudEmailsSettingUuid: '1-2-3',
         },
         type: 'ONE_DRIVE_BACKUP_FAILED',
       })
@@ -80,14 +112,20 @@ describe('DomainEventFactory', () => {
     expect(createFactory().createMailBackupAttachmentTooBigEvent({
       allowedSize: '1000',
       attachmentSize: '1500',
-      extensionSettingUuid: '1-2-3',
+      muteEmailsSettingUuid: '1-2-3',
       email: 'test@test.com',
     }))
       .toEqual({
         createdAt: expect.any(Date),
+        meta: {
+          correlation: {
+            userIdentifier: 'test@test.com',
+            userIdentifierType: 'email',
+          },
+        },
         payload: {
           email: 'test@test.com',
-          extensionSettingUuid: '1-2-3',
+          muteEmailsSettingUuid: '1-2-3',
           allowedSize: '1000',
           attachmentSize: '1500',
         },
@@ -99,6 +137,12 @@ describe('DomainEventFactory', () => {
     expect(createFactory().createEmailArchiveExtensionSyncedEvent('1-2-3', '2-3-4'))
       .toEqual({
         createdAt: expect.any(Date),
+        meta: {
+          correlation: {
+            userIdentifier: '1-2-3',
+            userIdentifierType: 'uuid',
+          },
+        },
         payload: {
           userUuid: '1-2-3',
           extensionId: '2-3-4',
@@ -111,6 +155,12 @@ describe('DomainEventFactory', () => {
     expect(createFactory().createEmailBackupAttachmentCreatedEvent('backup-file', 'test@test.com'))
       .toEqual({
         createdAt: expect.any(Date),
+        meta: {
+          correlation: {
+            userIdentifier: 'test@test.com',
+            userIdentifierType: 'email',
+          },
+        },
         payload: {
           backupFileName: 'backup-file',
           email: 'test@test.com',
@@ -123,6 +173,12 @@ describe('DomainEventFactory', () => {
     expect(createFactory().createDuplicateItemSyncedEvent('1-2-3', '2-3-4'))
       .toEqual({
         createdAt: expect.any(Date),
+        meta: {
+          correlation: {
+            userIdentifier: '2-3-4',
+            userIdentifierType: 'uuid',
+          },
+        },
         payload: {
           itemUuid: '1-2-3',
           userUuid: '2-3-4',

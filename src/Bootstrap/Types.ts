@@ -8,7 +8,6 @@ const TYPES = {
   // Repositories
   RevisionRepository: Symbol.for('RevisionRepository'),
   ItemRepository: Symbol.for('ItemRepository'),
-  ExtensionSettingRepository: Symbol.for('ExtensionSettingRepository'),
   // Middleware
   AuthMiddleware: Symbol.for('AuthMiddleware'),
   // Projectors
@@ -37,14 +36,13 @@ const TYPES = {
   // use cases
   SyncItems: Symbol.for('SyncItems'),
   PostToRealtimeExtensions: Symbol.for('PostToRealtimeExtensions'),
-  PostToDailyExtensions: Symbol.for('PostToDailyExtensions'),
-  MuteNotifications: Symbol.for('MuteNotifications'),
   // Handlers
   AccountDeletionRequestedEventHandler: Symbol.for('AccountDeletionRequestedEventHandler'),
   DuplicateItemSyncedEventHandler: Symbol.for('DuplicateItemSyncedEventHandler'),
   ItemsSyncedEventHandler: Symbol.for('ItemsSyncedEventHandler'),
   EmailArchiveExtensionSyncedEventHandler: Symbol.for('EmailArchiveExtensionSyncedEventHandler'),
   EmailBackupRequestedEventHandler: Symbol.for('EmailBackupRequestedEventHandler'),
+  CloudBackupRequestedEventHandler: Symbol.for('CloudBackupRequestedEventHandler'),
   // Services
   ContentDecoder: Symbol.for('ContentDecoder'),
   DomainEventPublisher: Symbol.for('DomainEventPublisher'),

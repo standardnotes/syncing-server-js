@@ -51,6 +51,7 @@ describe('ItemsSyncedEventHandler', () => {
       forceMute: false,
       itemUuids: [ '4-5-6' ],
       skipFileBackup: false,
+      source: 'realtime-extensions-sync',
     }
 
     itemBackupService = {} as jest.Mocked<ItemBackupServiceInterface>

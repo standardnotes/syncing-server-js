@@ -25,13 +25,9 @@ import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncRespons
 import { SyncResponseFactoryResolver } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolver'
 import { ItemServiceInterface } from '../Domain/Item/ItemServiceInterface'
 import { ItemService } from '../Domain/Item/ItemService'
-import { ExtensionSettingRepositoryInterface } from '../Domain/ExtensionSetting/ExtensionSettingRepositoryInterface'
-import { MySQLExtensionSettingRepository } from '../Infra/MySQL/MySQLExtensionSettingRepository'
 import { AuthHttpServiceInterface } from '../Domain/Auth/AuthHttpServiceInterface'
 import { AuthHttpService } from '../Infra/HTTP/AuthHttpService'
-import { ExtensionSetting } from '../Domain/ExtensionSetting/ExtensionSetting'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
-import { MuteNotifications } from '../Domain/UseCase/MuteNotifications/MuteNotifications'
 import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
 import { ExtensionsHttpServiceInterface } from '../Domain/Extension/ExtensionsHttpServiceInterface'
 import { ExtensionsHttpService } from '../Domain/Extension/ExtensionsHttpService'
@@ -46,7 +42,6 @@ import { DuplicateItemSyncedEventHandler } from '../Domain/Handler/DuplicateItem
 import { AccountDeletionRequestedEventHandler } from '../Domain/Handler/AccountDeletionRequestedEventHandler'
 import { ItemProjector } from '../Projection/ItemProjector'
 import { ItemConflictProjector } from '../Projection/ItemConflictProjector'
-import { PostToDailyExtensions } from '../Domain/UseCase/PostToDailyExtensions/PostToDailyExtensions'
 import { Timer, TimerInterface } from '@standardnotes/time'
 import { ItemSaveValidatorInterface } from '../Domain/Item/SaveValidator/ItemSaveValidatorInterface'
 import { ItemSaveValidator } from '../Domain/Item/SaveValidator/ItemSaveValidator'
@@ -60,6 +55,7 @@ import { ContentTypeFilter } from '../Domain/Item/SaveRule/ContentTypeFilter'
 import { ContentFilter } from '../Domain/Item/SaveRule/ContentFilter'
 import { RedisDomainEventPublisher, RedisDomainEventSubscriberFactory, RedisEventMessageHandler, SNSDomainEventPublisher, SQSDomainEventSubscriberFactory, SQSEventMessageHandler, SQSNewRelicEventMessageHandler } from '@standardnotes/domain-events-infra'
 import { EmailBackupRequestedEventHandler } from '../Domain/Handler/EmailBackupRequestedEventHandler'
+import { CloudBackupRequestedEventHandler } from '../Domain/Handler/CloudBackupRequestedEventHandler'
 
 export class ContainerConfigLoader {
   private readonly DEFAULT_CONTENT_SIZE_TRANSFER_LIMIT = 10_000_000
@@ -103,7 +99,6 @@ export class ContainerConfigLoader {
       entities: [
         Item,
         Revision,
-        ExtensionSetting,
       ],
       migrations: [
         env.get('DB_MIGRATIONS_PATH'),
@@ -162,7 +157,6 @@ export class ContainerConfigLoader {
     // Repositories
     container.bind<MySQLRevisionRepository>(TYPES.RevisionRepository).toConstantValue(connection.getCustomRepository(MySQLRevisionRepository))
     container.bind<MySQLItemRepository>(TYPES.ItemRepository).toConstantValue(connection.getCustomRepository(MySQLItemRepository))
-    container.bind<ExtensionSettingRepositoryInterface>(TYPES.ExtensionSettingRepository).toConstantValue(connection.getCustomRepository(MySQLExtensionSettingRepository))
 
     // Middleware
     container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
@@ -196,8 +190,6 @@ export class ContainerConfigLoader {
     // use cases
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
     container.bind<PostToRealtimeExtensions>(TYPES.PostToRealtimeExtensions).to(PostToRealtimeExtensions)
-    container.bind<PostToDailyExtensions>(TYPES.PostToDailyExtensions).to(PostToDailyExtensions)
-    container.bind<MuteNotifications>(TYPES.MuteNotifications).to(MuteNotifications)
 
     // Handlers
     container.bind<ItemsSyncedEventHandler>(TYPES.ItemsSyncedEventHandler).to(ItemsSyncedEventHandler)
@@ -205,6 +197,7 @@ export class ContainerConfigLoader {
     container.bind<DuplicateItemSyncedEventHandler>(TYPES.DuplicateItemSyncedEventHandler).to(DuplicateItemSyncedEventHandler)
     container.bind<AccountDeletionRequestedEventHandler>(TYPES.AccountDeletionRequestedEventHandler).to(AccountDeletionRequestedEventHandler)
     container.bind<EmailBackupRequestedEventHandler>(TYPES.EmailBackupRequestedEventHandler).to(EmailBackupRequestedEventHandler)
+    container.bind<CloudBackupRequestedEventHandler>(TYPES.CloudBackupRequestedEventHandler).to(CloudBackupRequestedEventHandler)
 
     // Services
     container.bind<ContentDecoder>(TYPES.ContentDecoder).to(ContentDecoder)
@@ -242,6 +235,7 @@ export class ContainerConfigLoader {
       ['EMAIL_ARCHIVE_EXTENSION_SYNCED', container.get(TYPES.EmailArchiveExtensionSyncedEventHandler)],
       ['ACCOUNT_DELETION_REQUESTED', container.get(TYPES.AccountDeletionRequestedEventHandler)],
       ['EMAIL_BACKUP_REQUESTED', container.get(TYPES.EmailBackupRequestedEventHandler)],
+      ['CLOUD_BACKUP_REQUESTED', container.get(TYPES.CloudBackupRequestedEventHandler)],
     ])
 
     if (env.get('SQS_QUEUE_URL', true)) {

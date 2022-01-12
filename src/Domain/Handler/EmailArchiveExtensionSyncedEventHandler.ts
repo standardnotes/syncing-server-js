@@ -1,12 +1,11 @@
 import { KeyParams } from '@standardnotes/auth'
 import { DomainEventHandlerInterface, DomainEventPublisherInterface, EmailArchiveExtensionSyncedEvent } from '@standardnotes/domain-events'
+import { MuteFailedBackupsEmailsOption, SettingName } from '@standardnotes/settings'
 import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
 import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
-import { ExtensionSetting } from '../ExtensionSetting/ExtensionSetting'
-import { ExtensionSettingRepositoryInterface } from '../ExtensionSetting/ExtensionSettingRepositoryInterface'
 import { ItemBackupServiceInterface } from '../Item/ItemBackupServiceInterface'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
 
@@ -15,7 +14,6 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
   constructor (
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
-    @inject(TYPES.ExtensionSettingRepository) private extensionSettingRepository: ExtensionSettingRepositoryInterface,
     @inject(TYPES.ItemBackupService) private itemBackupService: ItemBackupServiceInterface,
     @inject(TYPES.DomainEventPublisher) private domainEventPublisher: DomainEventPublisherInterface,
     @inject(TYPES.DomainEventFactory) private domainEventFactory: DomainEventFactoryInterface,
@@ -44,7 +42,6 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
       return
     }
 
-
     const data = JSON.stringify({
       items,
       auth_params: authParams,
@@ -52,8 +49,17 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
 
     if (data.length > this.emailAttachmentMaxByteSize) {
       this.logger.debug(`Backup email attachment too big: ${data.length}`)
-      const extensionSetting = await this.getExtensionSetting(event.payload.extensionId)
-      if (extensionSetting.muteEmails) {
+
+      let muteEmailsSetting: { uuid: string, value: string | null }
+      try {
+        muteEmailsSetting = await this.authHttpService.getUserSetting(event.payload.userUuid, SettingName.MuteFailedBackupsEmails)
+      } catch (error) {
+        this.logger.warn(`Could not get mute failed backups emails setting from auth service: ${error.message}`)
+
+        return
+      }
+
+      if (muteEmailsSetting.value === MuteFailedBackupsEmailsOption.Muted) {
         return
       }
 
@@ -64,7 +70,7 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
           allowedSize: `${this.emailAttachmentMaxByteSize}`,
           attachmentSize: `${data.length}`,
           email: authParams.identifier,
-          extensionSettingUuid: extensionSetting.uuid,
+          muteEmailsSettingUuid: muteEmailsSetting.uuid,
         })
       )
 
@@ -82,17 +88,5 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
         this.domainEventFactory.createEmailBackupAttachmentCreatedEvent(backupFileName, authParams.identifier)
       )
     }
-  }
-
-  private async getExtensionSetting(extensionId: string): Promise<ExtensionSetting> {
-    let extensionSetting = await this.extensionSettingRepository.findOneByExtensionId(extensionId)
-    if (extensionSetting === undefined) {
-      extensionSetting = new ExtensionSetting()
-      extensionSetting.muteEmails = false
-      extensionSetting.extensionId = extensionId
-      extensionSetting = await this.extensionSettingRepository.save(extensionSetting)
-    }
-
-    return extensionSetting
   }
 }
