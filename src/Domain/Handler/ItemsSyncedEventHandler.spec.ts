@@ -38,7 +38,6 @@ describe('ItemsSyncedEventHandler', () => {
 
     authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
     authHttpService.getUserKeyParams = jest.fn().mockReturnValue({ foo: 'bar' })
-    // authHttpService.getUserSetting = jest.fn().mockReturnValue
 
     extensionsHttpService = {} as jest.Mocked<ExtensionsHttpServiceInterface>
     extensionsHttpService.sendItemsToExtensionsServer = jest.fn()
