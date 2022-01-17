@@ -1,11 +1,9 @@
 import { Request, Response } from 'express'
 import { inject } from 'inversify'
 import { BaseHttpController, controller, httpPost, results } from 'inversify-express-utils'
-import { Logger } from 'winston'
 import TYPES from '../Bootstrap/Types'
 import { ApiVersion } from '../Domain/Api/ApiVersion'
 import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
-import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
 
 @controller('/items')
@@ -13,8 +11,6 @@ export class ItemsController extends BaseHttpController {
   constructor(
     @inject(TYPES.SyncItems) private syncItems: SyncItems,
     @inject(TYPES.SyncResponseFactoryResolver) private syncResponseFactoryResolver: SyncResponseFactoryResolverInterface,
-    @inject(TYPES.PostToRealtimeExtensions) private postToRealtimeExtensions: PostToRealtimeExtensions,
-    @inject(TYPES.Logger) private logger: Logger
   ) {
     super()
   }
@@ -37,16 +33,6 @@ export class ItemsController extends BaseHttpController {
       contentType: request.body.content_type,
       apiVersion: request.body.api ?? ApiVersion.v20161215,
     })
-
-    try {
-      await this.postToRealtimeExtensions.execute({
-        userUuid: response.locals.user.uuid,
-        itemHashes,
-      })
-
-    } catch (error) {
-      this.logger.error(`Failed posting items to extensions after sync: ${error.message}`)
-    }
 
     const syncResponse = await this.syncResponseFactoryResolver
       .resolveSyncResponseFactoryVersion(request.body.api)

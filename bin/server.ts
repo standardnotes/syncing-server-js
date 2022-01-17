@@ -7,7 +7,6 @@ import * as Sentry from '@sentry/node'
 import '../src/Controller/HealthCheckController'
 import '../src/Controller/RevisionsController'
 import '../src/Controller/ItemsController'
-import '../src/Controller/AdminController'
 
 import * as helmet from 'helmet'
 import * as cors from 'cors'

@@ -7,38 +7,26 @@ import { ItemsController } from './ItemsController'
 import { results } from 'inversify-express-utils'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
 import { ApiVersion } from '../Domain/Api/ApiVersion'
-import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
 import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
 import { SyncResponseFactoryInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryInterface'
 import { SyncResponse20200115 } from '../Domain/Item/SyncResponse/SyncResponse20200115'
-import { Logger } from 'winston'
 
 describe('ItemsController', () => {
   let syncItems: SyncItems
-  let postToRealtimeExtensions: PostToRealtimeExtensions
   let request: express.Request
   let response: express.Response
   let syncResponceFactoryResolver: SyncResponseFactoryResolverInterface
   let syncResponseFactory: SyncResponseFactoryInterface
   let syncResponse: SyncResponse20200115
-  let logger: Logger
 
   const createController = () => new ItemsController(
     syncItems,
-    syncResponceFactoryResolver,
-    postToRealtimeExtensions,
-    logger
+    syncResponceFactoryResolver
   )
 
   beforeEach(() => {
     syncItems = {} as jest.Mocked<SyncItems>
     syncItems.execute = jest.fn().mockReturnValue({ foo: 'bar' })
-
-    postToRealtimeExtensions = {} as jest.Mocked<PostToRealtimeExtensions>
-    postToRealtimeExtensions.execute = jest.fn()
-
-    logger = {} as jest.Mocked<Logger>
-    logger.error = jest.fn()
 
     request = {
       headers: {},
@@ -109,23 +97,6 @@ describe('ItemsController', () => {
       userUuid: '123',
     })
 
-    expect(postToRealtimeExtensions.execute).toHaveBeenCalledWith({
-      itemHashes: [
-        {
-          content: 'test',
-          content_type: 'Note',
-          created_at: '2021-02-19T11:35:45.655Z',
-          deleted: false,
-          duplicate_of: null,
-          enc_item_key: 'test',
-          items_key_id: 'test',
-          updated_at: '2021-02-19T11:35:45.655Z',
-          uuid: '1-2-3',
-        },
-      ],
-      userUuid: '123',
-    })
-
     expect(result.statusCode).toEqual(200)
     expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
   })
@@ -162,18 +133,6 @@ describe('ItemsController', () => {
     expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
   })
 
-  it('should sync items even if posting to extensions fails', async () => {
-    postToRealtimeExtensions.execute = jest.fn().mockImplementation(() => {
-      throw new Error('Oops')
-    })
-
-    const httpResponse = <results.JsonResult> await createController().sync(request, response)
-    const result = await httpResponse.executeAsync()
-
-    expect(result.statusCode).toEqual(200)
-    expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
-  })
-
   it('should sync items with no incoming items in request', async () => {
     delete request.body.items
 
@@ -189,8 +148,6 @@ describe('ItemsController', () => {
       userAgent: 'Google Chrome',
       userUuid: '123',
     })
-
-    expect(postToRealtimeExtensions.execute).toHaveBeenCalled()
 
     expect(result.statusCode).toEqual(200)
     expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')

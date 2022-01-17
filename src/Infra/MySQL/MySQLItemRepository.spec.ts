@@ -278,8 +278,7 @@ describe('MySQLItemRepository', () => {
     queryBuilder.getRawMany = jest.fn().mockReturnValue([
       { updated_at_timestamp: 1616164633241312, content_type: ContentType.Note },
       { updated_at_timestamp: 1616164633242313, content_type: null },
-      { updated_at_timestamp: 1616164633242313, content_type: ContentType.Mfa },
-      { updated_at_timestamp: 1616164633242313, content_type: ContentType.ServerExtension },
+      { updated_at_timestamp: 1616164633242313, content_type: ContentType.Note },
     ])
     queryBuilder.select = jest.fn()
     queryBuilder.addSelect = jest.fn()
@@ -295,7 +294,7 @@ describe('MySQLItemRepository', () => {
     expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(1, 'item.deleted = :deleted', { deleted: false })
 
     expect(result.length).toEqual(2)
-    expect(result[0]).toEqual({ content_type: 'SF|MFA', updated_at_timestamp: 1616164633242313 })
+    expect(result[0]).toEqual({ content_type: 'Note', updated_at_timestamp: 1616164633242313 })
     expect(result[1]).toEqual({ content_type: 'Note', updated_at_timestamp: 1616164633241312 })
   })
 
