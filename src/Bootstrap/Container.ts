@@ -28,7 +28,6 @@ import { ItemService } from '../Domain/Item/ItemService'
 import { AuthHttpServiceInterface } from '../Domain/Auth/AuthHttpServiceInterface'
 import { AuthHttpService } from '../Infra/HTTP/AuthHttpService'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
-import { PostToRealtimeExtensions } from '../Domain/UseCase/PostToRealtimeExtensions/PostToRealtimeExtensions'
 import { ExtensionsHttpServiceInterface } from '../Domain/Extension/ExtensionsHttpServiceInterface'
 import { ExtensionsHttpService } from '../Domain/Extension/ExtensionsHttpService'
 import { ItemBackupServiceInterface } from '../Domain/Item/ItemBackupServiceInterface'
@@ -189,7 +188,6 @@ export class ContainerConfigLoader {
 
     // use cases
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
-    container.bind<PostToRealtimeExtensions>(TYPES.PostToRealtimeExtensions).to(PostToRealtimeExtensions)
 
     // Handlers
     container.bind<ItemsSyncedEventHandler>(TYPES.ItemsSyncedEventHandler).to(ItemsSyncedEventHandler)
