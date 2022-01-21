@@ -8,7 +8,7 @@ export interface ItemRepositoryInterface {
   streamAll(query: ItemQuery): Promise<ReadStream>
   countAll(query: ItemQuery): Promise<number>
   findContentSizeForComputingTransferLimit(query: ItemQuery): Promise<Array<{ uuid: string, contentSize: number | null }>>
-  findDatesForComputingIntegrityHash(userUuid: string): Promise<Array<{content_type: string, updated_at_timestamp: number}>>
+  findDatesForComputingIntegrityHash(userUuid: string): Promise<Array<{ updated_at_timestamp: number }>>
   findByUuidAndUserUuid(uuid: string, userUuid: string): Promise<Item | undefined>
   findByUuid(uuid: string): Promise<Item | undefined>
   remove(item: Item): Promise<Item>

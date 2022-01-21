@@ -276,12 +276,10 @@ describe('MySQLItemRepository', () => {
 
   it('should find dates for computing integrity hash', async () => {
     queryBuilder.getRawMany = jest.fn().mockReturnValue([
-      { updated_at_timestamp: 1616164633241312, content_type: ContentType.Note },
-      { updated_at_timestamp: 1616164633242313, content_type: null },
-      { updated_at_timestamp: 1616164633242313, content_type: ContentType.Note },
+      { updated_at_timestamp: 1616164633241312 },
+      { updated_at_timestamp: 1616164633242313 },
     ])
     queryBuilder.select = jest.fn()
-    queryBuilder.addSelect = jest.fn()
     queryBuilder.where = jest.fn()
     queryBuilder.andWhere = jest.fn()
 
@@ -294,8 +292,8 @@ describe('MySQLItemRepository', () => {
     expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(1, 'item.deleted = :deleted', { deleted: false })
 
     expect(result.length).toEqual(2)
-    expect(result[0]).toEqual({ content_type: 'Note', updated_at_timestamp: 1616164633242313 })
-    expect(result[1]).toEqual({ content_type: 'Note', updated_at_timestamp: 1616164633241312 })
+    expect(result[0]).toEqual({ updated_at_timestamp: 1616164633242313 })
+    expect(result[1]).toEqual({ updated_at_timestamp: 1616164633241312 })
   })
 
   it('should find item by uuid and mark it for deletion', async () => {
