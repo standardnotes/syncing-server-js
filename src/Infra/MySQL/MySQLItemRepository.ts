@@ -52,17 +52,15 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
       .getOne()
   }
 
-  async findDatesForComputingIntegrityHash(userUuid: string): Promise<Array<{content_type: string, updated_at_timestamp: number}>> {
+  async findDatesForComputingIntegrityHash(userUuid: string): Promise<Array<{ updated_at_timestamp: number }>> {
     const queryBuilder = this.createQueryBuilder('item')
     queryBuilder.select('item.updated_at_timestamp')
-    queryBuilder.addSelect('item.content_type')
     queryBuilder.where('item.user_uuid = :userUuid', { userUuid: userUuid })
     queryBuilder.andWhere('item.deleted = :deleted', { deleted: false })
 
     const items = await queryBuilder.getRawMany()
 
     return items
-      .filter(item => item.content_type !== null)
       .sort((itemA, itemB) => itemB.updated_at_timestamp - itemA.updated_at_timestamp)
   }
 
