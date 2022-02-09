@@ -6,6 +6,14 @@ import { RevisionRepositoryInterface } from '../../Domain/Revision/RevisionRepos
 @injectable()
 @EntityRepository(Revision)
 export class MySQLRevisionRepository extends Repository<Revision> implements RevisionRepositoryInterface {
+  async removeByUuid(itemUuid: string, revisionUuid: string): Promise<void> {
+    await this.createQueryBuilder('revision')
+      .delete()
+      .from('revisions')
+      .where('uuid = :revisionUuid AND item_uuid = :itemUuid', { itemUuid, revisionUuid })
+      .execute()
+  }
+
   async findByItemId(parameters: {
     itemUuid: string,
     afterDate?: Date,

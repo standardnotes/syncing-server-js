@@ -25,6 +25,7 @@ describe('RevisionsController', () => {
     revisionService = {} as jest.Mocked<RevisionServiceInterface>
     revisionService.getRevisions = jest.fn().mockReturnValue([ revision ])
     revisionService.getRevision = jest.fn().mockReturnValue(revision)
+    revisionService.removeRevision = jest.fn().mockReturnValue(true)
 
     request = {
       params: {},
@@ -53,6 +54,20 @@ describe('RevisionsController', () => {
     const httpResponse = <results.JsonResult> await createController().getRevision(request, response)
 
     expect(httpResponse.json).toEqual({ foo: 'bar' })
+  })
+
+  it('should remove a specific revision for an item', async () => {
+    const httpResponse = await createController().deleteRevision(request, response)
+
+    expect(httpResponse).toBeInstanceOf(results.OkResult)
+  })
+
+  it('should not remove a specific revision for an item if it fails', async () => {
+    revisionService.removeRevision = jest.fn().mockReturnValue(false)
+
+    const httpResponse = await createController().deleteRevision(request, response)
+
+    expect(httpResponse).toBeInstanceOf(results.BadRequestResult)
   })
 
   it('should return a 404 for a not found specific revision in an item', async () => {

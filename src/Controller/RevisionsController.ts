@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { BaseHttpController, controller, httpGet, results } from 'inversify-express-utils'
+import { BaseHttpController, controller, httpDelete, httpGet, results } from 'inversify-express-utils'
 import { inject } from 'inversify'
 
 import TYPES from '../Bootstrap/Types'
@@ -44,5 +44,20 @@ export class RevisionsController extends BaseHttpController {
     const revisionProjection = await this.revisionProjector.projectFull(revision)
 
     return this.json(revisionProjection)
+  }
+
+  @httpDelete('/:uuid')
+  public async deleteRevision(request: Request, response: Response): Promise<results.BadRequestResult | results.OkResult> {
+    const success = await this.revisionService.removeRevision({
+      userUuid: response.locals.user.uuid,
+      itemUuid: request.params.itemUuid,
+      revisionUuid: request.params.uuid,
+    })
+
+    if (!success) {
+      return this.badRequest()
+    }
+
+    return this.ok()
   }
 }

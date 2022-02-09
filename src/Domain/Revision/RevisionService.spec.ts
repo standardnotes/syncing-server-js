@@ -1,6 +1,6 @@
 import { RoleName } from '@standardnotes/auth'
 import { ContentType } from '@standardnotes/common'
-import { Timer, TimerInterface } from '@standardnotes/time'
+import { TimerInterface } from '@standardnotes/time'
 
 import { Item } from '../Item/Item'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
@@ -15,7 +15,6 @@ describe('RevisionService', () => {
   let item: Item
   let revision1: Revision
   let revision2: Revision
-  let timeHelper: Timer
 
   const createService = () => new RevisionService(
     revisionRepository,
@@ -24,8 +23,6 @@ describe('RevisionService', () => {
   )
 
   beforeEach(() => {
-    timeHelper = new Timer()
-
     revisionRepository = {} as jest.Mocked<RevisionRepositoryInterface>
     revisionRepository.save = jest.fn().mockImplementation((revision: Revision) => {
       revision.uuid = '3-4-5'
@@ -59,6 +56,7 @@ describe('RevisionService', () => {
 
     revisionRepository.findByItemId = jest.fn().mockReturnValue([ revision1, revision2 ])
     revisionRepository.findOneById = jest.fn().mockReturnValue(revision1)
+    revisionRepository.removeByUuid = jest.fn()
 
     item = {
       authHash: 'test-hash',
@@ -68,6 +66,36 @@ describe('RevisionService', () => {
       uuid: '1-2-3',
       itemsKeyId: 'test-items-key-id',
     } as jest.Mocked<Item>
+  })
+
+  it('should not remove a revision for a non existing item', async () => {
+    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+
+    expect(await createService().removeRevision({
+      itemUuid: '1-2-3',
+      userUuid: '1-2-3',
+      revisionUuid: '3-4-5',
+    })).toBeFalsy()
+  })
+
+  it('should not remove a revision for another user\'s item', async () => {
+    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+
+    expect(await createService().removeRevision({
+      itemUuid: '1-2-3',
+      userUuid: '3-4-5',
+      revisionUuid: '3-4-5',
+    })).toBeFalsy()
+  })
+
+  it('should remove a revision if user has rights', async () => {
+    expect(await createService().removeRevision({
+      itemUuid: '1-2-3',
+      userUuid: '1-2-3',
+      revisionUuid: '3-4-5',
+    })).toBeTruthy()
+
+    expect(revisionRepository.removeByUuid).toHaveBeenCalledWith('1-2-3', '3-4-5')
   })
 
   it('should not get a revision for a non existing item', async () => {
@@ -104,15 +132,7 @@ describe('RevisionService', () => {
   })
 
   it('should get a revision if user has enough permissions', async () => {
-    revision1 = {
-      uuid: '1-2-3',
-      item: Promise.resolve({
-        uuid: '1-2-3',
-      }),
-      content: 'content1',
-      createdAt: timeHelper.getUTCDateNDaysAgo(2),
-    } as jest.Mocked<Revision>
-    revisionRepository.findOneById = jest.fn().mockReturnValue(revision1)
+    timer.dateWasNDaysAgo = jest.fn().mockReturnValue(2)
 
     expect(await createService().getRevision({
       itemUuid: '1-2-3',

@@ -19,6 +19,17 @@ export class RevisionService implements RevisionServiceInterface {
   ) {
   }
 
+  async removeRevision(dto: { userUuid: string; itemUuid: string; revisionUuid: string }): Promise<boolean> {
+    const userItem = await this.itemRepository.findByUuid(dto.itemUuid)
+    if (userItem === undefined || userItem.userUuid !== dto.userUuid) {
+      return false
+    }
+
+    await this.revisionRepository.removeByUuid(dto.itemUuid, dto.revisionUuid)
+
+    return true
+  }
+
   async getRevisions(userUuid: string, itemUuid: string): Promise<Revision[]> {
     const userItem = await this.itemRepository.findByUuid(itemUuid)
     if (userItem === undefined || userItem.userUuid !== userUuid) {
