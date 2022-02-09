@@ -7,5 +7,6 @@ export interface RevisionServiceInterface {
   copyRevisions(fromItemUuid: string, toItemUuid: string): Promise<void>
   getRevisions(userUuid: string, itemUuid: string): Promise<Revision[]>
   getRevision(dto: { userUuid: string, userRoles: RoleName[], itemUuid: string, revisionUuid: string }): Promise<Revision | undefined>
+  removeRevision(dto: { userUuid: string, itemUuid: string, revisionUuid: string }): Promise<boolean>
   calculateRequiredRoleBasedOnRevisionDate(createdAt: Date): RoleName
 }

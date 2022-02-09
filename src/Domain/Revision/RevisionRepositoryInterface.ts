@@ -7,4 +7,5 @@ export interface RevisionRepositoryInterface {
   }): Promise<Array<Revision>>
   findOneById(itemId: string, id: string): Promise<Revision | undefined>
   save(revision: Revision): Promise<Revision>
+  removeByUuid(itemUuid: string, revisionUuid: string): Promise<void>
 }

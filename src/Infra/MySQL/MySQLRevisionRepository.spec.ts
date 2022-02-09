@@ -20,6 +20,22 @@ describe('MySQLRevisionRepository', () => {
     repository.createQueryBuilder = jest.fn().mockImplementation(() => queryBuilder)
   })
 
+  it('should delete a revision for an item', async () => {
+    queryBuilder.where = jest.fn().mockReturnThis()
+    queryBuilder.delete = jest.fn().mockReturnThis()
+    queryBuilder.from = jest.fn().mockReturnThis()
+    queryBuilder.execute = jest.fn()
+
+    await repository.removeByUuid('1-2-3', '3-4-5')
+
+    expect(queryBuilder.delete).toHaveBeenCalled()
+
+    expect(queryBuilder.from).toHaveBeenCalledWith('revisions')
+    expect(queryBuilder.where).toHaveBeenCalledWith('uuid = :revisionUuid AND item_uuid = :itemUuid', { itemUuid: '1-2-3', revisionUuid: '3-4-5' })
+
+    expect(queryBuilder.execute).toHaveBeenCalled()
+  })
+
   it('should find revisions by item id', async () => {
     queryBuilder.where = jest.fn().mockReturnThis()
     queryBuilder.orderBy = jest.fn().mockReturnThis()
