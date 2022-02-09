@@ -37,40 +37,6 @@ describe('AuthHttpService', () => {
     })
   })
 
-  it('should send a request to auth service in order to get user features', async () => {
-    httpClient.request = jest.fn().mockReturnValue({
-      data: {
-        features: [
-          {
-            identifier: 'test',
-          },
-        ],
-      },
-    })
-
-    await createService().getUserFeatures('1-2-3')
-
-    expect(httpClient.request).toHaveBeenCalledWith({
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-      url: 'https://auth-server/internal/users/1-2-3/features',
-      validateStatus: expect.any(Function),
-    })
-  })
-
-  it('should throw an error if a request to auth service in order to get user features fails', async () => {
-    let error = null
-    try {
-      await createService().getUserFeatures('1-2-3')
-    } catch (caughtError) {
-      error = caughtError
-    }
-
-    expect(error).not.toBeNull()
-  })
-
   it('should send a request to auth service in order to get user setting', async () => {
     httpClient.request = jest.fn().mockReturnValue({
       data: {

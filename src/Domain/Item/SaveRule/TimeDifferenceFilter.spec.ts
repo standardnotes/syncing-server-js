@@ -1,9 +1,8 @@
 import 'reflect-metadata'
 
-import * as dayjs from 'dayjs'
 import { ContentType } from '@standardnotes/common'
 
-import { Time, TimerInterface } from '@standardnotes/time'
+import { Time, Timer, TimerInterface } from '@standardnotes/time'
 
 import { ApiVersion } from '../../Api/ApiVersion'
 
@@ -13,15 +12,18 @@ import { Item } from '../Item'
 
 describe('TimeDifferenceFilter', () => {
   let timer: TimerInterface
+  let timeHelper: Timer
   let itemHash: ItemHash
   let existingItem: Item
 
   const createFilter = () => new TimeDifferenceFilter(timer)
 
   beforeEach(() => {
+    timeHelper = new Timer()
+
     timer = {} as jest.Mocked<TimerInterface>
     timer.convertStringDateToMicroseconds = jest.fn()
-      .mockImplementation((date: string) => dayjs.utc(date).valueOf() * 1000)
+      .mockImplementation((date: string) => timeHelper.convertStringDateToMicroseconds(date))
 
     existingItem = {
       uuid: '1-2-3',
@@ -39,8 +41,8 @@ describe('TimeDifferenceFilter', () => {
       duplicate_of: null,
       enc_item_key: 'qweqwe1',
       items_key_id: 'asdasd1',
-      created_at: dayjs.utc(Math.floor(existingItem.createdAtTimestamp / Time.MicrosecondsInAMillisecond)).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-      updated_at: dayjs.utc(Math.floor(existingItem.updatedAtTimestamp / Time.MicrosecondsInAMillisecond) + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      created_at: timeHelper.formatDate(timeHelper.convertMicrosecondsToDate(existingItem.createdAtTimestamp), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      updated_at: timeHelper.formatDate(timeHelper.convertMicrosecondsToDate(existingItem.updatedAtTimestamp + 1), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
     } as jest.Mocked<ItemHash>
   })
 
@@ -107,7 +109,7 @@ describe('TimeDifferenceFilter', () => {
   })
 
   it ('should filter out items having update at timestamp different by a second for legacy clients', async () => {
-    itemHash.updated_at = dayjs.utc(Math.floor(existingItem.updatedAtTimestamp / Time.MicrosecondsInAMillisecond) + Time.MicrosecondsInASecond + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+    itemHash.updated_at = timeHelper.formatDate(new Date(timeHelper.convertMicrosecondsToMilliseconds(existingItem.updatedAtTimestamp) + Time.MicrosecondsInASecond + 1), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]')
 
     const result = await createFilter().check({
       userUuid: '1-2-3',
@@ -126,7 +128,7 @@ describe('TimeDifferenceFilter', () => {
   })
 
   it ('should leave items having update at timestamp different by less then a second for legacy clients', async () => {
-    itemHash.updated_at = dayjs.utc(Math.floor(existingItem.updatedAtTimestamp / Time.MicrosecondsInAMillisecond)).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+    itemHash.updated_at = timeHelper.formatDate(timeHelper.convertMicrosecondsToDate(existingItem.updatedAtTimestamp), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]')
 
     const result = await createFilter().check({
       userUuid: '1-2-3',
@@ -141,7 +143,7 @@ describe('TimeDifferenceFilter', () => {
   })
 
   it ('should filter out items having update at timestamp different by a millisecond', async () => {
-    itemHash.updated_at = dayjs.utc(Math.floor(existingItem.updatedAtTimestamp / Time.MicrosecondsInAMillisecond) + Time.MicrosecondsInAMillisecond + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+    itemHash.updated_at = timeHelper.formatDate(new Date(timeHelper.convertMicrosecondsToMilliseconds(existingItem.updatedAtTimestamp) + Time.MicrosecondsInAMillisecond + 1), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]')
 
     const result = await createFilter().check({
       userUuid: '1-2-3',
@@ -160,7 +162,7 @@ describe('TimeDifferenceFilter', () => {
   })
 
   it ('should leave items having update at timestamp different by less than a millisecond', async () => {
-    itemHash.updated_at = dayjs.utc(Math.floor(existingItem.updatedAtTimestamp / Time.MicrosecondsInAMillisecond)).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+    itemHash.updated_at = timeHelper.formatDate(timeHelper.convertMicrosecondsToDate(existingItem.updatedAtTimestamp), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]')
 
     const result = await createFilter().check({
       userUuid: '1-2-3',

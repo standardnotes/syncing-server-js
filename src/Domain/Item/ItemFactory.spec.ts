@@ -1,7 +1,6 @@
 import 'reflect-metadata'
 
-import * as dayjs from 'dayjs'
-import { Time, TimerInterface } from '@standardnotes/time'
+import { Timer, TimerInterface } from '@standardnotes/time'
 import { ContentType } from '@standardnotes/common'
 
 import { ItemFactory } from './ItemFactory'
@@ -9,18 +8,19 @@ import { ItemHash } from './ItemHash'
 
 describe('ItemFactory', () => {
   let timer: TimerInterface
+  let timeHelper: Timer
 
   const createFactory = () => new ItemFactory(timer)
 
   beforeEach(() => {
+    timeHelper = new Timer()
+
     timer = {} as jest.Mocked<TimerInterface>
     timer.getTimestampInMicroseconds = jest.fn().mockReturnValue(1616164633241568)
-    timer.convertMicrosecondsToDate = jest.fn().mockImplementation((microseconds: number) => {
-      return dayjs.utc(Math.floor(microseconds / Time.MicrosecondsInAMillisecond)).toDate()
-    })
+    timer.convertMicrosecondsToDate = jest.fn().mockImplementation((microseconds: number) => timeHelper.convertMicrosecondsToDate(microseconds))
     timer.convertStringDateToMicroseconds = jest.fn()
-      .mockImplementation((date: string) => dayjs.utc(date).valueOf() * 1000)
-    timer.convertStringDateToDate = jest.fn().mockImplementation((date: string) => dayjs.utc(date).toDate())
+      .mockImplementation((date: string) => timeHelper.convertStringDateToMicroseconds(date))
+    timer.convertStringDateToDate = jest.fn().mockImplementation((date: string) => timeHelper.convertStringDateToDate(date))
   })
 
   it ('should create an item based on item hash', () => {
@@ -115,8 +115,8 @@ describe('ItemFactory', () => {
       deleted: true,
       enc_item_key: 'qweqwe1',
       items_key_id: 'asdasd1',
-      created_at: dayjs.utc(1616164633241).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-      updated_at: dayjs.utc(1616164633242).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      created_at: timeHelper.formatDate(new Date(1616164633241), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      updated_at: timeHelper.formatDate(new Date(1616164633242), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
     } as jest.Mocked<ItemHash>
 
     const item = createFactory().create('a-b-c', itemHash)
@@ -149,7 +149,7 @@ describe('ItemFactory', () => {
       enc_item_key: 'qweqwe1',
       items_key_id: 'asdasd1',
       created_at_timestamp: 1616164633241312,
-      updated_at: dayjs.utc(1616164633242).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      updated_at: timeHelper.formatDate(new Date(1616164633242), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
     } as jest.Mocked<ItemHash>
 
     const item = createFactory().create('a-b-c', itemHash, 'Mozilla Firefox')
