@@ -5,6 +5,7 @@ import * as winston from 'winston'
 import { AuthMiddleware } from './AuthMiddleware'
 import { NextFunction, Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
+import { RoleName } from '@standardnotes/auth'
 
 describe('AuthMiddleware', () => {
   let logger: winston.Logger
@@ -38,7 +39,16 @@ describe('AuthMiddleware', () => {
     const authToken = sign({
       user: { uuid: '123' },
       session: { uuid: '234' },
-      roles: [],
+      roles: [
+        {
+          uuid: '1-2-3',
+          name: RoleName.BasicUser,
+        },
+        {
+          uuid: '2-3-4',
+          name: RoleName.ProUser,
+        },
+      ],
       permissions: [],
     }, jwtSecret, { algorithm: 'HS256' })
 
@@ -47,6 +57,7 @@ describe('AuthMiddleware', () => {
     await createMiddleware().handler(request, response, next)
 
     expect(response.locals.user).toEqual({ uuid: '123' })
+    expect(response.locals.roleNames).toEqual([ 'BASIC_USER', 'PRO_USER' ])
     expect(response.locals.session).toEqual({ uuid: '234' })
 
     expect(next).toHaveBeenCalled()

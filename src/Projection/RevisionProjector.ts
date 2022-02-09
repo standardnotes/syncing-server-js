@@ -1,15 +1,16 @@
-import { RoleName } from '@standardnotes/auth'
 import { TimerInterface } from '@standardnotes/time'
 import { inject, injectable } from 'inversify'
 import TYPES from '../Bootstrap/Types'
 
 import { Revision } from '../Domain/Revision/Revision'
+import { RevisionServiceInterface } from '../Domain/Revision/RevisionServiceInterface'
 import { ProjectorInterface } from './ProjectorInterface'
 
 @injectable()
 export class RevisionProjector implements ProjectorInterface<Revision> {
   constructor(
     @inject(TYPES.Timer) private timer: TimerInterface,
+    @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
   ) {
   }
 
@@ -17,7 +18,7 @@ export class RevisionProjector implements ProjectorInterface<Revision> {
     return {
       'uuid': revision.uuid,
       'content_type': revision.contentType,
-      'required_role': this.calculateRequiredRoleBasedOnRevisionDate(revision.createdAt),
+      'required_role': this.revisionService.calculateRequiredRoleBasedOnRevisionDate(revision.createdAt),
       'created_at': this.timer.convertDateToISOString(revision.createdAt),
       'updated_at': this.timer.convertDateToISOString(revision.updatedAt),
     }
@@ -33,7 +34,7 @@ export class RevisionProjector implements ProjectorInterface<Revision> {
       'enc_item_key': revision.encItemKey,
       'auth_hash': revision.authHash,
       'creation_date': this.timer.formatDate(revision.creationDate, 'YYYY-MM-DD'),
-      'required_role': this.calculateRequiredRoleBasedOnRevisionDate(revision.createdAt),
+      'required_role': this.revisionService.calculateRequiredRoleBasedOnRevisionDate(revision.createdAt),
       'created_at': this.timer.convertDateToISOString(revision.createdAt),
       'updated_at': this.timer.convertDateToISOString(revision.updatedAt),
     }
@@ -41,23 +42,5 @@ export class RevisionProjector implements ProjectorInterface<Revision> {
 
   async projectCustom(_projectionType: string, _revision: Revision, ..._args: any[]): Promise<Record<string, unknown>> {
     throw new Error('not implemented')
-  }
-
-  private calculateRequiredRoleBasedOnRevisionDate(createdAt: Date): RoleName {
-    const revisionCreatedNDaysAgo = this.timer.dateWasNDaysAgo(createdAt)
-
-    if (revisionCreatedNDaysAgo > 3 && revisionCreatedNDaysAgo < 30) {
-      return RoleName.CoreUser
-    }
-
-    if (revisionCreatedNDaysAgo > 30 && revisionCreatedNDaysAgo < 365) {
-      return RoleName.PlusUser
-    }
-
-    if (revisionCreatedNDaysAgo > 365) {
-      return RoleName.ProUser
-    }
-
-    return RoleName.BasicUser
   }
 }

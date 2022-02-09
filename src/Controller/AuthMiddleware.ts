@@ -26,6 +26,7 @@ export class AuthMiddleware extends BaseMiddleware {
       const decodedToken = <Token> verify(authToken, this.authJWTSecret, { algorithms: [ 'HS256' ] })
 
       response.locals.user = decodedToken.user
+      response.locals.roleNames = decodedToken.roles.map(role => role.name)
       response.locals.session = decodedToken.session
 
       return next()
