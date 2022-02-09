@@ -788,22 +788,15 @@
   dependencies:
     "@standardnotes/auth" "^3.8.1"
 
-"@standardnotes/features@1.8.0":
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/@standardnotes/features/-/features-1.8.0.tgz#1414350108714e376c57600b74437b9ae58cf343"
-  integrity sha512-gkBM82kEeKj4tve25WFsvPMb7MLqK2C3HcjKxk4RfoGouLAGjnSAVqs4AKZsDqdOrDZr5cAv55Uychr5qZMJTw==
-  dependencies:
-    "@standardnotes/common" "^1.2.1"
-
 "@standardnotes/settings@1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@standardnotes/settings/-/settings-1.4.0.tgz#b8f43383fa1b469d609f5ac6c2ce571efb8bfe71"
   integrity sha512-mGptrIaM/3UWOkc9xmzuRRM2A75caX6vyqCeKhyqPdM3ZR/YpYH7I6qYDsO6wpkoF3soD2nRJ6pLV7HBjGdGag==
 
-"@standardnotes/time@1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@standardnotes/time/-/time-1.0.4.tgz#a4c02089fec64e3d43ba67d004b939058c195f84"
-  integrity sha512-yA2owcZKJaaEW7s7qI6jBUZopMC1sgGVPiv+fUPJ1eBiB6HJKpV/iG8mKiiJw5/aVOXVcAclB2JhRaiIlEGSWA==
+"@standardnotes/time@1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@standardnotes/time/-/time-1.6.0.tgz#4d1cdf45081e966fd624104f5a576c2814dc8803"
+  integrity sha512-kvKUPW2gVqbzlvmtamGGktmlGG7Lor3hpN6b5JUiS7WffwRAABLklmPs7XPkbKvc+qoZ74pAEzmrwpB6jkykVg==
   dependencies:
     dayjs "^1.10.5"
     microtime "^3.0.0"
@@ -2126,11 +2119,6 @@ data-urls@^2.0.0:
     abab "^2.0.3"
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
-
-dayjs@1.9.7:
-  version "1.9.7"
-  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.9.7.tgz#4b260bb17dceed2d5f29038dfee03c65a6786fc0"
-  integrity sha512-IC877KBdMhBrCfBfJXHQlo0G8keZ0Opy7YIIq5QKtUbCuHMzim8S4PyiVK4YmihI3iOF9lhfUBW4AQWHTR5WHA==
 
 dayjs@^1.10.5:
   version "1.10.5"

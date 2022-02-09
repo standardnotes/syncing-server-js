@@ -1,7 +1,6 @@
+import { RoleName } from '@standardnotes/auth'
 import { ContentType } from '@standardnotes/common'
-import { FeatureIdentifier } from '@standardnotes/features'
-import { TimerInterface } from '@standardnotes/time'
-import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
+import { Timer, TimerInterface } from '@standardnotes/time'
 
 import { Item } from '../Item/Item'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
@@ -11,21 +10,22 @@ import { RevisionService } from './RevisionService'
 
 describe('RevisionService', () => {
   let revisionRepository: RevisionRepositoryInterface
+  let timer: TimerInterface
   let itemRepository: ItemRepositoryInterface
   let item: Item
-  let timer: TimerInterface
-  let authHttpService: AuthHttpServiceInterface
   let revision1: Revision
   let revision2: Revision
+  let timeHelper: Timer
 
   const createService = () => new RevisionService(
     revisionRepository,
     itemRepository,
-    authHttpService,
-    timer
+    timer,
   )
 
   beforeEach(() => {
+    timeHelper = new Timer()
+
     revisionRepository = {} as jest.Mocked<RevisionRepositoryInterface>
     revisionRepository.save = jest.fn().mockImplementation((revision: Revision) => {
       revision.uuid = '3-4-5'
@@ -33,8 +33,13 @@ describe('RevisionService', () => {
       return revision
     })
 
+    timer = {} as jest.Mocked<TimerInterface>
+    timer.dateWasNDaysAgo = jest.fn().mockReturnValue(0)
+
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
-    itemRepository.findByUuid = jest.fn().mockReturnValue({} as jest.Mocked<Item>)
+    itemRepository.findByUuid = jest.fn().mockReturnValue({
+      userUuid: '1-2-3',
+    } as jest.Mocked<Item>)
 
     revision1 = {
       uuid: '1-2-3',
@@ -53,16 +58,7 @@ describe('RevisionService', () => {
     } as jest.Mocked<Revision>
 
     revisionRepository.findByItemId = jest.fn().mockReturnValue([ revision1, revision2 ])
-
-    authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
-    authHttpService.getUserFeatures = jest.fn().mockReturnValue([
-      {
-        identifier: FeatureIdentifier.PlusEditor,
-      },
-    ])
-
-    timer = {} as jest.Mocked<TimerInterface>
-    timer.getUTCDateNDaysAgo = jest.fn().mockImplementation((n: number) => new Date(n))
+    revisionRepository.findOneById = jest.fn().mockReturnValue(revision1)
 
     item = {
       authHash: 'test-hash',
@@ -74,81 +70,109 @@ describe('RevisionService', () => {
     } as jest.Mocked<Item>
   })
 
-  it('should get revisions for an item - default days limitation', async () => {
-    await createService().getRevisions('1-2-3', '2-3-4')
+  it('should not get a revision for a non existing item', async () => {
+    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
 
-    expect(revisionRepository.findByItemId).toHaveBeenCalledWith({
-      itemUuid: '2-3-4',
-      afterDate: new Date(3),
-    })
+    expect(await createService().getRevision({
+      itemUuid: '1-2-3',
+      userRoles: [ RoleName.BasicUser ],
+      userUuid: '1-2-3',
+      revisionUuid: '3-4-5',
+    })).toBeUndefined()
   })
 
-  it('should get revisions for an item - 30 days limitation', async () => {
-    authHttpService.getUserFeatures = jest.fn().mockReturnValue([
-      {
-        identifier: FeatureIdentifier.NoteHistory30Days,
-      },
-    ])
+  it('should not get a revision for another user\'s item', async () => {
+    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
 
-    await createService().getRevisions('1-2-3', '2-3-4')
-
-    expect(revisionRepository.findByItemId).toHaveBeenCalledWith({
-      itemUuid: '2-3-4',
-      afterDate: new Date(30),
-    })
+    expect(await createService().getRevision({
+      itemUuid: '1-2-3',
+      userRoles: [ RoleName.BasicUser ],
+      userUuid: '3-4-5',
+      revisionUuid: '3-4-5',
+    })).toBeUndefined()
   })
 
-  it('should get revisions for an item - 365 days limitation', async () => {
-    authHttpService.getUserFeatures = jest.fn().mockReturnValue([
-      {
-        identifier: FeatureIdentifier.NoteHistory365Days,
-      },
-    ])
+  it('should not get a revision that does not exist', async () => {
+    revisionRepository.findOneById = jest.fn().mockReturnValue(undefined)
 
-    await createService().getRevisions('1-2-3', '2-3-4')
-
-    expect(revisionRepository.findByItemId).toHaveBeenCalledWith({
-      itemUuid: '2-3-4',
-      afterDate: new Date(365),
-    })
+    expect(await createService().getRevision({
+      itemUuid: '1-2-3',
+      userRoles: [ RoleName.BasicUser ],
+      userUuid: '1-2-3',
+      revisionUuid: '3-4-5',
+    })).toBeUndefined()
   })
 
-  it('should get revisions for an item - 365 days limitation - older limitations available', async () => {
-    authHttpService.getUserFeatures = jest.fn().mockReturnValue([
-      {
-        identifier: FeatureIdentifier.NoteHistory30Days,
-        expires_at: 333,
-      },
-      {
-        identifier: FeatureIdentifier.NoteHistory365Days,
-        expires_at: 555,
-      },
-      {
-        identifier: FeatureIdentifier.NoteHistoryUnlimited,
-        expires_at: 444,
-      },
-    ])
+  it('should get a revision if user has enough permissions', async () => {
+    revision1 = {
+      uuid: '1-2-3',
+      item: Promise.resolve({
+        uuid: '1-2-3',
+      }),
+      content: 'content1',
+      createdAt: timeHelper.getUTCDateNDaysAgo(2),
+    } as jest.Mocked<Revision>
+    revisionRepository.findOneById = jest.fn().mockReturnValue(revision1)
 
-    await createService().getRevisions('1-2-3', '2-3-4')
-
-    expect(revisionRepository.findByItemId).toHaveBeenCalledWith({
-      itemUuid: '2-3-4',
-      afterDate: new Date(365),
-    })
+    expect(await createService().getRevision({
+      itemUuid: '1-2-3',
+      userRoles: [ RoleName.BasicUser ],
+      userUuid: '1-2-3',
+      revisionUuid: '3-4-5',
+    })).toEqual(revision1)
   })
 
-  it('should get revisions for an item - unlimited', async () => {
-    authHttpService.getUserFeatures = jest.fn().mockReturnValue([
-      {
-        identifier: FeatureIdentifier.NoteHistoryUnlimited,
-      },
-    ])
+  it('should not get a revision if user has not enough permissions - core user', async () => {
+    timer.dateWasNDaysAgo = jest.fn().mockReturnValue(5)
 
+    expect(await createService().getRevision({
+      itemUuid: '1-2-3',
+      userRoles: [ RoleName.BasicUser ],
+      userUuid: '1-2-3',
+      revisionUuid: '3-4-5',
+    })).toBeUndefined()
+  })
+
+  it('should not get a revision if user has not enough permissions - plus user', async () => {
+    timer.dateWasNDaysAgo = jest.fn().mockReturnValue(45)
+
+    expect(await createService().getRevision({
+      itemUuid: '1-2-3',
+      userRoles: [ RoleName.BasicUser, RoleName.CoreUser ],
+      userUuid: '1-2-3',
+      revisionUuid: '3-4-5',
+    })).toBeUndefined()
+  })
+
+  it('should not get a revision if user has not enough permissions - pro user', async () => {
+    timer.dateWasNDaysAgo = jest.fn().mockReturnValue(500)
+
+    expect(await createService().getRevision({
+      itemUuid: '1-2-3',
+      userRoles: [ RoleName.BasicUser, RoleName.PlusUser ],
+      userUuid: '1-2-3',
+      revisionUuid: '3-4-5',
+    })).toBeUndefined()
+  })
+
+  it('should get revisions for an item', async () => {
     await createService().getRevisions('1-2-3', '2-3-4')
 
-    expect(revisionRepository.findByItemId).toHaveBeenCalledWith({
-      itemUuid: '2-3-4',
-    })
+    expect(revisionRepository.findByItemId).toHaveBeenCalledWith({ itemUuid: '2-3-4' })
+  })
+
+  it('should not get revisions for an non existing item', async () => {
+    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+
+    expect(await createService().getRevisions('1-2-3', '2-3-4')).toEqual([])
+
+    expect(revisionRepository.findByItemId).not.toHaveBeenCalled()
+  })
+
+  it('should not get revisions for another user\'s item', async () => {
+    expect(await createService().getRevisions('3-4-5', '4-5-6')).toEqual([])
+
+    expect(revisionRepository.findByItemId).not.toHaveBeenCalled()
   })
 
   it('should save a revision for a note item', async () => {
