@@ -35,7 +35,7 @@ const TYPES = {
   DISABLE_INTEGRITY_HASH: Symbol.for('DISABLE_INTEGRITY_HASH'),
   // use cases
   SyncItems: Symbol.for('SyncItems'),
-  PostToRealtimeExtensions: Symbol.for('PostToRealtimeExtensions'),
+  CheckIntegrity: Symbol.for('CheckIntegrity'),
   // Handlers
   AccountDeletionRequestedEventHandler: Symbol.for('AccountDeletionRequestedEventHandler'),
   DuplicateItemSyncedEventHandler: Symbol.for('DuplicateItemSyncedEventHandler'),
