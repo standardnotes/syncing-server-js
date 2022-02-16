@@ -11,10 +11,13 @@ import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncRespons
 import { SyncResponseFactoryInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryInterface'
 import { SyncResponse20200115 } from '../Domain/Item/SyncResponse/SyncResponse20200115'
 import { CheckIntegrity } from '../Domain/UseCase/CheckIntegrity/CheckIntegrity'
+import { GetItem } from '../Domain/UseCase/GetItem/GetItem'
+import { Item } from '../Domain/Item/Item'
 
 describe('ItemsController', () => {
   let syncItems: SyncItems
   let checkIntegrity: CheckIntegrity
+  let getItem: GetItem
   let request: express.Request
   let response: express.Response
   let syncResponceFactoryResolver: SyncResponseFactoryResolverInterface
@@ -24,6 +27,7 @@ describe('ItemsController', () => {
   const createController = () => new ItemsController(
     syncItems,
     checkIntegrity,
+    getItem,
     syncResponceFactoryResolver
   )
 
@@ -33,6 +37,9 @@ describe('ItemsController', () => {
 
     checkIntegrity = {} as jest.Mocked<CheckIntegrity>
     checkIntegrity.execute = jest.fn().mockReturnValue({ mismatches: [ { uuid: '1-2-3', updated_at_timestamp: 2 }] })
+
+    getItem = {} as jest.Mocked<GetItem>
+    getItem.execute = jest.fn().mockReturnValue({ success: true, item: {} as jest.Mocked<Item> })
 
     request = {
       headers: {},
@@ -75,6 +82,34 @@ describe('ItemsController', () => {
 
     syncResponceFactoryResolver = {} as jest.Mocked<SyncResponseFactoryResolverInterface>
     syncResponceFactoryResolver.resolveSyncResponseFactoryVersion = jest.fn().mockReturnValue(syncResponseFactory)
+  })
+
+  it('should get a single item', async () => {
+    request.params.uuid = '1-2-3'
+    const httpResponse = <results.JsonResult> await createController().getSingleItem(request, response)
+    const result = await httpResponse.executeAsync()
+
+    expect(getItem.execute).toHaveBeenCalledWith({
+      itemUuid: '1-2-3',
+      userUuid: '123',
+    })
+
+    expect(result.statusCode).toEqual(200)
+  })
+
+  it('should return 404 on a missing single item', async () => {
+    request.params.uuid = '1-2-3'
+    getItem.execute = jest.fn().mockReturnValue({ success: false })
+
+    const httpResponse = <results.NotFoundResult> await createController().getSingleItem(request, response)
+    const result = await httpResponse.executeAsync()
+
+    expect(getItem.execute).toHaveBeenCalledWith({
+      itemUuid: '1-2-3',
+      userUuid: '123',
+    })
+
+    expect(result.statusCode).toEqual(404)
   })
 
   it('should check items integrity', async () => {
