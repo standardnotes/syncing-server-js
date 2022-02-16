@@ -13,11 +13,13 @@ import { SyncResponse20200115 } from '../Domain/Item/SyncResponse/SyncResponse20
 import { CheckIntegrity } from '../Domain/UseCase/CheckIntegrity/CheckIntegrity'
 import { GetItem } from '../Domain/UseCase/GetItem/GetItem'
 import { Item } from '../Domain/Item/Item'
+import { ProjectorInterface } from '../Projection/ProjectorInterface'
 
 describe('ItemsController', () => {
   let syncItems: SyncItems
   let checkIntegrity: CheckIntegrity
   let getItem: GetItem
+  let itemProjector: ProjectorInterface<Item>
   let request: express.Request
   let response: express.Response
   let syncResponceFactoryResolver: SyncResponseFactoryResolverInterface
@@ -28,10 +30,14 @@ describe('ItemsController', () => {
     syncItems,
     checkIntegrity,
     getItem,
+    itemProjector,
     syncResponceFactoryResolver
   )
 
   beforeEach(() => {
+    itemProjector = {} as jest.Mocked<ProjectorInterface<Item>>
+    itemProjector.projectFull = jest.fn().mockReturnValue({ foo: 'bar' })
+
     syncItems = {} as jest.Mocked<SyncItems>
     syncItems.execute = jest.fn().mockReturnValue({ foo: 'bar' })
 

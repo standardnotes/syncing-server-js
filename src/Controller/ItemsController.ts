@@ -3,10 +3,12 @@ import { inject } from 'inversify'
 import { BaseHttpController, controller, httpGet, httpPost, results } from 'inversify-express-utils'
 import TYPES from '../Bootstrap/Types'
 import { ApiVersion } from '../Domain/Api/ApiVersion'
+import { Item } from '../Domain/Item/Item'
 import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
 import { CheckIntegrity } from '../Domain/UseCase/CheckIntegrity/CheckIntegrity'
 import { GetItem } from '../Domain/UseCase/GetItem/GetItem'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
+import { ProjectorInterface } from '../Projection/ProjectorInterface'
 
 @controller('/items', TYPES.AuthMiddleware)
 export class ItemsController extends BaseHttpController {
@@ -14,6 +16,7 @@ export class ItemsController extends BaseHttpController {
     @inject(TYPES.SyncItems) private syncItems: SyncItems,
     @inject(TYPES.CheckIntegrity) private checkIntegrity: CheckIntegrity,
     @inject(TYPES.GetItem) private getItem: GetItem,
+    @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item>,
     @inject(TYPES.SyncResponseFactoryResolver) private syncResponseFactoryResolver: SyncResponseFactoryResolverInterface,
   ) {
     super()
@@ -71,6 +74,6 @@ export class ItemsController extends BaseHttpController {
       return this.notFound()
     }
 
-    return this.json(result)
+    return this.json({ item: await this.itemProjector.projectFull(result.item) })
   }
 }
