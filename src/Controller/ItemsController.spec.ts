@@ -10,9 +10,11 @@ import { ApiVersion } from '../Domain/Api/ApiVersion'
 import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
 import { SyncResponseFactoryInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryInterface'
 import { SyncResponse20200115 } from '../Domain/Item/SyncResponse/SyncResponse20200115'
+import { CheckIntegrity } from '../Domain/UseCase/CheckIntegrity/CheckIntegrity'
 
 describe('ItemsController', () => {
   let syncItems: SyncItems
+  let checkIntegrity: CheckIntegrity
   let request: express.Request
   let response: express.Response
   let syncResponceFactoryResolver: SyncResponseFactoryResolverInterface
@@ -21,12 +23,16 @@ describe('ItemsController', () => {
 
   const createController = () => new ItemsController(
     syncItems,
+    checkIntegrity,
     syncResponceFactoryResolver
   )
 
   beforeEach(() => {
     syncItems = {} as jest.Mocked<SyncItems>
     syncItems.execute = jest.fn().mockReturnValue({ foo: 'bar' })
+
+    checkIntegrity = {} as jest.Mocked<CheckIntegrity>
+    checkIntegrity.execute = jest.fn().mockReturnValue({ mismatches: [ { uuid: '1-2-3', updated_at_timestamp: 2 }] })
 
     request = {
       headers: {},
@@ -69,6 +75,44 @@ describe('ItemsController', () => {
 
     syncResponceFactoryResolver = {} as jest.Mocked<SyncResponseFactoryResolverInterface>
     syncResponceFactoryResolver.resolveSyncResponseFactoryVersion = jest.fn().mockReturnValue(syncResponseFactory)
+  })
+
+  it('should check items integrity', async () => {
+    request.body.integrityHashes = [
+      {
+        uuid: '1-2-3',
+        updated_at_timestamp: 1,
+      },
+    ]
+
+    const httpResponse = <results.JsonResult> await createController().checkItemsIntegrity(request, response)
+    const result = await httpResponse.executeAsync()
+
+    expect(checkIntegrity.execute).toHaveBeenCalledWith({
+      integrityHashes: [
+        {
+          updated_at_timestamp: 1,
+          uuid: '1-2-3',
+        },
+      ],
+      userUuid: '123',
+    })
+
+    expect(result.statusCode).toEqual(200)
+    expect(await result.content.readAsStringAsync()).toEqual('{"mismatches":[{"uuid":"1-2-3","updated_at_timestamp":2}]}')
+  })
+
+  it('should check items integrity with missing request parameter', async () => {
+    const httpResponse = <results.JsonResult> await createController().checkItemsIntegrity(request, response)
+    const result = await httpResponse.executeAsync()
+
+    expect(checkIntegrity.execute).toHaveBeenCalledWith({
+      integrityHashes: [],
+      userUuid: '123',
+    })
+
+    expect(result.statusCode).toEqual(200)
+    expect(await result.content.readAsStringAsync()).toEqual('{"mismatches":[{"uuid":"1-2-3","updated_at_timestamp":2}]}')
   })
 
   it('should sync items', async () => {

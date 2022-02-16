@@ -4,12 +4,14 @@ import { BaseHttpController, controller, httpPost, results } from 'inversify-exp
 import TYPES from '../Bootstrap/Types'
 import { ApiVersion } from '../Domain/Api/ApiVersion'
 import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncResponse/SyncResponseFactoryResolverInterface'
+import { CheckIntegrity } from '../Domain/UseCase/CheckIntegrity/CheckIntegrity'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
 
 @controller('/items')
 export class ItemsController extends BaseHttpController {
   constructor(
     @inject(TYPES.SyncItems) private syncItems: SyncItems,
+    @inject(TYPES.CheckIntegrity) private checkIntegrity: CheckIntegrity,
     @inject(TYPES.SyncResponseFactoryResolver) private syncResponseFactoryResolver: SyncResponseFactoryResolverInterface,
   ) {
     super()
@@ -39,5 +41,20 @@ export class ItemsController extends BaseHttpController {
       .createResponse(syncResult)
 
     return this.json(syncResponse)
+  }
+
+  @httpPost('/check-integrity', TYPES.AuthMiddleware)
+  public async checkItemsIntegrity(request: Request, response: Response): Promise<results.JsonResult> {
+    let integrityHashes = []
+    if ('integrityHashes' in request.body) {
+      integrityHashes = request.body.integrityHashes
+    }
+
+    const result = await this.checkIntegrity.execute({
+      userUuid: response.locals.user.uuid,
+      integrityHashes,
+    })
+
+    return this.json(result)
   }
 }

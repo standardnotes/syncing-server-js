@@ -296,6 +296,30 @@ describe('MySQLItemRepository', () => {
     expect(result[1]).toEqual({ updated_at_timestamp: 1616164633241312 })
   })
 
+  it('should find items for computing integrity hash', async () => {
+    queryBuilder.getRawMany = jest.fn().mockReturnValue([
+      { uuid: '1-2-3', updated_at_timestamp: 1616164633241312 },
+      { uuid: '2-3-4', updated_at_timestamp: 1616164633242313 },
+    ])
+    queryBuilder.select = jest.fn()
+    queryBuilder.addSelect = jest.fn()
+    queryBuilder.where = jest.fn()
+    queryBuilder.andWhere = jest.fn()
+
+    const result = await repository.findItemsForComputingIntegrityHash('1-2-3')
+
+    expect(queryBuilder.select).toHaveBeenCalledWith('item.uuid')
+    expect(queryBuilder.addSelect).toHaveBeenCalledWith('item.updated_at_timestamp')
+    expect(queryBuilder.where).toHaveBeenCalledTimes(1)
+    expect(queryBuilder.where).toHaveBeenNthCalledWith(1, 'item.user_uuid = :userUuid', { userUuid: '1-2-3' })
+    expect(queryBuilder.andWhere).toHaveBeenCalledTimes(1)
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(1, 'item.deleted = :deleted', { deleted: false })
+
+    expect(result.length).toEqual(2)
+    expect(result[0]).toEqual({ uuid: '2-3-4', updated_at_timestamp: 1616164633242313 })
+    expect(result[1]).toEqual({ uuid: '1-2-3', updated_at_timestamp: 1616164633241312 })
+  })
+
   it('should find item by uuid and mark it for deletion', async () => {
     queryBuilder.where = jest.fn().mockReturnThis()
     queryBuilder.update = jest.fn().mockReturnThis()
