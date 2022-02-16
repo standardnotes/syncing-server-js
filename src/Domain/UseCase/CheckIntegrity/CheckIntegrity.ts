@@ -18,18 +18,35 @@ export class CheckIntegrity implements UseCaseInterface {
     const serverItemIntegrityHashes = await this.itemRepository
       .findItemsForComputingIntegrityHash(dto.userUuid)
 
+    const serverItemIntegrityHashesMap = new Map<string, number>()
+    for (const serverItemIntegrityHash of serverItemIntegrityHashes) {
+      serverItemIntegrityHashesMap.set(serverItemIntegrityHash.uuid, serverItemIntegrityHash.updated_at_timestamp)
+    }
+
+    const clientItemIntegrityHashesMap = new Map<string, number>()
+    for (const clientItemIntegrityHash of dto.integrityHashes) {
+      clientItemIntegrityHashesMap.set(clientItemIntegrityHash.uuid, clientItemIntegrityHash.updated_at_timestamp)
+    }
+
     const mismatches: ItemIntegrityHash[] = []
 
-    for (const serverItemIntegrityHash of serverItemIntegrityHashes) {
-      const matchingClientItemIntegrityHash = dto.integrityHashes
-        .find(
-          (clientItemIntegrityHash) =>
-            clientItemIntegrityHash.uuid === serverItemIntegrityHash.uuid &&
-            clientItemIntegrityHash.updated_at_timestamp === serverItemIntegrityHash.updated_at_timestamp
-        )
+    for (const serverItemIntegrityHashUuid of serverItemIntegrityHashesMap.keys()) {
+      if (!clientItemIntegrityHashesMap.has(serverItemIntegrityHashUuid)) {
+        mismatches.unshift({
+          uuid: serverItemIntegrityHashUuid,
+          updated_at_timestamp: serverItemIntegrityHashesMap.get(serverItemIntegrityHashUuid) as number,
+        })
 
-      if (matchingClientItemIntegrityHash === undefined) {
-        mismatches.unshift(serverItemIntegrityHash)
+        continue
+      }
+
+      const serverItemIntegrityHashUpdatedAtTimestamp = serverItemIntegrityHashesMap.get(serverItemIntegrityHashUuid) as number
+      const clientItemIntegrityHashUpdatedAtTimestamp = clientItemIntegrityHashesMap.get(serverItemIntegrityHashUuid) as number
+      if (serverItemIntegrityHashUpdatedAtTimestamp !== clientItemIntegrityHashUpdatedAtTimestamp) {
+        mismatches.unshift({
+          uuid: serverItemIntegrityHashUuid,
+          updated_at_timestamp: serverItemIntegrityHashesMap.get(serverItemIntegrityHashUuid) as number,
+        })
       }
     }
 
