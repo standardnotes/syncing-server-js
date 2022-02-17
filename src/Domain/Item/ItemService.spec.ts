@@ -2,7 +2,6 @@ import 'reflect-metadata'
 
 import { ContentType } from '@standardnotes/common'
 import * as crypto from 'crypto'
-import * as dayjs from 'dayjs'
 import { Item } from './Item'
 import { ItemHash } from './ItemHash'
 
@@ -13,7 +12,7 @@ import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
 import { Logger } from 'winston'
-import { Time, TimerInterface } from '@standardnotes/time'
+import { Timer, TimerInterface } from '@standardnotes/time'
 import { ItemSaveValidatorInterface } from './SaveValidator/ItemSaveValidatorInterface'
 import { ItemFactoryInterface } from './ItemFactoryInterface'
 import { ItemConflict } from './ItemConflict'
@@ -36,6 +35,7 @@ describe('ItemService', () => {
   let itemSaveValidator: ItemSaveValidatorInterface
   let newItem: Item
   let itemFactory: ItemFactoryInterface
+  let timeHelper: Timer
 
   const createService = () => new ItemService(
     itemSaveValidator,
@@ -51,6 +51,8 @@ describe('ItemService', () => {
   )
 
   beforeEach(() => {
+    timeHelper = new Timer()
+
     item1 = {
       uuid: '1-2-3',
       userUuid: '1-2-3',
@@ -75,8 +77,8 @@ describe('ItemService', () => {
       duplicate_of: null,
       enc_item_key: 'qweqwe1',
       items_key_id: 'asdasd1',
-      created_at: dayjs.utc(Math.floor(item1.createdAtTimestamp / Time.MicrosecondsInAMillisecond)).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-      updated_at: dayjs.utc(Math.floor(item1.updatedAtTimestamp / Time.MicrosecondsInAMillisecond) + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      created_at: timeHelper.formatDate(timeHelper.convertMicrosecondsToDate(item1.createdAtTimestamp), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      updated_at: timeHelper.formatDate(new Date(timeHelper.convertMicrosecondsToMilliseconds(item1.updatedAtTimestamp) + 1), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
     } as jest.Mocked<ItemHash>
 
     itemHash2 = {
@@ -86,8 +88,8 @@ describe('ItemService', () => {
       duplicate_of: null,
       enc_item_key: 'qweqwe2',
       items_key_id: 'asdasd2',
-      created_at: dayjs.utc(Math.floor(item2.createdAtTimestamp / Time.MicrosecondsInAMillisecond)).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-      updated_at: dayjs.utc(Math.floor(item2.updatedAtTimestamp / Time.MicrosecondsInAMillisecond) + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      created_at: timeHelper.formatDate(timeHelper.convertMicrosecondsToDate(item2.createdAtTimestamp), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      updated_at: timeHelper.formatDate(new Date(timeHelper.convertMicrosecondsToMilliseconds(item2.updatedAtTimestamp) + 1), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
     } as jest.Mocked<ItemHash>
 
     emptyHash = {
@@ -115,13 +117,11 @@ describe('ItemService', () => {
     timer = {} as jest.Mocked<TimerInterface>
     timer.getTimestampInMicroseconds = jest.fn().mockReturnValue(1616164633241568)
     timer.getUTCDate = jest.fn().mockReturnValue(new Date())
-    timer.convertStringDateToDate = jest.fn().mockImplementation((date: string) => dayjs.utc(date).toDate())
+    timer.convertStringDateToDate = jest.fn().mockImplementation((date: string) => timeHelper.convertStringDateToDate(date))
     timer.convertMicrosecondsToSeconds = jest.fn().mockReturnValue(600)
     timer.convertStringDateToMicroseconds = jest.fn()
-      .mockImplementation((date: string) => dayjs.utc(date).valueOf() * 1000)
-    timer.convertMicrosecondsToDate = jest.fn().mockImplementation((microseconds: number) => {
-      return dayjs.utc(Math.floor(microseconds / Time.MicrosecondsInAMillisecond)).toDate()
-    })
+      .mockImplementation((date: string) => timeHelper.convertStringDateToMicroseconds(date))
+    timer.convertMicrosecondsToDate = jest.fn().mockImplementation((microseconds: number) => timeHelper.convertMicrosecondsToDate(microseconds))
 
     domainEventPublisher = {} as jest.Mocked<DomainEventPublisherInterface>
     domainEventPublisher.publish = jest.fn()
@@ -807,7 +807,7 @@ describe('ItemService', () => {
 
   it('should update existing empty hashes', async () => {
     itemRepository.findByUuid = jest.fn().mockReturnValue(item2)
-    emptyHash.updated_at = dayjs.utc(Math.floor(item2.updatedAtTimestamp / Time.MicrosecondsInAMillisecond) + 1).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+    emptyHash.updated_at = timeHelper.formatDate(new Date(timeHelper.convertMicrosecondsToMilliseconds(item2.updatedAtTimestamp) + 1), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]')
 
     const result = await createService().saveItems({
       itemHashes: [ emptyHash ],

@@ -1,14 +1,20 @@
 import { DropboxBackupFailedEvent, DuplicateItemSyncedEvent, EmailArchiveExtensionSyncedEvent, EmailBackupAttachmentCreatedEvent, GoogleDriveBackupFailedEvent, ItemsSyncedEvent, MailBackupAttachmentTooBigEvent, OneDriveBackupFailedEvent, UserRegisteredEvent } from '@standardnotes/domain-events'
-import * as dayjs from 'dayjs'
-import { injectable } from 'inversify'
+import { TimerInterface } from '@standardnotes/time'
+import { inject, injectable } from 'inversify'
+import TYPES from '../../Bootstrap/Types'
 import { DomainEventFactoryInterface } from './DomainEventFactoryInterface'
 
 @injectable()
 export class DomainEventFactory implements DomainEventFactoryInterface {
+  constructor(
+    @inject(TYPES.Timer) private timer: TimerInterface,
+  ) {
+  }
+
   createDuplicateItemSyncedEvent(itemUuid: string, userUuid: string): DuplicateItemSyncedEvent {
     return {
       type: 'DUPLICATE_ITEM_SYNCED',
-      createdAt: dayjs.utc().toDate(),
+      createdAt: this.timer.getUTCDate(),
       meta: {
         correlation: {
           userIdentifier: userUuid,
@@ -25,7 +31,7 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
   createDropboxBackupFailedEvent(muteCloudEmailsSettingUuid: string, email: string): DropboxBackupFailedEvent {
     return {
       type: 'DROPBOX_BACKUP_FAILED',
-      createdAt: dayjs.utc().toDate(),
+      createdAt: this.timer.getUTCDate(),
       meta: {
         correlation: {
           userIdentifier: email,
@@ -42,7 +48,7 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
   createGoogleDriveBackupFailedEvent(muteCloudEmailsSettingUuid: string, email: string): GoogleDriveBackupFailedEvent {
     return {
       type: 'GOOGLE_DRIVE_BACKUP_FAILED',
-      createdAt: dayjs.utc().toDate(),
+      createdAt: this.timer.getUTCDate(),
       meta: {
         correlation: {
           userIdentifier: email,
@@ -59,7 +65,7 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
   createOneDriveBackupFailedEvent(muteCloudEmailsSettingUuid: string, email: string): OneDriveBackupFailedEvent {
     return {
       type: 'ONE_DRIVE_BACKUP_FAILED',
-      createdAt: dayjs.utc().toDate(),
+      createdAt: this.timer.getUTCDate(),
       meta: {
         correlation: {
           userIdentifier: email,
@@ -81,7 +87,7 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
   }): MailBackupAttachmentTooBigEvent {
     return {
       type: 'MAIL_BACKUP_ATTACHMENT_TOO_BIG',
-      createdAt: dayjs.utc().toDate(),
+      createdAt: this.timer.getUTCDate(),
       meta: {
         correlation: {
           userIdentifier: dto.email,
@@ -103,7 +109,7 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
   }): ItemsSyncedEvent {
     return {
       type: 'ITEMS_SYNCED',
-      createdAt: dayjs.utc().toDate(),
+      createdAt: this.timer.getUTCDate(),
       meta: {
         correlation: {
           userIdentifier: dto.userUuid,
@@ -117,7 +123,7 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
   createUserRegisteredEvent(userUuid: string, email: string): UserRegisteredEvent {
     return {
       type: 'USER_REGISTERED',
-      createdAt: dayjs.utc().toDate(),
+      createdAt: this.timer.getUTCDate(),
       meta: {
         correlation: {
           userIdentifier: userUuid,
@@ -134,7 +140,7 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
   createEmailArchiveExtensionSyncedEvent(userUuid: string, extensionId: string): EmailArchiveExtensionSyncedEvent {
     return {
       type: 'EMAIL_ARCHIVE_EXTENSION_SYNCED',
-      createdAt: dayjs.utc().toDate(),
+      createdAt: this.timer.getUTCDate(),
       meta: {
         correlation: {
           userIdentifier: userUuid,
@@ -151,7 +157,7 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
   createEmailBackupAttachmentCreatedEvent(backupFileName: string, email: string): EmailBackupAttachmentCreatedEvent {
     return {
       type: 'EMAIL_BACKUP_ATTACHMENT_CREATED',
-      createdAt: dayjs.utc().toDate(),
+      createdAt: this.timer.getUTCDate(),
       meta: {
         correlation: {
           userIdentifier: email,

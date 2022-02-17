@@ -55,6 +55,8 @@ import { ContentFilter } from '../Domain/Item/SaveRule/ContentFilter'
 import { RedisDomainEventPublisher, RedisDomainEventSubscriberFactory, RedisEventMessageHandler, SNSDomainEventPublisher, SQSDomainEventSubscriberFactory, SQSEventMessageHandler, SQSNewRelicEventMessageHandler } from '@standardnotes/domain-events-infra'
 import { EmailBackupRequestedEventHandler } from '../Domain/Handler/EmailBackupRequestedEventHandler'
 import { CloudBackupRequestedEventHandler } from '../Domain/Handler/CloudBackupRequestedEventHandler'
+import { CheckIntegrity } from '../Domain/UseCase/CheckIntegrity/CheckIntegrity'
+import { GetItem } from '../Domain/UseCase/GetItem/GetItem'
 
 export class ContainerConfigLoader {
   private readonly DEFAULT_CONTENT_SIZE_TRANSFER_LIMIT = 10_000_000
@@ -188,6 +190,8 @@ export class ContainerConfigLoader {
 
     // use cases
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
+    container.bind<CheckIntegrity>(TYPES.CheckIntegrity).to(CheckIntegrity)
+    container.bind<GetItem>(TYPES.GetItem).to(GetItem)
 
     // Handlers
     container.bind<ItemsSyncedEventHandler>(TYPES.ItemsSyncedEventHandler).to(ItemsSyncedEventHandler)

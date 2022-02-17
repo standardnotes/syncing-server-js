@@ -12,8 +12,6 @@ import * as helmet from 'helmet'
 import * as cors from 'cors'
 import { urlencoded, json, Request, Response, NextFunction, RequestHandler, ErrorRequestHandler } from 'express'
 import * as winston from 'winston'
-import * as dayjs from 'dayjs'
-import * as utc from 'dayjs/plugin/utc'
 
 import { InversifyExpressServer } from 'inversify-express-utils'
 import { ContainerConfigLoader } from '../src/Bootstrap/Container'
@@ -22,8 +20,6 @@ import { Env } from '../src/Bootstrap/Env'
 
 const container = new ContainerConfigLoader
 void container.load().then(container => {
-  dayjs.extend(utc)
-
   const env: Env = new Env()
   env.load()
 

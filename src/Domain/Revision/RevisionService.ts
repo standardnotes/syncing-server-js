@@ -1,15 +1,13 @@
-
 import { inject, injectable } from 'inversify'
 import { ContentType } from '@standardnotes/common'
-import { FeatureIdentifier } from '@standardnotes/features'
+import { RoleName } from '@standardnotes/auth'
+import { TimerInterface } from '@standardnotes/time'
 
 import TYPES from '../../Bootstrap/Types'
 import { Item } from '../Item/Item'
 import { Revision } from './Revision'
 import { RevisionRepositoryInterface } from './RevisionRepositoryInterface'
 import { RevisionServiceInterface } from './RevisionServiceInterface'
-import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
-import { TimerInterface } from '@standardnotes/time'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
 
 @injectable()
@@ -17,22 +15,50 @@ export class RevisionService implements RevisionServiceInterface {
   constructor (
     @inject(TYPES.RevisionRepository) private revisionRepository: RevisionRepositoryInterface,
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
-    @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
     @inject(TYPES.Timer) private timer: TimerInterface,
   ) {
   }
 
-  async getRevisions(userUuid: string, itemUuid: string): Promise<Revision[]> {
-    let afterDate = undefined
-    const revisionDaysLimit = await this.getRevisionDaysLimit(userUuid)
-    afterDate = revisionDaysLimit ? this.timer.getUTCDateNDaysAgo(revisionDaysLimit) : undefined
+  async removeRevision(dto: { userUuid: string; itemUuid: string; revisionUuid: string }): Promise<boolean> {
+    const userItem = await this.itemRepository.findByUuid(dto.itemUuid)
+    if (userItem === undefined || userItem.userUuid !== dto.userUuid) {
+      return false
+    }
 
-    const revisions = await this.revisionRepository.findByItemId({
-      itemUuid,
-      afterDate,
-    })
+    await this.revisionRepository.removeByUuid(dto.itemUuid, dto.revisionUuid)
+
+    return true
+  }
+
+  async getRevisions(userUuid: string, itemUuid: string): Promise<Revision[]> {
+    const userItem = await this.itemRepository.findByUuid(itemUuid)
+    if (userItem === undefined || userItem.userUuid !== userUuid) {
+      return []
+    }
+
+    const revisions = await this.revisionRepository.findByItemId({ itemUuid })
 
     return revisions
+  }
+
+  async getRevision(dto: {
+    userUuid: string,
+    userRoles: RoleName[],
+    itemUuid: string,
+    revisionUuid: string
+  }): Promise<Revision | undefined> {
+    const userItem = await this.itemRepository.findByUuid(dto.itemUuid)
+    if (userItem === undefined || userItem.userUuid !== dto.userUuid) {
+      return undefined
+    }
+
+    const revision = await this.revisionRepository.findOneById(dto.itemUuid, dto.revisionUuid)
+
+    if (revision !== undefined && !this.userHasEnoughPermissionsToSeeRevision(dto.userRoles, revision.createdAt)) {
+      return undefined
+    }
+
+    return revision
   }
 
   async copyRevisions(fromItemUuid: string, toItemUuid: string): Promise<void> {
@@ -82,24 +108,36 @@ export class RevisionService implements RevisionServiceInterface {
     await this.revisionRepository.save(revision)
   }
 
-  private async getRevisionDaysLimit(userUuid: string): Promise<number | undefined> {
-    const userFeatures = await this.authHttpService.getUserFeatures(userUuid)
-    userFeatures.sort((a, b) => (a.expires_at as number) > (b.expires_at as number) ? -1 : 1)
+  calculateRequiredRoleBasedOnRevisionDate(createdAt: Date): RoleName {
+    const revisionCreatedNDaysAgo = this.timer.dateWasNDaysAgo(createdAt)
 
-    for (const userFeature of userFeatures) {
-      if (userFeature.identifier === FeatureIdentifier.NoteHistory30Days) {
-        return 30
-      }
-
-      if (userFeature.identifier === FeatureIdentifier.NoteHistory365Days) {
-        return 365
-      }
-
-      if (userFeature.identifier === FeatureIdentifier.NoteHistoryUnlimited) {
-        return undefined
-      }
+    if (revisionCreatedNDaysAgo > 3 && revisionCreatedNDaysAgo < 30) {
+      return RoleName.CoreUser
     }
 
-    return 3
+    if (revisionCreatedNDaysAgo > 30 && revisionCreatedNDaysAgo < 365) {
+      return RoleName.PlusUser
+    }
+
+    if (revisionCreatedNDaysAgo > 365) {
+      return RoleName.ProUser
+    }
+
+    return RoleName.BasicUser
+  }
+
+  private userHasEnoughPermissionsToSeeRevision(userRoles: RoleName[], revisionCreatedAt: Date): boolean {
+    const roleRequired = this.calculateRequiredRoleBasedOnRevisionDate(revisionCreatedAt)
+
+    switch (roleRequired) {
+    case RoleName.CoreUser:
+      return userRoles.filter(userRole => [RoleName.CoreUser, RoleName.PlusUser, RoleName.ProUser].includes(userRole)).length > 0
+    case RoleName.PlusUser:
+      return userRoles.filter(userRole => [RoleName.PlusUser, RoleName.ProUser].includes(userRole)).length > 0
+    case RoleName.ProUser:
+      return userRoles.includes(RoleName.ProUser)
+    default:
+      return true
+    }
   }
 }

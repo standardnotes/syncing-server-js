@@ -1,17 +1,26 @@
-import { injectable } from 'inversify'
-import * as dayjs from 'dayjs'
+import { TimerInterface } from '@standardnotes/time'
+import { inject, injectable } from 'inversify'
+import TYPES from '../Bootstrap/Types'
 
 import { Revision } from '../Domain/Revision/Revision'
+import { RevisionServiceInterface } from '../Domain/Revision/RevisionServiceInterface'
 import { ProjectorInterface } from './ProjectorInterface'
 
 @injectable()
 export class RevisionProjector implements ProjectorInterface<Revision> {
+  constructor(
+    @inject(TYPES.Timer) private timer: TimerInterface,
+    @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
+  ) {
+  }
+
   async projectSimple(revision: Revision): Promise<Record<string, unknown>> {
     return {
       'uuid': revision.uuid,
       'content_type': revision.contentType,
-      'created_at': dayjs.utc(revision.createdAt).toISOString(),
-      'updated_at': dayjs.utc(revision.updatedAt).toISOString(),
+      'required_role': this.revisionService.calculateRequiredRoleBasedOnRevisionDate(revision.createdAt),
+      'created_at': this.timer.convertDateToISOString(revision.createdAt),
+      'updated_at': this.timer.convertDateToISOString(revision.updatedAt),
     }
   }
 
@@ -24,9 +33,10 @@ export class RevisionProjector implements ProjectorInterface<Revision> {
       'items_key_id': revision.itemsKeyId,
       'enc_item_key': revision.encItemKey,
       'auth_hash': revision.authHash,
-      'creation_date': dayjs.utc(revision.creationDate).format('YYYY-MM-DD'),
-      'created_at': dayjs.utc(revision.createdAt).toISOString(),
-      'updated_at': dayjs.utc(revision.updatedAt).toISOString(),
+      'creation_date': this.timer.formatDate(revision.creationDate, 'YYYY-MM-DD'),
+      'required_role': this.revisionService.calculateRequiredRoleBasedOnRevisionDate(revision.createdAt),
+      'created_at': this.timer.convertDateToISOString(revision.createdAt),
+      'updated_at': this.timer.convertDateToISOString(revision.updatedAt),
     }
   }
 

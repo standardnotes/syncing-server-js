@@ -1,13 +1,17 @@
-import * as dayjs from 'dayjs'
+import { RoleName } from '@standardnotes/auth'
+import { TimerInterface } from '@standardnotes/time'
 import { Item } from '../Domain/Item/Item'
 
 import { Revision } from '../Domain/Revision/Revision'
+import { RevisionServiceInterface } from '../Domain/Revision/RevisionServiceInterface'
 import { RevisionProjector } from './RevisionProjector'
 
 describe('RevisionProjector', () => {
   let revision: Revision
+  let timer: TimerInterface
+  let revisionService: RevisionServiceInterface
 
-  const createProjector = () => new RevisionProjector()
+  const createProjector = () => new RevisionProjector(timer, revisionService)
 
   beforeEach(() => {
     revision = new Revision()
@@ -16,9 +20,17 @@ describe('RevisionProjector', () => {
     revision.uuid = '123',
     revision.itemsKeyId = '123',
     revision.item = Promise.resolve({ uuid: '1-2-3' } as Item)
-    revision.creationDate = dayjs.utc('2020-11-26').toDate()
-    revision.createdAt = dayjs.utc('2020-11-26 13:34').toDate()
-    revision.updatedAt = dayjs.utc('2020-11-26 13:34').toDate()
+
+    timer = {} as jest.Mocked<TimerInterface>
+    timer.convertDateToISOString = jest.fn().mockReturnValue('2020-11-26T13:34:00.000Z')
+    timer.formatDate = jest.fn().mockReturnValue('2020-11-26')
+
+    revisionService = {} as jest.Mocked<RevisionServiceInterface>
+    revisionService.calculateRequiredRoleBasedOnRevisionDate = jest.fn().mockReturnValue(RoleName.BasicUser)
+
+    revision.creationDate = new Date(1)
+    revision.createdAt = new Date(1)
+    revision.updatedAt = new Date(1)
   })
 
   it('should create a simple projection of a revision', async () => {
@@ -27,6 +39,7 @@ describe('RevisionProjector', () => {
       content_type: 'Note',
       created_at: '2020-11-26T13:34:00.000Z',
       updated_at: '2020-11-26T13:34:00.000Z',
+      required_role: 'BASIC_USER',
       uuid: '123',
     })
   })
@@ -40,6 +53,7 @@ describe('RevisionProjector', () => {
       created_at: '2020-11-26T13:34:00.000Z',
       creation_date: '2020-11-26',
       enc_item_key: undefined,
+      required_role: 'BASIC_USER',
       item_uuid: '1-2-3',
       items_key_id: '123',
       updated_at: '2020-11-26T13:34:00.000Z',
