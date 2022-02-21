@@ -4,7 +4,7 @@ import { Item } from '../../Domain/Item/Item'
 import { ItemQuery } from '../../Domain/Item/ItemQuery'
 import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterface'
 import { ReadStream } from 'fs'
-import { ItemIntegrityHash } from '../../Domain/Item/ItemIntegrityHash'
+import { ItemIntegrityHash } from '@standardnotes/common'
 
 @injectable()
 @EntityRepository(Item)
@@ -67,8 +67,8 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
 
   async findItemsForComputingIntegrityHash(userUuid: string): Promise<ItemIntegrityHash[]> {
     const queryBuilder = this.createQueryBuilder('item')
-    queryBuilder.select('item.uuid')
-    queryBuilder.addSelect('item.updated_at_timestamp')
+    queryBuilder.select('item.uuid', 'uuid')
+    queryBuilder.addSelect('item.updated_at_timestamp', 'updated_at_timestamp')
     queryBuilder.where('item.user_uuid = :userUuid', { userUuid: userUuid })
     queryBuilder.andWhere('item.deleted = :deleted', { deleted: false })
 

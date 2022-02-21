@@ -1,4 +1,4 @@
-import { ItemIntegrityHash } from '../../Item/ItemIntegrityHash'
+import { ItemIntegrityHash } from '@standardnotes/common'
 
 export type CheckIntegrityResponse = {
   mismatches: ItemIntegrityHash[],

@@ -1,5 +1,4 @@
-import { Uuid } from '@standardnotes/common'
-import { ItemIntegrityHash } from '../../Item/ItemIntegrityHash'
+import { Uuid, ItemIntegrityHash } from '@standardnotes/common'
 
 export type CheckIntegrityDTO = {
   userUuid: Uuid,

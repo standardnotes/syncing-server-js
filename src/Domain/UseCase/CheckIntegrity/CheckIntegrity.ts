@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify'
+import { ItemIntegrityHash } from '@standardnotes/common'
 
 import TYPES from '../../../Bootstrap/Types'
-import { ItemIntegrityHash } from '../../Item/ItemIntegrityHash'
 import { ItemRepositoryInterface } from '../../Item/ItemRepositoryInterface'
 import { UseCaseInterface } from '../UseCaseInterface'
 import { CheckIntegrityDTO } from './CheckIntegrityDTO'
