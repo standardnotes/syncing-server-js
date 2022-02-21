@@ -308,8 +308,8 @@ describe('MySQLItemRepository', () => {
 
     const result = await repository.findItemsForComputingIntegrityHash('1-2-3')
 
-    expect(queryBuilder.select).toHaveBeenCalledWith('item.uuid')
-    expect(queryBuilder.addSelect).toHaveBeenCalledWith('item.updated_at_timestamp')
+    expect(queryBuilder.select).toHaveBeenCalledWith('item.uuid', 'uuid')
+    expect(queryBuilder.addSelect).toHaveBeenCalledWith('item.updated_at_timestamp', 'updated_at_timestamp')
     expect(queryBuilder.where).toHaveBeenCalledTimes(1)
     expect(queryBuilder.where).toHaveBeenNthCalledWith(1, 'item.user_uuid = :userUuid', { userUuid: '1-2-3' })
     expect(queryBuilder.andWhere).toHaveBeenCalledTimes(1)

@@ -1,7 +1,7 @@
 import { Item } from './Item'
 import { ItemQuery } from './ItemQuery'
 import { ReadStream } from 'fs'
-import { ItemIntegrityHash } from './ItemIntegrityHash'
+import { ItemIntegrityHash } from '@standardnotes/common'
 
 export interface ItemRepositoryInterface {
   deleteByUserUuid(userUuid: string): Promise<void>

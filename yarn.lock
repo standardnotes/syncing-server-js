@@ -743,10 +743,10 @@
   resolved "https://registry.yarnpkg.com/@standardnotes/common/-/common-1.2.1.tgz#9db212db86ccbf08b347da02549b3dbe4bedbb02"
   integrity sha512-HilBxS50CBlC6TJvy1mrnhGVDzOH63M/Jf+hyMxQ0Vt1nYzpd0iyxVEUrgMh7ZiyO1b9CLnCDED99Jy9rnZWVQ==
 
-"@standardnotes/common@1.8.0":
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/@standardnotes/common/-/common-1.8.0.tgz#af72ad85f0d410ae31c0c110137911e2595634de"
-  integrity sha512-R3nfAvhaXp5ufMB0M0fmV9yizE/Of2PGNJKnxtdxwowAq/ZakHu8Rh/v485PXrCaCFREVOZQO8kg0RQM8YngSw==
+"@standardnotes/common@^1.12.0":
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/@standardnotes/common/-/common-1.12.0.tgz#971e542ea260fd794a20bac8451b56caca11cd87"
+  integrity sha512-GqwRdZz2s078Gd8Xyb4/Kup0uJB1BEBGFHjPn8ERoUOos0hSuu40ybxtUWguItM4D4SP7QCXhMIfRtDyM0g7TQ==
 
 "@standardnotes/common@^1.2.1":
   version "1.3.0"
