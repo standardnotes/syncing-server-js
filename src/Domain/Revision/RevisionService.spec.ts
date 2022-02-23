@@ -1,5 +1,4 @@
-import { RoleName } from '@standardnotes/auth'
-import { ContentType } from '@standardnotes/common'
+import { ContentType, RoleName } from '@standardnotes/common'
 import { TimerInterface } from '@standardnotes/time'
 
 import { Item } from '../Item/Item'

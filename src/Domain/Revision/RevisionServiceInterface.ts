@@ -1,4 +1,4 @@
-import { RoleName } from '@standardnotes/auth'
+import { RoleName } from '@standardnotes/common'
 import { Item } from '../Item/Item'
 import { Revision } from './Revision'
 
