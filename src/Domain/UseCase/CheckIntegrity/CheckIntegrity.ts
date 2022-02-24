@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify'
-import { ItemIntegrityHash } from '@standardnotes/common'
+import { IntegrityPayload } from '@standardnotes/common'
 
 import TYPES from '../../../Bootstrap/Types'
 import { ItemRepositoryInterface } from '../../Item/ItemRepositoryInterface'
@@ -28,7 +28,7 @@ export class CheckIntegrity implements UseCaseInterface {
       clientItemIntegrityHashesMap.set(clientItemIntegrityHash.uuid, clientItemIntegrityHash.updated_at_timestamp)
     }
 
-    const mismatches: ItemIntegrityHash[] = []
+    const mismatches: IntegrityPayload[] = []
 
     for (const serverItemIntegrityHashUuid of serverItemIntegrityHashesMap.keys()) {
       if (!clientItemIntegrityHashesMap.has(serverItemIntegrityHashUuid)) {

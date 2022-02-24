@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify'
 import { ContentType } from '@standardnotes/common'
-import { RoleName } from '@standardnotes/auth'
+import { RoleName } from '@standardnotes/common'
 import { TimerInterface } from '@standardnotes/time'
 
 import TYPES from '../../Bootstrap/Types'

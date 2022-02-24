@@ -4,7 +4,7 @@ import { Item } from '../../Domain/Item/Item'
 import { ItemQuery } from '../../Domain/Item/ItemQuery'
 import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterface'
 import { ReadStream } from 'fs'
-import { ItemIntegrityHash } from '@standardnotes/common'
+import { IntegrityPayload } from '@standardnotes/common'
 
 @injectable()
 @EntityRepository(Item)
@@ -65,7 +65,7 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
       .sort((itemA, itemB) => itemB.updated_at_timestamp - itemA.updated_at_timestamp)
   }
 
-  async findItemsForComputingIntegrityHash(userUuid: string): Promise<ItemIntegrityHash[]> {
+  async findItemsForComputingIntegrityHash(userUuid: string): Promise<IntegrityPayload[]> {
     const queryBuilder = this.createQueryBuilder('item')
     queryBuilder.select('item.uuid', 'uuid')
     queryBuilder.addSelect('item.updated_at_timestamp', 'updated_at_timestamp')

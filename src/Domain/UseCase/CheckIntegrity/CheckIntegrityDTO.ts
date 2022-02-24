@@ -1,6 +1,6 @@
-import { Uuid, ItemIntegrityHash } from '@standardnotes/common'
+import { Uuid, IntegrityPayload } from '@standardnotes/common'
 
 export type CheckIntegrityDTO = {
   userUuid: Uuid,
-  integrityHashes: ItemIntegrityHash[],
+  integrityHashes: IntegrityPayload[],
 }

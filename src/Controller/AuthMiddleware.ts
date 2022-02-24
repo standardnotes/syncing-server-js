@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import { inject, injectable } from 'inversify'
 import { BaseMiddleware } from 'inversify-express-utils'
 import { verify } from 'jsonwebtoken'
-import { Token } from '@standardnotes/auth'
+import { CrossServiceTokenData } from '@standardnotes/auth'
 import * as winston from 'winston'
 import TYPES from '../Bootstrap/Types'
 
@@ -23,7 +23,7 @@ export class AuthMiddleware extends BaseMiddleware {
 
       const authToken = <string> request.header('X-Auth-Token')
 
-      const decodedToken = <Token> verify(authToken, this.authJWTSecret, { algorithms: [ 'HS256' ] })
+      const decodedToken = <CrossServiceTokenData> verify(authToken, this.authJWTSecret, { algorithms: [ 'HS256' ] })
 
       response.locals.user = decodedToken.user
       response.locals.roleNames = decodedToken.roles.map(role => role.name)

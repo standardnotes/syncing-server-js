@@ -1,4 +1,4 @@
-import { RoleName } from '@standardnotes/auth'
+import { RoleName } from '@standardnotes/common'
 import { TimerInterface } from '@standardnotes/time'
 import { Item } from '../Domain/Item/Item'
 
