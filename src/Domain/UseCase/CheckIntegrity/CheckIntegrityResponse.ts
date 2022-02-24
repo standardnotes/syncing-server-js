@@ -1,5 +1,5 @@
-import { ItemIntegrityHash } from '@standardnotes/common'
+import { IntegrityPayload } from '@standardnotes/common'
 
 export type CheckIntegrityResponse = {
-  mismatches: ItemIntegrityHash[],
+  mismatches: IntegrityPayload[],
 }

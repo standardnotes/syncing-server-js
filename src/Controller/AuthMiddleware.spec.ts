@@ -5,7 +5,7 @@ import * as winston from 'winston'
 import { AuthMiddleware } from './AuthMiddleware'
 import { NextFunction, Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
-import { RoleName } from '@standardnotes/auth'
+import { RoleName } from '@standardnotes/common'
 
 describe('AuthMiddleware', () => {
   let logger: winston.Logger
