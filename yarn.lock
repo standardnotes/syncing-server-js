@@ -732,15 +732,15 @@
     "@standardnotes/common" "^1.14.0"
     jsonwebtoken "^8.5.1"
 
+"@standardnotes/common@1.14.1":
+  version "1.14.1"
+  resolved "https://registry.yarnpkg.com/@standardnotes/common/-/common-1.14.1.tgz#4322001eea59a7bb427007902bfdec5b57cfc64d"
+  integrity sha512-nRzLVMBk1L8aft6tVhK/ieDWa/rsRUzZzuclv94Mn1g0AJcqEqM0weziNIAfemdMIWpoZyhseJELD6pkWqQQeg==
+
 "@standardnotes/common@^1.14.0":
   version "1.14.0"
   resolved "https://registry.yarnpkg.com/@standardnotes/common/-/common-1.14.0.tgz#c3b8e06fb8120524da8d135f2dc594998e5a5c3a"
   integrity sha512-QA8JhWty7y/N62jdLyWuXzsVvDDeFwcQAH/DB/g5Mmaqlz9VlKcsbRmVl4wHLG3ur6n5Qj68aOhzCQd0p7f/WA==
-
-"@standardnotes/common@^1.14.1":
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/@standardnotes/common/-/common-1.15.0.tgz#3216d8683bcf79db2df33e536f1691fb48d61fc9"
-  integrity sha512-L+3iIyLrS2aHS4ZLGWOZiZFXcI0661nlW912eMH5nW88TM5F2w2mdm4jr2mbEBbDoVL/AHnrexrRKCwk+vV+kQ==
 
 "@standardnotes/config@2.1.3":
   version "2.1.3"
