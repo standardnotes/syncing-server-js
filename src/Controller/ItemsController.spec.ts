@@ -119,7 +119,7 @@ describe('ItemsController', () => {
   })
 
   it('should check items integrity', async () => {
-    request.body.integrityHashes = [
+    request.body.integrityPayloads = [
       {
         uuid: '1-2-3',
         updated_at_timestamp: 1,
@@ -130,7 +130,7 @@ describe('ItemsController', () => {
     const result = await httpResponse.executeAsync()
 
     expect(checkIntegrity.execute).toHaveBeenCalledWith({
-      integrityHashes: [
+      integrityPayloads: [
         {
           updated_at_timestamp: 1,
           uuid: '1-2-3',
@@ -148,7 +148,7 @@ describe('ItemsController', () => {
     const result = await httpResponse.executeAsync()
 
     expect(checkIntegrity.execute).toHaveBeenCalledWith({
-      integrityHashes: [],
+      integrityPayloads: [],
       userUuid: '123',
     })
 
