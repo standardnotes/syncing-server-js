@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify'
-import { IntegrityPayload } from '@standardnotes/common'
+import { IntegrityPayload } from '@standardnotes/payloads'
 
 import TYPES from '../../../Bootstrap/Types'
 import { ItemRepositoryInterface } from '../../Item/ItemRepositoryInterface'
@@ -15,37 +15,37 @@ export class CheckIntegrity implements UseCaseInterface {
   }
 
   async execute(dto: CheckIntegrityDTO): Promise<CheckIntegrityResponse> {
-    const serverItemIntegrityHashes = await this.itemRepository
-      .findItemsForComputingIntegrityHash(dto.userUuid)
+    const serverItemIntegrityPayloads = await this.itemRepository
+      .findItemsForComputingIntegrityPayloads(dto.userUuid)
 
-    const serverItemIntegrityHashesMap = new Map<string, number>()
-    for (const serverItemIntegrityHash of serverItemIntegrityHashes) {
-      serverItemIntegrityHashesMap.set(serverItemIntegrityHash.uuid, serverItemIntegrityHash.updated_at_timestamp)
+    const serverItemIntegrityPayloadsMap = new Map<string, number>()
+    for (const serverItemIntegrityPayload of serverItemIntegrityPayloads) {
+      serverItemIntegrityPayloadsMap.set(serverItemIntegrityPayload.uuid, serverItemIntegrityPayload.updated_at_timestamp)
     }
 
-    const clientItemIntegrityHashesMap = new Map<string, number>()
-    for (const clientItemIntegrityHash of dto.integrityHashes) {
-      clientItemIntegrityHashesMap.set(clientItemIntegrityHash.uuid, clientItemIntegrityHash.updated_at_timestamp)
+    const clientItemIntegrityPayloadsMap = new Map<string, number>()
+    for (const clientItemIntegrityPayload of dto.integrityPayloads) {
+      clientItemIntegrityPayloadsMap.set(clientItemIntegrityPayload.uuid, clientItemIntegrityPayload.updated_at_timestamp)
     }
 
     const mismatches: IntegrityPayload[] = []
 
-    for (const serverItemIntegrityHashUuid of serverItemIntegrityHashesMap.keys()) {
-      if (!clientItemIntegrityHashesMap.has(serverItemIntegrityHashUuid)) {
+    for (const serverItemIntegrityPayloadUuid of serverItemIntegrityPayloadsMap.keys()) {
+      if (!clientItemIntegrityPayloadsMap.has(serverItemIntegrityPayloadUuid)) {
         mismatches.unshift({
-          uuid: serverItemIntegrityHashUuid,
-          updated_at_timestamp: serverItemIntegrityHashesMap.get(serverItemIntegrityHashUuid) as number,
+          uuid: serverItemIntegrityPayloadUuid,
+          updated_at_timestamp: serverItemIntegrityPayloadsMap.get(serverItemIntegrityPayloadUuid) as number,
         })
 
         continue
       }
 
-      const serverItemIntegrityHashUpdatedAtTimestamp = serverItemIntegrityHashesMap.get(serverItemIntegrityHashUuid) as number
-      const clientItemIntegrityHashUpdatedAtTimestamp = clientItemIntegrityHashesMap.get(serverItemIntegrityHashUuid) as number
-      if (serverItemIntegrityHashUpdatedAtTimestamp !== clientItemIntegrityHashUpdatedAtTimestamp) {
+      const serverItemIntegrityPayloadUpdatedAtTimestamp = serverItemIntegrityPayloadsMap.get(serverItemIntegrityPayloadUuid) as number
+      const clientItemIntegrityPayloadUpdatedAtTimestamp = clientItemIntegrityPayloadsMap.get(serverItemIntegrityPayloadUuid) as number
+      if (serverItemIntegrityPayloadUpdatedAtTimestamp !== clientItemIntegrityPayloadUpdatedAtTimestamp) {
         mismatches.unshift({
-          uuid: serverItemIntegrityHashUuid,
-          updated_at_timestamp: serverItemIntegrityHashesMap.get(serverItemIntegrityHashUuid) as number,
+          uuid: serverItemIntegrityPayloadUuid,
+          updated_at_timestamp: serverItemIntegrityPayloadsMap.get(serverItemIntegrityPayloadUuid) as number,
         })
       }
     }

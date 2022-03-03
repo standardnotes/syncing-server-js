@@ -50,14 +50,14 @@ export class ItemsController extends BaseHttpController {
 
   @httpPost('/check-integrity')
   public async checkItemsIntegrity(request: Request, response: Response): Promise<results.JsonResult> {
-    let integrityHashes = []
-    if ('integrityHashes' in request.body) {
-      integrityHashes = request.body.integrityHashes
+    let integrityPayloads = []
+    if ('integrityPayloads' in request.body) {
+      integrityPayloads = request.body.integrityPayloads
     }
 
     const result = await this.checkIntegrity.execute({
       userUuid: response.locals.user.uuid,
-      integrityHashes,
+      integrityPayloads,
     })
 
     return this.json(result)

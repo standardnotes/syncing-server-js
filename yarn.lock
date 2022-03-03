@@ -724,6 +724,13 @@
   resolved "https://registry.yarnpkg.com/@sqltools/formatter/-/formatter-1.2.2.tgz#9390a8127c0dcba61ebd7fdcc748655e191bdd68"
   integrity sha512-/5O7Fq6Vnv8L6ucmPjaWbVG1XkP4FO+w5glqfkIsq3Xw4oyNAdJddbnYodNDAfjVUvo/rrSCTom4kAND7T1o5Q==
 
+"@standardnotes/applications@^1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@standardnotes/applications/-/applications-1.1.3.tgz#7f19ab3e1a5d7754e18be9b6b37ed66cbacdbd05"
+  integrity sha512-B5kJ9S9F7ikGl+KHWgokbBYGwB15XWQSlwpxCw0IAseZuf/b2J8PAS1oeNhRNK73nvXercrQE15X42ORbjSb1Q==
+  dependencies:
+    "@standardnotes/common" "^1.15.3"
+
 "@standardnotes/auth@3.16.4", "@standardnotes/auth@^3.16.4":
   version "3.16.4"
   resolved "https://registry.yarnpkg.com/@standardnotes/auth/-/auth-3.16.4.tgz#6293bd67cdc4055229f1d520b6f44b39c6053a7a"
@@ -732,10 +739,23 @@
     "@standardnotes/common" "^1.14.0"
     jsonwebtoken "^8.5.1"
 
+"@standardnotes/auth@^3.17.3":
+  version "3.17.3"
+  resolved "https://registry.yarnpkg.com/@standardnotes/auth/-/auth-3.17.3.tgz#a00f10faa0fb2a7dd76509d3b678f85818aad63c"
+  integrity sha512-tb5ylXuDBPhgeZZynNsMk83N74NMMV9z6M9hyrwuK5HbKWM5r5L9U8lwFawG8flqTKpYzPeWxmaRFZT/5qR22Q==
+  dependencies:
+    "@standardnotes/common" "^1.15.3"
+    jsonwebtoken "^8.5.1"
+
 "@standardnotes/common@^1.14.0":
   version "1.14.0"
   resolved "https://registry.yarnpkg.com/@standardnotes/common/-/common-1.14.0.tgz#c3b8e06fb8120524da8d135f2dc594998e5a5c3a"
   integrity sha512-QA8JhWty7y/N62jdLyWuXzsVvDDeFwcQAH/DB/g5Mmaqlz9VlKcsbRmVl4wHLG3ur6n5Qj68aOhzCQd0p7f/WA==
+
+"@standardnotes/common@^1.15.3":
+  version "1.15.3"
+  resolved "https://registry.yarnpkg.com/@standardnotes/common/-/common-1.15.3.tgz#0b8ce48b81b260abe2d405431fb04aacb44b5a01"
+  integrity sha512-9oh/W3sFQYyA5Vabcbu6BUkLVkFq/25Q5EK9KCd4aT9QnDJ9JQlTtzDmTk1jYuM6rnccsJ6SW2pcWjbi9FVniw==
 
 "@standardnotes/config@2.1.3":
   version "2.1.3"
@@ -774,6 +794,24 @@
     "@standardnotes/auth" "^3.16.4"
     "@standardnotes/common" "^1.14.0"
 
+"@standardnotes/features@^1.34.0":
+  version "1.34.0"
+  resolved "https://registry.yarnpkg.com/@standardnotes/features/-/features-1.34.0.tgz#88a48a4b70d2894b459dadc3f01db912afc7ffdb"
+  integrity sha512-ipmrCNGsy3zyJRgfTfiN9U1RN1vnzsHXftbhhRECXvYuq+QXyeytJrxCw6SSpZpW/DNOjV6jeIaX8WmaIQfvdA==
+  dependencies:
+    "@standardnotes/auth" "^3.17.3"
+    "@standardnotes/common" "^1.15.3"
+
+"@standardnotes/payloads@^1.2.3":
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/@standardnotes/payloads/-/payloads-1.2.3.tgz#19bb4aca12d511cb7d05b0b3b6484dbd3a056303"
+  integrity sha512-l2aAY8sxqRefY2g6iG4Wr78FJeSco5rryQUrLlqGY+Snl95PcOD9mxz7LJ6EUbEN7yVIbjs/rL/Y6GjV4BVUMQ==
+  dependencies:
+    "@standardnotes/applications" "^1.1.3"
+    "@standardnotes/common" "^1.15.3"
+    "@standardnotes/features" "^1.34.0"
+    "@standardnotes/utils" "^1.2.3"
+
 "@standardnotes/settings@1.11.3":
   version "1.11.3"
   resolved "https://registry.yarnpkg.com/@standardnotes/settings/-/settings-1.11.3.tgz#f7735da40807dab6eaf81cc82d8d30f5461d26d5"
@@ -787,6 +825,15 @@
     dayjs "^1.10.5"
     microtime "^3.0.0"
     reflect-metadata "^0.1.13"
+
+"@standardnotes/utils@^1.2.3":
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/@standardnotes/utils/-/utils-1.2.3.tgz#2ff61f3214645c84dd6603858feb964db31cb19f"
+  integrity sha512-0/pSx+kJKRBdQ56oPPFRcMXBvTm/U4/zEE4Kqyx2vlm3EL0tXv4UKNuPSDbsbI5yUn8KpVSZ6LS4LZhhMU4IUA==
+  dependencies:
+    "@standardnotes/common" "^1.15.3"
+    dompurify "^2.3.6"
+    lodash "^4.17.21"
 
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"
@@ -2263,6 +2310,11 @@ domexception@^2.0.1:
   integrity sha512-yxJ2mFy/sibVQlu5qHjOkf9J3K6zgmCxgJ94u2EdvDOV09H+32LtRswEcUsmUWN72pVLOEnTSRaIVVzVQgS0dg==
   dependencies:
     webidl-conversions "^5.0.0"
+
+dompurify@^2.3.6:
+  version "2.3.6"
+  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-2.3.6.tgz#2e019d7d7617aacac07cbbe3d88ae3ad354cf875"
+  integrity sha512-OFP2u/3T1R5CEgWCEONuJ1a5+MFKnOYpkywpUSxv/dj1LeBT1erK+JwM7zK0ROy2BRhqVCf0LRw/kHqKuMkVGg==
 
 dot-prop@^5.2.0:
   version "5.3.0"
@@ -4359,6 +4411,11 @@ lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19:
   version "4.17.20"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
   integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
+
+lodash@^4.17.21:
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
+  integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
 logform@^2.2.0:
   version "2.2.0"
