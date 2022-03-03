@@ -296,7 +296,7 @@ describe('MySQLItemRepository', () => {
     expect(result[1]).toEqual({ updated_at_timestamp: 1616164633241312 })
   })
 
-  it('should find items for computing integrity hash', async () => {
+  it('should find items for computing integrity payloads', async () => {
     queryBuilder.getRawMany = jest.fn().mockReturnValue([
       { uuid: '1-2-3', updated_at_timestamp: 1616164633241312 },
       { uuid: '2-3-4', updated_at_timestamp: 1616164633242313 },
@@ -306,7 +306,7 @@ describe('MySQLItemRepository', () => {
     queryBuilder.where = jest.fn()
     queryBuilder.andWhere = jest.fn()
 
-    const result = await repository.findItemsForComputingIntegrityHash('1-2-3')
+    const result = await repository.findItemsForComputingIntegrityPayloads('1-2-3')
 
     expect(queryBuilder.select).toHaveBeenCalledWith('item.uuid', 'uuid')
     expect(queryBuilder.addSelect).toHaveBeenCalledWith('item.updated_at_timestamp', 'updated_at_timestamp')

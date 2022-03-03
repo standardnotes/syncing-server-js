@@ -11,7 +11,7 @@ describe('CheckIntegrity', () => {
 
   beforeEach(() => {
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
-    itemRepository.findItemsForComputingIntegrityHash = jest.fn().mockReturnValue([
+    itemRepository.findItemsForComputingIntegrityPayloads = jest.fn().mockReturnValue([
       {
         uuid: '1-2-3',
         updated_at_timestamp: 1,
@@ -30,7 +30,7 @@ describe('CheckIntegrity', () => {
   it('should return an empty result if there are no integrity mismatches', async () => {
     expect(await createUseCase().execute({
       userUuid: '1-2-3',
-      integrityHashes: [
+      integrityPayloads: [
         {
           uuid: '1-2-3',
           updated_at_timestamp: 1,
@@ -52,7 +52,7 @@ describe('CheckIntegrity', () => {
   it('should return a mismatch item that has a different update at timemstap', async () => {
     expect(await createUseCase().execute({
       userUuid: '1-2-3',
-      integrityHashes: [
+      integrityPayloads: [
         {
           uuid: '1-2-3',
           updated_at_timestamp: 1,
@@ -79,7 +79,7 @@ describe('CheckIntegrity', () => {
   it('should return a mismatch item that is missing on the client side', async () => {
     expect(await createUseCase().execute({
       userUuid: '1-2-3',
-      integrityHashes: [
+      integrityPayloads: [
         {
           uuid: '1-2-3',
           updated_at_timestamp: 1,
