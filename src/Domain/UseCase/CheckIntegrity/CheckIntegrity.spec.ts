@@ -1,13 +1,16 @@
 import 'reflect-metadata'
 
+import { AnalyticsStoreInterface } from '@standardnotes/analytics'
+
 import { ItemRepositoryInterface } from '../../Item/ItemRepositoryInterface'
 
 import { CheckIntegrity } from './CheckIntegrity'
 
 describe('CheckIntegrity', () => {
   let itemRepository: ItemRepositoryInterface
+  let analyticsStore: AnalyticsStoreInterface
 
-  const createUseCase = () => new CheckIntegrity(itemRepository)
+  const createUseCase = () => new CheckIntegrity(itemRepository, analyticsStore)
 
   beforeEach(() => {
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
@@ -25,6 +28,9 @@ describe('CheckIntegrity', () => {
         updated_at_timestamp: 3,
       },
     ])
+
+    analyticsStore = {} as jest.Mocked<AnalyticsStoreInterface>
+    analyticsStore.incrementOutOfSyncIncidents = jest.fn()
   })
 
   it('should return an empty result if there are no integrity mismatches', async () => {
@@ -74,6 +80,8 @@ describe('CheckIntegrity', () => {
         },
       ],
     })
+
+    expect(analyticsStore.incrementOutOfSyncIncidents).toHaveBeenCalled()
   })
 
   it('should return a mismatch item that is missing on the client side', async () => {
