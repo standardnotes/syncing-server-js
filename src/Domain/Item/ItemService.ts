@@ -116,11 +116,11 @@ export class ItemService implements ItemServiceInterface {
       }
 
       if(existingItem) {
-        const updatedItem = await this.updateExistingItem(existingItem, itemHash, dto.userAgent)
+        const updatedItem = await this.updateExistingItem(existingItem, itemHash)
         savedItems.push(updatedItem)
       } else {
         try {
-          const newItem = await this.saveNewItem(dto.userUuid, itemHash, dto.userAgent)
+          const newItem = await this.saveNewItem(dto.userUuid, itemHash)
           savedItems.push(newItem)
         } catch (error) {
           this.logger.error(`[${dto.userUuid}] Saving item ${itemHash.uuid} failed. Error: ${error.message}`)
@@ -177,7 +177,7 @@ export class ItemService implements ItemServiceInterface {
     ).toString('base64')
   }
 
-  private async updateExistingItem(existingItem: Item, itemHash: ItemHash, userAgent?: string): Promise<Item> {
+  private async updateExistingItem(existingItem: Item, itemHash: ItemHash): Promise<Item> {
     existingItem.contentSize = 0
     if (itemHash.content) {
       existingItem.content = itemHash.content
@@ -203,7 +203,6 @@ export class ItemService implements ItemServiceInterface {
     if (itemHash.items_key_id) {
       existingItem.itemsKeyId = itemHash.items_key_id
     }
-    existingItem.lastUserAgent = userAgent ?? null
 
     if (itemHash.deleted === true) {
       existingItem.deleted = true
@@ -243,8 +242,8 @@ export class ItemService implements ItemServiceInterface {
     return savedItem
   }
 
-  private async saveNewItem(userUuid: string, itemHash: ItemHash, userAgent?: string): Promise<Item> {
-    const newItem = this.itemFactory.create(userUuid, itemHash, userAgent)
+  private async saveNewItem(userUuid: string, itemHash: ItemHash): Promise<Item> {
+    const newItem = this.itemFactory.create(userUuid, itemHash)
 
     const savedItem = await this.itemRepository.save(newItem)
 

@@ -62,7 +62,6 @@ describe('SyncItems', () => {
       syncToken: 'foo',
       cursorToken: 'bar',
       limit: 10,
-      userAgent: 'Google Chrome',
       contentType: 'Note',
       apiVersion: ApiVersion.v20200115,
     })).toEqual({
@@ -88,7 +87,6 @@ describe('SyncItems', () => {
     })
     expect(itemService.saveItems).toHaveBeenCalledWith({
       itemHashes: [ itemHash ],
-      userAgent: 'Google Chrome',
       userUuid: '1-2-3',
       apiVersion: '20200115',
     })
@@ -100,7 +98,6 @@ describe('SyncItems', () => {
       itemHashes: [ itemHash ],
       computeIntegrityHash: false,
       limit: 10,
-      userAgent: 'Google Chrome',
       contentType: 'Note',
       apiVersion: ApiVersion.v20200115,
     })).toEqual({
@@ -124,7 +121,6 @@ describe('SyncItems', () => {
       itemHashes: [ itemHash ],
       computeIntegrityHash: true,
       limit: 10,
-      userAgent: 'Google Chrome',
       contentType: 'Note',
       apiVersion: ApiVersion.v20200115,
     })).toEqual({
@@ -152,7 +148,6 @@ describe('SyncItems', () => {
       itemHashes: [ itemHash ],
       computeIntegrityHash: true,
       limit: 10,
-      userAgent: 'Google Chrome',
       contentType: 'Note',
       apiVersion: ApiVersion.v20200115,
     })).toEqual({
@@ -197,7 +192,6 @@ describe('SyncItems', () => {
       syncToken: 'foo',
       cursorToken: 'bar',
       limit: 10,
-      userAgent: 'Google Chrome',
       contentType: 'Note',
       apiVersion: ApiVersion.v20200115,
     })).toEqual({

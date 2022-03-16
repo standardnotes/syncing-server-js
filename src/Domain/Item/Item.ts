@@ -79,13 +79,6 @@ export class Item {
   deleted: boolean
 
   @Column({
-    name: 'last_user_agent',
-    type: 'text',
-    nullable: true,
-  })
-  lastUserAgent: string | null
-
-  @Column({
     name: 'created_at',
     type: 'datetime',
     precision: 6,

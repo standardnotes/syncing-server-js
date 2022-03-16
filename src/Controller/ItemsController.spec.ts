@@ -178,7 +178,6 @@ describe('ItemsController', () => {
       ],
       limit: 150,
       syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
-      userAgent: 'Google Chrome',
       userUuid: '123',
     })
 
@@ -210,7 +209,6 @@ describe('ItemsController', () => {
       ],
       limit: 150,
       syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
-      userAgent: 'Google Chrome',
       userUuid: '123',
     })
 
@@ -230,7 +228,6 @@ describe('ItemsController', () => {
       itemHashes: [],
       limit: 150,
       syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
-      userAgent: 'Google Chrome',
       userUuid: '123',
     })
 

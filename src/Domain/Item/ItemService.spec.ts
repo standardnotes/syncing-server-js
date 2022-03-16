@@ -581,7 +581,6 @@ describe('ItemService', () => {
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
-      userAgent: 'Brave',
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
     })
@@ -605,7 +604,6 @@ describe('ItemService', () => {
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
-      userAgent: 'Brave',
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
     })
@@ -632,7 +630,6 @@ describe('ItemService', () => {
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
-      userAgent: 'Brave',
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
     })
@@ -653,7 +650,6 @@ describe('ItemService', () => {
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
-      userAgent: 'Brave',
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
     })
@@ -695,7 +691,6 @@ describe('ItemService', () => {
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1, itemHash3, itemHash2 ],
-      userAgent: 'Brave',
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
     })
@@ -709,7 +704,6 @@ describe('ItemService', () => {
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
-      userAgent: 'Brave',
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
     })
@@ -725,7 +719,6 @@ describe('ItemService', () => {
           createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
-          lastUserAgent: 'Brave',
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
@@ -744,7 +737,6 @@ describe('ItemService', () => {
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
-      userAgent: 'Brave',
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20161215,
     })
@@ -760,7 +752,6 @@ describe('ItemService', () => {
           createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
-          lastUserAgent: 'Brave',
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
@@ -778,7 +769,6 @@ describe('ItemService', () => {
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
-      userAgent: 'Brave',
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
     })
@@ -794,7 +784,6 @@ describe('ItemService', () => {
           createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
-          lastUserAgent: 'Brave',
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
@@ -811,7 +800,6 @@ describe('ItemService', () => {
 
     const result = await createService().saveItems({
       itemHashes: [ emptyHash ],
-      userAgent: 'Brave',
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
     })
@@ -823,7 +811,6 @@ describe('ItemService', () => {
           contentSize: 0,
           createdAtTimestamp: expect.any(Number),
           createdAt: expect.any(Date),
-          lastUserAgent: 'Brave',
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
@@ -840,7 +827,6 @@ describe('ItemService', () => {
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
-      userAgent: 'Brave',
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
     })
@@ -856,7 +842,6 @@ describe('ItemService', () => {
           createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
-          lastUserAgent: 'Brave',
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
@@ -887,7 +872,6 @@ describe('ItemService', () => {
           createdAt: expect.any(Date),
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
-          lastUserAgent: null,
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
@@ -905,7 +889,6 @@ describe('ItemService', () => {
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
-      userAgent: 'Brave',
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
     })
@@ -922,7 +905,6 @@ describe('ItemService', () => {
           encItemKey: 'qweqwe1',
           itemsKeyId: 'asdasd1',
           authHash: 'test',
-          lastUserAgent: 'Brave',
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
@@ -939,7 +921,6 @@ describe('ItemService', () => {
     itemHash1.deleted = true
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
-      userAgent: 'Brave',
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
     })
@@ -957,7 +938,6 @@ describe('ItemService', () => {
           encItemKey: null,
           deleted: true,
           itemsKeyId: null,
-          lastUserAgent: 'Brave',
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
@@ -974,7 +954,6 @@ describe('ItemService', () => {
     itemHash1.duplicate_of = '1-2-3'
     const result = await createService().saveItems({
       itemHashes: [ itemHash1 ],
-      userAgent: 'Brave',
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
     })
@@ -991,7 +970,6 @@ describe('ItemService', () => {
           encItemKey: 'qweqwe1',
           duplicateOf: '1-2-3',
           itemsKeyId: 'asdasd1',
-          lastUserAgent: 'Brave',
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
@@ -1012,7 +990,6 @@ describe('ItemService', () => {
 
     const result = await createService().saveItems({
       itemHashes: [ itemHash1, itemHash2 ],
-      userAgent: 'Brave',
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
     })
