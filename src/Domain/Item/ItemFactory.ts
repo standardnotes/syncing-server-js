@@ -12,8 +12,8 @@ export class ItemFactory implements ItemFactoryInterface {
   ) {
   }
 
-  createStub(userUuid: string, itemHash: ItemHash, userAgent?: string): Item {
-    const item = this.create(userUuid, itemHash, userAgent)
+  createStub(userUuid: string, itemHash: ItemHash): Item {
+    const item = this.create(userUuid, itemHash)
 
     if(itemHash.content === undefined) {
       item.content = null
@@ -30,7 +30,7 @@ export class ItemFactory implements ItemFactoryInterface {
     return item
   }
 
-  create(userUuid: string, itemHash: ItemHash, userAgent?: string): Item {
+  create(userUuid: string, itemHash: ItemHash): Item {
     const newItem = new Item()
     newItem.uuid = itemHash.uuid
     newItem.contentSize = 0
@@ -57,7 +57,6 @@ export class ItemFactory implements ItemFactoryInterface {
     if (itemHash.auth_hash) {
       newItem.authHash = itemHash.auth_hash
     }
-    newItem.lastUserAgent = userAgent ?? null
 
     const now = this.timer.getTimestampInMicroseconds()
     const nowDate = this.timer.convertMicrosecondsToDate(now)

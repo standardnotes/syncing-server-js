@@ -26,7 +26,6 @@ export class SyncItems implements UseCaseInterface {
 
     const saveItemsResult = await this.itemService.saveItems({
       itemHashes: dto.itemHashes,
-      userAgent: dto.userAgent,
       userUuid: dto.userUuid,
       apiVersion: dto.apiVersion,
     })

@@ -33,7 +33,6 @@ describe('ItemFactory', () => {
     expect(item).toEqual({
       createdAtTimestamp: 1616164633241568,
       createdAt: expect.any(Date),
-      lastUserAgent: null,
       updatedAt: expect.any(Date),
       updatedAtTimestamp: 1616164633241568,
       userUuid: 'a-b-c',
@@ -53,7 +52,6 @@ describe('ItemFactory', () => {
     expect(item).toEqual({
       createdAtTimestamp: 1616164633241568,
       createdAt: expect.any(Date),
-      lastUserAgent: null,
       updatedAt: new Date('2021-03-25T09:37:37.943Z'),
       updatedAtTimestamp: 1616665057943000,
       userUuid: 'a-b-c',
@@ -75,7 +73,6 @@ describe('ItemFactory', () => {
     expect(item).toEqual({
       createdAtTimestamp: 1616164633241568,
       createdAt: expect.any(Date),
-      lastUserAgent: null,
       updatedAt: new Date('2021-03-19T14:37:13.241Z'),
       updatedAtTimestamp: 1616164633241568,
       userUuid: 'a-b-c',
@@ -95,7 +92,6 @@ describe('ItemFactory', () => {
     expect(item).toEqual({
       createdAtTimestamp: 1616164633241568,
       createdAt: expect.any(Date),
-      lastUserAgent: null,
       updatedAt: expect.any(Date),
       updatedAtTimestamp: 1616164633241568,
       userUuid: 'a-b-c',
@@ -132,7 +128,6 @@ describe('ItemFactory', () => {
       authHash: 'aaa',
       deleted: true,
       duplicateOf: '222',
-      lastUserAgent: null,
       updatedAt: expect.any(Date),
       updatedAtTimestamp: 1616164633241568,
       userUuid: 'a-b-c',
@@ -152,7 +147,7 @@ describe('ItemFactory', () => {
       updated_at: timeHelper.formatDate(new Date(1616164633242), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
     } as jest.Mocked<ItemHash>
 
-    const item = createFactory().create('a-b-c', itemHash, 'Mozilla Firefox')
+    const item = createFactory().create('a-b-c', itemHash)
 
     expect(item).toEqual({
       content: 'asdqwe1',
@@ -163,7 +158,6 @@ describe('ItemFactory', () => {
       encItemKey: 'qweqwe1',
       itemsKeyId: 'asdasd1',
       updatedAt: expect.any(Date),
-      lastUserAgent: 'Mozilla Firefox',
       updatedAtTimestamp: 1616164633241568,
       userUuid: 'a-b-c',
       uuid: '1-2-3',
