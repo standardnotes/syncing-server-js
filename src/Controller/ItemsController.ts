@@ -1,3 +1,4 @@
+import { RoleName } from '@standardnotes/common'
 import { Request, Response } from 'express'
 import { inject } from 'inversify'
 import { BaseHttpController, controller, httpGet, httpPost, results } from 'inversify-express-utils'
@@ -36,6 +37,7 @@ export class ItemsController extends BaseHttpController {
       syncToken: request.body.sync_token,
       cursorToken: request.body.cursor_token,
       limit: request.body.limit,
+      readOnlyAccess: response.locals.roleNames.includes(RoleName.DemoUser),
       contentType: request.body.content_type,
       apiVersion: request.body.api ?? ApiVersion.v20161215,
     })

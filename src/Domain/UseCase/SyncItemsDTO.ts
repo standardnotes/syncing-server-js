@@ -5,6 +5,7 @@ export type SyncItemsDTO = {
   itemHashes: Array<ItemHash>
   computeIntegrityHash: boolean
   limit: number
+  readOnlyAccess: boolean
   syncToken?: string | null
   cursorToken?: string | null
   contentType?: string

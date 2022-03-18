@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 
 import * as express from 'express'
-import { ContentType } from '@standardnotes/common'
+import { ContentType, RoleName } from '@standardnotes/common'
 
 import { ItemsController } from './ItemsController'
 import { results } from 'inversify-express-utils'
@@ -78,6 +78,7 @@ describe('ItemsController', () => {
     response.locals.user = {
       uuid: '123',
     }
+    response.locals.roleNames = [ RoleName.BasicUser, RoleName.PlusUser ]
 
     syncResponse = {
       integrity_hash: '123',
@@ -163,6 +164,7 @@ describe('ItemsController', () => {
     expect(syncItems.execute).toHaveBeenCalledWith({
       apiVersion: '20200115',
       computeIntegrityHash: false,
+      readOnlyAccess: false,
       itemHashes: [
         {
           content: 'test',
@@ -194,6 +196,7 @@ describe('ItemsController', () => {
     expect(syncItems.execute).toHaveBeenCalledWith({
       apiVersion: '20161215',
       computeIntegrityHash: false,
+      readOnlyAccess: false,
       itemHashes: [
         {
           content: 'test',
@@ -225,6 +228,7 @@ describe('ItemsController', () => {
     expect(syncItems.execute).toHaveBeenCalledWith({
       apiVersion: '20200115',
       computeIntegrityHash: false,
+      readOnlyAccess: false,
       itemHashes: [],
       limit: 150,
       syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
