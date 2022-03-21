@@ -1,4 +1,4 @@
-import { KeyParams } from '@standardnotes/auth'
+import { KeyParamsData } from '@standardnotes/responses'
 import { AxiosInstance } from 'axios'
 import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
@@ -31,7 +31,7 @@ export class AuthHttpService implements AuthHttpServiceInterface {
     return response.data.setting
   }
 
-  async getUserKeyParams(dto: { email?: string, uuid?: string, authenticated: boolean }): Promise<KeyParams> {
+  async getUserKeyParams(dto: { email?: string, uuid?: string, authenticated: boolean }): Promise<KeyParamsData> {
     const keyParamsResponse = await this.httpClient.request({
       method: 'GET',
       headers: {

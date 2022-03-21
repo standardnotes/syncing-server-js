@@ -1,4 +1,4 @@
-import { KeyParams } from '@standardnotes/auth'
+import { KeyParamsData } from '@standardnotes/responses'
 import { DomainEventHandlerInterface, DomainEventPublisherInterface, EmailArchiveExtensionSyncedEvent } from '@standardnotes/domain-events'
 import { MuteFailedBackupsEmailsOption, SettingName } from '@standardnotes/settings'
 import { inject, injectable } from 'inversify'
@@ -30,7 +30,7 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
       deleted: false,
     })
 
-    let authParams: KeyParams
+    let authParams: KeyParamsData
     try {
       authParams = await this.authHttpService.getUserKeyParams({
         uuid: event.payload.userUuid,
@@ -69,7 +69,7 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
         this.domainEventFactory.createMailBackupAttachmentTooBigEvent({
           allowedSize: `${this.emailAttachmentMaxByteSize}`,
           attachmentSize: `${data.length}`,
-          email: authParams.identifier,
+          email: authParams.identifier as string,
           muteEmailsSettingUuid: muteEmailsSetting.uuid,
         })
       )
@@ -85,7 +85,7 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
       this.logger.debug('Publishing EMAIL_BACKUP_ATTACHMENT_CREATED event')
 
       await this.domainEventPublisher.publish(
-        this.domainEventFactory.createEmailBackupAttachmentCreatedEvent(backupFileName, authParams.identifier)
+        this.domainEventFactory.createEmailBackupAttachmentCreatedEvent(backupFileName, authParams.identifier as string)
       )
     }
   }

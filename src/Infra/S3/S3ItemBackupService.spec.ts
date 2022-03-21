@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 
-import { KeyParams } from '@standardnotes/auth'
+import { KeyParamsData } from '@standardnotes/responses'
 import { S3 } from 'aws-sdk'
 import { Logger } from 'winston'
 import { Item } from '../../Domain/Item/Item'
@@ -13,7 +13,7 @@ describe('S3ItemBackupService', () => {
   let s3BackupBucketName = 'backup-bucket'
   let logger: Logger
   let item: Item
-  let keyParams: KeyParams
+  let keyParams: KeyParamsData
 
   const createService = () => new S3ItemBackupService(
     s3BackupBucketName,
@@ -33,7 +33,7 @@ describe('S3ItemBackupService', () => {
 
     item = {} as jest.Mocked<Item>
 
-    keyParams = {} as jest.Mocked<KeyParams>
+    keyParams = {} as jest.Mocked<KeyParamsData>
 
     itemProjector = {} as jest.Mocked<ProjectorInterface<Item>>
     itemProjector.projectFull = jest.fn().mockReturnValue({ foo: 'bar' })

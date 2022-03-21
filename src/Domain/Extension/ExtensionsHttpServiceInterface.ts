@@ -1,4 +1,4 @@
-import { KeyParams } from '@standardnotes/auth'
+import { KeyParamsData } from '@standardnotes/responses'
 import { SendItemsToExtensionsServerDTO } from './SendItemsToExtensionsServerDTO'
 
 export interface ExtensionsHttpServiceInterface {
@@ -6,7 +6,7 @@ export interface ExtensionsHttpServiceInterface {
     cloudProvider: 'DROPBOX' | 'GOOGLE_DRIVE' | 'ONE_DRIVE',
     extensionsServerUrl: string
     backupFilename: string
-    authParams: KeyParams
+    authParams: KeyParamsData
     forceMute: boolean
     userUuid: string
     muteEmailsSettingUuid: string

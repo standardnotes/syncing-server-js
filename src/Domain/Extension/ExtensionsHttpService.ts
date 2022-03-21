@@ -1,4 +1,4 @@
-import { KeyParams } from '@standardnotes/auth'
+import { KeyParamsData } from '@standardnotes/responses'
 import { DomainEventInterface, DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import { AxiosInstance } from 'axios'
 import { inject, injectable } from 'inversify'
@@ -27,7 +27,7 @@ export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
     cloudProvider: 'DROPBOX' | 'GOOGLE_DRIVE' | 'ONE_DRIVE',
     extensionsServerUrl: string
     backupFilename: string
-    authParams: KeyParams
+    authParams: KeyParamsData
     forceMute: boolean
     userUuid: string
     muteEmailsSettingUuid: string
@@ -64,7 +64,7 @@ export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
       await this.domainEventPublisher.publish(
         this.createCloudBackupFailedEventBasedOnProvider(
           dto.cloudProvider,
-          dto.authParams.identifier,
+          dto.authParams.identifier as string,
           dto.muteEmailsSettingUuid
         )
       )
@@ -109,7 +109,7 @@ export class ExtensionsHttpService implements ExtensionsHttpServiceInterface {
           dto.muteEmailsSettingUuid,
           dto.extensionId,
           dto.userUuid,
-          dto.authParams.identifier
+          dto.authParams.identifier as string
         )
       )
     }

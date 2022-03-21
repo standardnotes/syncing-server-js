@@ -1,11 +1,11 @@
-import { KeyParams } from '@standardnotes/auth'
+import { KeyParamsData } from '@standardnotes/responses'
 import { Item } from '../Item/Item'
 
 export type SendItemsToExtensionsServerDTO = {
   extensionsServerUrl: string
   extensionId: string
   backupFilename: string
-  authParams: KeyParams
+  authParams: KeyParamsData
   forceMute: boolean
   userUuid: string
   muteEmailsSettingUuid?: string
