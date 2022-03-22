@@ -4,4 +4,5 @@ export type SaveItemsDTO = {
   itemHashes: ItemHash[]
   userUuid: string
   apiVersion: string
+  readOnlyAccess: boolean
 }
