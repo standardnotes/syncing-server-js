@@ -1,4 +1,4 @@
-import { KeyParams } from '@standardnotes/auth'
+import { KeyParamsData } from '@standardnotes/responses'
 import { DomainEventHandlerInterface, DomainEventPublisherInterface, EmailBackupRequestedEvent } from '@standardnotes/domain-events'
 import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
@@ -29,7 +29,7 @@ export class EmailBackupRequestedEventHandler implements DomainEventHandlerInter
       deleted: false,
     })
 
-    let authParams: KeyParams
+    let authParams: KeyParamsData
     try {
       authParams = await this.authHttpService.getUserKeyParams({
         uuid: event.payload.userUuid,
@@ -58,7 +58,7 @@ export class EmailBackupRequestedEventHandler implements DomainEventHandlerInter
         this.domainEventFactory.createMailBackupAttachmentTooBigEvent({
           allowedSize: `${this.emailAttachmentMaxByteSize}`,
           attachmentSize: `${data.length}`,
-          email: authParams.identifier,
+          email: authParams.identifier as string,
           muteEmailsSettingUuid: event.payload.muteEmailsSettingUuid,
         })
       )
@@ -74,7 +74,7 @@ export class EmailBackupRequestedEventHandler implements DomainEventHandlerInter
       this.logger.debug('Publishing EMAIL_BACKUP_ATTACHMENT_CREATED event')
 
       await this.domainEventPublisher.publish(
-        this.domainEventFactory.createEmailBackupAttachmentCreatedEvent(backupFileName, authParams.identifier)
+        this.domainEventFactory.createEmailBackupAttachmentCreatedEvent(backupFileName, authParams.identifier as string)
       )
     }
   }

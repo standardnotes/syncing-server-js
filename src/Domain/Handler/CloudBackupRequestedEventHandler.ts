@@ -9,7 +9,7 @@ import { Item } from '../Item/Item'
 import { ExtensionsHttpServiceInterface } from '../Extension/ExtensionsHttpServiceInterface'
 import { ItemBackupServiceInterface } from '../Item/ItemBackupServiceInterface'
 import { Logger } from 'winston'
-import { KeyParams } from '@standardnotes/auth'
+import { KeyParamsData } from '@standardnotes/responses'
 
 @injectable()
 export class CloudBackupRequestedEventHandler implements DomainEventHandlerInterface {
@@ -26,7 +26,7 @@ export class CloudBackupRequestedEventHandler implements DomainEventHandlerInter
   async handle(event: CloudBackupRequestedEvent): Promise<void> {
     const items = await this.getItemsForPostingToExtension(event)
 
-    let authParams: KeyParams
+    let authParams: KeyParamsData
     try {
       authParams = await this.authHttpService.getUserKeyParams({
         uuid: event.payload.userUuid,

@@ -1,5 +1,5 @@
 import * as uuid from 'uuid'
-import { KeyParams } from '@standardnotes/auth'
+import { KeyParamsData } from '@standardnotes/responses'
 import { S3 } from 'aws-sdk'
 import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
@@ -18,7 +18,7 @@ export class S3ItemBackupService implements ItemBackupServiceInterface {
   ) {
   }
 
-  async backup(items: Item[], authParams: KeyParams): Promise<string> {
+  async backup(items: Item[], authParams: KeyParamsData): Promise<string> {
     if (!this.s3BackupBucketName || this.s3Client === undefined) {
       this.logger.warn('S3 backup not configured')
 

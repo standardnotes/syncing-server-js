@@ -59,6 +59,39 @@ describe('AuthMiddleware', () => {
     expect(response.locals.user).toEqual({ uuid: '123' })
     expect(response.locals.roleNames).toEqual([ 'BASIC_USER', 'PRO_USER' ])
     expect(response.locals.session).toEqual({ uuid: '234' })
+    expect(response.locals.readOnlyAccess).toBeFalsy()
+
+    expect(next).toHaveBeenCalled()
+  })
+
+  it('should authorize user from an auth JWT token if present with read only access', async () => {
+    const authToken = sign({
+      user: { uuid: '123' },
+      session: {
+        uuid: '234',
+        readonly_access: true,
+      },
+      roles: [
+        {
+          uuid: '1-2-3',
+          name: RoleName.BasicUser,
+        },
+        {
+          uuid: '2-3-4',
+          name: RoleName.ProUser,
+        },
+      ],
+      permissions: [],
+    }, jwtSecret, { algorithm: 'HS256' })
+
+    request.header = jest.fn().mockReturnValue(authToken)
+
+    await createMiddleware().handler(request, response, next)
+
+    expect(response.locals.user).toEqual({ uuid: '123' })
+    expect(response.locals.roleNames).toEqual([ 'BASIC_USER', 'PRO_USER' ])
+    expect(response.locals.session).toEqual({ uuid: '234', readonly_access: true })
+    expect(response.locals.readOnlyAccess).toBeTruthy()
 
     expect(next).toHaveBeenCalled()
   })

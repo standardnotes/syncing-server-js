@@ -9,7 +9,7 @@ import { Item } from '../Item/Item'
 import { ExtensionsHttpServiceInterface } from '../Extension/ExtensionsHttpServiceInterface'
 import { ItemBackupServiceInterface } from '../Item/ItemBackupServiceInterface'
 import { Logger } from 'winston'
-import { KeyParams } from '@standardnotes/auth'
+import { KeyParamsData } from '@standardnotes/responses'
 
 @injectable()
 export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
@@ -27,7 +27,7 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
   async handle(event: ItemsSyncedEvent): Promise<void> {
     const items = await this.getItemsForPostingToExtension(event)
 
-    let authParams: KeyParams
+    let authParams: KeyParamsData
     try {
       authParams = await this.authHttpService.getUserKeyParams({
         uuid: event.payload.userUuid,

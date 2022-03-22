@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 
-import { KeyParams } from '@standardnotes/auth'
+import { KeyParamsData } from '@standardnotes/responses'
 import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import { Logger } from 'winston'
 import { ContentDecoderInterface } from '../Item/ContentDecoderInterface'
@@ -17,7 +17,7 @@ describe('ExtensionsHttpService', () => {
   let domainEventPublisher: DomainEventPublisherInterface
   let domainEventFactory: DomainEventFactoryInterface
   let item: Item
-  let authParams: KeyParams
+  let authParams: KeyParamsData
   let logger: Logger
 
   const createService = () => new ExtensionsHttpService(
@@ -37,7 +37,7 @@ describe('ExtensionsHttpService', () => {
       content: 'test',
     } as jest.Mocked<Item>
 
-    authParams = {} as jest.Mocked<KeyParams>
+    authParams = {} as jest.Mocked<KeyParamsData>
 
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
     itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(item)

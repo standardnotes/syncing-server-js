@@ -70,6 +70,15 @@ describe('RevisionsController', () => {
     expect(httpResponse).toBeInstanceOf(results.BadRequestResult)
   })
 
+  it('should not remove a specific revision for an item the session is read only', async () => {
+    response.locals.readOnlyAccess = true
+
+    const httpResponse = await createController().deleteRevision(request, response)
+    const result = await httpResponse.executeAsync()
+
+    expect(result.statusCode).toEqual(401)
+  })
+
   it('should return a 404 for a not found specific revision in an item', async () => {
     revisionService.getRevision = jest.fn().mockReturnValue(undefined)
 
