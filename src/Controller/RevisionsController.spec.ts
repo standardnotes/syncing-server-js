@@ -74,8 +74,9 @@ describe('RevisionsController', () => {
     response.locals.readOnlyAccess = true
 
     const httpResponse = await createController().deleteRevision(request, response)
+    const result = await httpResponse.executeAsync()
 
-    expect(httpResponse).toBeInstanceOf(results.BadRequestResult)
+    expect(result.statusCode).toEqual(401)
   })
 
   it('should return a 404 for a not found specific revision in an item', async () => {

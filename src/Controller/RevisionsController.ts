@@ -6,6 +6,7 @@ import TYPES from '../Bootstrap/Types'
 import { ProjectorInterface } from '../Projection/ProjectorInterface'
 import { Revision } from '../Domain/Revision/Revision'
 import { RevisionServiceInterface } from '../Domain/Revision/RevisionServiceInterface'
+import { ErrorTag } from '@standardnotes/common'
 
 @controller('/items/:itemUuid/revisions', TYPES.AuthMiddleware)
 export class RevisionsController extends BaseHttpController {
@@ -47,9 +48,14 @@ export class RevisionsController extends BaseHttpController {
   }
 
   @httpDelete('/:uuid')
-  public async deleteRevision(request: Request, response: Response): Promise<results.BadRequestResult | results.OkResult> {
+  public async deleteRevision(request: Request, response: Response): Promise<results.BadRequestResult | results.OkResult | results.JsonResult> {
     if (response.locals.readOnlyAccess) {
-      return this.badRequest()
+      return this.json({
+        error: {
+          tag: ErrorTag.ReadOnlyAccess,
+          message: 'Session has read-only access.',
+        },
+      }, 401)
     }
 
     const success = await this.revisionService.removeRevision({

@@ -1,4 +1,5 @@
-import { Uuid, IntegrityPayload } from '@standardnotes/common'
+import { Uuid } from '@standardnotes/common'
+import { IntegrityPayload } from '@standardnotes/payloads'
 
 export type CheckIntegrityDTO = {
   userUuid: Uuid,
