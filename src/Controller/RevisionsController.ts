@@ -48,6 +48,10 @@ export class RevisionsController extends BaseHttpController {
 
   @httpDelete('/:uuid')
   public async deleteRevision(request: Request, response: Response): Promise<results.BadRequestResult | results.OkResult> {
+    if (response.locals.readOnlyAccess) {
+      return this.badRequest()
+    }
+
     const success = await this.revisionService.removeRevision({
       userUuid: response.locals.user.uuid,
       itemUuid: request.params.itemUuid,
