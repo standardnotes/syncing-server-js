@@ -583,6 +583,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
+      readOnlyAccess: false,
     })
 
     expect(result).toEqual({
@@ -596,6 +597,30 @@ describe('ItemService', () => {
     expect(revisionService.createRevision).toHaveBeenCalledTimes(1)
   })
 
+  it('should not save new items in read only access mode', async () => {
+    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+
+    const result = await createService().saveItems({
+      itemHashes: [ itemHash1 ],
+      userUuid: '1-2-3',
+      apiVersion: ApiVersion.v20200115,
+      readOnlyAccess: true,
+    })
+
+    expect(result).toEqual({
+      conflicts: [
+        {
+          type: 'readonly_error',
+          unsavedItem: itemHash1,
+        },
+      ],
+      savedItems: [],
+      syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
+    })
+
+    expect(revisionService.createRevision).toHaveBeenCalledTimes(0)
+  })
+
   it('should save new items that are duplicates', async () => {
     itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
     const duplicateItem = { updatedAtTimestamp: 1616164633241570, duplicateOf: '1-2-3' } as jest.Mocked<Item>
@@ -606,6 +631,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
+      readOnlyAccess: false,
     })
 
     expect(result).toEqual({
@@ -632,6 +658,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
+      readOnlyAccess: false,
     })
 
     expect(result).toEqual({
@@ -652,6 +679,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
+      readOnlyAccess: false,
     })
 
     expect(result).toEqual({
@@ -693,6 +721,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1, itemHash3, itemHash2 ],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
+      readOnlyAccess: false,
     })
 
     expect(result.syncToken).toEqual('MjoxNjE2MTY0NjMzLjI0MTU3MQ==')
@@ -706,6 +735,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
+      readOnlyAccess: false,
     })
 
     expect(result).toEqual({
@@ -739,6 +769,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20161215,
+      readOnlyAccess: false,
     })
 
     expect(result).toEqual({
@@ -771,6 +802,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
+      readOnlyAccess: false,
     })
 
     expect(result).toEqual({
@@ -802,6 +834,7 @@ describe('ItemService', () => {
       itemHashes: [ emptyHash ],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
+      readOnlyAccess: false,
     })
 
     expect(result).toEqual({
@@ -829,6 +862,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
+      readOnlyAccess: false,
     })
 
     expect(result).toEqual({
@@ -859,6 +893,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
+      readOnlyAccess: false,
     })
 
     expect(result).toEqual({
@@ -891,6 +926,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
+      readOnlyAccess: false,
     })
 
     expect(result).toEqual({
@@ -923,6 +959,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
+      readOnlyAccess: false,
     })
 
     expect(result).toEqual({
@@ -956,6 +993,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1 ],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
+      readOnlyAccess: false,
     })
 
     expect(result).toEqual({
@@ -992,6 +1030,7 @@ describe('ItemService', () => {
       itemHashes: [ itemHash1, itemHash2 ],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
+      readOnlyAccess: false,
     })
 
     expect(result).toEqual({

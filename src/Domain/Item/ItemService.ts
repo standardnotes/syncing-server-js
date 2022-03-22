@@ -21,6 +21,7 @@ import { ItemServiceInterface } from './ItemServiceInterface'
 import { SaveItemsDTO } from './SaveItemsDTO'
 import { SaveItemsResult } from './SaveItemsResult'
 import { ItemSaveValidatorInterface } from './SaveValidator/ItemSaveValidatorInterface'
+import { ItemErrorType } from './ItemErrorType'
 
 @injectable()
 export class ItemService implements ItemServiceInterface {
@@ -97,6 +98,15 @@ export class ItemService implements ItemServiceInterface {
     const lastUpdatedTimestamp = this.timer.getTimestampInMicroseconds()
 
     for (const itemHash of dto.itemHashes) {
+      if (dto.readOnlyAccess) {
+        conflicts.push({
+          unsavedItem: itemHash,
+          type: ItemErrorType.ReadOnlyError,
+        })
+
+        continue
+      }
+
       const existingItem = await this.itemRepository.findByUuid(itemHash.uuid)
       const processingResult = await this.itemSaveValidator.validate({
         userUuid: dto.userUuid,
