@@ -3,6 +3,7 @@ import TYPES from '../../Bootstrap/Types'
 import { Item } from '../Item/Item'
 import { ItemConflict } from '../Item/ItemConflict'
 import { ItemServiceInterface } from '../Item/ItemServiceInterface'
+import { SaveItemsResult } from '../Item/SaveItemsResult'
 import { SyncItemsDTO } from './SyncItemsDTO'
 import { SyncItemsResponse } from './SyncItemsResponse'
 import { UseCaseInterface } from './UseCaseInterface'
@@ -24,11 +25,19 @@ export class SyncItems implements UseCaseInterface {
       contentType: dto.contentType,
     })
 
-    const saveItemsResult = await this.itemService.saveItems({
-      itemHashes: dto.itemHashes,
-      userUuid: dto.userUuid,
-      apiVersion: dto.apiVersion,
-    })
+    let saveItemsResult: SaveItemsResult = {
+      savedItems: [],
+      conflicts: [],
+      syncToken: '',
+    }
+
+    if (!dto.readOnlyAccess) {
+      saveItemsResult = await this.itemService.saveItems({
+        itemHashes: dto.itemHashes,
+        userUuid: dto.userUuid,
+        apiVersion: dto.apiVersion,
+      })
+    }
 
     let retrievedItems = this.filterOutSyncConflictsForConsecutiveSyncs(getItemsResult.items, saveItemsResult.conflicts)
     if (this.isFirstSync(dto)) {

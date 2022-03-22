@@ -62,6 +62,7 @@ describe('SyncItems', () => {
       syncToken: 'foo',
       cursorToken: 'bar',
       limit: 10,
+      readOnlyAccess: false,
       contentType: 'Note',
       apiVersion: ApiVersion.v20200115,
     })).toEqual({
@@ -92,12 +93,46 @@ describe('SyncItems', () => {
     })
   })
 
+  it('should sync items in read only mode', async() => {
+    expect(await createUseCase().execute({
+      userUuid: '1-2-3',
+      itemHashes: [ itemHash ],
+      computeIntegrityHash: false,
+      syncToken: 'foo',
+      cursorToken: 'bar',
+      limit: 10,
+      readOnlyAccess: true,
+      contentType: 'Note',
+      apiVersion: ApiVersion.v20200115,
+    })).toEqual({
+      conflicts: [],
+      cursorToken: 'asdzxc',
+      retrievedItems: [
+        item1,
+      ],
+      savedItems: [],
+      syncToken: '',
+    })
+
+
+    expect(itemService.frontLoadKeysItemsToTop).not.toHaveBeenCalled()
+    expect(itemService.getItems).toHaveBeenCalledWith({
+      contentType: 'Note',
+      cursorToken: 'bar',
+      limit: 10,
+      syncToken: 'foo',
+      userUuid: '1-2-3',
+    })
+    expect(itemService.saveItems).not.toHaveBeenCalled()
+  })
+
   it('should sync items and return items keys on top for first sync', async() => {
     expect(await createUseCase().execute({
       userUuid: '1-2-3',
       itemHashes: [ itemHash ],
       computeIntegrityHash: false,
       limit: 10,
+      readOnlyAccess: false,
       contentType: 'Note',
       apiVersion: ApiVersion.v20200115,
     })).toEqual({
@@ -121,6 +156,7 @@ describe('SyncItems', () => {
       itemHashes: [ itemHash ],
       computeIntegrityHash: true,
       limit: 10,
+      readOnlyAccess: false,
       contentType: 'Note',
       apiVersion: ApiVersion.v20200115,
     })).toEqual({
@@ -148,6 +184,7 @@ describe('SyncItems', () => {
       itemHashes: [ itemHash ],
       computeIntegrityHash: true,
       limit: 10,
+      readOnlyAccess: false,
       contentType: 'Note',
       apiVersion: ApiVersion.v20200115,
     })).toEqual({
@@ -190,6 +227,7 @@ describe('SyncItems', () => {
       itemHashes: [ itemHash ],
       computeIntegrityHash: false,
       syncToken: 'foo',
+      readOnlyAccess: false,
       cursorToken: 'bar',
       limit: 10,
       contentType: 'Note',
