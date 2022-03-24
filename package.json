@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@newrelic/native-metrics": "7.0.2",
+    "@newrelic/winston-enricher": "^2.1.0",
     "@sentry/node": "^6.16.1",
     "@standardnotes/analytics": "^1.0.1",
     "@standardnotes/auth": "3.17.10",
