@@ -59,6 +59,9 @@ import { CloudBackupRequestedEventHandler } from '../Domain/Handler/CloudBackupR
 import { CheckIntegrity } from '../Domain/UseCase/CheckIntegrity/CheckIntegrity'
 import { GetItem } from '../Domain/UseCase/GetItem/GetItem'
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const newrelicWinstonEnricher = require('@newrelic/winston-enricher')
+
 export class ContainerConfigLoader {
   private readonly DEFAULT_CONTENT_SIZE_TRANSFER_LIMIT = 10_000_000
 
@@ -121,12 +124,17 @@ export class ContainerConfigLoader {
 
     container.bind(TYPES.Redis).toConstantValue(redis)
 
+    const winstonFormatters = [
+      winston.format.splat(),
+      winston.format.json(),
+    ]
+    if (env.get('NEW_RELIC_ENABLED', true) === 'true') {
+      winstonFormatters.push(newrelicWinstonEnricher())
+    }
+
     const logger = winston.createLogger({
       level: env.get('LOG_LEVEL') || 'info',
-      format: winston.format.combine(
-        winston.format.splat(),
-        winston.format.json(),
-      ),
+      format: winston.format.combine(...winstonFormatters),
       transports: [
         new winston.transports.Console({ level: env.get('LOG_LEVEL') || 'info' }),
       ],
