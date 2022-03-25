@@ -2,10 +2,10 @@ import 'reflect-metadata'
 import { ProjectorInterface } from '../../../Projection/ProjectorInterface'
 
 import { Item } from '../Item'
-import { ItemConflictType } from '../ItemConflictType'
 import { ItemHash } from '../ItemHash'
 import { ItemProjection } from '../../../Projection/ItemProjection'
 import { SyncResponseFactory20161215 } from './SyncResponseFactory20161215'
+import { ConflictType } from '@standardnotes/responses'
 
 describe('SyncResponseFactory20161215', () => {
   let itemProjector: ProjectorInterface<Item>
@@ -53,11 +53,11 @@ describe('SyncResponseFactory20161215', () => {
       conflicts: [
         {
           serverItem: item1,
-          type: ItemConflictType.SyncConflict,
+          type: ConflictType.ConflictingData,
         },
         {
           unsavedItem: itemHash1,
-          type: ItemConflictType.UuidConflict,
+          type: ConflictType.UuidConflict,
         },
       ],
       syncToken: 'sync-test',
@@ -94,7 +94,7 @@ describe('SyncResponseFactory20161215', () => {
       conflicts: [
         {
           unsavedItem: itemHash1,
-          type: ItemConflictType.UuidConflict,
+          type: ConflictType.UuidConflict,
         },
       ],
       syncToken: 'sync-test',

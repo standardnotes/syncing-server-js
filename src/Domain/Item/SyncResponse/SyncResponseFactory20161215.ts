@@ -4,11 +4,11 @@ import { ProjectorInterface } from '../../../Projection/ProjectorInterface'
 import { SyncItemsResponse } from '../../UseCase/SyncItemsResponse'
 import { Item } from '../Item'
 import { ItemConflict } from '../ItemConflict'
-import { ItemConflictType } from '../ItemConflictType'
 import { ItemHash } from '../ItemHash'
 import { ItemProjection } from '../../../Projection/ItemProjection'
 import { SyncResponse20161215 } from './SyncResponse20161215'
 import { SyncResponseFactoryInterface } from './SyncResponseFactoryInterface'
+import { ConflictType } from '@standardnotes/responses'
 
 @injectable()
 export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface {
@@ -20,7 +20,7 @@ export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface
   }
 
   async createResponse(syncItemsResponse: SyncItemsResponse): Promise<SyncResponse20161215> {
-    const conflicts = syncItemsResponse.conflicts.filter((itemConflict: ItemConflict) => itemConflict.type === ItemConflictType.UuidConflict)
+    const conflicts = syncItemsResponse.conflicts.filter((itemConflict: ItemConflict) => itemConflict.type === ConflictType.UuidConflict)
 
     const pickOutConflictsResult = this.pickOutConflicts(
       syncItemsResponse.savedItems,
@@ -82,7 +82,7 @@ export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface
       if (Math.abs(difference) > this.LEGACY_MIN_CONFLICT_INTERVAL) {
         unsavedItems.push({
           serverItem: conflictedItem,
-          type: ItemConflictType.SyncConflict,
+          type: ConflictType.ConflictingData,
         })
       }
 
