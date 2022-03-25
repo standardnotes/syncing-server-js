@@ -1,5 +1,5 @@
-import { ItemConflictType } from '../ItemConflictType'
-import { ItemErrorType } from '../ItemErrorType'
+import { ConflictType } from '@standardnotes/responses'
+
 import { ItemHash } from '../ItemHash'
 import { ItemProjection } from '../../../Projection/ItemProjection'
 
@@ -9,7 +9,7 @@ export type SyncResponse20161215 = {
   unsaved: Array<{
     item: ItemProjection | ItemHash
     error: {
-      tag: ItemConflictType | ItemErrorType
+      tag: ConflictType
     }
   }>
   sync_token: string

@@ -4,9 +4,9 @@ import { ProjectorInterface } from './ProjectorInterface'
 import { Item } from '../Domain/Item/Item'
 import { ItemConflict } from '../Domain/Item/ItemConflict'
 import { ItemConflictProjector } from './ItemConflictProjector'
-import { ItemConflictType } from '../Domain/Item/ItemConflictType'
 import { ItemHash } from '../Domain/Item/ItemHash'
 import { ItemProjection } from './ItemProjection'
+import { ConflictType } from '@standardnotes/responses'
 
 describe('ItemConflictProjector', () => {
   let itemProjector: ProjectorInterface<Item>
@@ -30,19 +30,19 @@ describe('ItemConflictProjector', () => {
 
     itemConflict1 = {
       serverItem: item,
-      type: ItemConflictType.SyncConflict,
+      type: ConflictType.ConflictingData,
     }
 
     itemConflict2 = {
       unsavedItem: itemHash,
-      type: ItemConflictType.UuidConflict,
+      type: ConflictType.UuidConflict,
     }
   })
 
   it('should create a full projection of a server item conflict', async () => {
     expect(await createProjector().projectFull(itemConflict1)).toMatchObject({
       server_item: itemProjection,
-      type: ItemConflictType.SyncConflict,
+      type: ConflictType.ConflictingData,
     })
   })
 

@@ -12,7 +12,6 @@ import { GetItemsDTO } from './GetItemsDTO'
 import { GetItemsResult } from './GetItemsResult'
 import { Item } from './Item'
 import { ItemConflict } from './ItemConflict'
-import { ItemConflictType } from './ItemConflictType'
 import { ItemFactoryInterface } from './ItemFactoryInterface'
 import { ItemHash } from './ItemHash'
 import { ItemQuery } from './ItemQuery'
@@ -21,7 +20,7 @@ import { ItemServiceInterface } from './ItemServiceInterface'
 import { SaveItemsDTO } from './SaveItemsDTO'
 import { SaveItemsResult } from './SaveItemsResult'
 import { ItemSaveValidatorInterface } from './SaveValidator/ItemSaveValidatorInterface'
-import { ItemErrorType } from './ItemErrorType'
+import { ConflictType } from '@standardnotes/responses'
 
 @injectable()
 export class ItemService implements ItemServiceInterface {
@@ -101,7 +100,7 @@ export class ItemService implements ItemServiceInterface {
       if (dto.readOnlyAccess) {
         conflicts.push({
           unsavedItem: itemHash,
-          type: ItemErrorType.ReadOnlyError,
+          type: ConflictType.ReadOnlyError,
         })
 
         continue
@@ -137,7 +136,7 @@ export class ItemService implements ItemServiceInterface {
 
           conflicts.push({
             unsavedItem: itemHash,
-            type: ItemConflictType.UuidConflict,
+            type: ConflictType.UuidConflict,
           })
 
           continue
