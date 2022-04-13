@@ -154,20 +154,22 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
     }
   }
 
-  createEmailBackupAttachmentCreatedEvent(backupFileName: string, email: string): EmailBackupAttachmentCreatedEvent {
+  createEmailBackupAttachmentCreatedEvent(dto: {
+    backupFileName: string,
+    backupFileIndex: number,
+    backupFilesTotal: number,
+    email: string,
+  }): EmailBackupAttachmentCreatedEvent {
     return {
       type: 'EMAIL_BACKUP_ATTACHMENT_CREATED',
       createdAt: this.timer.getUTCDate(),
       meta: {
         correlation: {
-          userIdentifier: email,
+          userIdentifier: dto.email,
           userIdentifierType: 'email',
         },
       },
-      payload: {
-        backupFileName,
-        email,
-      },
+      payload: dto,
     }
   }
 }

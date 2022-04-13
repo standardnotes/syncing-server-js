@@ -16,6 +16,11 @@ export interface DomainEventFactoryInterface {
     source: 'account-deletion' | 'realtime-extensions-sync'
   }): ItemsSyncedEvent
   createEmailArchiveExtensionSyncedEvent(userUuid: string, extensionId: string): EmailArchiveExtensionSyncedEvent
-  createEmailBackupAttachmentCreatedEvent(backupFileName: string, email: string): EmailBackupAttachmentCreatedEvent
+  createEmailBackupAttachmentCreatedEvent(dto: {
+    backupFileName: string,
+    backupFileIndex: number,
+    backupFilesTotal: number,
+    email: string,
+  }): EmailBackupAttachmentCreatedEvent
   createDuplicateItemSyncedEvent(itemUuid: string, userUuid: string): DuplicateItemSyncedEvent
 }
