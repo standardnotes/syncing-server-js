@@ -21,6 +21,7 @@ import { SaveItemsDTO } from './SaveItemsDTO'
 import { SaveItemsResult } from './SaveItemsResult'
 import { ItemSaveValidatorInterface } from './SaveValidator/ItemSaveValidatorInterface'
 import { ConflictType } from '@standardnotes/responses'
+import { ItemTransferCalculatorInterface } from './ItemTransferCalculatorInterface'
 
 @injectable()
 export class ItemService implements ItemServiceInterface {
@@ -36,6 +37,7 @@ export class ItemService implements ItemServiceInterface {
     @inject(TYPES.DomainEventFactory) private domainEventFactory: DomainEventFactoryInterface,
     @inject(TYPES.REVISIONS_FREQUENCY) private revisionFrequency: number,
     @inject(TYPES.CONTENT_SIZE_TRANSFER_LIMIT) private contentSizeTransferLimit: number,
+    @inject(TYPES.ItemTransferCalculator) private itemTransferCalculator: ItemTransferCalculatorInterface,
     @inject(TYPES.Timer) private timer: TimerInterface,
     @inject(TYPES.Logger) private logger: Logger
   ) {
@@ -67,7 +69,7 @@ export class ItemService implements ItemServiceInterface {
       limit,
     }
 
-    const itemUuidsToFetch = await this.computeItemIdsToFetchBasedOnTransferLimit(itemQuery)
+    const itemUuidsToFetch = await this.itemTransferCalculator.computeItemUuidsToFetch(itemQuery, this.contentSizeTransferLimit)
     let items: Array<Item> = []
     if (itemUuidsToFetch.length > 0) {
       items = await this.itemRepository.findAll({
@@ -290,29 +292,5 @@ export class ItemService implements ItemServiceInterface {
     default:
       throw Error('Sync token is missing version part')
     }
-  }
-
-  private async computeItemIdsToFetchBasedOnTransferLimit(itemQuery: ItemQuery): Promise<Array<string>> {
-    const itemUuidsToFetch = []
-    const itemContentSizes = await this.itemRepository.findContentSizeForComputingTransferLimit(itemQuery)
-    let totalContentSizeInBytes = 0
-    for (const itemContentSize of itemContentSizes) {
-      const contentSize = itemContentSize.contentSize ?? 0
-
-      itemUuidsToFetch.push(itemContentSize.uuid)
-      totalContentSizeInBytes += contentSize
-
-      const transferLimitBreached = totalContentSizeInBytes >= this.contentSizeTransferLimit
-      const transferLimitBreachedAtFirstItem = transferLimitBreached && itemUuidsToFetch.length === 1 && itemContentSizes.length > 1
-      if (transferLimitBreachedAtFirstItem) {
-        this.logger.warn(`Item ${itemUuidsToFetch[0]} is breaching the content size transfer limit: ${this.contentSizeTransferLimit}`)
-      }
-
-      if (transferLimitBreached && !transferLimitBreachedAtFirstItem) {
-        break
-      }
-    }
-
-    return itemUuidsToFetch
   }
 }

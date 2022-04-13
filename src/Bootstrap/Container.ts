@@ -58,6 +58,8 @@ import { EmailBackupRequestedEventHandler } from '../Domain/Handler/EmailBackupR
 import { CloudBackupRequestedEventHandler } from '../Domain/Handler/CloudBackupRequestedEventHandler'
 import { CheckIntegrity } from '../Domain/UseCase/CheckIntegrity/CheckIntegrity'
 import { GetItem } from '../Domain/UseCase/GetItem/GetItem'
+import { ItemTransferCalculatorInterface } from '../Domain/Item/ItemTransferCalculatorInterface'
+import { ItemTransferCalculator } from '../Domain/Item/ItemTransferCalculator'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const newrelicWinstonEnricher = require('@newrelic/winston-enricher')
@@ -295,6 +297,8 @@ export class ContainerConfigLoader {
         container.get(TYPES.ContentFilter),
       ])
     )
+
+    container.bind<ItemTransferCalculatorInterface>(TYPES.ItemTransferCalculator).to(ItemTransferCalculator)
 
     return container
   }
