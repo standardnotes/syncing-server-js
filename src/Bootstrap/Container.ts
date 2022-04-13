@@ -217,6 +217,7 @@ export class ContainerConfigLoader {
     container.bind<DomainEventFactoryInterface>(TYPES.DomainEventFactory).to(DomainEventFactory)
     container.bind<AxiosInstance>(TYPES.HTTPClient).toConstantValue(axios.create())
     container.bind<ItemServiceInterface>(TYPES.ItemService).to(ItemService)
+    container.bind<ItemTransferCalculatorInterface>(TYPES.ItemTransferCalculator).to(ItemTransferCalculator)
     container.bind<TimerInterface>(TYPES.Timer).toConstantValue(new Timer())
     container.bind<SyncResponseFactory20161215>(TYPES.SyncResponseFactory20161215).to(SyncResponseFactory20161215)
     container.bind<SyncResponseFactory20200115>(TYPES.SyncResponseFactory20200115).to(SyncResponseFactory20200115)
@@ -297,8 +298,6 @@ export class ContainerConfigLoader {
         container.get(TYPES.ContentFilter),
       ])
     )
-
-    container.bind<ItemTransferCalculatorInterface>(TYPES.ItemTransferCalculator).to(ItemTransferCalculator)
 
     return container
   }
