@@ -160,7 +160,12 @@ describe('DomainEventFactory', () => {
   })
 
   it('should create a EMAIL_BACKUP_ATTACHMENT_CREATED event', () => {
-    expect(createFactory().createEmailBackupAttachmentCreatedEvent('backup-file', 'test@test.com'))
+    expect(createFactory().createEmailBackupAttachmentCreatedEvent({
+      backupFileName: 'backup-file',
+      email: 'test@test.com',
+      backupFileIndex: 1,
+      backupFilesTotal: 2,
+    }))
       .toEqual({
         createdAt: expect.any(Date),
         meta: {
@@ -172,6 +177,8 @@ describe('DomainEventFactory', () => {
         payload: {
           backupFileName: 'backup-file',
           email: 'test@test.com',
+          backupFileIndex: 1,
+          backupFilesTotal: 2,
         },
         type: 'EMAIL_BACKUP_ATTACHMENT_CREATED',
       })

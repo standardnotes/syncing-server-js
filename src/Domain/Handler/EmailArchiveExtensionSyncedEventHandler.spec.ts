@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 
-import { DomainEventPublisherInterface, EmailArchiveExtensionSyncedEvent, EmailBackupAttachmentCreatedEvent, MailBackupAttachmentTooBigEvent } from '@standardnotes/domain-events'
+import { DomainEventPublisherInterface, EmailArchiveExtensionSyncedEvent, EmailBackupAttachmentCreatedEvent } from '@standardnotes/domain-events'
 import { Logger } from 'winston'
 import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
@@ -8,6 +8,7 @@ import { Item } from '../Item/Item'
 import { ItemBackupServiceInterface } from '../Item/ItemBackupServiceInterface'
 import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
 import { EmailArchiveExtensionSyncedEventHandler } from './EmailArchiveExtensionSyncedEventHandler'
+import { ItemTransferCalculatorInterface } from '../Item/ItemTransferCalculatorInterface'
 
 describe('EmailArchiveExtensionSyncedEventHandler', () => {
   let itemRepository: ItemRepositoryInterface
@@ -16,6 +17,7 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
   let domainEventPublisher: DomainEventPublisherInterface
   let domainEventFactory: DomainEventFactoryInterface
   const emailAttachmentMaxByteSize = 100
+  let itemTransferCalculator: ItemTransferCalculatorInterface
   let item: Item
   let event: EmailArchiveExtensionSyncedEvent
   let logger: Logger
@@ -27,6 +29,7 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
     domainEventPublisher,
     domainEventFactory,
     emailAttachmentMaxByteSize,
+    itemTransferCalculator,
     logger
   )
 
@@ -55,7 +58,11 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
 
     domainEventFactory = {} as jest.Mocked<DomainEventFactoryInterface>
     domainEventFactory.createEmailBackupAttachmentCreatedEvent = jest.fn().mockReturnValue({} as jest.Mocked<EmailBackupAttachmentCreatedEvent>)
-    domainEventFactory.createMailBackupAttachmentTooBigEvent = jest.fn().mockReturnValue({} as jest.Mocked<MailBackupAttachmentTooBigEvent>)
+
+    itemTransferCalculator = {} as jest.Mocked<ItemTransferCalculatorInterface>
+    itemTransferCalculator.computeItemUuidBundlesToFetch = jest.fn().mockReturnValue([
+      ['1-2-3'],
+    ])
 
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
@@ -66,7 +73,38 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
     await createHandler().handle(event)
 
     expect(domainEventPublisher.publish).toHaveBeenCalledTimes(1)
-    expect(domainEventFactory.createEmailBackupAttachmentCreatedEvent).toHaveBeenCalledWith('backup-file-name', 'test@test.com')
+    expect(domainEventFactory.createEmailBackupAttachmentCreatedEvent).toHaveBeenCalledWith({
+      backupFileIndex: 1,
+      backupFileName: 'backup-file-name',
+      backupFilesTotal: 1,
+      email: 'test@test.com',
+    })
+  })
+
+  it('should inform that multipart backup attachment for email was created', async () => {
+    itemBackupService.backup = jest.fn()
+      .mockReturnValueOnce('backup-file-name-1')
+      .mockReturnValueOnce('backup-file-name-2')
+    itemTransferCalculator.computeItemUuidBundlesToFetch = jest.fn().mockReturnValue([
+      ['1-2-3'],
+      ['2-3-4'],
+    ])
+
+    await createHandler().handle(event)
+
+    expect(domainEventPublisher.publish).toHaveBeenCalledTimes(2)
+    expect(domainEventFactory.createEmailBackupAttachmentCreatedEvent).toHaveBeenNthCalledWith(1, {
+      backupFileIndex: 1,
+      backupFileName: 'backup-file-name-1',
+      backupFilesTotal: 2,
+      email: 'test@test.com',
+    })
+    expect(domainEventFactory.createEmailBackupAttachmentCreatedEvent).toHaveBeenNthCalledWith(2, {
+      backupFileIndex: 2,
+      backupFileName: 'backup-file-name-2',
+      backupFilesTotal: 2,
+      email: 'test@test.com',
+    })
   })
 
   it('should not inform that backup attachment for email was created if user key params cannot be obtained', async () => {
@@ -86,54 +124,6 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
     await createHandler().handle(event)
 
     expect(domainEventPublisher.publish).not.toHaveBeenCalled()
-    expect(domainEventFactory.createEmailBackupAttachmentCreatedEvent).not.toHaveBeenCalled()
-  })
-
-  it('should inform that backup attachment for email was too big', async () => {
-    item = {
-      content: 'This content is too large so should not be sent',
-    } as jest.Mocked<Item>
-    itemRepository.findAll = jest.fn().mockReturnValue([ item ])
-
-    await createHandler().handle(event)
-
-    expect(domainEventPublisher.publish).toHaveBeenCalledTimes(1)
-    expect(domainEventFactory.createMailBackupAttachmentTooBigEvent).toHaveBeenCalledWith({
-      allowedSize: '100',
-      attachmentSize: '118',
-      email: 'test@test.com',
-      muteEmailsSettingUuid: '3-4-5',
-    })
-    expect(domainEventFactory.createEmailBackupAttachmentCreatedEvent).not.toHaveBeenCalled()
-  })
-
-  it('should not inform that backup attachment for email was too big if mail notifications are muted', async () => {
-    item = {
-      content: 'This content is too large so should not be sent',
-    } as jest.Mocked<Item>
-    itemRepository.findAll = jest.fn().mockReturnValue([ item ])
-    authHttpService.getUserSetting = jest.fn().mockReturnValue({ uuid: '3-4-5', value: 'muted' })
-
-    await createHandler().handle(event)
-
-    expect(domainEventPublisher.publish).not.toHaveBeenCalled()
-    expect(domainEventFactory.createMailBackupAttachmentTooBigEvent).not.toHaveBeenCalled()
-    expect(domainEventFactory.createEmailBackupAttachmentCreatedEvent).not.toHaveBeenCalled()
-  })
-
-  it('should not inform that backup attachment for email was too big if it fails to fetch user settings from auth', async () => {
-    item = {
-      content: 'This content is too large so should not be sent',
-    } as jest.Mocked<Item>
-    itemRepository.findAll = jest.fn().mockReturnValue([ item ])
-    authHttpService.getUserSetting = jest.fn().mockImplementation(() => {
-      throw new Error('ooops')
-    })
-
-    await createHandler().handle(event)
-
-    expect(domainEventPublisher.publish).not.toHaveBeenCalled()
-    expect(domainEventFactory.createMailBackupAttachmentTooBigEvent).not.toHaveBeenCalled()
     expect(domainEventFactory.createEmailBackupAttachmentCreatedEvent).not.toHaveBeenCalled()
   })
 })

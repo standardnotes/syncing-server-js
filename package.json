@@ -28,7 +28,7 @@
     "@standardnotes/analytics": "^1.0.1",
     "@standardnotes/auth": "3.17.10",
     "@standardnotes/common": "1.17.0",
-    "@standardnotes/domain-events": "2.23.14",
+    "@standardnotes/domain-events": "^2.26.11",
     "@standardnotes/domain-events-infra": "1.4.51",
     "@standardnotes/payloads": "^1.4.18",
     "@standardnotes/responses": "^1.4.1",
