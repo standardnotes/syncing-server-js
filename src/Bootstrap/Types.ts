@@ -68,6 +68,7 @@ const TYPES = {
   ContentFilter: Symbol.for('ContentFilter'),
   ItemFactory: Symbol.for('ItemFactory'),
   AnalyticsStore: Symbol.for('AnalyticsStore'),
+  ItemTransferCalculator: Symbol.for('ItemTransferCalculator'),
 }
 
 export default TYPES

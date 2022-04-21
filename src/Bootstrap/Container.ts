@@ -58,6 +58,8 @@ import { EmailBackupRequestedEventHandler } from '../Domain/Handler/EmailBackupR
 import { CloudBackupRequestedEventHandler } from '../Domain/Handler/CloudBackupRequestedEventHandler'
 import { CheckIntegrity } from '../Domain/UseCase/CheckIntegrity/CheckIntegrity'
 import { GetItem } from '../Domain/UseCase/GetItem/GetItem'
+import { ItemTransferCalculatorInterface } from '../Domain/Item/ItemTransferCalculatorInterface'
+import { ItemTransferCalculator } from '../Domain/Item/ItemTransferCalculator'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const newrelicWinstonEnricher = require('@newrelic/winston-enricher')
@@ -215,6 +217,7 @@ export class ContainerConfigLoader {
     container.bind<DomainEventFactoryInterface>(TYPES.DomainEventFactory).to(DomainEventFactory)
     container.bind<AxiosInstance>(TYPES.HTTPClient).toConstantValue(axios.create())
     container.bind<ItemServiceInterface>(TYPES.ItemService).to(ItemService)
+    container.bind<ItemTransferCalculatorInterface>(TYPES.ItemTransferCalculator).to(ItemTransferCalculator)
     container.bind<TimerInterface>(TYPES.Timer).toConstantValue(new Timer())
     container.bind<SyncResponseFactory20161215>(TYPES.SyncResponseFactory20161215).to(SyncResponseFactory20161215)
     container.bind<SyncResponseFactory20200115>(TYPES.SyncResponseFactory20200115).to(SyncResponseFactory20200115)
