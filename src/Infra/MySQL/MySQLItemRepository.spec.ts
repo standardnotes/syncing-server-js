@@ -298,8 +298,8 @@ describe('MySQLItemRepository', () => {
 
   it('should find items for computing integrity payloads', async () => {
     queryBuilder.getRawMany = jest.fn().mockReturnValue([
-      { uuid: '1-2-3', updated_at_timestamp: 1616164633241312 },
-      { uuid: '2-3-4', updated_at_timestamp: 1616164633242313 },
+      { uuid: '1-2-3', updated_at_timestamp: 1616164633241312, content_type: ContentType.Note },
+      { uuid: '2-3-4', updated_at_timestamp: 1616164633242313, content_type: ContentType.ItemsKey },
     ])
     queryBuilder.select = jest.fn()
     queryBuilder.addSelect = jest.fn()
@@ -309,15 +309,16 @@ describe('MySQLItemRepository', () => {
     const result = await repository.findItemsForComputingIntegrityPayloads('1-2-3')
 
     expect(queryBuilder.select).toHaveBeenCalledWith('item.uuid', 'uuid')
-    expect(queryBuilder.addSelect).toHaveBeenCalledWith('item.updated_at_timestamp', 'updated_at_timestamp')
+    expect(queryBuilder.addSelect).toHaveBeenNthCalledWith(1, 'item.updated_at_timestamp', 'updated_at_timestamp')
+    expect(queryBuilder.addSelect).toHaveBeenNthCalledWith(2, 'item.content_type', 'content_type')
     expect(queryBuilder.where).toHaveBeenCalledTimes(1)
     expect(queryBuilder.where).toHaveBeenNthCalledWith(1, 'item.user_uuid = :userUuid', { userUuid: '1-2-3' })
     expect(queryBuilder.andWhere).toHaveBeenCalledTimes(1)
     expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(1, 'item.deleted = :deleted', { deleted: false })
 
     expect(result.length).toEqual(2)
-    expect(result[0]).toEqual({ uuid: '2-3-4', updated_at_timestamp: 1616164633242313 })
-    expect(result[1]).toEqual({ uuid: '1-2-3', updated_at_timestamp: 1616164633241312 })
+    expect(result[0]).toEqual({ uuid: '2-3-4', updated_at_timestamp: 1616164633242313, content_type: ContentType.ItemsKey })
+    expect(result[1]).toEqual({ uuid: '1-2-3', updated_at_timestamp: 1616164633241312, content_type: ContentType.Note })
   })
 
   it('should find item by uuid and mark it for deletion', async () => {
