@@ -4,7 +4,7 @@ import { Item } from '../../Domain/Item/Item'
 import { ItemQuery } from '../../Domain/Item/ItemQuery'
 import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterface'
 import { ReadStream } from 'fs'
-import { IntegrityPayload } from '@standardnotes/payloads'
+import { ExtendedIntegrityPayload } from '../../Domain/Item/ExtendedIntegrityPayload'
 
 @injectable()
 @EntityRepository(Item)
@@ -65,10 +65,11 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
       .sort((itemA, itemB) => itemB.updated_at_timestamp - itemA.updated_at_timestamp)
   }
 
-  async findItemsForComputingIntegrityPayloads(userUuid: string): Promise<IntegrityPayload[]> {
+  async findItemsForComputingIntegrityPayloads(userUuid: string): Promise<ExtendedIntegrityPayload[]> {
     const queryBuilder = this.createQueryBuilder('item')
     queryBuilder.select('item.uuid', 'uuid')
     queryBuilder.addSelect('item.updated_at_timestamp', 'updated_at_timestamp')
+    queryBuilder.addSelect('item.content_type', 'content_type')
     queryBuilder.where('item.user_uuid = :userUuid', { userUuid: userUuid })
     queryBuilder.andWhere('item.deleted = :deleted', { deleted: false })
 
