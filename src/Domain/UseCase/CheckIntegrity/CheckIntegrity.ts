@@ -7,6 +7,8 @@ import { ItemRepositoryInterface } from '../../Item/ItemRepositoryInterface'
 import { UseCaseInterface } from '../UseCaseInterface'
 import { CheckIntegrityDTO } from './CheckIntegrityDTO'
 import { CheckIntegrityResponse } from './CheckIntegrityResponse'
+import { ExtendedIntegrityPayload } from '../../Item/ExtendedIntegrityPayload'
+import { ContentType } from '@standardnotes/common'
 
 @injectable()
 export class CheckIntegrity implements UseCaseInterface {
@@ -20,9 +22,9 @@ export class CheckIntegrity implements UseCaseInterface {
     const serverItemIntegrityPayloads = await this.itemRepository
       .findItemsForComputingIntegrityPayloads(dto.userUuid)
 
-    const serverItemIntegrityPayloadsMap = new Map<string, number>()
+    const serverItemIntegrityPayloadsMap = new Map<string, ExtendedIntegrityPayload>()
     for (const serverItemIntegrityPayload of serverItemIntegrityPayloads) {
-      serverItemIntegrityPayloadsMap.set(serverItemIntegrityPayload.uuid, serverItemIntegrityPayload.updated_at_timestamp)
+      serverItemIntegrityPayloadsMap.set(serverItemIntegrityPayload.uuid, serverItemIntegrityPayload)
     }
 
     const clientItemIntegrityPayloadsMap = new Map<string, number>()
@@ -33,21 +35,26 @@ export class CheckIntegrity implements UseCaseInterface {
     const mismatches: IntegrityPayload[] = []
 
     for (const serverItemIntegrityPayloadUuid of serverItemIntegrityPayloadsMap.keys()) {
+      const serverItemIntegrityPayload = serverItemIntegrityPayloadsMap.get(serverItemIntegrityPayloadUuid) as ExtendedIntegrityPayload
+
       if (!clientItemIntegrityPayloadsMap.has(serverItemIntegrityPayloadUuid)) {
-        mismatches.unshift({
-          uuid: serverItemIntegrityPayloadUuid,
-          updated_at_timestamp: serverItemIntegrityPayloadsMap.get(serverItemIntegrityPayloadUuid) as number,
-        })
+        if (serverItemIntegrityPayload.content_type !== ContentType.ItemsKey) {
+          mismatches.unshift({
+            uuid: serverItemIntegrityPayloadUuid,
+            updated_at_timestamp: serverItemIntegrityPayload.updated_at_timestamp,
+          })
+        }
 
         continue
       }
 
-      const serverItemIntegrityPayloadUpdatedAtTimestamp = serverItemIntegrityPayloadsMap.get(serverItemIntegrityPayloadUuid) as number
+      const serverItemIntegrityPayloadUpdatedAtTimestamp = serverItemIntegrityPayload.updated_at_timestamp
       const clientItemIntegrityPayloadUpdatedAtTimestamp = clientItemIntegrityPayloadsMap.get(serverItemIntegrityPayloadUuid) as number
-      if (serverItemIntegrityPayloadUpdatedAtTimestamp !== clientItemIntegrityPayloadUpdatedAtTimestamp) {
+      if (serverItemIntegrityPayloadUpdatedAtTimestamp !== clientItemIntegrityPayloadUpdatedAtTimestamp &&
+        serverItemIntegrityPayload.content_type !== ContentType.ItemsKey) {
         mismatches.unshift({
           uuid: serverItemIntegrityPayloadUuid,
-          updated_at_timestamp: serverItemIntegrityPayloadsMap.get(serverItemIntegrityPayloadUuid) as number,
+          updated_at_timestamp: serverItemIntegrityPayloadUpdatedAtTimestamp,
         })
       }
     }

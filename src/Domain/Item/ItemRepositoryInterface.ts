@@ -1,7 +1,7 @@
 import { Item } from './Item'
 import { ItemQuery } from './ItemQuery'
 import { ReadStream } from 'fs'
-import { IntegrityPayload } from '@standardnotes/payloads'
+import { ExtendedIntegrityPayload } from './ExtendedIntegrityPayload'
 
 export interface ItemRepositoryInterface {
   deleteByUserUuid(userUuid: string): Promise<void>
@@ -10,7 +10,7 @@ export interface ItemRepositoryInterface {
   countAll(query: ItemQuery): Promise<number>
   findContentSizeForComputingTransferLimit(query: ItemQuery): Promise<Array<{ uuid: string, contentSize: number | null }>>
   findDatesForComputingIntegrityHash(userUuid: string): Promise<Array<{ updated_at_timestamp: number }>>
-  findItemsForComputingIntegrityPayloads(userUuid: string): Promise<IntegrityPayload[]>
+  findItemsForComputingIntegrityPayloads(userUuid: string): Promise<ExtendedIntegrityPayload[]>
   findByUuidAndUserUuid(uuid: string, userUuid: string): Promise<Item | undefined>
   findByUuid(uuid: string): Promise<Item | undefined>
   remove(item: Item): Promise<Item>

@@ -5,6 +5,7 @@ import { AnalyticsStoreInterface } from '@standardnotes/analytics'
 import { ItemRepositoryInterface } from '../../Item/ItemRepositoryInterface'
 
 import { CheckIntegrity } from './CheckIntegrity'
+import { ContentType } from '@standardnotes/common'
 
 describe('CheckIntegrity', () => {
   let itemRepository: ItemRepositoryInterface
@@ -18,14 +19,22 @@ describe('CheckIntegrity', () => {
       {
         uuid: '1-2-3',
         updated_at_timestamp: 1,
+        content_type: ContentType.Note,
       },
       {
         uuid: '2-3-4',
         updated_at_timestamp: 2,
+        content_type: ContentType.Note,
       },
       {
         uuid: '3-4-5',
         updated_at_timestamp: 3,
+        content_type: ContentType.Note,
+      },
+      {
+        uuid: '4-5-6',
+        updated_at_timestamp: 4,
+        content_type: ContentType.ItemsKey,
       },
     ])
 
