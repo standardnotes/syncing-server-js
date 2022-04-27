@@ -8,7 +8,7 @@ import { SyncResponseFactory20161215 } from './SyncResponseFactory20161215'
 import { ConflictType } from '@standardnotes/responses'
 
 describe('SyncResponseFactory20161215', () => {
-  let itemProjector: ProjectorInterface<Item>
+  let itemProjector: ProjectorInterface<Item, ItemProjection>
   let item1Projection: ItemProjection
   let item2Projection: ItemProjection
   let item1: Item
@@ -24,7 +24,7 @@ describe('SyncResponseFactory20161215', () => {
       uuid: '2-3-4',
     } as jest.Mocked<ItemProjection>
 
-    itemProjector = {} as jest.Mocked<ProjectorInterface<Item>>
+    itemProjector = {} as jest.Mocked<ProjectorInterface<Item, ItemProjection>>
     itemProjector.projectFull = jest.fn().mockImplementation((item: Item) => {
       if (item.uuid === '1-2-3') {
         return item1Projection

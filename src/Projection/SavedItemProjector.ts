@@ -4,30 +4,27 @@ import TYPES from '../Bootstrap/Types'
 import { ProjectorInterface } from './ProjectorInterface'
 
 import { Item } from '../Domain/Item/Item'
-import { ItemProjection } from './ItemProjection'
+import { SavedItemProjection } from './SavedItemProjection'
 
 @injectable()
-export class ItemProjector implements ProjectorInterface<Item, ItemProjection> {
+export class SavedItemProjector implements ProjectorInterface<Item, SavedItemProjection> {
   constructor(
     @inject(TYPES.Timer) private timer: TimerInterface,
   ) {
   }
 
-  async projectSimple(_item: Item): Promise<ItemProjection> {
+  async projectSimple(_item: Item): Promise<SavedItemProjection> {
     throw Error('not implemented')
   }
 
-  async projectCustom(_projectionType: string, _item: Item): Promise<ItemProjection> {
+  async projectCustom(_projectionType: string, _item: Item): Promise<SavedItemProjection> {
     throw Error('not implemented')
   }
 
-  async projectFull(item: Item): Promise<ItemProjection> {
+  async projectFull(item: Item): Promise<SavedItemProjection> {
     return {
       uuid: item.uuid,
-      items_key_id: item.itemsKeyId,
       duplicate_of: item.duplicateOf,
-      enc_item_key: item.encItemKey,
-      content: item.content,
       content_type: item.contentType as string,
       auth_hash: item.authHash,
       deleted: !!item.deleted,

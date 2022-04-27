@@ -14,12 +14,13 @@ import { CheckIntegrity } from '../Domain/UseCase/CheckIntegrity/CheckIntegrity'
 import { GetItem } from '../Domain/UseCase/GetItem/GetItem'
 import { Item } from '../Domain/Item/Item'
 import { ProjectorInterface } from '../Projection/ProjectorInterface'
+import { ItemProjection } from '../Projection/ItemProjection'
 
 describe('ItemsController', () => {
   let syncItems: SyncItems
   let checkIntegrity: CheckIntegrity
   let getItem: GetItem
-  let itemProjector: ProjectorInterface<Item>
+  let itemProjector: ProjectorInterface<Item, ItemProjection>
   let request: express.Request
   let response: express.Response
   let syncResponceFactoryResolver: SyncResponseFactoryResolverInterface
@@ -35,7 +36,7 @@ describe('ItemsController', () => {
   )
 
   beforeEach(() => {
-    itemProjector = {} as jest.Mocked<ProjectorInterface<Item>>
+    itemProjector = {} as jest.Mocked<ProjectorInterface<Item, ItemProjection>>
     itemProjector.projectFull = jest.fn().mockReturnValue({ foo: 'bar' })
 
     syncItems = {} as jest.Mocked<SyncItems>

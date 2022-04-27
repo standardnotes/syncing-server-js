@@ -6,10 +6,11 @@ import { Logger } from 'winston'
 import { Item } from '../../Domain/Item/Item'
 import { S3ItemBackupService } from './S3ItemBackupService'
 import { ProjectorInterface } from '../../Projection/ProjectorInterface'
+import { ItemProjection } from '../../Projection/ItemProjection'
 
 describe('S3ItemBackupService', () => {
   let s3Client: S3 | undefined
-  let itemProjector: ProjectorInterface<Item>
+  let itemProjector: ProjectorInterface<Item, ItemProjection>
   let s3BackupBucketName = 'backup-bucket'
   let logger: Logger
   let item: Item
@@ -35,7 +36,7 @@ describe('S3ItemBackupService', () => {
 
     keyParams = {} as jest.Mocked<KeyParamsData>
 
-    itemProjector = {} as jest.Mocked<ProjectorInterface<Item>>
+    itemProjector = {} as jest.Mocked<ProjectorInterface<Item, ItemProjection>>
     itemProjector.projectFull = jest.fn().mockReturnValue({ foo: 'bar' })
   })
 

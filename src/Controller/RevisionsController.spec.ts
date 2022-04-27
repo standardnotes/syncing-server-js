@@ -7,9 +7,10 @@ import { RevisionsController } from './RevisionsController'
 import { results } from 'inversify-express-utils'
 import { ProjectorInterface } from '../Projection/ProjectorInterface'
 import { RevisionServiceInterface } from '../Domain/Revision/RevisionServiceInterface'
+import { RevisionProjection } from '../Projection/RevisionProjection'
 
 describe('RevisionsController', () => {
-  let revisionProjector: ProjectorInterface<Revision>
+  let revisionProjector: ProjectorInterface<Revision, RevisionProjection>
   let revisionService: RevisionServiceInterface
   let revision: Revision
   let request: express.Request
@@ -20,7 +21,7 @@ describe('RevisionsController', () => {
   beforeEach(() => {
     revision = {} as jest.Mocked<Revision>
 
-    revisionProjector = {} as jest.Mocked<ProjectorInterface<Revision>>
+    revisionProjector = {} as jest.Mocked<ProjectorInterface<Revision, RevisionProjection>>
 
     revisionService = {} as jest.Mocked<RevisionServiceInterface>
     revisionService.getRevisions = jest.fn().mockReturnValue([ revision ])
