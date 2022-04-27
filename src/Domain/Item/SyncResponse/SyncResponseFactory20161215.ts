@@ -15,7 +15,7 @@ export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface
   private readonly LEGACY_MIN_CONFLICT_INTERVAL = 20_000_000
 
   constructor(
-    @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item>,
+    @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item, ItemProjection>,
   ){
   }
 

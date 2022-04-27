@@ -9,7 +9,7 @@ import { ItemProjection } from './ItemProjection'
 import { ConflictType } from '@standardnotes/responses'
 
 describe('ItemConflictProjector', () => {
-  let itemProjector: ProjectorInterface<Item>
+  let itemProjector: ProjectorInterface<Item, ItemProjection>
   let itemProjection: ItemProjection
   let itemConflict1: ItemConflict
   let itemConflict2: ItemConflict
@@ -21,7 +21,7 @@ describe('ItemConflictProjector', () => {
   beforeEach(() => {
     itemProjection = {} as jest.Mocked<ItemProjection>
 
-    itemProjector = {} as jest.Mocked<ProjectorInterface<Item>>
+    itemProjector = {} as jest.Mocked<ProjectorInterface<Item, ItemProjection>>
     itemProjector.projectFull = jest.fn().mockReturnValue(itemProjection)
 
     item = {} as jest.Mocked<Item>

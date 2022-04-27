@@ -13,6 +13,7 @@ const TYPES = {
   // Projectors
   RevisionProjector: Symbol.for('RevisionProjector'),
   ItemProjector: Symbol.for('ItemProjector'),
+  SavedItemProjector: Symbol.for('SavedItemProjector'),
   ItemConflictProjector: Symbol.for('ItemConflictProjector'),
   // env vars
   REDIS_URL: Symbol.for('REDIS_URL'),
