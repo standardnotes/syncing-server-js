@@ -1,7 +1,6 @@
 import 'reflect-metadata'
 
 import { ContentType } from '@standardnotes/common'
-import * as crypto from 'crypto'
 import { Item } from './Item'
 import { ItemHash } from './ItemHash'
 
@@ -876,20 +875,5 @@ describe('ItemService', () => {
       savedItems: [],
       syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
     })
-  })
-
-  it('should compute an integrity hash', async () => {
-    itemRepository.findDatesForComputingIntegrityHash = jest.fn().mockReturnValue([
-      1616164633242313,
-      1616164633241312,
-    ])
-
-    timer.convertMicrosecondsToMilliseconds = jest.fn()
-      .mockReturnValueOnce(1616164633242)
-      .mockReturnValueOnce(1616164633241)
-
-    const expected = crypto.createHash('sha256').update('1616164633242,1616164633241').digest('hex')
-
-    expect(await createService().computeIntegrityHash('1-2-3')).toEqual(expected)
   })
 })

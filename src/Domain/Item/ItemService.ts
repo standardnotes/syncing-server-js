@@ -1,7 +1,6 @@
 import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import { Time, TimerInterface } from '@standardnotes/time'
 import { ContentType } from '@standardnotes/common'
-import * as crypto from 'crypto'
 import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
@@ -41,16 +40,6 @@ export class ItemService implements ItemServiceInterface {
     @inject(TYPES.Timer) private timer: TimerInterface,
     @inject(TYPES.Logger) private logger: Logger
   ) {
-  }
-
-  async computeIntegrityHash(userUuid: string): Promise<string> {
-    const items = await this.itemRepository.findDatesForComputingIntegrityHash(userUuid)
-
-    const timestampsInMilliseconds = items.map(item => this.timer.convertMicrosecondsToMilliseconds(item.updated_at_timestamp))
-
-    const stringToHash = timestampsInMilliseconds.join(',')
-
-    return crypto.createHash('sha256').update(stringToHash).digest('hex')
   }
 
   async getItems(dto: GetItemsDTO): Promise<GetItemsResult> {

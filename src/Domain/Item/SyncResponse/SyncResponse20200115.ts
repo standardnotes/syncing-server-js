@@ -8,5 +8,4 @@ export type SyncResponse20200115 = {
   conflicts: Array<ItemConflictProjection>
   sync_token: string
   cursor_token?: string
-  integrity_hash?: string
 }

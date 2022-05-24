@@ -15,9 +15,8 @@ describe('SyncItems', () => {
   let item2: Item
   let item3: Item
   let itemHash: ItemHash
-  let integrityHashIsDisabled = false
 
-  const createUseCase = () => new SyncItems(itemService, integrityHashIsDisabled)
+  const createUseCase = () => new SyncItems(itemService)
 
   beforeEach(() => {
     item1 = {
@@ -99,58 +98,6 @@ describe('SyncItems', () => {
       userUuid: '1-2-3',
       itemHashes: [ itemHash ],
       computeIntegrityHash: false,
-      limit: 10,
-      readOnlyAccess: false,
-      contentType: 'Note',
-      apiVersion: ApiVersion.v20200115,
-    })).toEqual({
-      conflicts: [],
-      cursorToken: 'asdzxc',
-      retrievedItems: [
-        item3,
-        item1,
-      ],
-      savedItems: [
-        item2,
-      ],
-      syncToken: 'qwerty',
-    })
-  })
-
-  it('should sync items and compute an integrity hash if prompted', async() => {
-    itemService.computeIntegrityHash = jest.fn().mockReturnValue('test-hash')
-    expect(await createUseCase().execute({
-      userUuid: '1-2-3',
-      itemHashes: [ itemHash ],
-      computeIntegrityHash: true,
-      limit: 10,
-      readOnlyAccess: false,
-      contentType: 'Note',
-      apiVersion: ApiVersion.v20200115,
-    })).toEqual({
-      conflicts: [],
-      cursorToken: 'asdzxc',
-      integrityHash: 'test-hash',
-      retrievedItems: [
-        item3,
-        item1,
-      ],
-      savedItems: [
-        item2,
-      ],
-      syncToken: 'qwerty',
-    })
-  })
-
-  it('should sync items and not compute an integrity hash if integrity hash calculation is disabled', async() => {
-    integrityHashIsDisabled = true
-
-    itemService.computeIntegrityHash = jest.fn().mockReturnValue('test-hash')
-
-    expect(await createUseCase().execute({
-      userUuid: '1-2-3',
-      itemHashes: [ itemHash ],
-      computeIntegrityHash: true,
       limit: 10,
       readOnlyAccess: false,
       contentType: 'Note',

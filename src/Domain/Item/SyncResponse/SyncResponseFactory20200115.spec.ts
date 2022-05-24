@@ -52,14 +52,12 @@ describe('SyncResponseFactory20200115', () => {
       savedItems: [ item2 ],
       conflicts: [ itemConflict ],
       syncToken: 'sync-test',
-      integrityHash: 'test-hash',
       cursorToken: 'cursor-test',
     })).toEqual({
       retrieved_items: [ itemProjection ],
       saved_items: [ savedItemProjection ],
       conflicts: [ itemConflictProjection ],
       sync_token: 'sync-test',
-      integrity_hash: 'test-hash',
       cursor_token: 'cursor-test',
     })
   })

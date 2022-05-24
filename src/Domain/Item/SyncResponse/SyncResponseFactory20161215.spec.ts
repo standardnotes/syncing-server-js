@@ -61,7 +61,6 @@ describe('SyncResponseFactory20161215', () => {
         },
       ],
       syncToken: 'sync-test',
-      integrityHash: 'test-hash',
       cursorToken: 'cursor-test',
     })).toEqual({
       retrieved_items: [ item1Projection ],
@@ -75,7 +74,6 @@ describe('SyncResponseFactory20161215', () => {
         },
       ],
       sync_token: 'sync-test',
-      integrity_hash: 'test-hash',
       cursor_token: 'cursor-test',
     })
   })
@@ -98,7 +96,6 @@ describe('SyncResponseFactory20161215', () => {
         },
       ],
       syncToken: 'sync-test',
-      integrityHash: 'test-hash',
       cursorToken: 'cursor-test',
     })).toEqual({
       retrieved_items: [],
@@ -118,7 +115,6 @@ describe('SyncResponseFactory20161215', () => {
         },
       ],
       sync_token: 'sync-test',
-      integrity_hash: 'test-hash',
       cursor_token: 'cursor-test',
     })
   })

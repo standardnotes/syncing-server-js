@@ -80,9 +80,7 @@ describe('ItemsController', () => {
       uuid: '123',
     }
 
-    syncResponse = {
-      integrity_hash: '123',
-    } as jest.Mocked<SyncResponse20200115>
+    syncResponse = {} as jest.Mocked<SyncResponse20200115>
 
     syncResponseFactory = {} as jest.Mocked<SyncResponseFactoryInterface>
     syncResponseFactory.createResponse = jest.fn().mockReturnValue(syncResponse)
@@ -183,7 +181,6 @@ describe('ItemsController', () => {
     })
 
     expect(result.statusCode).toEqual(200)
-    expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
   })
 
   it('should sync items with defaulting API version if none specified', async () => {
@@ -214,7 +211,6 @@ describe('ItemsController', () => {
     })
 
     expect(result.statusCode).toEqual(200)
-    expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
   })
 
   it('should sync items with no incoming items in request', async () => {
@@ -233,6 +229,5 @@ describe('ItemsController', () => {
     })
 
     expect(result.statusCode).toEqual(200)
-    expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
   })
 })

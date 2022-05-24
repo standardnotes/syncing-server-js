@@ -41,7 +41,6 @@ export class SyncResponseFactory20200115 implements SyncResponseFactoryInterface
       conflicts,
       sync_token: syncItemsResponse.syncToken,
       cursor_token: syncItemsResponse.cursorToken,
-      integrity_hash: syncItemsResponse.integrityHash,
     }
   }
 }

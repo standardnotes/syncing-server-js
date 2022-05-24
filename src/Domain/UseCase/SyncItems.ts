@@ -11,7 +11,6 @@ import { UseCaseInterface } from './UseCaseInterface'
 export class SyncItems implements UseCaseInterface {
   constructor(
     @inject(TYPES.ItemService) private itemService: ItemServiceInterface,
-    @inject(TYPES.DISABLE_INTEGRITY_HASH) private integrityHashIsDisabled: boolean,
   ) {
   }
 
@@ -42,10 +41,6 @@ export class SyncItems implements UseCaseInterface {
       savedItems: saveItemsResult.savedItems,
       conflicts: saveItemsResult.conflicts,
       cursorToken: getItemsResult.cursorToken,
-    }
-
-    if (!this.integrityHashIsDisabled && dto.computeIntegrityHash) {
-      syncResponse.integrityHash = await this.itemService.computeIntegrityHash(dto.userUuid)
     }
 
     return syncResponse

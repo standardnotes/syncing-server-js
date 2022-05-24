@@ -6,6 +6,5 @@ export type SyncItemsResponse = {
   savedItems: Array<Item>
   conflicts: Array<ItemConflict>
   syncToken: string
-  integrityHash?: string
   cursorToken?: string
 }
