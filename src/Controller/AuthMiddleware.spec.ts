@@ -42,13 +42,14 @@ describe('AuthMiddleware', () => {
       roles: [
         {
           uuid: '1-2-3',
-          name: RoleName.BasicUser,
+          name: RoleName.CoreUser,
         },
         {
           uuid: '2-3-4',
           name: RoleName.ProUser,
         },
       ],
+      analyticsId: 123,
       permissions: [],
     }, jwtSecret, { algorithm: 'HS256' })
 
@@ -57,9 +58,10 @@ describe('AuthMiddleware', () => {
     await createMiddleware().handler(request, response, next)
 
     expect(response.locals.user).toEqual({ uuid: '123' })
-    expect(response.locals.roleNames).toEqual([ 'BASIC_USER', 'PRO_USER' ])
+    expect(response.locals.roleNames).toEqual([ 'CORE_USER', 'PRO_USER' ])
     expect(response.locals.session).toEqual({ uuid: '234' })
     expect(response.locals.readOnlyAccess).toBeFalsy()
+    expect(response.locals.analyticsId).toEqual(123)
 
     expect(next).toHaveBeenCalled()
   })
@@ -74,13 +76,14 @@ describe('AuthMiddleware', () => {
       roles: [
         {
           uuid: '1-2-3',
-          name: RoleName.BasicUser,
+          name: RoleName.CoreUser,
         },
         {
           uuid: '2-3-4',
           name: RoleName.ProUser,
         },
       ],
+      analyticsId: 123,
       permissions: [],
     }, jwtSecret, { algorithm: 'HS256' })
 
@@ -89,9 +92,10 @@ describe('AuthMiddleware', () => {
     await createMiddleware().handler(request, response, next)
 
     expect(response.locals.user).toEqual({ uuid: '123' })
-    expect(response.locals.roleNames).toEqual([ 'BASIC_USER', 'PRO_USER' ])
+    expect(response.locals.roleNames).toEqual([ 'CORE_USER', 'PRO_USER' ])
     expect(response.locals.session).toEqual({ uuid: '234', readonly_access: true })
     expect(response.locals.readOnlyAccess).toBeTruthy()
+    expect(response.locals.analyticsId).toEqual(123)
 
     expect(next).toHaveBeenCalled()
   })

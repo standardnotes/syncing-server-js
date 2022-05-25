@@ -2,6 +2,7 @@ import { ItemHash } from '../Item/ItemHash'
 
 export type SyncItemsDTO = {
   userUuid: string
+  analyticsId: number
   itemHashes: Array<ItemHash>
   computeIntegrityHash: boolean
   limit: number

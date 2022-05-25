@@ -79,6 +79,7 @@ describe('ItemsController', () => {
     response.locals.user = {
       uuid: '123',
     }
+    response.locals.analyticsId = 123
 
     syncResponse = {} as jest.Mocked<SyncResponse20200115>
 
@@ -178,6 +179,7 @@ describe('ItemsController', () => {
       limit: 150,
       syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
       userUuid: '123',
+      analyticsId: 123,
     })
 
     expect(result.statusCode).toEqual(200)
@@ -208,6 +210,7 @@ describe('ItemsController', () => {
       limit: 150,
       syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
       userUuid: '123',
+      analyticsId: 123,
     })
 
     expect(result.statusCode).toEqual(200)
@@ -226,6 +229,7 @@ describe('ItemsController', () => {
       limit: 150,
       syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
       userUuid: '123',
+      analyticsId: 123,
     })
 
     expect(result.statusCode).toEqual(200)

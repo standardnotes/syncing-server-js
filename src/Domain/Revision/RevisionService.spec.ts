@@ -102,7 +102,7 @@ describe('RevisionService', () => {
 
     expect(await createService().getRevision({
       itemUuid: '1-2-3',
-      userRoles: [ RoleName.BasicUser ],
+      userRoles: [ RoleName.CoreUser ],
       userUuid: '1-2-3',
       revisionUuid: '3-4-5',
     })).toBeUndefined()
@@ -113,7 +113,7 @@ describe('RevisionService', () => {
 
     expect(await createService().getRevision({
       itemUuid: '1-2-3',
-      userRoles: [ RoleName.BasicUser ],
+      userRoles: [ RoleName.CoreUser ],
       userUuid: '3-4-5',
       revisionUuid: '3-4-5',
     })).toBeUndefined()
@@ -124,7 +124,7 @@ describe('RevisionService', () => {
 
     expect(await createService().getRevision({
       itemUuid: '1-2-3',
-      userRoles: [ RoleName.BasicUser ],
+      userRoles: [ RoleName.CoreUser ],
       userUuid: '1-2-3',
       revisionUuid: '3-4-5',
     })).toBeUndefined()
@@ -135,21 +135,10 @@ describe('RevisionService', () => {
 
     expect(await createService().getRevision({
       itemUuid: '1-2-3',
-      userRoles: [ RoleName.BasicUser ],
+      userRoles: [ RoleName.CoreUser ],
       userUuid: '1-2-3',
       revisionUuid: '3-4-5',
     })).toEqual(revision1)
-  })
-
-  it('should not get a revision if user has not enough permissions - core user', async () => {
-    timer.dateWasNDaysAgo = jest.fn().mockReturnValue(5)
-
-    expect(await createService().getRevision({
-      itemUuid: '1-2-3',
-      userRoles: [ RoleName.BasicUser ],
-      userUuid: '1-2-3',
-      revisionUuid: '3-4-5',
-    })).toBeUndefined()
   })
 
   it('should not get a revision if user has not enough permissions - plus user', async () => {
@@ -157,7 +146,7 @@ describe('RevisionService', () => {
 
     expect(await createService().getRevision({
       itemUuid: '1-2-3',
-      userRoles: [ RoleName.BasicUser, RoleName.CoreUser ],
+      userRoles: [ RoleName.CoreUser ],
       userUuid: '1-2-3',
       revisionUuid: '3-4-5',
     })).toBeUndefined()
@@ -168,7 +157,7 @@ describe('RevisionService', () => {
 
     expect(await createService().getRevision({
       itemUuid: '1-2-3',
-      userRoles: [ RoleName.BasicUser, RoleName.PlusUser ],
+      userRoles: [ RoleName.CoreUser, RoleName.PlusUser ],
       userUuid: '1-2-3',
       revisionUuid: '3-4-5',
     })).toBeUndefined()

@@ -26,7 +26,7 @@ describe('RevisionProjector', () => {
     timer.formatDate = jest.fn().mockReturnValue('2020-11-26')
 
     revisionService = {} as jest.Mocked<RevisionServiceInterface>
-    revisionService.calculateRequiredRoleBasedOnRevisionDate = jest.fn().mockReturnValue(RoleName.BasicUser)
+    revisionService.calculateRequiredRoleBasedOnRevisionDate = jest.fn().mockReturnValue(RoleName.CoreUser)
 
     revision.creationDate = new Date(1)
     revision.createdAt = new Date(1)
@@ -39,7 +39,7 @@ describe('RevisionProjector', () => {
       content_type: 'Note',
       created_at: '2020-11-26T13:34:00.000Z',
       updated_at: '2020-11-26T13:34:00.000Z',
-      required_role: 'BASIC_USER',
+      required_role: 'CORE_USER',
       uuid: '123',
     })
   })
@@ -53,7 +53,7 @@ describe('RevisionProjector', () => {
       created_at: '2020-11-26T13:34:00.000Z',
       creation_date: '2020-11-26',
       enc_item_key: undefined,
-      required_role: 'BASIC_USER',
+      required_role: 'CORE_USER',
       item_uuid: '1-2-3',
       items_key_id: '123',
       updated_at: '2020-11-26T13:34:00.000Z',
