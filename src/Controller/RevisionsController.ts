@@ -7,12 +7,13 @@ import { ProjectorInterface } from '../Projection/ProjectorInterface'
 import { Revision } from '../Domain/Revision/Revision'
 import { RevisionServiceInterface } from '../Domain/Revision/RevisionServiceInterface'
 import { ErrorTag } from '@standardnotes/common'
+import { RevisionProjection } from '../Projection/RevisionProjection'
 
 @controller('/items/:itemUuid/revisions', TYPES.AuthMiddleware)
 export class RevisionsController extends BaseHttpController {
   constructor(
     @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
-    @inject(TYPES.RevisionProjector) private revisionProjector: ProjectorInterface<Revision>
+    @inject(TYPES.RevisionProjector) private revisionProjector: ProjectorInterface<Revision, RevisionProjection>
   ) {
     super()
   }

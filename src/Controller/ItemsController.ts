@@ -8,6 +8,7 @@ import { SyncResponseFactoryResolverInterface } from '../Domain/Item/SyncRespons
 import { CheckIntegrity } from '../Domain/UseCase/CheckIntegrity/CheckIntegrity'
 import { GetItem } from '../Domain/UseCase/GetItem/GetItem'
 import { SyncItems } from '../Domain/UseCase/SyncItems'
+import { ItemProjection } from '../Projection/ItemProjection'
 import { ProjectorInterface } from '../Projection/ProjectorInterface'
 
 @controller('/items', TYPES.AuthMiddleware)
@@ -16,7 +17,7 @@ export class ItemsController extends BaseHttpController {
     @inject(TYPES.SyncItems) private syncItems: SyncItems,
     @inject(TYPES.CheckIntegrity) private checkIntegrity: CheckIntegrity,
     @inject(TYPES.GetItem) private getItem: GetItem,
-    @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item>,
+    @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item, ItemProjection>,
     @inject(TYPES.SyncResponseFactoryResolver) private syncResponseFactoryResolver: SyncResponseFactoryResolverInterface,
   ) {
     super()
@@ -39,6 +40,7 @@ export class ItemsController extends BaseHttpController {
       contentType: request.body.content_type,
       apiVersion: request.body.api ?? ApiVersion.v20161215,
       readOnlyAccess: response.locals.readOnlyAccess,
+      analyticsId: response.locals.analyticsId,
     })
 
     const syncResponse = await this.syncResponseFactoryResolver

@@ -60,6 +60,13 @@ import { CheckIntegrity } from '../Domain/UseCase/CheckIntegrity/CheckIntegrity'
 import { GetItem } from '../Domain/UseCase/GetItem/GetItem'
 import { ItemTransferCalculatorInterface } from '../Domain/Item/ItemTransferCalculatorInterface'
 import { ItemTransferCalculator } from '../Domain/Item/ItemTransferCalculator'
+import { ProjectorInterface } from '../Projection/ProjectorInterface'
+import { SavedItemProjection } from '../Projection/SavedItemProjection'
+import { SavedItemProjector } from '../Projection/SavedItemProjector'
+import { ItemProjection } from '../Projection/ItemProjection'
+import { RevisionProjection } from '../Projection/RevisionProjection'
+import { ItemConflict } from '../Domain/Item/ItemConflict'
+import { ItemConflictProjection } from '../Projection/ItemConflictProjection'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const newrelicWinstonEnricher = require('@newrelic/winston-enricher')
@@ -174,9 +181,10 @@ export class ContainerConfigLoader {
     container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
 
     // Projectors
-    container.bind<RevisionProjector>(TYPES.RevisionProjector).to(RevisionProjector)
-    container.bind<ItemProjector>(TYPES.ItemProjector).to(ItemProjector)
-    container.bind<ItemConflictProjector>(TYPES.ItemConflictProjector).to(ItemConflictProjector)
+    container.bind<ProjectorInterface<Revision, RevisionProjection>>(TYPES.RevisionProjector).to(RevisionProjector)
+    container.bind<ProjectorInterface<Item, ItemProjection>>(TYPES.ItemProjector).to(ItemProjector)
+    container.bind<ProjectorInterface<Item, SavedItemProjection>>(TYPES.SavedItemProjector).to(SavedItemProjector)
+    container.bind<ProjectorInterface<ItemConflict, ItemConflictProjection>>(TYPES.ItemConflictProjector).to(ItemConflictProjector)
 
     // env vars
     container.bind(TYPES.REDIS_URL).toConstantValue(env.get('REDIS_URL'))
@@ -197,7 +205,6 @@ export class ContainerConfigLoader {
     container.bind(TYPES.CONTENT_SIZE_TRANSFER_LIMIT).toConstantValue(
       env.get('CONTENT_SIZE_TRANSFER_LIMIT', true) ?? this.DEFAULT_CONTENT_SIZE_TRANSFER_LIMIT
     )
-    container.bind(TYPES.DISABLE_INTEGRITY_HASH).toConstantValue(env.get('DISABLE_INTEGRITY_HASH', true) === 'true')
 
     // use cases
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)

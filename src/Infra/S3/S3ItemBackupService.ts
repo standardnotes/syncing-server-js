@@ -7,12 +7,13 @@ import TYPES from '../../Bootstrap/Types'
 import { Item } from '../../Domain/Item/Item'
 import { ItemBackupServiceInterface } from '../../Domain/Item/ItemBackupServiceInterface'
 import { ProjectorInterface } from '../../Projection/ProjectorInterface'
+import { ItemProjection } from '../../Projection/ItemProjection'
 
 @injectable()
 export class S3ItemBackupService implements ItemBackupServiceInterface {
   constructor (
     @inject(TYPES.S3_BACKUP_BUCKET_NAME) private s3BackupBucketName: string,
-    @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item>,
+    @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item, ItemProjection>,
     @inject(TYPES.Logger) private logger: Logger,
     @inject(TYPES.S3) private s3Client?: S3,
   ) {

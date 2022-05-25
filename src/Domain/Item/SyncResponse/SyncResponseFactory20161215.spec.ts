@@ -8,7 +8,7 @@ import { SyncResponseFactory20161215 } from './SyncResponseFactory20161215'
 import { ConflictType } from '@standardnotes/responses'
 
 describe('SyncResponseFactory20161215', () => {
-  let itemProjector: ProjectorInterface<Item>
+  let itemProjector: ProjectorInterface<Item, ItemProjection>
   let item1Projection: ItemProjection
   let item2Projection: ItemProjection
   let item1: Item
@@ -24,7 +24,7 @@ describe('SyncResponseFactory20161215', () => {
       uuid: '2-3-4',
     } as jest.Mocked<ItemProjection>
 
-    itemProjector = {} as jest.Mocked<ProjectorInterface<Item>>
+    itemProjector = {} as jest.Mocked<ProjectorInterface<Item, ItemProjection>>
     itemProjector.projectFull = jest.fn().mockImplementation((item: Item) => {
       if (item.uuid === '1-2-3') {
         return item1Projection
@@ -61,7 +61,6 @@ describe('SyncResponseFactory20161215', () => {
         },
       ],
       syncToken: 'sync-test',
-      integrityHash: 'test-hash',
       cursorToken: 'cursor-test',
     })).toEqual({
       retrieved_items: [ item1Projection ],
@@ -75,7 +74,6 @@ describe('SyncResponseFactory20161215', () => {
         },
       ],
       sync_token: 'sync-test',
-      integrity_hash: 'test-hash',
       cursor_token: 'cursor-test',
     })
   })
@@ -98,7 +96,6 @@ describe('SyncResponseFactory20161215', () => {
         },
       ],
       syncToken: 'sync-test',
-      integrityHash: 'test-hash',
       cursorToken: 'cursor-test',
     })).toEqual({
       retrieved_items: [],
@@ -118,7 +115,6 @@ describe('SyncResponseFactory20161215', () => {
         },
       ],
       sync_token: 'sync-test',
-      integrity_hash: 'test-hash',
       cursor_token: 'cursor-test',
     })
   })

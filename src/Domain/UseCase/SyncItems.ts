@@ -1,3 +1,4 @@
+import { AnalyticsActivity, AnalyticsStoreInterface } from '@standardnotes/analytics'
 import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
 import { Item } from '../Item/Item'
@@ -11,7 +12,7 @@ import { UseCaseInterface } from './UseCaseInterface'
 export class SyncItems implements UseCaseInterface {
   constructor(
     @inject(TYPES.ItemService) private itemService: ItemServiceInterface,
-    @inject(TYPES.DISABLE_INTEGRITY_HASH) private integrityHashIsDisabled: boolean,
+    @inject(TYPES.AnalyticsStore) private analyticsStore: AnalyticsStoreInterface,
   ) {
   }
 
@@ -36,16 +37,16 @@ export class SyncItems implements UseCaseInterface {
       retrievedItems = await this.itemService.frontLoadKeysItemsToTop(dto.userUuid, retrievedItems)
     }
 
+    if (saveItemsResult.savedItems.length > 0) {
+      await this.analyticsStore.markActivity(AnalyticsActivity.EditingItems, dto.analyticsId)
+    }
+
     const syncResponse: SyncItemsResponse = {
       retrievedItems,
       syncToken: saveItemsResult.syncToken,
       savedItems: saveItemsResult.savedItems,
       conflicts: saveItemsResult.conflicts,
       cursorToken: getItemsResult.cursorToken,
-    }
-
-    if (!this.integrityHashIsDisabled && dto.computeIntegrityHash) {
-      syncResponse.integrityHash = await this.itemService.computeIntegrityHash(dto.userUuid)
     }
 
     return syncResponse

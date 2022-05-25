@@ -8,12 +8,14 @@ import { ItemConflictProjection } from '../../../Projection/ItemConflictProjecti
 import { ItemProjection } from '../../../Projection/ItemProjection'
 import { SyncResponse20200115 } from './SyncResponse20200115'
 import { SyncResponseFactoryInterface } from './SyncResponseFactoryInterface'
+import { SavedItemProjection } from '../../../Projection/SavedItemProjection'
 
 @injectable()
 export class SyncResponseFactory20200115 implements SyncResponseFactoryInterface {
   constructor(
-    @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item>,
-    @inject(TYPES.ItemConflictProjector) private itemConflictProjector: ProjectorInterface<ItemConflict>,
+    @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item, ItemProjection>,
+    @inject(TYPES.ItemConflictProjector) private itemConflictProjector: ProjectorInterface<ItemConflict, ItemConflictProjection>,
+    @inject(TYPES.SavedItemProjector) private savedItemProjector: ProjectorInterface<Item, SavedItemProjection>,
   ){
   }
 
@@ -25,7 +27,7 @@ export class SyncResponseFactory20200115 implements SyncResponseFactoryInterface
 
     const savedItems = []
     for (const item of syncItemsResponse.savedItems) {
-      savedItems.push(<ItemProjection> await this.itemProjector.projectFull(item))
+      savedItems.push(<SavedItemProjection> await this.savedItemProjector.projectFull(item))
     }
 
     const conflicts = []
@@ -39,7 +41,6 @@ export class SyncResponseFactory20200115 implements SyncResponseFactoryInterface
       conflicts,
       sync_token: syncItemsResponse.syncToken,
       cursor_token: syncItemsResponse.cursorToken,
-      integrity_hash: syncItemsResponse.integrityHash,
     }
   }
 }

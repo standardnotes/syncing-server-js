@@ -13,6 +13,7 @@ const TYPES = {
   // Projectors
   RevisionProjector: Symbol.for('RevisionProjector'),
   ItemProjector: Symbol.for('ItemProjector'),
+  SavedItemProjector: Symbol.for('SavedItemProjector'),
   ItemConflictProjector: Symbol.for('ItemConflictProjector'),
   // env vars
   REDIS_URL: Symbol.for('REDIS_URL'),
@@ -32,7 +33,6 @@ const TYPES = {
   NEW_RELIC_ENABLED: Symbol.for('NEW_RELIC_ENABLED'),
   VERSION: Symbol.for('VERSION'),
   CONTENT_SIZE_TRANSFER_LIMIT: Symbol.for('CONTENT_SIZE_TRANSFER_LIMIT'),
-  DISABLE_INTEGRITY_HASH: Symbol.for('DISABLE_INTEGRITY_HASH'),
   // use cases
   SyncItems: Symbol.for('SyncItems'),
   CheckIntegrity: Symbol.for('CheckIntegrity'),

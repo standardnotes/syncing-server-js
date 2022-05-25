@@ -14,12 +14,13 @@ import { CheckIntegrity } from '../Domain/UseCase/CheckIntegrity/CheckIntegrity'
 import { GetItem } from '../Domain/UseCase/GetItem/GetItem'
 import { Item } from '../Domain/Item/Item'
 import { ProjectorInterface } from '../Projection/ProjectorInterface'
+import { ItemProjection } from '../Projection/ItemProjection'
 
 describe('ItemsController', () => {
   let syncItems: SyncItems
   let checkIntegrity: CheckIntegrity
   let getItem: GetItem
-  let itemProjector: ProjectorInterface<Item>
+  let itemProjector: ProjectorInterface<Item, ItemProjection>
   let request: express.Request
   let response: express.Response
   let syncResponceFactoryResolver: SyncResponseFactoryResolverInterface
@@ -35,7 +36,7 @@ describe('ItemsController', () => {
   )
 
   beforeEach(() => {
-    itemProjector = {} as jest.Mocked<ProjectorInterface<Item>>
+    itemProjector = {} as jest.Mocked<ProjectorInterface<Item, ItemProjection>>
     itemProjector.projectFull = jest.fn().mockReturnValue({ foo: 'bar' })
 
     syncItems = {} as jest.Mocked<SyncItems>
@@ -78,10 +79,9 @@ describe('ItemsController', () => {
     response.locals.user = {
       uuid: '123',
     }
+    response.locals.analyticsId = 123
 
-    syncResponse = {
-      integrity_hash: '123',
-    } as jest.Mocked<SyncResponse20200115>
+    syncResponse = {} as jest.Mocked<SyncResponse20200115>
 
     syncResponseFactory = {} as jest.Mocked<SyncResponseFactoryInterface>
     syncResponseFactory.createResponse = jest.fn().mockReturnValue(syncResponse)
@@ -179,10 +179,10 @@ describe('ItemsController', () => {
       limit: 150,
       syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
       userUuid: '123',
+      analyticsId: 123,
     })
 
     expect(result.statusCode).toEqual(200)
-    expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
   })
 
   it('should sync items with defaulting API version if none specified', async () => {
@@ -210,10 +210,10 @@ describe('ItemsController', () => {
       limit: 150,
       syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
       userUuid: '123',
+      analyticsId: 123,
     })
 
     expect(result.statusCode).toEqual(200)
-    expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
   })
 
   it('should sync items with no incoming items in request', async () => {
@@ -229,9 +229,9 @@ describe('ItemsController', () => {
       limit: 150,
       syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
       userUuid: '123',
+      analyticsId: 123,
     })
 
     expect(result.statusCode).toEqual(200)
-    expect(await result.content.readAsStringAsync()).toEqual('{"integrity_hash":"123"}')
   })
 })

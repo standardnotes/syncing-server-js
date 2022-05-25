@@ -111,10 +111,6 @@ export class RevisionService implements RevisionServiceInterface {
   calculateRequiredRoleBasedOnRevisionDate(createdAt: Date): RoleName {
     const revisionCreatedNDaysAgo = this.timer.dateWasNDaysAgo(createdAt)
 
-    if (revisionCreatedNDaysAgo > 3 && revisionCreatedNDaysAgo < 30) {
-      return RoleName.CoreUser
-    }
-
     if (revisionCreatedNDaysAgo > 30 && revisionCreatedNDaysAgo < 365) {
       return RoleName.PlusUser
     }
@@ -123,15 +119,13 @@ export class RevisionService implements RevisionServiceInterface {
       return RoleName.ProUser
     }
 
-    return RoleName.BasicUser
+    return RoleName.CoreUser
   }
 
   private userHasEnoughPermissionsToSeeRevision(userRoles: RoleName[], revisionCreatedAt: Date): boolean {
     const roleRequired = this.calculateRequiredRoleBasedOnRevisionDate(revisionCreatedAt)
 
     switch (roleRequired) {
-    case RoleName.CoreUser:
-      return userRoles.filter(userRole => [RoleName.CoreUser, RoleName.PlusUser, RoleName.ProUser].includes(userRole)).length > 0
     case RoleName.PlusUser:
       return userRoles.filter(userRole => [RoleName.PlusUser, RoleName.ProUser].includes(userRole)).length > 0
     case RoleName.ProUser:

@@ -5,16 +5,18 @@ import TYPES from '../Bootstrap/Types'
 import { Revision } from '../Domain/Revision/Revision'
 import { RevisionServiceInterface } from '../Domain/Revision/RevisionServiceInterface'
 import { ProjectorInterface } from './ProjectorInterface'
+import { RevisionProjection } from './RevisionProjection'
+import { SimpleRevisionProjection } from './SimpleRevisionProjection'
 
 @injectable()
-export class RevisionProjector implements ProjectorInterface<Revision> {
+export class RevisionProjector implements ProjectorInterface<Revision, RevisionProjection> {
   constructor(
     @inject(TYPES.Timer) private timer: TimerInterface,
     @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
   ) {
   }
 
-  async projectSimple(revision: Revision): Promise<Record<string, unknown>> {
+  async projectSimple(revision: Revision): Promise<SimpleRevisionProjection> {
     return {
       'uuid': revision.uuid,
       'content_type': revision.contentType,
@@ -24,7 +26,7 @@ export class RevisionProjector implements ProjectorInterface<Revision> {
     }
   }
 
-  async projectFull(revision: Revision): Promise<Record<string, unknown>> {
+  async projectFull(revision: Revision): Promise<RevisionProjection> {
     return {
       'uuid': revision.uuid,
       'item_uuid': (await revision.item).uuid,
@@ -40,7 +42,7 @@ export class RevisionProjector implements ProjectorInterface<Revision> {
     }
   }
 
-  async projectCustom(_projectionType: string, _revision: Revision, ..._args: any[]): Promise<Record<string, unknown>> {
+  async projectCustom(_projectionType: string, _revision: Revision, ..._args: any[]): Promise<RevisionProjection> {
     throw new Error('not implemented')
   }
 }

@@ -1,6 +1,7 @@
 import 'reflect-metadata'
 
 import { ContentType } from '@standardnotes/common'
+import { AnalyticsStoreInterface } from '@standardnotes/analytics'
 
 import { ApiVersion } from '../Api/ApiVersion'
 import { Item } from '../Item/Item'
@@ -15,9 +16,9 @@ describe('SyncItems', () => {
   let item2: Item
   let item3: Item
   let itemHash: ItemHash
-  let integrityHashIsDisabled = false
+  let analyticsStore: AnalyticsStoreInterface
 
-  const createUseCase = () => new SyncItems(itemService, integrityHashIsDisabled)
+  const createUseCase = () => new SyncItems(itemService, analyticsStore)
 
   beforeEach(() => {
     item1 = {
@@ -52,6 +53,9 @@ describe('SyncItems', () => {
       syncToken: 'qwerty',
     })
     itemService.frontLoadKeysItemsToTop = jest.fn().mockReturnValue([ item3, item1 ])
+
+    analyticsStore = {} as jest.Mocked<AnalyticsStoreInterface>
+    analyticsStore.markActivity = jest.fn()
   })
 
   it('should sync items', async() => {
@@ -65,6 +69,7 @@ describe('SyncItems', () => {
       readOnlyAccess: false,
       contentType: 'Note',
       apiVersion: ApiVersion.v20200115,
+      analyticsId: 123,
     })).toEqual({
       conflicts: [],
       cursorToken: 'asdzxc',
@@ -92,6 +97,7 @@ describe('SyncItems', () => {
       apiVersion: '20200115',
       readOnlyAccess: false,
     })
+    expect(analyticsStore.markActivity).toHaveBeenCalledWith('editing-items', 123)
   })
 
   it('should sync items and return items keys on top for first sync', async() => {
@@ -103,58 +109,7 @@ describe('SyncItems', () => {
       readOnlyAccess: false,
       contentType: 'Note',
       apiVersion: ApiVersion.v20200115,
-    })).toEqual({
-      conflicts: [],
-      cursorToken: 'asdzxc',
-      retrievedItems: [
-        item3,
-        item1,
-      ],
-      savedItems: [
-        item2,
-      ],
-      syncToken: 'qwerty',
-    })
-  })
-
-  it('should sync items and compute an integrity hash if prompted', async() => {
-    itemService.computeIntegrityHash = jest.fn().mockReturnValue('test-hash')
-    expect(await createUseCase().execute({
-      userUuid: '1-2-3',
-      itemHashes: [ itemHash ],
-      computeIntegrityHash: true,
-      limit: 10,
-      readOnlyAccess: false,
-      contentType: 'Note',
-      apiVersion: ApiVersion.v20200115,
-    })).toEqual({
-      conflicts: [],
-      cursorToken: 'asdzxc',
-      integrityHash: 'test-hash',
-      retrievedItems: [
-        item3,
-        item1,
-      ],
-      savedItems: [
-        item2,
-      ],
-      syncToken: 'qwerty',
-    })
-  })
-
-  it('should sync items and not compute an integrity hash if integrity hash calculation is disabled', async() => {
-    integrityHashIsDisabled = true
-
-    itemService.computeIntegrityHash = jest.fn().mockReturnValue('test-hash')
-
-    expect(await createUseCase().execute({
-      userUuid: '1-2-3',
-      itemHashes: [ itemHash ],
-      computeIntegrityHash: true,
-      limit: 10,
-      readOnlyAccess: false,
-      contentType: 'Note',
-      apiVersion: ApiVersion.v20200115,
+      analyticsId: 123,
     })).toEqual({
       conflicts: [],
       cursorToken: 'asdzxc',
@@ -200,6 +155,7 @@ describe('SyncItems', () => {
       limit: 10,
       contentType: 'Note',
       apiVersion: ApiVersion.v20200115,
+      analyticsId: 123,
     })).toEqual({
       conflicts: [
         {

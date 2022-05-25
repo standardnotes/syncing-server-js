@@ -14,5 +14,4 @@ export type SyncResponse20161215 = {
   }>
   sync_token: string
   cursor_token?: string
-  integrity_hash?: string
 }

@@ -8,17 +8,17 @@ import { ItemConflictProjection } from './ItemConflictProjection'
 import { ItemProjection } from './ItemProjection'
 
 @injectable()
-export class ItemConflictProjector implements ProjectorInterface<ItemConflict> {
+export class ItemConflictProjector implements ProjectorInterface<ItemConflict, ItemConflictProjection> {
   constructor(
-    @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item>,
+    @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item, ItemProjection>,
   ) {
   }
 
-  async projectSimple(_itemConflict: ItemConflict): Promise<Record<string, unknown>> {
+  async projectSimple(_itemConflict: ItemConflict): Promise<ItemConflictProjection> {
     throw Error('not implemented')
   }
 
-  async projectCustom(_projectionType: string, _itemConflict: ItemConflict): Promise<Record<string, unknown>> {
+  async projectCustom(_projectionType: string, _itemConflict: ItemConflict): Promise<ItemConflictProjection> {
     throw Error('not implemented')
   }
 

@@ -34,6 +34,7 @@ describe('AccountDeletionRequestedEventHandler', () => {
     event.createdAt = new Date(1)
     event.payload = {
       userUuid: '2-3-4',
+      regularSubscriptionUuid: '1-2-3',
     }
   })
 
