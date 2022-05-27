@@ -37,7 +37,7 @@ export class SyncItems implements UseCaseInterface {
       retrievedItems = await this.itemService.frontLoadKeysItemsToTop(dto.userUuid, retrievedItems)
     }
 
-    if (saveItemsResult.savedItems.length > 0) {
+    if (dto.analyticsId && saveItemsResult.savedItems.length > 0) {
       await this.analyticsStore.markActivity(AnalyticsActivity.EditingItems, dto.analyticsId)
     }
 
