@@ -38,7 +38,13 @@ export class SyncItems implements UseCaseInterface {
     }
 
     if (dto.analyticsId && saveItemsResult.savedItems.length > 0) {
-      await this.analyticsStore.markActivity(AnalyticsActivity.EditingItems, dto.analyticsId)
+      await this.analyticsStore.markActivitiesForToday(
+        [
+          AnalyticsActivity.EditingItems,
+          AnalyticsActivity.EmailUnbackedUpData,
+        ],
+        dto.analyticsId
+      )
     }
 
     const syncResponse: SyncItemsResponse = {
