@@ -55,7 +55,7 @@ describe('SyncItems', () => {
     itemService.frontLoadKeysItemsToTop = jest.fn().mockReturnValue([ item3, item1 ])
 
     analyticsStore = {} as jest.Mocked<AnalyticsStoreInterface>
-    analyticsStore.markActivity = jest.fn()
+    analyticsStore.markActivitiesForToday = jest.fn()
   })
 
   it('should sync items', async() => {
@@ -97,7 +97,7 @@ describe('SyncItems', () => {
       apiVersion: '20200115',
       readOnlyAccess: false,
     })
-    expect(analyticsStore.markActivity).toHaveBeenCalledWith('editing-items', 123)
+    expect(analyticsStore.markActivitiesForToday).toHaveBeenCalledWith(['editing-items', 'email-unbacked-up-data'], 123)
   })
 
   it('should sync items - no analytics', async() => {
@@ -138,7 +138,7 @@ describe('SyncItems', () => {
       apiVersion: '20200115',
       readOnlyAccess: false,
     })
-    expect(analyticsStore.markActivity).not.toHaveBeenCalled()
+    expect(analyticsStore.markActivitiesForToday).not.toHaveBeenCalled()
   })
 
   it('should sync items and return items keys on top for first sync', async() => {
