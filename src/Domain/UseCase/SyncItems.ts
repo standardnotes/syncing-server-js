@@ -1,4 +1,4 @@
-import { AnalyticsActivity, AnalyticsStoreInterface } from '@standardnotes/analytics'
+import { AnalyticsActivity, AnalyticsStoreInterface, Period } from '@standardnotes/analytics'
 import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
 import { Item } from '../Item/Item'
@@ -38,12 +38,16 @@ export class SyncItems implements UseCaseInterface {
     }
 
     if (dto.analyticsId && saveItemsResult.savedItems.length > 0) {
-      await this.analyticsStore.markActivitiesForToday(
-        [
-          AnalyticsActivity.EditingItems,
-          AnalyticsActivity.EmailUnbackedUpData,
-        ],
-        dto.analyticsId
+      await this.analyticsStore.markActivity(
+        [ AnalyticsActivity.EditingItems ],
+        dto.analyticsId,
+        [ Period.Today, Period.ThisWeek, Period.ThisMonth ],
+      )
+
+      await this.analyticsStore.markActivity(
+        [ AnalyticsActivity.EmailUnbackedUpData ],
+        dto.analyticsId,
+        [ Period.Today, Period.ThisWeek ],
       )
     }
 

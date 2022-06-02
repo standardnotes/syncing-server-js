@@ -754,10 +754,10 @@
   resolved "https://registry.yarnpkg.com/@sqltools/formatter/-/formatter-1.2.2.tgz#9390a8127c0dcba61ebd7fdcc748655e191bdd68"
   integrity sha512-/5O7Fq6Vnv8L6ucmPjaWbVG1XkP4FO+w5glqfkIsq3Xw4oyNAdJddbnYodNDAfjVUvo/rrSCTom4kAND7T1o5Q==
 
-"@standardnotes/analytics@^1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@standardnotes/analytics/-/analytics-1.5.0.tgz#122489eb1ace4974e5ac325fad17add8df98438f"
-  integrity sha512-erCwFYr73tVQ4MvN5/gAUqfXa8ye0eu/ogXWNvKsc9igU9HS0nU78xBLQjkRDpItxeasDOKKVRXa4Gi3CaLhfg==
+"@standardnotes/analytics@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@standardnotes/analytics/-/analytics-1.6.0.tgz#8c6d8c424ebb53e87674223960c38ccee93a6cd9"
+  integrity sha512-ImHnPKvAj801n17nx39wNVmRg2Fj5OtXbURijJmdZZfpf7+T0Uuv6jAaRW/Bc82PiXCsn3VijD/rfOMwrLHTdw==
 
 "@standardnotes/auth@3.19.0", "@standardnotes/auth@^3.19.0":
   version "3.19.0"

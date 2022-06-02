@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify'
 import { IntegrityPayload } from '@standardnotes/payloads'
-import { AnalyticsStoreInterface } from '@standardnotes/analytics'
+import { StatisticsStoreInterface } from '@standardnotes/analytics'
 
 import TYPES from '../../../Bootstrap/Types'
 import { ItemRepositoryInterface } from '../../Item/ItemRepositoryInterface'
@@ -14,7 +14,7 @@ import { ContentType } from '@standardnotes/common'
 export class CheckIntegrity implements UseCaseInterface {
   constructor(
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
-    @inject(TYPES.AnalyticsStore) private analyticsStore: AnalyticsStoreInterface,
+    @inject(TYPES.StatisticsStore) private statisticsStore: StatisticsStoreInterface,
   ) {
   }
 
@@ -60,7 +60,7 @@ export class CheckIntegrity implements UseCaseInterface {
     }
 
     if (mismatches.length > 0) {
-      await this.analyticsStore.incrementOutOfSyncIncidents()
+      await this.statisticsStore.incrementOutOfSyncIncidents()
     }
 
     return {

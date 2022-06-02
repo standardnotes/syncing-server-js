@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 
 import { ContentType } from '@standardnotes/common'
-import { AnalyticsStoreInterface } from '@standardnotes/analytics'
+import { AnalyticsStoreInterface, Period } from '@standardnotes/analytics'
 
 import { ApiVersion } from '../Api/ApiVersion'
 import { Item } from '../Item/Item'
@@ -55,7 +55,7 @@ describe('SyncItems', () => {
     itemService.frontLoadKeysItemsToTop = jest.fn().mockReturnValue([ item3, item1 ])
 
     analyticsStore = {} as jest.Mocked<AnalyticsStoreInterface>
-    analyticsStore.markActivitiesForToday = jest.fn()
+    analyticsStore.markActivity = jest.fn()
   })
 
   it('should sync items', async() => {
@@ -97,7 +97,18 @@ describe('SyncItems', () => {
       apiVersion: '20200115',
       readOnlyAccess: false,
     })
-    expect(analyticsStore.markActivitiesForToday).toHaveBeenCalledWith(['editing-items', 'email-unbacked-up-data'], 123)
+    expect(analyticsStore.markActivity).toHaveBeenNthCalledWith(
+      1,
+      ['editing-items'],
+      123,
+      [Period.Today, Period.ThisWeek, Period.ThisMonth]
+    )
+    expect(analyticsStore.markActivity).toHaveBeenNthCalledWith(
+      2,
+      ['email-unbacked-up-data'],
+      123,
+      [Period.Today, Period.ThisWeek]
+    )
   })
 
   it('should sync items - no analytics', async() => {
@@ -138,7 +149,7 @@ describe('SyncItems', () => {
       apiVersion: '20200115',
       readOnlyAccess: false,
     })
-    expect(analyticsStore.markActivitiesForToday).not.toHaveBeenCalled()
+    expect(analyticsStore.markActivity).not.toHaveBeenCalled()
   })
 
   it('should sync items and return items keys on top for first sync', async() => {
