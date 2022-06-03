@@ -6,11 +6,10 @@ import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
 
 @injectable()
 export class AccountDeletionRequestedEventHandler implements DomainEventHandlerInterface {
-  constructor (
+  constructor(
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.Logger) private logger: Logger,
-  ) {
-  }
+  ) {}
 
   async handle(event: AccountDeletionRequestedEvent): Promise<void> {
     await this.itemRepository.deleteByUserUuid(event.payload.userUuid)

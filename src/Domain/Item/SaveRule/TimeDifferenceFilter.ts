@@ -10,10 +10,7 @@ import { ConflictType } from '@standardnotes/responses'
 
 @injectable()
 export class TimeDifferenceFilter implements ItemSaveRuleInterface {
-  constructor (
-    @inject(TYPES.Timer) private timer: TimerInterface,
-  ) {
-  }
+  constructor(@inject(TYPES.Timer) private timer: TimerInterface) {}
 
   async check(dto: ItemSaveValidationDTO): Promise<ItemSaveRuleResult> {
     if (!dto.existingItem) {
@@ -24,8 +21,10 @@ export class TimeDifferenceFilter implements ItemSaveRuleInterface {
 
     let incomingUpdatedAtTimestamp = dto.itemHash.updated_at_timestamp
     if (incomingUpdatedAtTimestamp === undefined) {
-      incomingUpdatedAtTimestamp = dto.itemHash.updated_at !== undefined ? this.timer.convertStringDateToMicroseconds(dto.itemHash.updated_at) :
-        this.timer.convertStringDateToMicroseconds(new Date(0).toString())
+      incomingUpdatedAtTimestamp =
+        dto.itemHash.updated_at !== undefined
+          ? this.timer.convertStringDateToMicroseconds(dto.itemHash.updated_at)
+          : this.timer.convertStringDateToMicroseconds(new Date(0).toString())
     }
 
     if (this.itemWasSentFromALegacyClient(incomingUpdatedAtTimestamp, dto.apiVersion)) {
@@ -42,10 +41,12 @@ export class TimeDifferenceFilter implements ItemSaveRuleInterface {
 
       return {
         passed,
-        conflict: passed ? undefined : {
-          serverItem: dto.existingItem,
-          type: ConflictType.ConflictingData,
-        },
+        conflict: passed
+          ? undefined
+          : {
+              serverItem: dto.existingItem,
+              type: ConflictType.ConflictingData,
+            },
       }
     }
 
@@ -53,10 +54,12 @@ export class TimeDifferenceFilter implements ItemSaveRuleInterface {
 
     return {
       passed,
-      conflict: passed ? undefined : {
-        serverItem: dto.existingItem,
-        type: ConflictType.ConflictingData,
-      },
+      conflict: passed
+        ? undefined
+        : {
+            serverItem: dto.existingItem,
+            type: ConflictType.ConflictingData,
+          },
     }
   }
 
@@ -69,11 +72,11 @@ export class TimeDifferenceFilter implements ItemSaveRuleInterface {
   }
 
   private getMinimalConflictIntervalMicroseconds(apiVersion?: string): number {
-    switch(apiVersion) {
-    case ApiVersion.v20161215:
-      return Time.MicrosecondsInASecond
-    default:
-      return Time.MicrosecondsInAMillisecond
+    switch (apiVersion) {
+      case ApiVersion.v20161215:
+        return Time.MicrosecondsInASecond
+      default:
+        return Time.MicrosecondsInAMillisecond
     }
   }
 }

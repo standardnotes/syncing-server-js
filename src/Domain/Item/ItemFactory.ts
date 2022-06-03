@@ -7,15 +7,12 @@ import { ItemHash } from './ItemHash'
 
 @injectable()
 export class ItemFactory implements ItemFactoryInterface {
-  constructor (
-    @inject(TYPES.Timer) private timer: TimerInterface
-  ) {
-  }
+  constructor(@inject(TYPES.Timer) private timer: TimerInterface) {}
 
   createStub(userUuid: string, itemHash: ItemHash): Item {
     const item = this.create(userUuid, itemHash)
 
-    if(itemHash.content === undefined) {
+    if (itemHash.content === undefined) {
       item.content = null
     }
 

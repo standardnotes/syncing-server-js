@@ -12,10 +12,7 @@ describe('AccountDeletionRequestedEventHandler', () => {
   let event: AccountDeletionRequestedEvent
   let item: Item
 
-  const createHandler = () => new AccountDeletionRequestedEventHandler(
-    itemRepository,
-    logger
-  )
+  const createHandler = () => new AccountDeletionRequestedEventHandler(itemRepository, logger)
 
   beforeEach(() => {
     item = {
@@ -24,7 +21,7 @@ describe('AccountDeletionRequestedEventHandler', () => {
     } as jest.Mocked<Item>
 
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
-    itemRepository.findAll = jest.fn().mockReturnValue([ item ])
+    itemRepository.findAll = jest.fn().mockReturnValue([item])
     itemRepository.deleteByUserUuid = jest.fn()
 
     logger = {} as jest.Mocked<Logger>

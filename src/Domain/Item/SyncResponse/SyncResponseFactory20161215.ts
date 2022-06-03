@@ -14,26 +14,25 @@ import { ConflictType } from '@standardnotes/responses'
 export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface {
   private readonly LEGACY_MIN_CONFLICT_INTERVAL = 20_000_000
 
-  constructor(
-    @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item, ItemProjection>,
-  ){
-  }
+  constructor(@inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item, ItemProjection>) {}
 
   async createResponse(syncItemsResponse: SyncItemsResponse): Promise<SyncResponse20161215> {
-    const conflicts = syncItemsResponse.conflicts.filter((itemConflict: ItemConflict) => itemConflict.type === ConflictType.UuidConflict)
+    const conflicts = syncItemsResponse.conflicts.filter(
+      (itemConflict: ItemConflict) => itemConflict.type === ConflictType.UuidConflict,
+    )
 
     const pickOutConflictsResult = this.pickOutConflicts(
       syncItemsResponse.savedItems,
       syncItemsResponse.retrievedItems,
-      conflicts
+      conflicts,
     )
 
     const unsaved = []
     for (const conflict of pickOutConflictsResult.unsavedItems) {
       unsaved.push({
-        item: conflict.serverItem ?
-          <ItemProjection> await this.itemProjector.projectFull(conflict.serverItem) :
-          <ItemHash> conflict.unsavedItem,
+        item: conflict.serverItem
+          ? <ItemProjection>await this.itemProjector.projectFull(conflict.serverItem)
+          : <ItemHash>conflict.unsavedItem,
         error: {
           tag: conflict.type,
         },
@@ -42,12 +41,12 @@ export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface
 
     const retrievedItems = []
     for (const item of pickOutConflictsResult.retrievedItems) {
-      retrievedItems.push(<ItemProjection> await this.itemProjector.projectFull(item))
+      retrievedItems.push(<ItemProjection>await this.itemProjector.projectFull(item))
     }
 
     const savedItems = []
     for (const item of syncItemsResponse.savedItems) {
-      savedItems.push(<ItemProjection> await this.itemProjector.projectFull(item))
+      savedItems.push(<ItemProjection>await this.itemProjector.projectFull(item))
     }
 
     return {
@@ -62,19 +61,19 @@ export class SyncResponseFactory20161215 implements SyncResponseFactoryInterface
   private pickOutConflicts(
     savedItems: Array<Item>,
     retrievedItems: Array<Item>,
-    unsavedItems: Array<ItemConflict>
-  ): {
     unsavedItems: Array<ItemConflict>,
-    retrievedItems: Array<Item>,
+  ): {
+    unsavedItems: Array<ItemConflict>
+    retrievedItems: Array<Item>
   } {
     const savedIds: Array<string> = savedItems.map((savedItem: Item) => savedItem.uuid)
     const retrievedIds: Array<string> = retrievedItems.map((retrievedItem: Item) => retrievedItem.uuid)
 
-    const conflictingIds = savedIds.filter(savedId => retrievedIds.includes(savedId))
+    const conflictingIds = savedIds.filter((savedId) => retrievedIds.includes(savedId))
 
     for (const conflictingId of conflictingIds) {
-      const savedItem = <Item> savedItems.find(item => item.uuid === conflictingId)
-      const conflictedItem = <Item> retrievedItems.find(item => item.uuid === conflictingId)
+      const savedItem = <Item>savedItems.find((item) => item.uuid === conflictingId)
+      const conflictedItem = <Item>retrievedItems.find((item) => item.uuid === conflictingId)
 
       const difference = savedItem.updatedAtTimestamp - conflictedItem.updatedAtTimestamp
 

@@ -130,9 +130,7 @@ describe('ItemTransferCalculator', () => {
 
       const result = await createCalculator().computeItemUuidBundlesToFetch(query, 50)
 
-      expect(result).toEqual([
-        ['1-2-3', '2-3-4', '3-4-5'],
-      ])
+      expect(result).toEqual([['1-2-3', '2-3-4', '3-4-5']])
     })
 
     it('should compute uuid bundles to fetch based on transfer limit - exact limit fit', async () => {
@@ -154,10 +152,7 @@ describe('ItemTransferCalculator', () => {
 
       const result = await createCalculator().computeItemUuidBundlesToFetch(query, 40)
 
-      expect(result).toEqual([
-        ['1-2-3', '2-3-4'],
-        ['3-4-5'],
-      ])
+      expect(result).toEqual([['1-2-3', '2-3-4'], ['3-4-5']])
     })
 
     it('should compute uuid bundles to fetch based on transfer limit - content size not defined on an item', async () => {
@@ -178,9 +173,7 @@ describe('ItemTransferCalculator', () => {
 
       const result = await createCalculator().computeItemUuidBundlesToFetch(query, 50)
 
-      expect(result).toEqual([
-        ['1-2-3', '2-3-4', '3-4-5'],
-      ])
+      expect(result).toEqual([['1-2-3', '2-3-4', '3-4-5']])
     })
 
     it('should compute uuid bundles to fetch based on transfer limit - first item over the limit', async () => {
@@ -202,10 +195,7 @@ describe('ItemTransferCalculator', () => {
 
       const result = await createCalculator().computeItemUuidBundlesToFetch(query, 40)
 
-      expect(result).toEqual([
-        ['1-2-3', '2-3-4'],
-        ['3-4-5'],
-      ])
+      expect(result).toEqual([['1-2-3', '2-3-4'], ['3-4-5']])
     })
   })
 })

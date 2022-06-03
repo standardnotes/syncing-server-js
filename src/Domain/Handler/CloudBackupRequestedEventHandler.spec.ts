@@ -19,20 +19,21 @@ describe('CloudBackupRequestedEventHandler', () => {
   let item: Item
   let logger: Logger
 
-  const createHandler = () => new CloudBackupRequestedEventHandler(
-    itemRepository,
-    authHttpService,
-    extensionsHttpService,
-    itemBackupService,
-    extensionsServerUrl,
-    logger
-  )
+  const createHandler = () =>
+    new CloudBackupRequestedEventHandler(
+      itemRepository,
+      authHttpService,
+      extensionsHttpService,
+      itemBackupService,
+      extensionsServerUrl,
+      logger,
+    )
 
   beforeEach(() => {
     item = {} as jest.Mocked<Item>
 
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
-    itemRepository.findAll = jest.fn().mockReturnValue([ item ])
+    itemRepository.findAll = jest.fn().mockReturnValue([item])
 
     authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
     authHttpService.getUserKeyParams = jest.fn().mockReturnValue({ foo: 'bar' })

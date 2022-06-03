@@ -17,13 +17,18 @@ describe('ItemFactory', () => {
 
     timer = {} as jest.Mocked<TimerInterface>
     timer.getTimestampInMicroseconds = jest.fn().mockReturnValue(1616164633241568)
-    timer.convertMicrosecondsToDate = jest.fn().mockImplementation((microseconds: number) => timeHelper.convertMicrosecondsToDate(microseconds))
-    timer.convertStringDateToMicroseconds = jest.fn()
+    timer.convertMicrosecondsToDate = jest
+      .fn()
+      .mockImplementation((microseconds: number) => timeHelper.convertMicrosecondsToDate(microseconds))
+    timer.convertStringDateToMicroseconds = jest
+      .fn()
       .mockImplementation((date: string) => timeHelper.convertStringDateToMicroseconds(date))
-    timer.convertStringDateToDate = jest.fn().mockImplementation((date: string) => timeHelper.convertStringDateToDate(date))
+    timer.convertStringDateToDate = jest
+      .fn()
+      .mockImplementation((date: string) => timeHelper.convertStringDateToDate(date))
   })
 
-  it ('should create an item based on item hash', () => {
+  it('should create an item based on item hash', () => {
     const itemHash = {
       uuid: '1-2-3',
     } as jest.Mocked<ItemHash>
@@ -41,7 +46,7 @@ describe('ItemFactory', () => {
     })
   })
 
-  it ('should create a stub item based on item hash with update_at date and timestamps overwritten', () => {
+  it('should create a stub item based on item hash with update_at date and timestamps overwritten', () => {
     const itemHash = {
       uuid: '1-2-3',
       updated_at: '2021-03-25T09:37:37.943Z',
@@ -61,7 +66,7 @@ describe('ItemFactory', () => {
     })
   })
 
-  it ('should create a stub item based on item hash with update_at_timestamp date and timestamps overwritten', () => {
+  it('should create a stub item based on item hash with update_at_timestamp date and timestamps overwritten', () => {
     const itemHash = {
       uuid: '1-2-3',
       updated_at_timestamp: 1616164633241568,
@@ -82,7 +87,7 @@ describe('ItemFactory', () => {
     })
   })
 
-  it ('should create a stub item based on item hash without updated timestamps', () => {
+  it('should create a stub item based on item hash without updated timestamps', () => {
     const itemHash = {
       uuid: '1-2-3',
     } as jest.Mocked<ItemHash>
@@ -101,7 +106,7 @@ describe('ItemFactory', () => {
     })
   })
 
-  it ('should create an item based on item hash with all fields filled', () => {
+  it('should create an item based on item hash with all fields filled', () => {
     const itemHash = {
       uuid: '1-2-3',
       content: 'asdqwe1',
@@ -135,7 +140,7 @@ describe('ItemFactory', () => {
     })
   })
 
-  it ('should create an item based on item hash with created at timestamp', () => {
+  it('should create an item based on item hash with created at timestamp', () => {
     const itemHash = {
       uuid: '1-2-3',
       content: 'asdqwe1',

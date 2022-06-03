@@ -44,44 +44,41 @@ describe('SyncItems', () => {
 
     itemService = {} as jest.Mocked<ItemServiceInterface>
     itemService.getItems = jest.fn().mockReturnValue({
-      items: [ item1 ],
+      items: [item1],
       cursorToken: 'asdzxc',
     })
     itemService.saveItems = jest.fn().mockReturnValue({
-      savedItems: [ item2 ],
+      savedItems: [item2],
       conflicts: [],
       syncToken: 'qwerty',
     })
-    itemService.frontLoadKeysItemsToTop = jest.fn().mockReturnValue([ item3, item1 ])
+    itemService.frontLoadKeysItemsToTop = jest.fn().mockReturnValue([item3, item1])
 
     analyticsStore = {} as jest.Mocked<AnalyticsStoreInterface>
     analyticsStore.markActivity = jest.fn()
   })
 
-  it('should sync items', async() => {
-    expect(await createUseCase().execute({
-      userUuid: '1-2-3',
-      itemHashes: [ itemHash ],
-      computeIntegrityHash: false,
-      syncToken: 'foo',
-      cursorToken: 'bar',
-      limit: 10,
-      readOnlyAccess: false,
-      contentType: 'Note',
-      apiVersion: ApiVersion.v20200115,
-      analyticsId: 123,
-    })).toEqual({
+  it('should sync items', async () => {
+    expect(
+      await createUseCase().execute({
+        userUuid: '1-2-3',
+        itemHashes: [itemHash],
+        computeIntegrityHash: false,
+        syncToken: 'foo',
+        cursorToken: 'bar',
+        limit: 10,
+        readOnlyAccess: false,
+        contentType: 'Note',
+        apiVersion: ApiVersion.v20200115,
+        analyticsId: 123,
+      }),
+    ).toEqual({
       conflicts: [],
       cursorToken: 'asdzxc',
-      retrievedItems: [
-        item1,
-      ],
-      savedItems: [
-        item2,
-      ],
+      retrievedItems: [item1],
+      savedItems: [item2],
       syncToken: 'qwerty',
     })
-
 
     expect(itemService.frontLoadKeysItemsToTop).not.toHaveBeenCalled()
     expect(itemService.getItems).toHaveBeenCalledWith({
@@ -92,48 +89,42 @@ describe('SyncItems', () => {
       userUuid: '1-2-3',
     })
     expect(itemService.saveItems).toHaveBeenCalledWith({
-      itemHashes: [ itemHash ],
+      itemHashes: [itemHash],
       userUuid: '1-2-3',
       apiVersion: '20200115',
       readOnlyAccess: false,
     })
-    expect(analyticsStore.markActivity).toHaveBeenNthCalledWith(
-      1,
-      ['editing-items'],
-      123,
-      [Period.Today, Period.ThisWeek, Period.ThisMonth]
-    )
-    expect(analyticsStore.markActivity).toHaveBeenNthCalledWith(
-      2,
-      ['email-unbacked-up-data'],
-      123,
-      [Period.Today, Period.ThisWeek]
-    )
+    expect(analyticsStore.markActivity).toHaveBeenNthCalledWith(1, ['editing-items'], 123, [
+      Period.Today,
+      Period.ThisWeek,
+      Period.ThisMonth,
+    ])
+    expect(analyticsStore.markActivity).toHaveBeenNthCalledWith(2, ['email-unbacked-up-data'], 123, [
+      Period.Today,
+      Period.ThisWeek,
+    ])
   })
 
-  it('should sync items - no analytics', async() => {
-    expect(await createUseCase().execute({
-      userUuid: '1-2-3',
-      itemHashes: [ itemHash ],
-      computeIntegrityHash: false,
-      syncToken: 'foo',
-      cursorToken: 'bar',
-      limit: 10,
-      readOnlyAccess: false,
-      contentType: 'Note',
-      apiVersion: ApiVersion.v20200115,
-    })).toEqual({
+  it('should sync items - no analytics', async () => {
+    expect(
+      await createUseCase().execute({
+        userUuid: '1-2-3',
+        itemHashes: [itemHash],
+        computeIntegrityHash: false,
+        syncToken: 'foo',
+        cursorToken: 'bar',
+        limit: 10,
+        readOnlyAccess: false,
+        contentType: 'Note',
+        apiVersion: ApiVersion.v20200115,
+      }),
+    ).toEqual({
       conflicts: [],
       cursorToken: 'asdzxc',
-      retrievedItems: [
-        item1,
-      ],
-      savedItems: [
-        item2,
-      ],
+      retrievedItems: [item1],
+      savedItems: [item2],
       syncToken: 'qwerty',
     })
-
 
     expect(itemService.frontLoadKeysItemsToTop).not.toHaveBeenCalled()
     expect(itemService.getItems).toHaveBeenCalledWith({
@@ -144,7 +135,7 @@ describe('SyncItems', () => {
       userUuid: '1-2-3',
     })
     expect(itemService.saveItems).toHaveBeenCalledWith({
-      itemHashes: [ itemHash ],
+      itemHashes: [itemHash],
       userUuid: '1-2-3',
       apiVersion: '20200115',
       readOnlyAccess: false,
@@ -152,33 +143,30 @@ describe('SyncItems', () => {
     expect(analyticsStore.markActivity).not.toHaveBeenCalled()
   })
 
-  it('should sync items and return items keys on top for first sync', async() => {
-    expect(await createUseCase().execute({
-      userUuid: '1-2-3',
-      itemHashes: [ itemHash ],
-      computeIntegrityHash: false,
-      limit: 10,
-      readOnlyAccess: false,
-      contentType: 'Note',
-      apiVersion: ApiVersion.v20200115,
-      analyticsId: 123,
-    })).toEqual({
+  it('should sync items and return items keys on top for first sync', async () => {
+    expect(
+      await createUseCase().execute({
+        userUuid: '1-2-3',
+        itemHashes: [itemHash],
+        computeIntegrityHash: false,
+        limit: 10,
+        readOnlyAccess: false,
+        contentType: 'Note',
+        apiVersion: ApiVersion.v20200115,
+        analyticsId: 123,
+      }),
+    ).toEqual({
       conflicts: [],
       cursorToken: 'asdzxc',
-      retrievedItems: [
-        item3,
-        item1,
-      ],
-      savedItems: [
-        item2,
-      ],
+      retrievedItems: [item3, item1],
+      savedItems: [item2],
       syncToken: 'qwerty',
     })
   })
 
-  it('should sync items and return filtered out sync conflicts for consecutive sync operations', async() => {
+  it('should sync items and return filtered out sync conflicts for consecutive sync operations', async () => {
     itemService.getItems = jest.fn().mockReturnValue({
-      items: [ item1, item2 ],
+      items: [item1, item2],
       cursorToken: 'asdzxc',
     })
 
@@ -197,18 +185,20 @@ describe('SyncItems', () => {
       syncToken: 'qwerty',
     })
 
-    expect(await createUseCase().execute({
-      userUuid: '1-2-3',
-      itemHashes: [ itemHash ],
-      computeIntegrityHash: false,
-      syncToken: 'foo',
-      readOnlyAccess: false,
-      cursorToken: 'bar',
-      limit: 10,
-      contentType: 'Note',
-      apiVersion: ApiVersion.v20200115,
-      analyticsId: 123,
-    })).toEqual({
+    expect(
+      await createUseCase().execute({
+        userUuid: '1-2-3',
+        itemHashes: [itemHash],
+        computeIntegrityHash: false,
+        syncToken: 'foo',
+        readOnlyAccess: false,
+        cursorToken: 'bar',
+        limit: 10,
+        contentType: 'Note',
+        apiVersion: ApiVersion.v20200115,
+        analyticsId: 123,
+      }),
+    ).toEqual({
       conflicts: [
         {
           serverItem: item2,
@@ -220,11 +210,8 @@ describe('SyncItems', () => {
         },
       ],
       cursorToken: 'asdzxc',
-      retrievedItems: [
-        item1,
-      ],
-      savedItems: [
-      ],
+      retrievedItems: [item1],
+      savedItems: [],
       syncToken: 'qwerty',
     })
   })

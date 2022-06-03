@@ -27,13 +27,8 @@ describe('ItemsController', () => {
   let syncResponseFactory: SyncResponseFactoryInterface
   let syncResponse: SyncResponse20200115
 
-  const createController = () => new ItemsController(
-    syncItems,
-    checkIntegrity,
-    getItem,
-    itemProjector,
-    syncResponceFactoryResolver
-  )
+  const createController = () =>
+    new ItemsController(syncItems, checkIntegrity, getItem, itemProjector, syncResponceFactoryResolver)
 
   beforeEach(() => {
     itemProjector = {} as jest.Mocked<ProjectorInterface<Item, ItemProjection>>
@@ -43,7 +38,7 @@ describe('ItemsController', () => {
     syncItems.execute = jest.fn().mockReturnValue({ foo: 'bar' })
 
     checkIntegrity = {} as jest.Mocked<CheckIntegrity>
-    checkIntegrity.execute = jest.fn().mockReturnValue({ mismatches: [ { uuid: '1-2-3', updated_at_timestamp: 2 }] })
+    checkIntegrity.execute = jest.fn().mockReturnValue({ mismatches: [{ uuid: '1-2-3', updated_at_timestamp: 2 }] })
 
     getItem = {} as jest.Mocked<GetItem>
     getItem.execute = jest.fn().mockReturnValue({ success: true, item: {} as jest.Mocked<Item> })
@@ -92,7 +87,7 @@ describe('ItemsController', () => {
 
   it('should get a single item', async () => {
     request.params.uuid = '1-2-3'
-    const httpResponse = <results.JsonResult> await createController().getSingleItem(request, response)
+    const httpResponse = <results.JsonResult>await createController().getSingleItem(request, response)
     const result = await httpResponse.executeAsync()
 
     expect(getItem.execute).toHaveBeenCalledWith({
@@ -107,7 +102,7 @@ describe('ItemsController', () => {
     request.params.uuid = '1-2-3'
     getItem.execute = jest.fn().mockReturnValue({ success: false })
 
-    const httpResponse = <results.NotFoundResult> await createController().getSingleItem(request, response)
+    const httpResponse = <results.NotFoundResult>await createController().getSingleItem(request, response)
     const result = await httpResponse.executeAsync()
 
     expect(getItem.execute).toHaveBeenCalledWith({
@@ -126,7 +121,7 @@ describe('ItemsController', () => {
       },
     ]
 
-    const httpResponse = <results.JsonResult> await createController().checkItemsIntegrity(request, response)
+    const httpResponse = <results.JsonResult>await createController().checkItemsIntegrity(request, response)
     const result = await httpResponse.executeAsync()
 
     expect(checkIntegrity.execute).toHaveBeenCalledWith({
@@ -140,11 +135,13 @@ describe('ItemsController', () => {
     })
 
     expect(result.statusCode).toEqual(200)
-    expect(await result.content.readAsStringAsync()).toEqual('{"mismatches":[{"uuid":"1-2-3","updated_at_timestamp":2}]}')
+    expect(await result.content.readAsStringAsync()).toEqual(
+      '{"mismatches":[{"uuid":"1-2-3","updated_at_timestamp":2}]}',
+    )
   })
 
   it('should check items integrity with missing request parameter', async () => {
-    const httpResponse = <results.JsonResult> await createController().checkItemsIntegrity(request, response)
+    const httpResponse = <results.JsonResult>await createController().checkItemsIntegrity(request, response)
     const result = await httpResponse.executeAsync()
 
     expect(checkIntegrity.execute).toHaveBeenCalledWith({
@@ -153,11 +150,13 @@ describe('ItemsController', () => {
     })
 
     expect(result.statusCode).toEqual(200)
-    expect(await result.content.readAsStringAsync()).toEqual('{"mismatches":[{"uuid":"1-2-3","updated_at_timestamp":2}]}')
+    expect(await result.content.readAsStringAsync()).toEqual(
+      '{"mismatches":[{"uuid":"1-2-3","updated_at_timestamp":2}]}',
+    )
   })
 
   it('should sync items', async () => {
-    const httpResponse = <results.JsonResult> await createController().sync(request, response)
+    const httpResponse = <results.JsonResult>await createController().sync(request, response)
     const result = await httpResponse.executeAsync()
 
     expect(syncItems.execute).toHaveBeenCalledWith({
@@ -188,7 +187,7 @@ describe('ItemsController', () => {
   it('should sync items with defaulting API version if none specified', async () => {
     delete request.body.api
 
-    const httpResponse = <results.JsonResult> await createController().sync(request, response)
+    const httpResponse = <results.JsonResult>await createController().sync(request, response)
     const result = await httpResponse.executeAsync()
 
     expect(syncItems.execute).toHaveBeenCalledWith({
@@ -219,7 +218,7 @@ describe('ItemsController', () => {
   it('should sync items with no incoming items in request', async () => {
     delete request.body.items
 
-    const httpResponse = <results.JsonResult> await createController().sync(request, response)
+    const httpResponse = <results.JsonResult>await createController().sync(request, response)
     const result = await httpResponse.executeAsync()
 
     expect(syncItems.execute).toHaveBeenCalledWith({

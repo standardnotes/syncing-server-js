@@ -18,26 +18,24 @@ describe('SyncResponseFactoryResolver', () => {
   })
 
   it('should resolve factory for API Version 20161215', () => {
-    expect(
-      createResolver().resolveSyncResponseFactoryVersion(ApiVersion.v20161215)
-    ).toEqual(syncResponseFactory20161215)
+    expect(createResolver().resolveSyncResponseFactoryVersion(ApiVersion.v20161215)).toEqual(
+      syncResponseFactory20161215,
+    )
   })
 
   it('should resolve factory for API Version 20200115', () => {
-    expect(
-      createResolver().resolveSyncResponseFactoryVersion(ApiVersion.v20200115)
-    ).toEqual(syncResponseFactory20200115)
+    expect(createResolver().resolveSyncResponseFactoryVersion(ApiVersion.v20200115)).toEqual(
+      syncResponseFactory20200115,
+    )
   })
 
   it('should resolve factory for API Version 20190520', () => {
-    expect(
-      createResolver().resolveSyncResponseFactoryVersion(ApiVersion.v20190520)
-    ).toEqual(syncResponseFactory20200115)
+    expect(createResolver().resolveSyncResponseFactoryVersion(ApiVersion.v20190520)).toEqual(
+      syncResponseFactory20200115,
+    )
   })
 
   it('should resolve factory for undefined API Version', () => {
-    expect(
-      createResolver().resolveSyncResponseFactoryVersion()
-    ).toEqual(syncResponseFactory20161215)
+    expect(createResolver().resolveSyncResponseFactoryVersion()).toEqual(syncResponseFactory20161215)
   })
 })

@@ -27,7 +27,7 @@ export class ItemService implements ItemServiceInterface {
   private readonly DEFAULT_ITEMS_LIMIT = 150
   private readonly SYNC_TOKEN_VERSION = 2
 
-  constructor (
+  constructor(
     @inject(TYPES.ItemSaveValidator) private itemSaveValidator: ItemSaveValidatorInterface,
     @inject(TYPES.ItemFactory) private itemFactory: ItemFactoryInterface,
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
@@ -38,9 +38,8 @@ export class ItemService implements ItemServiceInterface {
     @inject(TYPES.CONTENT_SIZE_TRANSFER_LIMIT) private contentSizeTransferLimit: number,
     @inject(TYPES.ItemTransferCalculator) private itemTransferCalculator: ItemTransferCalculatorInterface,
     @inject(TYPES.Timer) private timer: TimerInterface,
-    @inject(TYPES.Logger) private logger: Logger
-  ) {
-  }
+    @inject(TYPES.Logger) private logger: Logger,
+  ) {}
 
   async getItems(dto: GetItemsDTO): Promise<GetItemsResult> {
     const lastSyncTime = this.getLastSyncTime(dto)
@@ -58,7 +57,10 @@ export class ItemService implements ItemServiceInterface {
       limit,
     }
 
-    const itemUuidsToFetch = await this.itemTransferCalculator.computeItemUuidsToFetch(itemQuery, this.contentSizeTransferLimit)
+    const itemUuidsToFetch = await this.itemTransferCalculator.computeItemUuidsToFetch(
+      itemQuery,
+      this.contentSizeTransferLimit,
+    )
     let items: Array<Item> = []
     if (itemUuidsToFetch.length > 0) {
       items = await this.itemRepository.findAll({
@@ -71,7 +73,7 @@ export class ItemService implements ItemServiceInterface {
 
     let cursorToken = undefined
     if (totalItemsCount > limit) {
-      const lastSyncTime = (items[items.length - 1].updatedAtTimestamp) / Time.MicrosecondsInASecond
+      const lastSyncTime = items[items.length - 1].updatedAtTimestamp / Time.MicrosecondsInASecond
       cursorToken = Buffer.from(`${this.SYNC_TOKEN_VERSION}:${lastSyncTime}`, 'utf-8').toString('base64')
     }
 
@@ -115,7 +117,7 @@ export class ItemService implements ItemServiceInterface {
         continue
       }
 
-      if(existingItem) {
+      if (existingItem) {
         const updatedItem = await this.updateExistingItem(existingItem, itemHash)
         savedItems.push(updatedItem)
       } else {
@@ -123,7 +125,7 @@ export class ItemService implements ItemServiceInterface {
           const newItem = await this.saveNewItem(dto.userUuid, itemHash)
           savedItems.push(newItem)
         } catch (error) {
-          this.logger.error(`[${dto.userUuid}] Saving item ${itemHash.uuid} failed. Error: ${error.message}`)
+          this.logger.error(`[${dto.userUuid}] Saving item ${itemHash.uuid} failed. Error: ${(error as Error).message}`)
 
           conflicts.push({
             unsavedItem: itemHash,
@@ -155,7 +157,7 @@ export class ItemService implements ItemServiceInterface {
     const retrievedItemsIds: Array<string> = retrievedItems.map((item: Item) => item.uuid)
 
     itemsKeys.forEach((itemKey: Item) => {
-      if(retrievedItemsIds.indexOf(itemKey.uuid) === -1) {
+      if (retrievedItemsIds.indexOf(itemKey.uuid) === -1) {
         retrievedItems.unshift(itemKey)
       }
     })
@@ -165,15 +167,19 @@ export class ItemService implements ItemServiceInterface {
 
   private calculateSyncToken(lastUpdatedTimestamp: number, savedItems: Array<Item>): string {
     if (savedItems.length) {
-      const sortedItems = savedItems.sort((itemA: Item, itemB: Item) => itemA.updatedAtTimestamp > itemB.updatedAtTimestamp ? 1 : -1)
+      const sortedItems = savedItems.sort((itemA: Item, itemB: Item) => {
+        return itemA.updatedAtTimestamp > itemB.updatedAtTimestamp ? 1 : -1
+      })
       lastUpdatedTimestamp = sortedItems[sortedItems.length - 1].updatedAtTimestamp
     }
 
     const lastUpdatedTimestampWithMicrosecondPreventingSyncDoubles = lastUpdatedTimestamp + 1
 
     return Buffer.from(
-      `${this.SYNC_TOKEN_VERSION}:${lastUpdatedTimestampWithMicrosecondPreventingSyncDoubles / Time.MicrosecondsInASecond}`,
-      'utf-8'
+      `${this.SYNC_TOKEN_VERSION}:${
+        lastUpdatedTimestampWithMicrosecondPreventingSyncDoubles / Time.MicrosecondsInASecond
+      }`,
+      'utf-8',
     ).toString('base64')
   }
 
@@ -207,8 +213,7 @@ export class ItemService implements ItemServiceInterface {
     if (itemHash.deleted === true) {
       existingItem.deleted = true
       existingItem.content = null
-      existingItem.contentSize = 0,
-      existingItem.encItemKey = null
+      ;(existingItem.contentSize = 0), (existingItem.encItemKey = null)
       existingItem.authHash = null
       existingItem.itemsKeyId = null
     }
@@ -235,7 +240,7 @@ export class ItemService implements ItemServiceInterface {
 
     if (wasMarkedAsDuplicate) {
       await this.domainEventPublisher.publish(
-        this.domainEventFactory.createDuplicateItemSyncedEvent(savedItem.uuid, savedItem.userUuid)
+        this.domainEventFactory.createDuplicateItemSyncedEvent(savedItem.uuid, savedItem.userUuid),
       )
     }
 
@@ -251,7 +256,7 @@ export class ItemService implements ItemServiceInterface {
 
     if (savedItem.duplicateOf) {
       await this.domainEventPublisher.publish(
-        this.domainEventFactory.createDuplicateItemSyncedEvent(savedItem.uuid, savedItem.userUuid)
+        this.domainEventFactory.createDuplicateItemSyncedEvent(savedItem.uuid, savedItem.userUuid),
       )
     }
 
@@ -273,13 +278,13 @@ export class ItemService implements ItemServiceInterface {
     const tokenParts = decodedToken.split(':')
     const version = tokenParts.shift()
 
-    switch(version) {
-    case '1':
-      return this.timer.convertStringDateToMicroseconds(tokenParts.join(':'))
-    case '2':
-      return +tokenParts[0] * Time.MicrosecondsInASecond
-    default:
-      throw Error('Sync token is missing version part')
+    switch (version) {
+      case '1':
+        return this.timer.convertStringDateToMicroseconds(tokenParts.join(':'))
+      case '2':
+        return +tokenParts[0] * Time.MicrosecondsInASecond
+      default:
+        throw Error('Sync token is missing version part')
     }
   }
 }

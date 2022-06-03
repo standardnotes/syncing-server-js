@@ -11,14 +11,8 @@ describe('ContentFilter', () => {
   let existingItem: Item
   const createFilter = () => new ContentFilter()
 
-  it ('should filter out items with invalid content', async () => {
-    const invalidContents = [
-      [],
-      { foo: 'bar' },
-      [ { foo: 'bar' } ],
-      123,
-      new Date(1),
-    ]
+  it('should filter out items with invalid content', async () => {
+    const invalidContents = [[], { foo: 'bar' }, [{ foo: 'bar' }], 123, new Date(1)]
 
     for (const invalidContent of invalidContents) {
       const result = await createFilter().check({
@@ -29,6 +23,7 @@ describe('ContentFilter', () => {
           content: invalidContent as unknown as string,
           content_type: ContentType.Note,
         },
+        existingItem: null,
       })
 
       expect(result).toEqual({
@@ -45,12 +40,8 @@ describe('ContentFilter', () => {
     }
   })
 
-  it ('should leave items with valid content', async () => {
-    const validContents = [
-      'string',
-      null,
-      undefined,
-    ]
+  it('should leave items with valid content', async () => {
+    const validContents = ['string', null, undefined]
 
     for (const validContent of validContents) {
       const result = await createFilter().check({

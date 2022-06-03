@@ -16,12 +16,7 @@ describe('S3ItemBackupService', () => {
   let item: Item
   let keyParams: KeyParamsData
 
-  const createService = () => new S3ItemBackupService(
-    s3BackupBucketName,
-    itemProjector,
-    logger,
-    s3Client
-  )
+  const createService = () => new S3ItemBackupService(s3BackupBucketName, itemProjector, logger, s3Client)
 
   beforeEach(() => {
     s3Client = {} as jest.Mocked<S3>
@@ -41,9 +36,9 @@ describe('S3ItemBackupService', () => {
   })
 
   it('should upload items to S3 as a backup file', async () => {
-    await createService().backup([ item ], keyParams)
+    await createService().backup([item], keyParams)
 
-    expect((<S3> s3Client).upload).toHaveBeenCalledWith({
+    expect((<S3>s3Client).upload).toHaveBeenCalledWith({
       Body: '{"items":[{"foo":"bar"}],"auth_params":{}}',
       Bucket: 'backup-bucket',
       Key: expect.any(String),
@@ -52,13 +47,13 @@ describe('S3ItemBackupService', () => {
 
   it('should not upload items to S3 if bucket name is not configured', async () => {
     s3BackupBucketName = ''
-    await createService().backup([ item ], keyParams)
+    await createService().backup([item], keyParams)
 
-    expect((<S3> s3Client).upload).not.toHaveBeenCalled()
+    expect((<S3>s3Client).upload).not.toHaveBeenCalled()
   })
 
   it('should not upload items to S3 if S3 client is not configured', async () => {
     s3Client = undefined
-    expect(await createService().backup([ item ], keyParams)).toEqual('')
+    expect(await createService().backup([item], keyParams)).toEqual('')
   })
 })

@@ -47,16 +47,18 @@ describe('SyncResponseFactory20200115', () => {
   })
 
   it('should turn sync items response into a sync response for API Version 20200115', async () => {
-    expect(await createFactory().createResponse({
-      retrievedItems: [ item1 ],
-      savedItems: [ item2 ],
-      conflicts: [ itemConflict ],
-      syncToken: 'sync-test',
-      cursorToken: 'cursor-test',
-    })).toEqual({
-      retrieved_items: [ itemProjection ],
-      saved_items: [ savedItemProjection ],
-      conflicts: [ itemConflictProjection ],
+    expect(
+      await createFactory().createResponse({
+        retrievedItems: [item1],
+        savedItems: [item2],
+        conflicts: [itemConflict],
+        syncToken: 'sync-test',
+        cursorToken: 'cursor-test',
+      }),
+    ).toEqual({
+      retrieved_items: [itemProjection],
+      saved_items: [savedItemProjection],
+      conflicts: [itemConflictProjection],
       sync_token: 'sync-test',
       cursor_token: 'cursor-test',
     })

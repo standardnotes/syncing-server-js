@@ -12,9 +12,8 @@ import { ItemRepositoryInterface } from './ItemRepositoryInterface'
 export class ItemTransferCalculator implements ItemTransferCalculatorInterface {
   constructor(
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
-    @inject(TYPES.Logger) private logger: Logger
-  ) {
-  }
+    @inject(TYPES.Logger) private logger: Logger,
+  ) {}
 
   async computeItemUuidsToFetch(itemQuery: ItemQuery, bytesTransferLimit: number): Promise<Array<Uuid>> {
     const itemUuidsToFetch = []
@@ -74,16 +73,19 @@ export class ItemTransferCalculator implements ItemTransferCalculatorInterface {
   }
 
   private isTransferLimitBreached(dto: {
-    totalContentSizeInBytes: number,
-    bytesTransferLimit: number,
-    itemUuidsToFetch: Array<Uuid>,
-    itemContentSizes: Array<{ uuid: string, contentSize: number | null }>,
+    totalContentSizeInBytes: number
+    bytesTransferLimit: number
+    itemUuidsToFetch: Array<Uuid>
+    itemContentSizes: Array<{ uuid: string; contentSize: number | null }>
   }): boolean {
     const transferLimitBreached = dto.totalContentSizeInBytes >= dto.bytesTransferLimit
-    const transferLimitBreachedAtFirstItem = transferLimitBreached && dto.itemUuidsToFetch.length === 1 && dto.itemContentSizes.length > 1
+    const transferLimitBreachedAtFirstItem =
+      transferLimitBreached && dto.itemUuidsToFetch.length === 1 && dto.itemContentSizes.length > 1
 
     if (transferLimitBreachedAtFirstItem) {
-      this.logger.warn(`Item ${dto.itemUuidsToFetch[0]} is breaching the content size transfer limit: ${dto.bytesTransferLimit}`)
+      this.logger.warn(
+        `Item ${dto.itemUuidsToFetch[0]} is breaching the content size transfer limit: ${dto.bytesTransferLimit}`,
+      )
     }
 
     return transferLimitBreached && !transferLimitBreachedAtFirstItem

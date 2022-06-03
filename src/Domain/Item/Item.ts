@@ -3,11 +3,15 @@ import { Revision } from '../Revision/Revision'
 
 @Entity({ name: 'items' })
 @Index('index_items_on_user_uuid_and_content_type', ['userUuid', 'contentType'])
-@Index('user_uuid_and_updated_at_timestamp_and_created_at_timestamp', ['userUuid', 'updatedAtTimestamp', 'createdAtTimestamp'])
+@Index('user_uuid_and_updated_at_timestamp_and_created_at_timestamp', [
+  'userUuid',
+  'updatedAtTimestamp',
+  'createdAtTimestamp',
+])
 @Index('user_uuid_and_deleted', ['userUuid', 'deleted'])
 export class Item {
   @PrimaryGeneratedColumn('uuid')
-  uuid: string
+  declare uuid: string
 
   @Column({
     type: 'varchar',
@@ -15,7 +19,7 @@ export class Item {
     length: 36,
     nullable: true,
   })
-  duplicateOf: string | null
+  declare duplicateOf: string | null
 
   @Column({
     type: 'varchar',
@@ -23,13 +27,13 @@ export class Item {
     length: 255,
     nullable: true,
   })
-  itemsKeyId: string | null
+  declare itemsKeyId: string | null
 
   @Column({
     type: 'mediumtext',
     nullable: true,
   })
-  content: string | null
+  declare content: string | null
 
   @Column({
     name: 'content_type',
@@ -38,21 +42,21 @@ export class Item {
     nullable: true,
   })
   @Index('index_items_on_content_type')
-  contentType: string | null
+  declare contentType: string | null
 
   @Column({
     name: 'content_size',
     type: 'int',
     nullable: true,
   })
-  contentSize: number | null
+  declare contentSize: number | null
 
   @Column({
     name: 'enc_item_key',
     type: 'text',
     nullable: true,
   })
-  encItemKey: string | null
+  declare encItemKey: string | null
 
   @Column({
     name: 'auth_hash',
@@ -60,14 +64,14 @@ export class Item {
     length: 255,
     nullable: true,
   })
-  authHash: string | null
+  declare authHash: string | null
 
   @Column({
     name: 'user_uuid',
     length: 36,
   })
   @Index('index_items_on_user_uuid')
-  userUuid: string
+  declare userUuid: string
 
   @Column({
     type: 'tinyint',
@@ -76,40 +80,40 @@ export class Item {
     default: 0,
   })
   @Index('index_items_on_deleted')
-  deleted: boolean
+  declare deleted: boolean
 
   @Column({
     name: 'created_at',
     type: 'datetime',
     precision: 6,
   })
-  createdAt: Date
+  declare createdAt: Date
 
   @Column({
     name: 'updated_at',
     type: 'datetime',
     precision: 6,
   })
-  updatedAt: Date
+  declare updatedAt: Date
 
   @Column({
     name: 'created_at_timestamp',
     type: 'bigint',
   })
-  createdAtTimestamp: number
+  declare createdAtTimestamp: number
 
   @Column({
     name: 'updated_at_timestamp',
     type: 'bigint',
   })
   @Index('updated_at_timestamp')
-  updatedAtTimestamp: number
+  declare updatedAtTimestamp: number
 
   @OneToMany(
     /* istanbul ignore next */
     () => Revision,
     /* istanbul ignore next */
-    revision => revision.item
+    (revision) => revision.item,
   )
-  revisions: Promise<Revision[]>
+  declare revisions: Promise<Revision[]>
 }

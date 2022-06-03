@@ -17,9 +17,9 @@ describe('RevisionProjector', () => {
     revision = new Revision()
     revision.content = 'test'
     revision.contentType = 'Note'
-    revision.uuid = '123',
-    revision.itemsKeyId = '123',
-    revision.item = Promise.resolve({ uuid: '1-2-3' } as Item)
+    ;(revision.uuid = '123'),
+      (revision.itemsKeyId = '123'),
+      (revision.item = Promise.resolve({ uuid: '1-2-3' } as Item))
 
     timer = {} as jest.Mocked<TimerInterface>
     timer.convertDateToISOString = jest.fn().mockReturnValue('2020-11-26T13:34:00.000Z')
@@ -68,6 +68,6 @@ describe('RevisionProjector', () => {
     } catch (e) {
       error = e
     }
-    expect(error.message).toEqual('not implemented')
+    expect((error as Error).message).toEqual('not implemented')
   })
 })

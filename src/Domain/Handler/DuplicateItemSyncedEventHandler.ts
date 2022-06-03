@@ -7,17 +7,16 @@ import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 
 @injectable()
 export class DuplicateItemSyncedEventHandler implements DomainEventHandlerInterface {
-  constructor (
+  constructor(
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
     @inject(TYPES.Logger) private logger: Logger,
-  ) {
-  }
+  ) {}
 
   async handle(event: DuplicateItemSyncedEvent): Promise<void> {
     const item = await this.itemRepository.findByUuidAndUserUuid(event.payload.itemUuid, event.payload.userUuid)
 
-    if (item === undefined) {
+    if (item === null) {
       this.logger.warn(`Could not find item with uuid ${event.payload.itemUuid}`)
 
       return
@@ -29,9 +28,12 @@ export class DuplicateItemSyncedEventHandler implements DomainEventHandlerInterf
       return
     }
 
-    const existingOriginalItem = await this.itemRepository.findByUuidAndUserUuid(item.duplicateOf, event.payload.userUuid)
+    const existingOriginalItem = await this.itemRepository.findByUuidAndUserUuid(
+      item.duplicateOf,
+      event.payload.userUuid,
+    )
 
-    if (existingOriginalItem !== undefined) {
+    if (existingOriginalItem !== null) {
       await this.revisionService.copyRevisions(existingOriginalItem.uuid, item.uuid)
     }
   }

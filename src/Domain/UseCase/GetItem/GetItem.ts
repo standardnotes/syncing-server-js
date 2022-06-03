@@ -7,15 +7,12 @@ import { GetItemResponse } from './GetItemResponse'
 
 @injectable()
 export class GetItem implements UseCaseInterface {
-  constructor(
-    @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
-  ) {
-  }
+  constructor(@inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface) {}
 
   async execute(dto: GetItemDTO): Promise<GetItemResponse> {
     const item = await this.itemRepository.findByUuidAndUserUuid(dto.itemUuid, dto.userUuid)
 
-    if (item === undefined) {
+    if (item === null) {
       return {
         success: false,
         message: `Could not find item with uuid ${dto.itemUuid}`,

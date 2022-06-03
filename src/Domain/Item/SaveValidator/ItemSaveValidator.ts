@@ -6,10 +6,7 @@ import { ItemSaveValidatorInterface } from './ItemSaveValidatorInterface'
 
 @injectable()
 export class ItemSaveValidator implements ItemSaveValidatorInterface {
-  constructor(
-    private rules: Array<ItemSaveRuleInterface>
-  ) {
-  }
+  constructor(private rules: Array<ItemSaveRuleInterface>) {}
 
   async validate(dto: ItemSaveValidationDTO): Promise<ItemSaveValidationResult> {
     for (const rule of this.rules) {

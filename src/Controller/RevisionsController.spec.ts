@@ -24,7 +24,7 @@ describe('RevisionsController', () => {
     revisionProjector = {} as jest.Mocked<ProjectorInterface<Revision, RevisionProjection>>
 
     revisionService = {} as jest.Mocked<RevisionServiceInterface>
-    revisionService.getRevisions = jest.fn().mockReturnValue([ revision ])
+    revisionService.getRevisions = jest.fn().mockReturnValue([revision])
     revisionService.getRevision = jest.fn().mockReturnValue(revision)
     revisionService.removeRevision = jest.fn().mockReturnValue(true)
 
@@ -38,7 +38,7 @@ describe('RevisionsController', () => {
     response.locals.user = {
       uuid: '123',
     }
-    response.locals.roleNames = [ 'BASIC_USER' ]
+    response.locals.roleNames = ['BASIC_USER']
   })
 
   it('should return revisions for an item', async () => {
@@ -52,7 +52,7 @@ describe('RevisionsController', () => {
   it('should return a specific revision for an item', async () => {
     revisionProjector.projectFull = jest.fn().mockReturnValue({ foo: 'bar' })
 
-    const httpResponse = <results.JsonResult> await createController().getRevision(request, response)
+    const httpResponse = <results.JsonResult>await createController().getRevision(request, response)
 
     expect(httpResponse.json).toEqual({ foo: 'bar' })
   })
@@ -81,7 +81,7 @@ describe('RevisionsController', () => {
   })
 
   it('should return a 404 for a not found specific revision in an item', async () => {
-    revisionService.getRevision = jest.fn().mockReturnValue(undefined)
+    revisionService.getRevision = jest.fn().mockReturnValue(null)
 
     const httpResponse = await createController().getRevision(request, response)
 

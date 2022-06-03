@@ -1,6 +1,5 @@
 import { inject, injectable } from 'inversify'
-import { ContentType } from '@standardnotes/common'
-import { RoleName } from '@standardnotes/common'
+import { RoleName, ContentType } from '@standardnotes/common'
 import { TimerInterface } from '@standardnotes/time'
 
 import TYPES from '../../Bootstrap/Types'
@@ -12,16 +11,15 @@ import { ItemRepositoryInterface } from '../Item/ItemRepositoryInterface'
 
 @injectable()
 export class RevisionService implements RevisionServiceInterface {
-  constructor (
+  constructor(
     @inject(TYPES.RevisionRepository) private revisionRepository: RevisionRepositoryInterface,
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.Timer) private timer: TimerInterface,
-  ) {
-  }
+  ) {}
 
   async removeRevision(dto: { userUuid: string; itemUuid: string; revisionUuid: string }): Promise<boolean> {
     const userItem = await this.itemRepository.findByUuid(dto.itemUuid)
-    if (userItem === undefined || userItem.userUuid !== dto.userUuid) {
+    if (userItem === null || userItem.userUuid !== dto.userUuid) {
       return false
     }
 
@@ -32,7 +30,7 @@ export class RevisionService implements RevisionServiceInterface {
 
   async getRevisions(userUuid: string, itemUuid: string): Promise<Revision[]> {
     const userItem = await this.itemRepository.findByUuid(itemUuid)
-    if (userItem === undefined || userItem.userUuid !== userUuid) {
+    if (userItem === null || userItem.userUuid !== userUuid) {
       return []
     }
 
@@ -42,20 +40,20 @@ export class RevisionService implements RevisionServiceInterface {
   }
 
   async getRevision(dto: {
-    userUuid: string,
-    userRoles: RoleName[],
-    itemUuid: string,
+    userUuid: string
+    userRoles: RoleName[]
+    itemUuid: string
     revisionUuid: string
-  }): Promise<Revision | undefined> {
+  }): Promise<Revision | null> {
     const userItem = await this.itemRepository.findByUuid(dto.itemUuid)
-    if (userItem === undefined || userItem.userUuid !== dto.userUuid) {
-      return undefined
+    if (userItem === null || userItem.userUuid !== dto.userUuid) {
+      return null
     }
 
     const revision = await this.revisionRepository.findOneById(dto.itemUuid, dto.revisionUuid)
 
-    if (revision !== undefined && !this.userHasEnoughPermissionsToSeeRevision(dto.userRoles, revision.createdAt)) {
-      return undefined
+    if (revision !== null && !this.userHasEnoughPermissionsToSeeRevision(dto.userRoles, revision.createdAt)) {
+      return null
     }
 
     return revision
@@ -67,7 +65,7 @@ export class RevisionService implements RevisionServiceInterface {
     })
 
     const toItem = await this.itemRepository.findByUuid(toItemUuid)
-    if (toItem === undefined) {
+    if (toItem === null) {
       throw Error(`Item ${toItemUuid} does not exist`)
     }
 
@@ -126,12 +124,12 @@ export class RevisionService implements RevisionServiceInterface {
     const roleRequired = this.calculateRequiredRoleBasedOnRevisionDate(revisionCreatedAt)
 
     switch (roleRequired) {
-    case RoleName.PlusUser:
-      return userRoles.filter(userRole => [RoleName.PlusUser, RoleName.ProUser].includes(userRole)).length > 0
-    case RoleName.ProUser:
-      return userRoles.includes(RoleName.ProUser)
-    default:
-      return true
+      case RoleName.PlusUser:
+        return userRoles.filter((userRole) => [RoleName.PlusUser, RoleName.ProUser].includes(userRole)).length > 0
+      case RoleName.ProUser:
+        return userRoles.includes(RoleName.ProUser)
+      default:
+        return true
     }
   }
 }

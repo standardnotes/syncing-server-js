@@ -60,7 +60,7 @@ describe('ItemConflictProjector', () => {
     } catch (e) {
       error = e
     }
-    expect(error.message).toEqual('not implemented')
+    expect((error as Error).message).toEqual('not implemented')
   })
 
   it('should throw error on simple projection', async () => {
@@ -70,6 +70,6 @@ describe('ItemConflictProjector', () => {
     } catch (e) {
       error = e
     }
-    expect(error.message).toEqual('not implemented')
+    expect((error as Error).message).toEqual('not implemented')
   })
 })

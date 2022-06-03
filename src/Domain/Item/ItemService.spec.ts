@@ -38,19 +38,20 @@ describe('ItemService', () => {
   let timeHelper: Timer
   let itemTransferCalculator: ItemTransferCalculatorInterface
 
-  const createService = () => new ItemService(
-    itemSaveValidator,
-    itemFactory,
-    itemRepository,
-    revisionService,
-    domainEventPublisher,
-    domainEventFactory,
-    revisionFrequency,
-    contentSizeTransferLimit,
-    itemTransferCalculator,
-    timer,
-    logger
-  )
+  const createService = () =>
+    new ItemService(
+      itemSaveValidator,
+      itemFactory,
+      itemRepository,
+      revisionService,
+      domainEventPublisher,
+      domainEventFactory,
+      revisionFrequency,
+      contentSizeTransferLimit,
+      itemTransferCalculator,
+      timer,
+      logger,
+    )
 
   beforeEach(() => {
     timeHelper = new Timer()
@@ -79,8 +80,14 @@ describe('ItemService', () => {
       duplicate_of: null,
       enc_item_key: 'qweqwe1',
       items_key_id: 'asdasd1',
-      created_at: timeHelper.formatDate(timeHelper.convertMicrosecondsToDate(item1.createdAtTimestamp), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-      updated_at: timeHelper.formatDate(new Date(timeHelper.convertMicrosecondsToMilliseconds(item1.updatedAtTimestamp) + 1), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      created_at: timeHelper.formatDate(
+        timeHelper.convertMicrosecondsToDate(item1.createdAtTimestamp),
+        'YYYY-MM-DDTHH:mm:ss.SSS[Z]',
+      ),
+      updated_at: timeHelper.formatDate(
+        new Date(timeHelper.convertMicrosecondsToMilliseconds(item1.updatedAtTimestamp) + 1),
+        'YYYY-MM-DDTHH:mm:ss.SSS[Z]',
+      ),
     } as jest.Mocked<ItemHash>
 
     itemHash2 = {
@@ -90,8 +97,14 @@ describe('ItemService', () => {
       duplicate_of: null,
       enc_item_key: 'qweqwe2',
       items_key_id: 'asdasd2',
-      created_at: timeHelper.formatDate(timeHelper.convertMicrosecondsToDate(item2.createdAtTimestamp), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
-      updated_at: timeHelper.formatDate(new Date(timeHelper.convertMicrosecondsToMilliseconds(item2.updatedAtTimestamp) + 1), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      created_at: timeHelper.formatDate(
+        timeHelper.convertMicrosecondsToDate(item2.createdAtTimestamp),
+        'YYYY-MM-DDTHH:mm:ss.SSS[Z]',
+      ),
+      updated_at: timeHelper.formatDate(
+        new Date(timeHelper.convertMicrosecondsToMilliseconds(item2.updatedAtTimestamp) + 1),
+        'YYYY-MM-DDTHH:mm:ss.SSS[Z]',
+      ),
     } as jest.Mocked<ItemHash>
 
     emptyHash = {
@@ -99,10 +112,10 @@ describe('ItemService', () => {
     } as jest.Mocked<ItemHash>
 
     itemTransferCalculator = {} as jest.Mocked<ItemTransferCalculatorInterface>
-    itemTransferCalculator.computeItemUuidsToFetch = jest.fn().mockReturnValue([ item1.uuid, item2.uuid ])
+    itemTransferCalculator.computeItemUuidsToFetch = jest.fn().mockReturnValue([item1.uuid, item2.uuid])
 
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
-    itemRepository.findAll = jest.fn().mockReturnValue([ item1, item2 ])
+    itemRepository.findAll = jest.fn().mockReturnValue([item1, item2])
     itemRepository.countAll = jest.fn().mockReturnValue(2)
     itemRepository.save = jest.fn().mockImplementation((item: Item) => item)
 
@@ -112,11 +125,16 @@ describe('ItemService', () => {
     timer = {} as jest.Mocked<TimerInterface>
     timer.getTimestampInMicroseconds = jest.fn().mockReturnValue(1616164633241568)
     timer.getUTCDate = jest.fn().mockReturnValue(new Date())
-    timer.convertStringDateToDate = jest.fn().mockImplementation((date: string) => timeHelper.convertStringDateToDate(date))
+    timer.convertStringDateToDate = jest
+      .fn()
+      .mockImplementation((date: string) => timeHelper.convertStringDateToDate(date))
     timer.convertMicrosecondsToSeconds = jest.fn().mockReturnValue(600)
-    timer.convertStringDateToMicroseconds = jest.fn()
+    timer.convertStringDateToMicroseconds = jest
+      .fn()
       .mockImplementation((date: string) => timeHelper.convertStringDateToMicroseconds(date))
-    timer.convertMicrosecondsToDate = jest.fn().mockImplementation((microseconds: number) => timeHelper.convertMicrosecondsToDate(microseconds))
+    timer.convertMicrosecondsToDate = jest
+      .fn()
+      .mockImplementation((microseconds: number) => timeHelper.convertMicrosecondsToDate(microseconds))
 
     domainEventPublisher = {} as jest.Mocked<DomainEventPublisherInterface>
     domainEventPublisher.publish = jest.fn()
@@ -148,9 +166,9 @@ describe('ItemService', () => {
         userUuid: '1-2-3',
         syncToken,
         contentType: ContentType.Note,
-      })
+      }),
     ).toEqual({
-      items: [ item1, item2 ],
+      items: [item1, item2],
     })
 
     expect(itemRepository.countAll).toHaveBeenCalledWith({
@@ -163,7 +181,7 @@ describe('ItemService', () => {
       limit: 150,
     })
     expect(itemRepository.findAll).toHaveBeenCalledWith({
-      uuids: [ '1-2-3', '2-3-4' ],
+      uuids: ['1-2-3', '2-3-4'],
       sortOrder: 'ASC',
       sortBy: 'updated_at_timestamp',
     })
@@ -175,9 +193,9 @@ describe('ItemService', () => {
         userUuid: '1-2-3',
         syncToken,
         contentType: ContentType.Note,
-      })
+      }),
     ).toEqual({
-      items: [ item1, item2 ],
+      items: [item1, item2],
     })
 
     expect(itemRepository.countAll).toHaveBeenCalledWith({
@@ -190,7 +208,7 @@ describe('ItemService', () => {
       limit: 150,
     })
     expect(itemRepository.findAll).toHaveBeenCalledWith({
-      uuids: [ '1-2-3', '2-3-4' ],
+      uuids: ['1-2-3', '2-3-4'],
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
     })
@@ -204,7 +222,7 @@ describe('ItemService', () => {
         userUuid: '1-2-3',
         syncToken,
         contentType: ContentType.Note,
-      })
+      }),
     ).toEqual({
       items: [],
     })
@@ -222,7 +240,7 @@ describe('ItemService', () => {
   })
 
   it('should return a cursor token if there are more items than requested with limit', async () => {
-    itemRepository.findAll = jest.fn().mockReturnValue([ item1 ])
+    itemRepository.findAll = jest.fn().mockReturnValue([item1])
 
     const itemsResponse = await createService().getItems({
       userUuid: '1-2-3',
@@ -233,10 +251,10 @@ describe('ItemService', () => {
 
     expect(itemsResponse).toEqual({
       cursorToken: 'MjoxNjE2MTY0NjMzLjI0MTMxMQ==',
-      items: [ item1 ],
+      items: [item1],
     })
 
-    expect(Buffer.from(<string> itemsResponse.cursorToken, 'base64').toString('utf-8')).toEqual('2:1616164633.241311')
+    expect(Buffer.from(<string>itemsResponse.cursorToken, 'base64').toString('utf-8')).toEqual('2:1616164633.241311')
 
     expect(itemRepository.countAll).toHaveBeenCalledWith({
       contentType: 'Note',
@@ -248,7 +266,7 @@ describe('ItemService', () => {
       limit: 1,
     })
     expect(itemRepository.findAll).toHaveBeenCalledWith({
-      uuids: [ '1-2-3', '2-3-4' ],
+      uuids: ['1-2-3', '2-3-4'],
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
     })
@@ -263,9 +281,9 @@ describe('ItemService', () => {
         syncToken,
         cursorToken,
         contentType: ContentType.Note,
-      })
+      }),
     ).toEqual({
-      items: [ item1, item2 ],
+      items: [item1, item2],
     })
 
     expect(itemRepository.countAll).toHaveBeenCalledWith({
@@ -278,7 +296,7 @@ describe('ItemService', () => {
       limit: 150,
     })
     expect(itemRepository.findAll).toHaveBeenCalledWith({
-      uuids: [ '1-2-3', '2-3-4' ],
+      uuids: ['1-2-3', '2-3-4'],
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
     })
@@ -289,9 +307,9 @@ describe('ItemService', () => {
       await createService().getItems({
         userUuid: '1-2-3',
         contentType: ContentType.Note,
-      })
+      }),
     ).toEqual({
-      items: [ item1, item2 ],
+      items: [item1, item2],
     })
 
     expect(itemRepository.countAll).toHaveBeenCalledWith({
@@ -304,7 +322,7 @@ describe('ItemService', () => {
       limit: 150,
     })
     expect(itemRepository.findAll).toHaveBeenCalledWith({
-      uuids: [ '1-2-3', '2-3-4' ],
+      uuids: ['1-2-3', '2-3-4'],
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
     })
@@ -327,7 +345,7 @@ describe('ItemService', () => {
       limit: 150,
     })
     expect(itemRepository.findAll).toHaveBeenCalledWith({
-      uuids: [ '1-2-3', '2-3-4' ],
+      uuids: ['1-2-3', '2-3-4'],
       sortOrder: 'ASC',
       sortBy: 'updated_at_timestamp',
     })
@@ -351,7 +369,7 @@ describe('ItemService', () => {
       limit: 150,
     })
     expect(itemRepository.findAll).toHaveBeenCalledWith({
-      uuids: [ '1-2-3', '2-3-4' ],
+      uuids: ['1-2-3', '2-3-4'],
       sortBy: 'updated_at_timestamp',
       sortOrder: 'ASC',
     })
@@ -399,16 +417,16 @@ describe('ItemService', () => {
       uuid: '4-5-6',
     } as jest.Mocked<Item>
 
-    itemRepository.findAll = jest.fn().mockReturnValue([ item3, item4 ])
+    itemRepository.findAll = jest.fn().mockReturnValue([item3, item4])
 
-    await createService().frontLoadKeysItemsToTop('1-2-3', [ item1, item2 ])
+    await createService().frontLoadKeysItemsToTop('1-2-3', [item1, item2])
   })
 
   it('should save new items', async () => {
-    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
 
     const result = await createService().saveItems({
-      itemHashes: [ itemHash1 ],
+      itemHashes: [itemHash1],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
@@ -416,9 +434,7 @@ describe('ItemService', () => {
 
     expect(result).toEqual({
       conflicts: [],
-      savedItems: [
-        newItem,
-      ],
+      savedItems: [newItem],
       syncToken: 'MjpOYU4=',
     })
 
@@ -426,10 +442,10 @@ describe('ItemService', () => {
   })
 
   it('should not save new items in read only access mode', async () => {
-    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
 
     const result = await createService().saveItems({
-      itemHashes: [ itemHash1 ],
+      itemHashes: [itemHash1],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: true,
@@ -450,13 +466,12 @@ describe('ItemService', () => {
   })
 
   it('should save new items that are duplicates', async () => {
-    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
     const duplicateItem = { updatedAtTimestamp: 1616164633241570, duplicateOf: '1-2-3' } as jest.Mocked<Item>
-    itemFactory.create = jest.fn()
-      .mockReturnValueOnce(duplicateItem)
+    itemFactory.create = jest.fn().mockReturnValueOnce(duplicateItem)
 
     const result = await createService().saveItems({
-      itemHashes: [ itemHash1 ],
+      itemHashes: [itemHash1],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
@@ -464,9 +479,7 @@ describe('ItemService', () => {
 
     expect(result).toEqual({
       conflicts: [],
-      savedItems: [
-        duplicateItem,
-      ],
+      savedItems: [duplicateItem],
       syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU3MQ==',
     })
 
@@ -476,35 +489,35 @@ describe('ItemService', () => {
   })
 
   it('should skip items that are conflicting on validation', async () => {
-    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
 
     const conflict = {} as jest.Mocked<ItemConflict>
     const validationResult = { passed: false, conflict }
     itemSaveValidator.validate = jest.fn().mockReturnValue(validationResult)
 
     const result = await createService().saveItems({
-      itemHashes: [ itemHash1 ],
+      itemHashes: [itemHash1],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
     })
 
     expect(result).toEqual({
-      conflicts: [ conflict ],
+      conflicts: [conflict],
       savedItems: [],
       syncToken: 'MjoxNjE2MTY0NjMzLjI0MTU2OQ==',
     })
   })
 
   it('should mark items as saved that are skipped on validation', async () => {
-    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
 
     const skipped = {} as jest.Mocked<Item>
     const validationResult = { passed: false, skipped }
     itemSaveValidator.validate = jest.fn().mockReturnValue(validationResult)
 
     const result = await createService().saveItems({
-      itemHashes: [ itemHash1 ],
+      itemHashes: [itemHash1],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
@@ -512,15 +525,13 @@ describe('ItemService', () => {
 
     expect(result).toEqual({
       conflicts: [],
-      savedItems: [
-        skipped,
-      ],
+      savedItems: [skipped],
       syncToken: 'MjpOYU4=',
     })
   })
 
   it('should calculate the sync token based on last updated date of saved items incremented with 1 microsecond to avoid returning same object in subsequent sync', async () => {
-    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
 
     const itemHash3 = {
       uuid: '3-4-5',
@@ -537,16 +548,16 @@ describe('ItemService', () => {
     const item1Timestamp = 1616164633241570
     const item2Timestamp = 1616164633241568
     const item3Timestamp = 1616164633241569
-    timer.getTimestampInMicroseconds = jest.fn()
-      .mockReturnValueOnce(saveProcedureStartTimestamp)
+    timer.getTimestampInMicroseconds = jest.fn().mockReturnValueOnce(saveProcedureStartTimestamp)
 
-    itemFactory.create = jest.fn()
+    itemFactory.create = jest
+      .fn()
       .mockReturnValueOnce({ updatedAtTimestamp: item1Timestamp, duplicateOf: null } as jest.Mocked<Item>)
       .mockReturnValueOnce({ updatedAtTimestamp: item2Timestamp, duplicateOf: null } as jest.Mocked<Item>)
       .mockReturnValueOnce({ updatedAtTimestamp: item3Timestamp, duplicateOf: null } as jest.Mocked<Item>)
 
     const result = await createService().saveItems({
-      itemHashes: [ itemHash1, itemHash3, itemHash2 ],
+      itemHashes: [itemHash1, itemHash3, itemHash2],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
@@ -560,7 +571,7 @@ describe('ItemService', () => {
     itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
 
     const result = await createService().saveItems({
-      itemHashes: [ itemHash1 ],
+      itemHashes: [itemHash1],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
@@ -594,7 +605,7 @@ describe('ItemService', () => {
     delete itemHash1.updated_at_timestamp
 
     const result = await createService().saveItems({
-      itemHashes: [ itemHash1 ],
+      itemHashes: [itemHash1],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20161215,
       readOnlyAccess: false,
@@ -627,7 +638,7 @@ describe('ItemService', () => {
     itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
 
     const result = await createService().saveItems({
-      itemHashes: [ itemHash1 ],
+      itemHashes: [itemHash1],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
@@ -656,10 +667,13 @@ describe('ItemService', () => {
 
   it('should update existing empty hashes', async () => {
     itemRepository.findByUuid = jest.fn().mockReturnValue(item2)
-    emptyHash.updated_at = timeHelper.formatDate(new Date(timeHelper.convertMicrosecondsToMilliseconds(item2.updatedAtTimestamp) + 1), 'YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+    emptyHash.updated_at = timeHelper.formatDate(
+      new Date(timeHelper.convertMicrosecondsToMilliseconds(item2.updatedAtTimestamp) + 1),
+      'YYYY-MM-DDTHH:mm:ss.SSS[Z]',
+    )
 
     const result = await createService().saveItems({
-      itemHashes: [ emptyHash ],
+      itemHashes: [emptyHash],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
@@ -683,11 +697,10 @@ describe('ItemService', () => {
   })
 
   it('should create a revision for existing item if revisions frequency is matched', async () => {
-    timer.convertMicrosecondsToSeconds =
-    itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
+    timer.convertMicrosecondsToSeconds = itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
 
     const result = await createService().saveItems({
-      itemHashes: [ itemHash1 ],
+      itemHashes: [itemHash1],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
@@ -718,7 +731,7 @@ describe('ItemService', () => {
     itemRepository.findByUuid = jest.fn().mockReturnValue(item1)
 
     const result = await createService().saveItems({
-      itemHashes: [ itemHash1 ],
+      itemHashes: [itemHash1],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
@@ -751,7 +764,7 @@ describe('ItemService', () => {
     itemHash1.auth_hash = 'test'
 
     const result = await createService().saveItems({
-      itemHashes: [ itemHash1 ],
+      itemHashes: [itemHash1],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
@@ -784,7 +797,7 @@ describe('ItemService', () => {
 
     itemHash1.deleted = true
     const result = await createService().saveItems({
-      itemHashes: [ itemHash1 ],
+      itemHashes: [itemHash1],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
@@ -818,7 +831,7 @@ describe('ItemService', () => {
 
     itemHash1.duplicate_of = '1-2-3'
     const result = await createService().saveItems({
-      itemHashes: [ itemHash1 ],
+      itemHashes: [itemHash1],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
@@ -849,13 +862,13 @@ describe('ItemService', () => {
   })
 
   it('should skip saving conflicting items and mark them as sync conflicts when saving to database fails', async () => {
-    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
     itemRepository.save = jest.fn().mockImplementation(() => {
       throw new Error('Something bad happened')
     })
 
     const result = await createService().saveItems({
-      itemHashes: [ itemHash1, itemHash2 ],
+      itemHashes: [itemHash1, itemHash2],
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,

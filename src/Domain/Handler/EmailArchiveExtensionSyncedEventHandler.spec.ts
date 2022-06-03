@@ -1,6 +1,10 @@
 import 'reflect-metadata'
 
-import { DomainEventPublisherInterface, EmailArchiveExtensionSyncedEvent, EmailBackupAttachmentCreatedEvent } from '@standardnotes/domain-events'
+import {
+  DomainEventPublisherInterface,
+  EmailArchiveExtensionSyncedEvent,
+  EmailBackupAttachmentCreatedEvent,
+} from '@standardnotes/domain-events'
 import { Logger } from 'winston'
 import { AuthHttpServiceInterface } from '../Auth/AuthHttpServiceInterface'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
@@ -22,22 +26,23 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
   let event: EmailArchiveExtensionSyncedEvent
   let logger: Logger
 
-  const createHandler = () => new EmailArchiveExtensionSyncedEventHandler(
-    itemRepository,
-    authHttpService,
-    itemBackupService,
-    domainEventPublisher,
-    domainEventFactory,
-    emailAttachmentMaxByteSize,
-    itemTransferCalculator,
-    logger
-  )
+  const createHandler = () =>
+    new EmailArchiveExtensionSyncedEventHandler(
+      itemRepository,
+      authHttpService,
+      itemBackupService,
+      domainEventPublisher,
+      domainEventFactory,
+      emailAttachmentMaxByteSize,
+      itemTransferCalculator,
+      logger,
+    )
 
   beforeEach(() => {
     item = {} as jest.Mocked<Item>
 
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
-    itemRepository.findAll = jest.fn().mockReturnValue([ item ])
+    itemRepository.findAll = jest.fn().mockReturnValue([item])
 
     authHttpService = {} as jest.Mocked<AuthHttpServiceInterface>
     authHttpService.getUserKeyParams = jest.fn().mockReturnValue({ identifier: 'test@test.com' })
@@ -57,12 +62,12 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
     domainEventPublisher.publish = jest.fn()
 
     domainEventFactory = {} as jest.Mocked<DomainEventFactoryInterface>
-    domainEventFactory.createEmailBackupAttachmentCreatedEvent = jest.fn().mockReturnValue({} as jest.Mocked<EmailBackupAttachmentCreatedEvent>)
+    domainEventFactory.createEmailBackupAttachmentCreatedEvent = jest
+      .fn()
+      .mockReturnValue({} as jest.Mocked<EmailBackupAttachmentCreatedEvent>)
 
     itemTransferCalculator = {} as jest.Mocked<ItemTransferCalculatorInterface>
-    itemTransferCalculator.computeItemUuidBundlesToFetch = jest.fn().mockReturnValue([
-      ['1-2-3'],
-    ])
+    itemTransferCalculator.computeItemUuidBundlesToFetch = jest.fn().mockReturnValue([['1-2-3']])
 
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
@@ -82,13 +87,11 @@ describe('EmailArchiveExtensionSyncedEventHandler', () => {
   })
 
   it('should inform that multipart backup attachment for email was created', async () => {
-    itemBackupService.backup = jest.fn()
+    itemBackupService.backup = jest
+      .fn()
       .mockReturnValueOnce('backup-file-name-1')
       .mockReturnValueOnce('backup-file-name-2')
-    itemTransferCalculator.computeItemUuidBundlesToFetch = jest.fn().mockReturnValue([
-      ['1-2-3'],
-      ['2-3-4'],
-    ])
+    itemTransferCalculator.computeItemUuidBundlesToFetch = jest.fn().mockReturnValue([['1-2-3'], ['2-3-4']])
 
     await createHandler().handle(event)
 

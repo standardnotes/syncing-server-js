@@ -7,12 +7,17 @@ import {
   DomainEventMessageHandlerInterface,
   DomainEventSubscriberFactoryInterface,
 } from '@standardnotes/domain-events'
-import { AnalyticsStoreInterface, PeriodKeyGenerator, RedisAnalyticsStore, RedisStatisticsStore, StatisticsStoreInterface } from '@standardnotes/analytics'
+import {
+  AnalyticsStoreInterface,
+  PeriodKeyGenerator,
+  RedisAnalyticsStore,
+  RedisStatisticsStore,
+  StatisticsStoreInterface,
+} from '@standardnotes/analytics'
 
 import { Env } from './Env'
 import TYPES from './Types'
 import { AuthMiddleware } from '../Controller/AuthMiddleware'
-import { Connection, createConnection, LoggerOptions } from 'typeorm'
 import { MySQLRevisionRepository } from '../Infra/MySQL/MySQLRevisionRepository'
 import { Item } from '../Domain/Item/Item'
 import { Revision } from '../Domain/Revision/Revision'
@@ -53,7 +58,15 @@ import axios, { AxiosInstance } from 'axios'
 import { UuidFilter } from '../Domain/Item/SaveRule/UuidFilter'
 import { ContentTypeFilter } from '../Domain/Item/SaveRule/ContentTypeFilter'
 import { ContentFilter } from '../Domain/Item/SaveRule/ContentFilter'
-import { RedisDomainEventPublisher, RedisDomainEventSubscriberFactory, RedisEventMessageHandler, SNSDomainEventPublisher, SQSDomainEventSubscriberFactory, SQSEventMessageHandler, SQSNewRelicEventMessageHandler } from '@standardnotes/domain-events-infra'
+import {
+  RedisDomainEventPublisher,
+  RedisDomainEventSubscriberFactory,
+  RedisEventMessageHandler,
+  SNSDomainEventPublisher,
+  SQSDomainEventSubscriberFactory,
+  SQSEventMessageHandler,
+  SQSNewRelicEventMessageHandler,
+} from '@standardnotes/domain-events-infra'
 import { EmailBackupRequestedEventHandler } from '../Domain/Handler/EmailBackupRequestedEventHandler'
 import { CloudBackupRequestedEventHandler } from '../Domain/Handler/CloudBackupRequestedEventHandler'
 import { CheckIntegrity } from '../Domain/UseCase/CheckIntegrity/CheckIntegrity'
@@ -67,6 +80,10 @@ import { ItemProjection } from '../Projection/ItemProjection'
 import { RevisionProjection } from '../Projection/RevisionProjection'
 import { ItemConflict } from '../Domain/Item/ItemConflict'
 import { ItemConflictProjection } from '../Projection/ItemConflictProjection'
+import { AppDataSource } from './DataSource'
+import { RevisionRepositoryInterface } from '../Domain/Revision/RevisionRepositoryInterface'
+import { ItemRepositoryInterface } from '../Domain/Item/ItemRepositoryInterface'
+import { Repository } from 'typeorm'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const newrelicWinstonEnricher = require('@newrelic/winston-enricher')
@@ -80,47 +97,7 @@ export class ContainerConfigLoader {
 
     const container = new Container()
 
-    const maxQueryExecutionTime = env.get('DB_MAX_QUERY_EXECUTION_TIME', true) ?
-      +env.get('DB_MAX_QUERY_EXECUTION_TIME', true) : 45_000
-
-    const databaseLoggingLevel = env.get('DB_DEBUG_LEVEL') === 'true' ? true : [ env.get('DB_DEBUG_LEVEL') ]
-
-    const connection: Connection = await createConnection({
-      type: 'mysql',
-      supportBigNumbers: true,
-      bigNumberStrings: false,
-      maxQueryExecutionTime,
-      replication: {
-        master: {
-          host: env.get('DB_HOST'),
-          port: parseInt(env.get('DB_PORT')),
-          username: env.get('DB_USERNAME'),
-          password: env.get('DB_PASSWORD'),
-          database: env.get('DB_DATABASE'),
-        },
-        slaves: [
-          {
-            host: env.get('DB_REPLICA_HOST'),
-            port: parseInt(env.get('DB_PORT')),
-            username: env.get('DB_USERNAME'),
-            password: env.get('DB_PASSWORD'),
-            database: env.get('DB_DATABASE'),
-          },
-        ],
-        removeNodeErrorCount: 10,
-        restoreNodeTimeout: 5,
-      },
-      entities: [
-        Item,
-        Revision,
-      ],
-      migrations: [
-        env.get('DB_MIGRATIONS_PATH'),
-      ],
-      migrationsRun: true,
-      logging: databaseLoggingLevel as LoggerOptions,
-    })
-    container.bind<Connection>(TYPES.DBConnection).toConstantValue(connection)
+    await AppDataSource.initialize()
 
     const redisUrl = env.get('REDIS_URL')
     const isRedisInClusterMode = redisUrl.indexOf(',') > 0
@@ -133,10 +110,7 @@ export class ContainerConfigLoader {
 
     container.bind(TYPES.Redis).toConstantValue(redis)
 
-    const winstonFormatters = [
-      winston.format.splat(),
-      winston.format.json(),
-    ]
+    const winstonFormatters = [winston.format.splat(), winston.format.json()]
     if (env.get('NEW_RELIC_ENABLED', true) === 'true') {
       winstonFormatters.push(newrelicWinstonEnricher())
     }
@@ -144,24 +118,26 @@ export class ContainerConfigLoader {
     const logger = winston.createLogger({
       level: env.get('LOG_LEVEL') || 'info',
       format: winston.format.combine(...winstonFormatters),
-      transports: [
-        new winston.transports.Console({ level: env.get('LOG_LEVEL') || 'info' }),
-      ],
+      transports: [new winston.transports.Console({ level: env.get('LOG_LEVEL') || 'info' })],
     })
     container.bind<winston.Logger>(TYPES.Logger).toConstantValue(logger)
 
     if (env.get('SNS_AWS_REGION', true)) {
-      container.bind<AWS.SNS>(TYPES.SNS).toConstantValue(new AWS.SNS({
-        apiVersion: 'latest',
-        region: env.get('SNS_AWS_REGION', true),
-      }))
+      container.bind<AWS.SNS>(TYPES.SNS).toConstantValue(
+        new AWS.SNS({
+          apiVersion: 'latest',
+          region: env.get('SNS_AWS_REGION', true),
+        }),
+      )
     }
 
     if (env.get('SQS_AWS_REGION', true)) {
-      container.bind<AWS.SQS>(TYPES.SQS).toConstantValue(new AWS.SQS({
-        apiVersion: 'latest',
-        region: env.get('SQS_AWS_REGION', true),
-      }))
+      container.bind<AWS.SQS>(TYPES.SQS).toConstantValue(
+        new AWS.SQS({
+          apiVersion: 'latest',
+          region: env.get('SQS_AWS_REGION', true),
+        }),
+      )
     }
 
     let s3Client = undefined
@@ -174,8 +150,14 @@ export class ContainerConfigLoader {
     container.bind<AWS.S3 | undefined>(TYPES.S3).toConstantValue(s3Client)
 
     // Repositories
-    container.bind<MySQLRevisionRepository>(TYPES.RevisionRepository).toConstantValue(connection.getCustomRepository(MySQLRevisionRepository))
-    container.bind<MySQLItemRepository>(TYPES.ItemRepository).toConstantValue(connection.getCustomRepository(MySQLItemRepository))
+    container.bind<RevisionRepositoryInterface>(TYPES.RevisionRepository).to(MySQLRevisionRepository)
+    container.bind<ItemRepositoryInterface>(TYPES.ItemRepository).to(MySQLItemRepository)
+
+    // ORM
+    container
+      .bind<Repository<Revision>>(TYPES.ORMRevisionRepository)
+      .toConstantValue(AppDataSource.getRepository(Revision))
+    container.bind<Repository<Item>>(TYPES.ORMItemRepository).toConstantValue(AppDataSource.getRepository(Item))
 
     // Middleware
     container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware)
@@ -184,7 +166,9 @@ export class ContainerConfigLoader {
     container.bind<ProjectorInterface<Revision, RevisionProjection>>(TYPES.RevisionProjector).to(RevisionProjector)
     container.bind<ProjectorInterface<Item, ItemProjection>>(TYPES.ItemProjector).to(ItemProjector)
     container.bind<ProjectorInterface<Item, SavedItemProjection>>(TYPES.SavedItemProjector).to(SavedItemProjector)
-    container.bind<ProjectorInterface<ItemConflict, ItemConflictProjection>>(TYPES.ItemConflictProjector).to(ItemConflictProjector)
+    container
+      .bind<ProjectorInterface<ItemConflict, ItemConflictProjection>>(TYPES.ItemConflictProjector)
+      .to(ItemConflictProjector)
 
     // env vars
     container.bind(TYPES.REDIS_URL).toConstantValue(env.get('REDIS_URL'))
@@ -193,7 +177,9 @@ export class ContainerConfigLoader {
     container.bind(TYPES.SQS_QUEUE_URL).toConstantValue(env.get('SQS_QUEUE_URL', true))
     container.bind(TYPES.REDIS_EVENTS_CHANNEL).toConstantValue(env.get('REDIS_EVENTS_CHANNEL'))
     container.bind(TYPES.AUTH_JWT_SECRET).toConstantValue(env.get('AUTH_JWT_SECRET'))
-    container.bind(TYPES.INTERNAL_DNS_REROUTE_ENABLED).toConstantValue(env.get('INTERNAL_DNS_REROUTE_ENABLED', true) === 'true')
+    container
+      .bind(TYPES.INTERNAL_DNS_REROUTE_ENABLED)
+      .toConstantValue(env.get('INTERNAL_DNS_REROUTE_ENABLED', true) === 'true')
     container.bind(TYPES.EXTENSIONS_SERVER_URL).toConstantValue(env.get('EXTENSIONS_SERVER_URL', true))
     container.bind(TYPES.AUTH_SERVER_URL).toConstantValue(env.get('AUTH_SERVER_URL'))
     container.bind(TYPES.S3_AWS_REGION).toConstantValue(env.get('S3_AWS_REGION', true))
@@ -202,9 +188,9 @@ export class ContainerConfigLoader {
     container.bind(TYPES.REVISIONS_FREQUENCY).toConstantValue(env.get('REVISIONS_FREQUENCY'))
     container.bind(TYPES.NEW_RELIC_ENABLED).toConstantValue(env.get('NEW_RELIC_ENABLED', true))
     container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
-    container.bind(TYPES.CONTENT_SIZE_TRANSFER_LIMIT).toConstantValue(
-      env.get('CONTENT_SIZE_TRANSFER_LIMIT', true) ?? this.DEFAULT_CONTENT_SIZE_TRANSFER_LIMIT
-    )
+    container
+      .bind(TYPES.CONTENT_SIZE_TRANSFER_LIMIT)
+      .toConstantValue(env.get('CONTENT_SIZE_TRANSFER_LIMIT', true) ?? this.DEFAULT_CONTENT_SIZE_TRANSFER_LIMIT)
 
     // use cases
     container.bind<SyncItems>(TYPES.SyncItems).to(SyncItems)
@@ -213,11 +199,21 @@ export class ContainerConfigLoader {
 
     // Handlers
     container.bind<ItemsSyncedEventHandler>(TYPES.ItemsSyncedEventHandler).to(ItemsSyncedEventHandler)
-    container.bind<EmailArchiveExtensionSyncedEventHandler>(TYPES.EmailArchiveExtensionSyncedEventHandler).to(EmailArchiveExtensionSyncedEventHandler)
-    container.bind<DuplicateItemSyncedEventHandler>(TYPES.DuplicateItemSyncedEventHandler).to(DuplicateItemSyncedEventHandler)
-    container.bind<AccountDeletionRequestedEventHandler>(TYPES.AccountDeletionRequestedEventHandler).to(AccountDeletionRequestedEventHandler)
-    container.bind<EmailBackupRequestedEventHandler>(TYPES.EmailBackupRequestedEventHandler).to(EmailBackupRequestedEventHandler)
-    container.bind<CloudBackupRequestedEventHandler>(TYPES.CloudBackupRequestedEventHandler).to(CloudBackupRequestedEventHandler)
+    container
+      .bind<EmailArchiveExtensionSyncedEventHandler>(TYPES.EmailArchiveExtensionSyncedEventHandler)
+      .to(EmailArchiveExtensionSyncedEventHandler)
+    container
+      .bind<DuplicateItemSyncedEventHandler>(TYPES.DuplicateItemSyncedEventHandler)
+      .to(DuplicateItemSyncedEventHandler)
+    container
+      .bind<AccountDeletionRequestedEventHandler>(TYPES.AccountDeletionRequestedEventHandler)
+      .to(AccountDeletionRequestedEventHandler)
+    container
+      .bind<EmailBackupRequestedEventHandler>(TYPES.EmailBackupRequestedEventHandler)
+      .to(EmailBackupRequestedEventHandler)
+    container
+      .bind<CloudBackupRequestedEventHandler>(TYPES.CloudBackupRequestedEventHandler)
+      .to(CloudBackupRequestedEventHandler)
 
     // Services
     container.bind<ContentDecoder>(TYPES.ContentDecoder).to(ContentDecoder)
@@ -228,35 +224,31 @@ export class ContainerConfigLoader {
     container.bind<TimerInterface>(TYPES.Timer).toConstantValue(new Timer())
     container.bind<SyncResponseFactory20161215>(TYPES.SyncResponseFactory20161215).to(SyncResponseFactory20161215)
     container.bind<SyncResponseFactory20200115>(TYPES.SyncResponseFactory20200115).to(SyncResponseFactory20200115)
-    container.bind<SyncResponseFactoryResolverInterface>(TYPES.SyncResponseFactoryResolver).to(SyncResponseFactoryResolver)
+    container
+      .bind<SyncResponseFactoryResolverInterface>(TYPES.SyncResponseFactoryResolver)
+      .to(SyncResponseFactoryResolver)
     container.bind<AuthHttpServiceInterface>(TYPES.AuthHttpService).to(AuthHttpService)
     container.bind<ExtensionsHttpServiceInterface>(TYPES.ExtensionsHttpService).to(ExtensionsHttpService)
     container.bind<ItemBackupServiceInterface>(TYPES.ItemBackupService).to(S3ItemBackupService)
     container.bind<RevisionServiceInterface>(TYPES.RevisionService).to(RevisionService)
     const periodKeyGenerator = new PeriodKeyGenerator()
-    container.bind<AnalyticsStoreInterface>(TYPES.AnalyticsStore).toConstantValue(new RedisAnalyticsStore(
-      periodKeyGenerator,
-      container.get(TYPES.Redis)
-    ))
-    container.bind<StatisticsStoreInterface>(TYPES.StatisticsStore).toConstantValue(new RedisStatisticsStore(
-      periodKeyGenerator,
-      container.get(TYPES.Redis)
-    ))
+    container
+      .bind<AnalyticsStoreInterface>(TYPES.AnalyticsStore)
+      .toConstantValue(new RedisAnalyticsStore(periodKeyGenerator, container.get(TYPES.Redis)))
+    container
+      .bind<StatisticsStoreInterface>(TYPES.StatisticsStore)
+      .toConstantValue(new RedisStatisticsStore(periodKeyGenerator, container.get(TYPES.Redis)))
 
     if (env.get('SNS_TOPIC_ARN', true)) {
-      container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
-        new SNSDomainEventPublisher(
-          container.get(TYPES.SNS),
-          container.get(TYPES.SNS_TOPIC_ARN)
-        )
-      )
+      container
+        .bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher)
+        .toConstantValue(new SNSDomainEventPublisher(container.get(TYPES.SNS), container.get(TYPES.SNS_TOPIC_ARN)))
     } else {
-      container.bind<RedisDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
-        new RedisDomainEventPublisher(
-          container.get(TYPES.Redis),
-          container.get(TYPES.REDIS_EVENTS_CHANNEL)
+      container
+        .bind<RedisDomainEventPublisher>(TYPES.DomainEventPublisher)
+        .toConstantValue(
+          new RedisDomainEventPublisher(container.get(TYPES.Redis), container.get(TYPES.REDIS_EVENTS_CHANNEL)),
         )
-      )
     }
 
     const eventHandlers: Map<string, DomainEventHandlerInterface> = new Map([
@@ -269,29 +261,35 @@ export class ContainerConfigLoader {
     ])
 
     if (env.get('SQS_QUEUE_URL', true)) {
-      container.bind<DomainEventMessageHandlerInterface>(TYPES.DomainEventMessageHandler).toConstantValue(
-        env.get('NEW_RELIC_ENABLED', true) === 'true' ?
-          new SQSNewRelicEventMessageHandler(eventHandlers, container.get(TYPES.Logger)) :
-          new SQSEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
-      )
-      container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).toConstantValue(
-        new SQSDomainEventSubscriberFactory(
-          container.get(TYPES.SQS),
-          container.get(TYPES.SQS_QUEUE_URL),
-          container.get(TYPES.DomainEventMessageHandler)
+      container
+        .bind<DomainEventMessageHandlerInterface>(TYPES.DomainEventMessageHandler)
+        .toConstantValue(
+          env.get('NEW_RELIC_ENABLED', true) === 'true'
+            ? new SQSNewRelicEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
+            : new SQSEventMessageHandler(eventHandlers, container.get(TYPES.Logger)),
         )
-      )
+      container
+        .bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory)
+        .toConstantValue(
+          new SQSDomainEventSubscriberFactory(
+            container.get(TYPES.SQS),
+            container.get(TYPES.SQS_QUEUE_URL),
+            container.get(TYPES.DomainEventMessageHandler),
+          ),
+        )
     } else {
-      container.bind<DomainEventMessageHandlerInterface>(TYPES.DomainEventMessageHandler).toConstantValue(
-        new RedisEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
-      )
-      container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).toConstantValue(
-        new RedisDomainEventSubscriberFactory(
-          container.get(TYPES.Redis),
-          container.get(TYPES.DomainEventMessageHandler),
-          container.get(TYPES.REDIS_EVENTS_CHANNEL)
+      container
+        .bind<DomainEventMessageHandlerInterface>(TYPES.DomainEventMessageHandler)
+        .toConstantValue(new RedisEventMessageHandler(eventHandlers, container.get(TYPES.Logger)))
+      container
+        .bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory)
+        .toConstantValue(
+          new RedisDomainEventSubscriberFactory(
+            container.get(TYPES.Redis),
+            container.get(TYPES.DomainEventMessageHandler),
+            container.get(TYPES.REDIS_EVENTS_CHANNEL),
+          ),
         )
-      )
     }
 
     container.bind<ItemFactoryInterface>(TYPES.ItemFactory).to(ItemFactory)
@@ -302,15 +300,17 @@ export class ContainerConfigLoader {
     container.bind<ContentTypeFilter>(TYPES.ContentTypeFilter).to(ContentTypeFilter)
     container.bind<ContentFilter>(TYPES.ContentFilter).to(ContentFilter)
 
-    container.bind<ItemSaveValidatorInterface>(TYPES.ItemSaveValidator).toConstantValue(
-      new ItemSaveValidator([
-        container.get(TYPES.OwnershipFilter),
-        container.get(TYPES.TimeDifferenceFilter),
-        container.get(TYPES.UuidFilter),
-        container.get(TYPES.ContentTypeFilter),
-        container.get(TYPES.ContentFilter),
-      ])
-    )
+    container
+      .bind<ItemSaveValidatorInterface>(TYPES.ItemSaveValidator)
+      .toConstantValue(
+        new ItemSaveValidator([
+          container.get(TYPES.OwnershipFilter),
+          container.get(TYPES.TimeDifferenceFilter),
+          container.get(TYPES.UuidFilter),
+          container.get(TYPES.ContentTypeFilter),
+          container.get(TYPES.ContentFilter),
+        ]),
+      )
 
     return container
   }

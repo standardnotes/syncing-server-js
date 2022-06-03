@@ -13,15 +13,14 @@ import { KeyParamsData } from '@standardnotes/responses'
 
 @injectable()
 export class CloudBackupRequestedEventHandler implements DomainEventHandlerInterface {
-  constructor (
+  constructor(
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
     @inject(TYPES.ExtensionsHttpService) private extensionsHttpService: ExtensionsHttpServiceInterface,
     @inject(TYPES.ItemBackupService) private itemBackupService: ItemBackupServiceInterface,
     @inject(TYPES.EXTENSIONS_SERVER_URL) private extensionsServerUrl: string,
-    @inject(TYPES.Logger) private logger: Logger
-  ) {
-  }
+    @inject(TYPES.Logger) private logger: Logger,
+  ) {}
 
   async handle(event: CloudBackupRequestedEvent): Promise<void> {
     const items = await this.getItemsForPostingToExtension(event)
@@ -33,7 +32,7 @@ export class CloudBackupRequestedEventHandler implements DomainEventHandlerInter
         authenticated: false,
       })
     } catch (error) {
-      this.logger.warn(`Could not get user key params from auth service: ${error.message}`)
+      this.logger.warn(`Could not get user key params from auth service: ${(error as Error).message}`)
 
       return
     }
@@ -54,15 +53,15 @@ export class CloudBackupRequestedEventHandler implements DomainEventHandlerInter
   }
 
   private getExtensionsServerUrl(event: CloudBackupRequestedEvent): string {
-    switch(event.payload.cloudProvider) {
-    case 'ONE_DRIVE':
-      return `${this.extensionsServerUrl}/onedrive/sync?type=sf&key=${event.payload.cloudProviderToken}`
-    case 'GOOGLE_DRIVE':
-      return `${this.extensionsServerUrl}/gdrive/sync?key=${event.payload.cloudProviderToken}`
-    case 'DROPBOX':
-      return `${this.extensionsServerUrl}/dropbox/items/sync?type=sf&dbt=${event.payload.cloudProviderToken}`
-    default:
-      throw new Error(`Unsupported cloud provider ${event.payload.cloudProvider}`)
+    switch (event.payload.cloudProvider) {
+      case 'ONE_DRIVE':
+        return `${this.extensionsServerUrl}/onedrive/sync?type=sf&key=${event.payload.cloudProviderToken}`
+      case 'GOOGLE_DRIVE':
+        return `${this.extensionsServerUrl}/gdrive/sync?key=${event.payload.cloudProviderToken}`
+      case 'DROPBOX':
+        return `${this.extensionsServerUrl}/dropbox/items/sync?type=sf&dbt=${event.payload.cloudProviderToken}`
+      default:
+        throw new Error(`Unsupported cloud provider ${event.payload.cloudProvider}`)
     }
   }
 

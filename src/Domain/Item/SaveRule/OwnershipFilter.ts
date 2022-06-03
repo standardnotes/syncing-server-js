@@ -7,7 +7,7 @@ import { ConflictType } from '@standardnotes/responses'
 @injectable()
 export class OwnershipFilter implements ItemSaveRuleInterface {
   async check(dto: ItemSaveValidationDTO): Promise<ItemSaveRuleResult> {
-    const itemBelongsToADifferentUser = dto.existingItem !== undefined && dto.existingItem.userUuid !== dto.userUuid
+    const itemBelongsToADifferentUser = dto.existingItem !== null && dto.existingItem.userUuid !== dto.userUuid
     if (itemBelongsToADifferentUser) {
       return {
         passed: false,
