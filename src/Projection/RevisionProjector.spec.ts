@@ -1,4 +1,4 @@
-import { RoleName } from '@standardnotes/common'
+import { ContentType, RoleName } from '@standardnotes/common'
 import { TimerInterface } from '@standardnotes/time'
 import { Item } from '../Domain/Item/Item'
 
@@ -16,7 +16,7 @@ describe('RevisionProjector', () => {
   beforeEach(() => {
     revision = new Revision()
     revision.content = 'test'
-    revision.contentType = 'Note'
+    revision.contentType = ContentType.Note
     ;(revision.uuid = '123'),
       (revision.itemsKeyId = '123'),
       (revision.item = Promise.resolve({ uuid: '1-2-3' } as Item))

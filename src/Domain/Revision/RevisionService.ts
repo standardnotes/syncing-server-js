@@ -86,7 +86,7 @@ export class RevisionService implements RevisionServiceInterface {
   }
 
   async createRevision(item: Item): Promise<void> {
-    if (item.contentType !== ContentType.Note) {
+    if (![ContentType.Note, ContentType.File].includes(item.contentType as ContentType)) {
       return
     }
 

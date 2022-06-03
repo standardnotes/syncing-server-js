@@ -1,3 +1,4 @@
+import { ContentType } from '@standardnotes/common'
 import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { Item } from '../Item/Item'
 
@@ -24,10 +25,11 @@ export class Revision {
 
   @Column({
     name: 'content_type',
+    type: 'varchar',
     length: 255,
     nullable: true,
   })
-  declare contentType: string
+  declare contentType: ContentType | null
 
   @Column({
     type: 'varchar',

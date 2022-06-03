@@ -1,3 +1,4 @@
+import { ContentType } from '@standardnotes/common'
 import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { Revision } from '../Revision/Revision'
 
@@ -42,7 +43,7 @@ export class Item {
     nullable: true,
   })
   @Index('index_items_on_content_type')
-  declare contentType: string | null
+  declare contentType: ContentType | null
 
   @Column({
     name: 'content_size',

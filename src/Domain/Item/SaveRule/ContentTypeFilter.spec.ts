@@ -1,3 +1,4 @@
+import { ContentType } from '@standardnotes/common'
 import 'reflect-metadata'
 import { ApiVersion } from '../../Api/ApiVersion'
 import { Item } from '../Item'
@@ -26,7 +27,7 @@ describe('ContentTypeFilter', () => {
         apiVersion: ApiVersion.v20200115,
         itemHash: {
           uuid: '123e4567-e89b-12d3-a456-426655440000',
-          content_type: invalidContentType,
+          content_type: invalidContentType as ContentType,
         },
         existingItem: null,
       })
@@ -53,7 +54,7 @@ describe('ContentTypeFilter', () => {
         apiVersion: ApiVersion.v20200115,
         itemHash: {
           uuid: '123e4567-e89b-12d3-a456-426655440000',
-          content_type: validContentType,
+          content_type: validContentType as ContentType,
         },
         existingItem,
       })

@@ -3,6 +3,7 @@ import { TimerInterface } from '@standardnotes/time'
 
 import { Item } from '../Domain/Item/Item'
 import { ItemProjector } from './ItemProjector'
+import { ContentType } from '@standardnotes/common'
 
 describe('ItemProjector', () => {
   let item: Item
@@ -20,7 +21,7 @@ describe('ItemProjector', () => {
     item.duplicateOf = null
     item.encItemKey = '3-4-5'
     item.content = 'test'
-    item.contentType = 'Note'
+    item.contentType = ContentType.Note
     item.authHash = 'asd'
     item.deleted = false
     item.createdAtTimestamp = 123
