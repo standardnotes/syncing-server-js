@@ -7,7 +7,7 @@ import { RevisionRepositoryInterface } from '../../Domain/Revision/RevisionRepos
 @injectable()
 export class MySQLRevisionRepository implements RevisionRepositoryInterface {
   constructor(
-    @inject(TYPES.ORMItemRepository)
+    @inject(TYPES.ORMRevisionRepository)
     private ormRepository: Repository<Revision>,
   ) {}
 
