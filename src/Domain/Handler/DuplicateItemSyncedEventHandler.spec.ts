@@ -28,7 +28,8 @@ describe('DuplicateItemSyncedEventHandler', () => {
     } as jest.Mocked<Item>
 
     itemRepository = {} as jest.Mocked<ItemRepositoryInterface>
-    itemRepository.findByUuidAndUserUuid = jest.fn()
+    itemRepository.findByUuidAndUserUuid = jest
+      .fn()
       .mockReturnValueOnce(duplicateItem)
       .mockReturnValueOnce(originalItem)
 
@@ -53,9 +54,7 @@ describe('DuplicateItemSyncedEventHandler', () => {
   })
 
   it('should not copy revisions if original item does not exist', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn()
-      .mockReturnValueOnce(duplicateItem)
-      .mockReturnValueOnce(undefined)
+    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValueOnce(duplicateItem).mockReturnValueOnce(null)
 
     await createHandler().handle(event)
 
@@ -63,9 +62,7 @@ describe('DuplicateItemSyncedEventHandler', () => {
   })
 
   it('should not copy revisions if duplicate item does not exist', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn()
-      .mockReturnValueOnce(undefined)
-      .mockReturnValueOnce(originalItem)
+    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValueOnce(null).mockReturnValueOnce(originalItem)
 
     await createHandler().handle(event)
 

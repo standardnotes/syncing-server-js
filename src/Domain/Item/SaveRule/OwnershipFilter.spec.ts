@@ -16,7 +16,7 @@ describe('OwnershipFilter', () => {
     existingItem.userUuid = '2-3-4'
   })
 
-  it ('should filter out items belonging to a different user', async () => {
+  it('should filter out items belonging to a different user', async () => {
     const result = await createFilter().check({
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
@@ -39,7 +39,7 @@ describe('OwnershipFilter', () => {
     })
   })
 
-  it ('should leave items belonging to the same user', async () => {
+  it('should leave items belonging to the same user', async () => {
     existingItem.userUuid = '1-2-3'
 
     const result = await createFilter().check({
@@ -57,7 +57,7 @@ describe('OwnershipFilter', () => {
     })
   })
 
-  it ('should leave non existing items', async () => {
+  it('should leave non existing items', async () => {
     const result = await createFilter().check({
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
@@ -65,6 +65,7 @@ describe('OwnershipFilter', () => {
         uuid: '2-3-4',
         content_type: ContentType.Note,
       },
+      existingItem: null,
     })
 
     expect(result).toEqual({

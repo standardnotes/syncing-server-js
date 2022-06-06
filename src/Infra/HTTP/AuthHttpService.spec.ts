@@ -26,7 +26,7 @@ describe('AuthHttpService', () => {
     expect(httpClient.request).toHaveBeenCalledWith({
       method: 'GET',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
       url: 'https://auth-server/users/params',
       params: {
@@ -54,7 +54,7 @@ describe('AuthHttpService', () => {
     expect(httpClient.request).toHaveBeenCalledWith({
       method: 'GET',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
       url: 'https://auth-server/internal/users/1-2-3/settings/MUTE_FAILED_BACKUPS_EMAILS',
       validateStatus: expect.any(Function),

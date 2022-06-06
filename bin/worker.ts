@@ -9,8 +9,8 @@ import TYPES from '../src/Bootstrap/Types'
 import { Env } from '../src/Bootstrap/Env'
 import { DomainEventSubscriberFactoryInterface } from '@standardnotes/domain-events'
 
-const container = new ContainerConfigLoader
-void container.load().then(container => {
+const container = new ContainerConfigLoader()
+void container.load().then((container) => {
   const env: Env = new Env()
   env.load()
 
@@ -21,8 +21,5 @@ void container.load().then(container => {
   const subscriberFactory: DomainEventSubscriberFactoryInterface = container.get(TYPES.DomainEventSubscriberFactory)
   subscriberFactory.create().start()
 
-  setInterval(
-    () => logger.info('Alive and kicking!'),
-    20 * 60 * 1000
-  )
+  setInterval(() => logger.info('Alive and kicking!'), 20 * 60 * 1000)
 })

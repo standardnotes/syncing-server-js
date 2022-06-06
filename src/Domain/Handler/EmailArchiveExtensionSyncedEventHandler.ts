@@ -1,5 +1,9 @@
 import { KeyParamsData } from '@standardnotes/responses'
-import { DomainEventHandlerInterface, DomainEventPublisherInterface, EmailArchiveExtensionSyncedEvent } from '@standardnotes/domain-events'
+import {
+  DomainEventHandlerInterface,
+  DomainEventPublisherInterface,
+  EmailArchiveExtensionSyncedEvent,
+} from '@standardnotes/domain-events'
 import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
 import TYPES from '../../Bootstrap/Types'
@@ -12,7 +16,7 @@ import { ItemTransferCalculatorInterface } from '../Item/ItemTransferCalculatorI
 
 @injectable()
 export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandlerInterface {
-  constructor (
+  constructor(
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
     @inject(TYPES.ItemBackupService) private itemBackupService: ItemBackupServiceInterface,
@@ -21,8 +25,7 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
     @inject(TYPES.EMAIL_ATTACHMENT_MAX_BYTE_SIZE) private emailAttachmentMaxByteSize: number,
     @inject(TYPES.ItemTransferCalculator) private itemTransferCalculator: ItemTransferCalculatorInterface,
     @inject(TYPES.Logger) private logger: Logger,
-  ) {
-  }
+  ) {}
 
   async handle(event: EmailArchiveExtensionSyncedEvent): Promise<void> {
     let authParams: KeyParamsData
@@ -32,7 +35,7 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
         authenticated: false,
       })
     } catch (error) {
-      this.logger.warn(`Could not get user key params from auth service: ${error.message}`)
+      this.logger.warn(`Could not get user key params from auth service: ${(error as Error).message}`)
 
       return
     }
@@ -43,7 +46,10 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
       sortOrder: 'ASC',
       deleted: false,
     }
-    const itemUuidBundles = await this.itemTransferCalculator.computeItemUuidBundlesToFetch(itemQuery, this.emailAttachmentMaxByteSize)
+    const itemUuidBundles = await this.itemTransferCalculator.computeItemUuidBundlesToFetch(
+      itemQuery,
+      this.emailAttachmentMaxByteSize,
+    )
 
     let bundleIndex = 1
     for (const itemUuidBundle of itemUuidBundles) {
@@ -66,7 +72,7 @@ export class EmailArchiveExtensionSyncedEventHandler implements DomainEventHandl
             backupFileIndex: bundleIndex++,
             backupFilesTotal: itemUuidBundles.length,
             email: authParams.identifier as string,
-          })
+          }),
         )
       }
     }

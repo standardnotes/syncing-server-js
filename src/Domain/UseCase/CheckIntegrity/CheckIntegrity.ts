@@ -15,12 +15,10 @@ export class CheckIntegrity implements UseCaseInterface {
   constructor(
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.StatisticsStore) private statisticsStore: StatisticsStoreInterface,
-  ) {
-  }
+  ) {}
 
   async execute(dto: CheckIntegrityDTO): Promise<CheckIntegrityResponse> {
-    const serverItemIntegrityPayloads = await this.itemRepository
-      .findItemsForComputingIntegrityPayloads(dto.userUuid)
+    const serverItemIntegrityPayloads = await this.itemRepository.findItemsForComputingIntegrityPayloads(dto.userUuid)
 
     const serverItemIntegrityPayloadsMap = new Map<string, ExtendedIntegrityPayload>()
     for (const serverItemIntegrityPayload of serverItemIntegrityPayloads) {
@@ -29,13 +27,18 @@ export class CheckIntegrity implements UseCaseInterface {
 
     const clientItemIntegrityPayloadsMap = new Map<string, number>()
     for (const clientItemIntegrityPayload of dto.integrityPayloads) {
-      clientItemIntegrityPayloadsMap.set(clientItemIntegrityPayload.uuid, clientItemIntegrityPayload.updated_at_timestamp)
+      clientItemIntegrityPayloadsMap.set(
+        clientItemIntegrityPayload.uuid,
+        clientItemIntegrityPayload.updated_at_timestamp,
+      )
     }
 
     const mismatches: IntegrityPayload[] = []
 
     for (const serverItemIntegrityPayloadUuid of serverItemIntegrityPayloadsMap.keys()) {
-      const serverItemIntegrityPayload = serverItemIntegrityPayloadsMap.get(serverItemIntegrityPayloadUuid) as ExtendedIntegrityPayload
+      const serverItemIntegrityPayload = serverItemIntegrityPayloadsMap.get(
+        serverItemIntegrityPayloadUuid,
+      ) as ExtendedIntegrityPayload
 
       if (!clientItemIntegrityPayloadsMap.has(serverItemIntegrityPayloadUuid)) {
         if (serverItemIntegrityPayload.content_type !== ContentType.ItemsKey) {
@@ -49,9 +52,13 @@ export class CheckIntegrity implements UseCaseInterface {
       }
 
       const serverItemIntegrityPayloadUpdatedAtTimestamp = serverItemIntegrityPayload.updated_at_timestamp
-      const clientItemIntegrityPayloadUpdatedAtTimestamp = clientItemIntegrityPayloadsMap.get(serverItemIntegrityPayloadUuid) as number
-      if (serverItemIntegrityPayloadUpdatedAtTimestamp !== clientItemIntegrityPayloadUpdatedAtTimestamp &&
-        serverItemIntegrityPayload.content_type !== ContentType.ItemsKey) {
+      const clientItemIntegrityPayloadUpdatedAtTimestamp = clientItemIntegrityPayloadsMap.get(
+        serverItemIntegrityPayloadUuid,
+      ) as number
+      if (
+        serverItemIntegrityPayloadUpdatedAtTimestamp !== clientItemIntegrityPayloadUpdatedAtTimestamp &&
+        serverItemIntegrityPayload.content_type !== ContentType.ItemsKey
+      ) {
         mismatches.unshift({
           uuid: serverItemIntegrityPayloadUuid,
           updated_at_timestamp: serverItemIntegrityPayloadUpdatedAtTimestamp,

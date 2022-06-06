@@ -8,10 +8,7 @@ import { ItemProjection } from './ItemProjection'
 
 @injectable()
 export class ItemProjector implements ProjectorInterface<Item, ItemProjection> {
-  constructor(
-    @inject(TYPES.Timer) private timer: TimerInterface,
-  ) {
-  }
+  constructor(@inject(TYPES.Timer) private timer: TimerInterface) {}
 
   async projectSimple(_item: Item): Promise<ItemProjection> {
     throw Error('not implemented')

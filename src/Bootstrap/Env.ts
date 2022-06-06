@@ -3,14 +3,14 @@ import { injectable } from 'inversify'
 
 @injectable()
 export class Env {
-  private env: DotenvParseOutput
+  private env?: DotenvParseOutput
 
   public load(): void {
     const output = config()
-    this.env = <DotenvParseOutput> output.parsed
+    this.env = <DotenvParseOutput>output.parsed
   }
 
-  public get(key: string, optional = false) :string {
+  public get(key: string, optional = false): string {
     if (!this.env) {
       this.load()
     }
@@ -19,6 +19,6 @@ export class Env {
       throw new Error(`Environment variable ${key} not set`)
     }
 
-    return <string> process.env[key]
+    return <string>process.env[key]
   }
 }

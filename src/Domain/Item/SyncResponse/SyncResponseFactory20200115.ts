@@ -14,25 +14,25 @@ import { SavedItemProjection } from '../../../Projection/SavedItemProjection'
 export class SyncResponseFactory20200115 implements SyncResponseFactoryInterface {
   constructor(
     @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item, ItemProjection>,
-    @inject(TYPES.ItemConflictProjector) private itemConflictProjector: ProjectorInterface<ItemConflict, ItemConflictProjection>,
+    @inject(TYPES.ItemConflictProjector)
+    private itemConflictProjector: ProjectorInterface<ItemConflict, ItemConflictProjection>,
     @inject(TYPES.SavedItemProjector) private savedItemProjector: ProjectorInterface<Item, SavedItemProjection>,
-  ){
-  }
+  ) {}
 
   async createResponse(syncItemsResponse: SyncItemsResponse): Promise<SyncResponse20200115> {
     const retrievedItems = []
     for (const item of syncItemsResponse.retrievedItems) {
-      retrievedItems.push(<ItemProjection> await this.itemProjector.projectFull(item))
+      retrievedItems.push(<ItemProjection>await this.itemProjector.projectFull(item))
     }
 
     const savedItems = []
     for (const item of syncItemsResponse.savedItems) {
-      savedItems.push(<SavedItemProjection> await this.savedItemProjector.projectFull(item))
+      savedItems.push(<SavedItemProjection>await this.savedItemProjector.projectFull(item))
     }
 
     const conflicts = []
     for (const itemConflict of syncItemsResponse.conflicts) {
-      conflicts.push(<ItemConflictProjection> await this.itemConflictProjector.projectFull(itemConflict))
+      conflicts.push(<ItemConflictProjection>await this.itemConflictProjector.projectFull(itemConflict))
     }
 
     return {

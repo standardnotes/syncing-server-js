@@ -13,7 +13,7 @@ import { RevisionProjection } from '../Projection/RevisionProjection'
 export class RevisionsController extends BaseHttpController {
   constructor(
     @inject(TYPES.RevisionService) private revisionService: RevisionServiceInterface,
-    @inject(TYPES.RevisionProjector) private revisionProjector: ProjectorInterface<Revision, RevisionProjection>
+    @inject(TYPES.RevisionProjector) private revisionProjector: ProjectorInterface<Revision, RevisionProjection>,
   ) {
     super()
   }
@@ -49,14 +49,20 @@ export class RevisionsController extends BaseHttpController {
   }
 
   @httpDelete('/:uuid')
-  public async deleteRevision(request: Request, response: Response): Promise<results.BadRequestResult | results.OkResult | results.JsonResult> {
+  public async deleteRevision(
+    request: Request,
+    response: Response,
+  ): Promise<results.BadRequestResult | results.OkResult | results.JsonResult> {
     if (response.locals.readOnlyAccess) {
-      return this.json({
-        error: {
-          tag: ErrorTag.ReadOnlyAccess,
-          message: 'Session has read-only access.',
+      return this.json(
+        {
+          error: {
+            tag: ErrorTag.ReadOnlyAccess,
+            message: 'Session has read-only access.',
+          },
         },
-      }, 401)
+        401,
+      )
     }
 
     const success = await this.revisionService.removeRevision({

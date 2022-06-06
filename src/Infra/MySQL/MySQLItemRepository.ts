@@ -1,30 +1,43 @@
-import { injectable } from 'inversify'
-import { EntityRepository, Repository, SelectQueryBuilder } from 'typeorm'
+import { inject, injectable } from 'inversify'
+import { Repository, SelectQueryBuilder } from 'typeorm'
 import { Item } from '../../Domain/Item/Item'
 import { ItemQuery } from '../../Domain/Item/ItemQuery'
 import { ItemRepositoryInterface } from '../../Domain/Item/ItemRepositoryInterface'
 import { ReadStream } from 'fs'
 import { ExtendedIntegrityPayload } from '../../Domain/Item/ExtendedIntegrityPayload'
+import TYPES from '../../Bootstrap/Types'
 
 @injectable()
-@EntityRepository(Item)
-export class MySQLItemRepository extends Repository<Item> implements ItemRepositoryInterface {
+export class MySQLItemRepository implements ItemRepositoryInterface {
+  constructor(
+    @inject(TYPES.ORMItemRepository)
+    private ormRepository: Repository<Item>,
+  ) {}
+
+  async save(item: Item): Promise<Item> {
+    return this.ormRepository.save(item)
+  }
+
+  async remove(item: Item): Promise<Item> {
+    return this.ormRepository.remove(item)
+  }
+
   async updateContentSize(itemUuid: string, contentSize: number): Promise<void> {
-    await this.createQueryBuilder('item')
+    await this.ormRepository
+      .createQueryBuilder('item')
       .update()
       .set({
         contentSize,
       })
-      .where(
-        'uuid = :itemUuid',
-        {
-          itemUuid,
-        }
-      )
+      .where('uuid = :itemUuid', {
+        itemUuid,
+      })
       .execute()
   }
 
-  async findContentSizeForComputingTransferLimit(query: ItemQuery): Promise<{ uuid: string; contentSize: number | null }[]> {
+  async findContentSizeForComputingTransferLimit(
+    query: ItemQuery,
+  ): Promise<{ uuid: string; contentSize: number | null }[]> {
     const queryBuilder = this.createFindAllQueryBuilder(query)
     queryBuilder.select('item.uuid', 'uuid')
     queryBuilder.addSelect('item.content_size', 'contentSize')
@@ -35,38 +48,36 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
   }
 
   async deleteByUserUuid(userUuid: string): Promise<void> {
-    await this.createQueryBuilder('item')
+    await this.ormRepository
+      .createQueryBuilder('item')
       .delete()
       .from('items')
       .where('user_uuid = :userUuid', { userUuid })
       .execute()
   }
 
-  async findByUuid(uuid: string): Promise<Item | undefined> {
-    return this.createQueryBuilder('item')
-      .where(
-        'item.uuid = :uuid',
-        {
-          uuid,
-        }
-      )
+  async findByUuid(uuid: string): Promise<Item | null> {
+    return this.ormRepository
+      .createQueryBuilder('item')
+      .where('item.uuid = :uuid', {
+        uuid,
+      })
       .getOne()
   }
 
   async findDatesForComputingIntegrityHash(userUuid: string): Promise<Array<{ updated_at_timestamp: number }>> {
-    const queryBuilder = this.createQueryBuilder('item')
+    const queryBuilder = this.ormRepository.createQueryBuilder('item')
     queryBuilder.select('item.updated_at_timestamp')
     queryBuilder.where('item.user_uuid = :userUuid', { userUuid: userUuid })
     queryBuilder.andWhere('item.deleted = :deleted', { deleted: false })
 
     const items = await queryBuilder.getRawMany()
 
-    return items
-      .sort((itemA, itemB) => itemB.updated_at_timestamp - itemA.updated_at_timestamp)
+    return items.sort((itemA, itemB) => itemB.updated_at_timestamp - itemA.updated_at_timestamp)
   }
 
   async findItemsForComputingIntegrityPayloads(userUuid: string): Promise<ExtendedIntegrityPayload[]> {
-    const queryBuilder = this.createQueryBuilder('item')
+    const queryBuilder = this.ormRepository.createQueryBuilder('item')
     queryBuilder.select('item.uuid', 'uuid')
     queryBuilder.addSelect('item.updated_at_timestamp', 'updated_at_timestamp')
     queryBuilder.addSelect('item.content_type', 'content_type')
@@ -75,19 +86,16 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
 
     const items = await queryBuilder.getRawMany()
 
-    return items
-      .sort((itemA, itemB) => itemB.updated_at_timestamp - itemA.updated_at_timestamp)
+    return items.sort((itemA, itemB) => itemB.updated_at_timestamp - itemA.updated_at_timestamp)
   }
 
-  async findByUuidAndUserUuid(uuid: string, userUuid: string): Promise<Item | undefined> {
-    return this.createQueryBuilder('item')
-      .where(
-        'item.uuid = :uuid AND item.user_uuid = :userUuid',
-        {
-          uuid,
-          userUuid,
-        }
-      )
+  async findByUuidAndUserUuid(uuid: string, userUuid: string): Promise<Item | null> {
+    return this.ormRepository
+      .createQueryBuilder('item')
+      .where('item.uuid = :uuid AND item.user_uuid = :userUuid', {
+        uuid,
+        userUuid,
+      })
       .getOne()
   }
 
@@ -104,7 +112,8 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
   }
 
   async markItemsAsDeleted(itemUuids: Array<string>, updatedAtTimestamp: number): Promise<void> {
-    await this.createQueryBuilder('item')
+    await this.ormRepository
+      .createQueryBuilder('item')
       .update()
       .set({
         deleted: true,
@@ -113,17 +122,14 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
         authHash: null,
         updatedAtTimestamp,
       })
-      .where(
-        'uuid IN (:...uuids)',
-        {
-          uuids: itemUuids,
-        }
-      )
+      .where('uuid IN (:...uuids)', {
+        uuids: itemUuids,
+      })
       .execute()
   }
 
   private createFindAllQueryBuilder(query: ItemQuery): SelectQueryBuilder<Item> {
-    const queryBuilder = this.createQueryBuilder('item')
+    const queryBuilder = this.ormRepository.createQueryBuilder('item')
     queryBuilder.orderBy(`item.${query.sortBy}`, query.sortOrder)
 
     if (query.userUuid !== undefined) {
@@ -139,7 +145,9 @@ export class MySQLItemRepository extends Repository<Item> implements ItemReposit
       queryBuilder.andWhere('item.content_type = :contentType', { contentType: query.contentType })
     }
     if (query.lastSyncTime && query.syncTimeComparison) {
-      queryBuilder.andWhere(`item.updated_at_timestamp ${query.syncTimeComparison} :lastSyncTime`, { lastSyncTime: query.lastSyncTime })
+      queryBuilder.andWhere(`item.updated_at_timestamp ${query.syncTimeComparison} :lastSyncTime`, {
+        lastSyncTime: query.lastSyncTime,
+      })
     }
     if (query.offset !== undefined) {
       queryBuilder.skip(query.offset)

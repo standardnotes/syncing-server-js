@@ -9,10 +9,7 @@ import { ItemProjection } from './ItemProjection'
 
 @injectable()
 export class ItemConflictProjector implements ProjectorInterface<ItemConflict, ItemConflictProjection> {
-  constructor(
-    @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item, ItemProjection>,
-  ) {
-  }
+  constructor(@inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item, ItemProjection>) {}
 
   async projectSimple(_itemConflict: ItemConflict): Promise<ItemConflictProjection> {
     throw Error('not implemented')
@@ -23,13 +20,13 @@ export class ItemConflictProjector implements ProjectorInterface<ItemConflict, I
   }
 
   async projectFull(itemConflict: ItemConflict): Promise<ItemConflictProjection> {
-    const projection: ItemConflictProjection =  {
+    const projection: ItemConflictProjection = {
       unsaved_item: itemConflict.unsavedItem,
       type: itemConflict.type,
     }
 
     if (itemConflict.serverItem) {
-      projection.server_item = <ItemProjection> await this.itemProjector.projectFull(itemConflict.serverItem)
+      projection.server_item = <ItemProjection>await this.itemProjector.projectFull(itemConflict.serverItem)
     }
 
     return projection

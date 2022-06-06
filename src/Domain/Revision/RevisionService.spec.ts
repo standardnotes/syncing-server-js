@@ -15,11 +15,7 @@ describe('RevisionService', () => {
   let revision1: Revision
   let revision2: Revision
 
-  const createService = () => new RevisionService(
-    revisionRepository,
-    itemRepository,
-    timer,
-  )
+  const createService = () => new RevisionService(revisionRepository, itemRepository, timer)
 
   beforeEach(() => {
     revisionRepository = {} as jest.Mocked<RevisionRepositoryInterface>
@@ -53,7 +49,7 @@ describe('RevisionService', () => {
       content: 'content2',
     } as jest.Mocked<Revision>
 
-    revisionRepository.findByItemId = jest.fn().mockReturnValue([ revision1, revision2 ])
+    revisionRepository.findByItemId = jest.fn().mockReturnValue([revision1, revision2])
     revisionRepository.findOneById = jest.fn().mockReturnValue(revision1)
     revisionRepository.removeByUuid = jest.fn()
 
@@ -68,99 +64,117 @@ describe('RevisionService', () => {
   })
 
   it('should not remove a revision for a non existing item', async () => {
-    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
 
-    expect(await createService().removeRevision({
-      itemUuid: '1-2-3',
-      userUuid: '1-2-3',
-      revisionUuid: '3-4-5',
-    })).toBeFalsy()
+    expect(
+      await createService().removeRevision({
+        itemUuid: '1-2-3',
+        userUuid: '1-2-3',
+        revisionUuid: '3-4-5',
+      }),
+    ).toBeFalsy()
   })
 
-  it('should not remove a revision for another user\'s item', async () => {
-    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+  it("should not remove a revision for another user's item", async () => {
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
 
-    expect(await createService().removeRevision({
-      itemUuid: '1-2-3',
-      userUuid: '3-4-5',
-      revisionUuid: '3-4-5',
-    })).toBeFalsy()
+    expect(
+      await createService().removeRevision({
+        itemUuid: '1-2-3',
+        userUuid: '3-4-5',
+        revisionUuid: '3-4-5',
+      }),
+    ).toBeFalsy()
   })
 
   it('should remove a revision if user has rights', async () => {
-    expect(await createService().removeRevision({
-      itemUuid: '1-2-3',
-      userUuid: '1-2-3',
-      revisionUuid: '3-4-5',
-    })).toBeTruthy()
+    expect(
+      await createService().removeRevision({
+        itemUuid: '1-2-3',
+        userUuid: '1-2-3',
+        revisionUuid: '3-4-5',
+      }),
+    ).toBeTruthy()
 
     expect(revisionRepository.removeByUuid).toHaveBeenCalledWith('1-2-3', '3-4-5')
   })
 
   it('should not get a revision for a non existing item', async () => {
-    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
 
-    expect(await createService().getRevision({
-      itemUuid: '1-2-3',
-      userRoles: [ RoleName.CoreUser ],
-      userUuid: '1-2-3',
-      revisionUuid: '3-4-5',
-    })).toBeUndefined()
+    expect(
+      await createService().getRevision({
+        itemUuid: '1-2-3',
+        userRoles: [RoleName.CoreUser],
+        userUuid: '1-2-3',
+        revisionUuid: '3-4-5',
+      }),
+    ).toBeNull()
   })
 
-  it('should not get a revision for another user\'s item', async () => {
-    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+  it("should not get a revision for another user's item", async () => {
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
 
-    expect(await createService().getRevision({
-      itemUuid: '1-2-3',
-      userRoles: [ RoleName.CoreUser ],
-      userUuid: '3-4-5',
-      revisionUuid: '3-4-5',
-    })).toBeUndefined()
+    expect(
+      await createService().getRevision({
+        itemUuid: '1-2-3',
+        userRoles: [RoleName.CoreUser],
+        userUuid: '3-4-5',
+        revisionUuid: '3-4-5',
+      }),
+    ).toBeNull()
   })
 
   it('should not get a revision that does not exist', async () => {
-    revisionRepository.findOneById = jest.fn().mockReturnValue(undefined)
+    revisionRepository.findOneById = jest.fn().mockReturnValue(null)
 
-    expect(await createService().getRevision({
-      itemUuid: '1-2-3',
-      userRoles: [ RoleName.CoreUser ],
-      userUuid: '1-2-3',
-      revisionUuid: '3-4-5',
-    })).toBeUndefined()
+    expect(
+      await createService().getRevision({
+        itemUuid: '1-2-3',
+        userRoles: [RoleName.CoreUser],
+        userUuid: '1-2-3',
+        revisionUuid: '3-4-5',
+      }),
+    ).toBeNull()
   })
 
   it('should get a revision if user has enough permissions', async () => {
     timer.dateWasNDaysAgo = jest.fn().mockReturnValue(2)
 
-    expect(await createService().getRevision({
-      itemUuid: '1-2-3',
-      userRoles: [ RoleName.CoreUser ],
-      userUuid: '1-2-3',
-      revisionUuid: '3-4-5',
-    })).toEqual(revision1)
+    expect(
+      await createService().getRevision({
+        itemUuid: '1-2-3',
+        userRoles: [RoleName.CoreUser],
+        userUuid: '1-2-3',
+        revisionUuid: '3-4-5',
+      }),
+    ).toEqual(revision1)
   })
 
   it('should not get a revision if user has not enough permissions - plus user', async () => {
     timer.dateWasNDaysAgo = jest.fn().mockReturnValue(45)
 
-    expect(await createService().getRevision({
-      itemUuid: '1-2-3',
-      userRoles: [ RoleName.CoreUser ],
-      userUuid: '1-2-3',
-      revisionUuid: '3-4-5',
-    })).toBeUndefined()
+    expect(
+      await createService().getRevision({
+        itemUuid: '1-2-3',
+        userRoles: [RoleName.CoreUser],
+        userUuid: '1-2-3',
+        revisionUuid: '3-4-5',
+      }),
+    ).toBeNull()
   })
 
   it('should not get a revision if user has not enough permissions - pro user', async () => {
     timer.dateWasNDaysAgo = jest.fn().mockReturnValue(500)
 
-    expect(await createService().getRevision({
-      itemUuid: '1-2-3',
-      userRoles: [ RoleName.CoreUser, RoleName.PlusUser ],
-      userUuid: '1-2-3',
-      revisionUuid: '3-4-5',
-    })).toBeUndefined()
+    expect(
+      await createService().getRevision({
+        itemUuid: '1-2-3',
+        userRoles: [RoleName.CoreUser, RoleName.PlusUser],
+        userUuid: '1-2-3',
+        revisionUuid: '3-4-5',
+      }),
+    ).toBeNull()
   })
 
   it('should get revisions for an item', async () => {
@@ -170,14 +184,14 @@ describe('RevisionService', () => {
   })
 
   it('should not get revisions for an non existing item', async () => {
-    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
 
     expect(await createService().getRevisions('1-2-3', '2-3-4')).toEqual([])
 
     expect(revisionRepository.findByItemId).not.toHaveBeenCalled()
   })
 
-  it('should not get revisions for another user\'s item', async () => {
+  it("should not get revisions for another user's item", async () => {
     expect(await createService().getRevisions('3-4-5', '4-5-6')).toEqual([])
 
     expect(revisionRepository.findByItemId).not.toHaveBeenCalled()
@@ -207,8 +221,8 @@ describe('RevisionService', () => {
     expect(revisionRepository.save).not.toHaveBeenCalled()
   })
 
-  it('should copy revisions from one item unto another', async() => {
-    revisionRepository.save = jest.fn().mockImplementation(revision => revision)
+  it('should copy revisions from one item unto another', async () => {
+    revisionRepository.save = jest.fn().mockImplementation((revision) => revision)
 
     await createService().copyRevisions('1-2-3', '2-3-4')
 
@@ -226,8 +240,8 @@ describe('RevisionService', () => {
     })
   })
 
-  it('should throw while copying revisions from one item unto another if the target item does not exist', async() => {
-    itemRepository.findByUuid = jest.fn().mockReturnValue(undefined)
+  it('should throw while copying revisions from one item unto another if the target item does not exist', async () => {
+    itemRepository.findByUuid = jest.fn().mockReturnValue(null)
 
     let error = null
     try {

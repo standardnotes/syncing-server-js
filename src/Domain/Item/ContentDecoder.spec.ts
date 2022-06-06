@@ -14,9 +14,11 @@ describe('ContentDecoder', () => {
   })
 
   it('should encode content', () => {
-    expect(createDecoder().encode({
-      foo: 'bar',
-    })).toEqual('000eyJmb28iOiJiYXIifQ==')
+    expect(
+      createDecoder().encode({
+        foo: 'bar',
+      }),
+    ).toEqual('000eyJmb28iOiJiYXIifQ==')
   })
 
   it('should return empty object on decoding failure', () => {

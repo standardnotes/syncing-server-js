@@ -8,6 +8,9 @@ const TYPES = {
   // Repositories
   RevisionRepository: Symbol.for('RevisionRepository'),
   ItemRepository: Symbol.for('ItemRepository'),
+  // ORM
+  ORMRevisionRepository: Symbol.for('ORMRevisionRepository'),
+  ORMItemRepository: Symbol.for('ORMItemRepository'),
   // Middleware
   AuthMiddleware: Symbol.for('AuthMiddleware'),
   // Projectors

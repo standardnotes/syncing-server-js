@@ -8,19 +8,18 @@ import { Item } from '../Item'
 import { UuidFilter } from './UuidFilter'
 
 describe('UuidFilter', () => {
-  let existingItem: Item
   const createFilter = () => new UuidFilter()
 
-  it ('should filter out items with invalid uuid', async () => {
+  it('should filter out items with invalid uuid', async () => {
     const invalidUuids = [
       'c73bcdcc-2669-4bf6-81d3-e4an73fb11fd',
       'c73bcdcc26694bf681d3e4ae73fb11fd',
       'definitely-not-a-uuid',
       '1-2-3',
       'test',
-      '(select load_file(\'\\\\\\\\iugt7mazsk477',
+      "(select load_file('\\\\\\\\iugt7mazsk477",
       '/etc/passwd',
-      'eval(compile(\'for x in range(1):\\n i',
+      "eval(compile('for x in range(1):\\n i",
     ]
 
     for (const invalidUuid of invalidUuids) {
@@ -31,6 +30,7 @@ describe('UuidFilter', () => {
           uuid: invalidUuid,
           content_type: ContentType.Note,
         },
+        existingItem: null,
       })
 
       expect(result).toEqual({
@@ -46,7 +46,7 @@ describe('UuidFilter', () => {
     }
   })
 
-  it ('should leave items with valid uuid', async () => {
+  it('should leave items with valid uuid', async () => {
     const validUuids = [
       '123e4567-e89b-12d3-a456-426655440000',
       'c73bcdcc-2669-4bf6-81d3-e4ae73fb11fd',
@@ -61,7 +61,7 @@ describe('UuidFilter', () => {
           uuid: validUuid,
           content_type: ContentType.Note,
         },
-        existingItem,
+        existingItem: {} as jest.Mocked<Item>,
       })
 
       expect(result).toEqual({

@@ -13,8 +13,7 @@ export class SyncItems implements UseCaseInterface {
   constructor(
     @inject(TYPES.ItemService) private itemService: ItemServiceInterface,
     @inject(TYPES.AnalyticsStore) private analyticsStore: AnalyticsStoreInterface,
-  ) {
-  }
+  ) {}
 
   async execute(dto: SyncItemsDTO): Promise<SyncItemsResponse> {
     const getItemsResult = await this.itemService.getItems({
@@ -38,17 +37,16 @@ export class SyncItems implements UseCaseInterface {
     }
 
     if (dto.analyticsId && saveItemsResult.savedItems.length > 0) {
-      await this.analyticsStore.markActivity(
-        [ AnalyticsActivity.EditingItems ],
-        dto.analyticsId,
-        [ Period.Today, Period.ThisWeek, Period.ThisMonth ],
-      )
+      await this.analyticsStore.markActivity([AnalyticsActivity.EditingItems], dto.analyticsId, [
+        Period.Today,
+        Period.ThisWeek,
+        Period.ThisMonth,
+      ])
 
-      await this.analyticsStore.markActivity(
-        [ AnalyticsActivity.EmailUnbackedUpData ],
-        dto.analyticsId,
-        [ Period.Today, Period.ThisWeek ],
-      )
+      await this.analyticsStore.markActivity([AnalyticsActivity.EmailUnbackedUpData], dto.analyticsId, [
+        Period.Today,
+        Period.ThisWeek,
+      ])
     }
 
     const syncResponse: SyncItemsResponse = {
@@ -66,7 +64,10 @@ export class SyncItems implements UseCaseInterface {
     return dto.syncToken === undefined || dto.syncToken === null
   }
 
-  private filterOutSyncConflictsForConsecutiveSyncs(retrievedItems: Array<Item>, conflicts: Array<ItemConflict>): Array<Item> {
+  private filterOutSyncConflictsForConsecutiveSyncs(
+    retrievedItems: Array<Item>,
+    conflicts: Array<ItemConflict>,
+  ): Array<Item> {
     const syncConflictIds: Array<string> = []
     conflicts.forEach((conflict: ItemConflict) => {
       if (conflict.type === 'sync_conflict' && conflict.serverItem) {

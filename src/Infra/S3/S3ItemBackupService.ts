@@ -11,13 +11,12 @@ import { ItemProjection } from '../../Projection/ItemProjection'
 
 @injectable()
 export class S3ItemBackupService implements ItemBackupServiceInterface {
-  constructor (
+  constructor(
     @inject(TYPES.S3_BACKUP_BUCKET_NAME) private s3BackupBucketName: string,
     @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item, ItemProjection>,
     @inject(TYPES.Logger) private logger: Logger,
     @inject(TYPES.S3) private s3Client?: S3,
-  ) {
-  }
+  ) {}
 
   async backup(items: Item[], authParams: KeyParamsData): Promise<string> {
     if (!this.s3BackupBucketName || this.s3Client === undefined) {
@@ -33,16 +32,17 @@ export class S3ItemBackupService implements ItemBackupServiceInterface {
       itemProjections.push(await this.itemProjector.projectFull(item))
     }
 
-    const uploadResult = await this.s3Client.upload({
-      Bucket: this.s3BackupBucketName,
-      Key: fileName,
-      Body: JSON.stringify({
-        items: itemProjections,
-        auth_params: authParams,
-      }),
-    }).promise()
+    const uploadResult = await this.s3Client
+      .upload({
+        Bucket: this.s3BackupBucketName,
+        Key: fileName,
+        Body: JSON.stringify({
+          items: itemProjections,
+          auth_params: authParams,
+        }),
+      })
+      .promise()
 
     return uploadResult.Key
   }
-
 }

@@ -47,24 +47,26 @@ describe('SyncResponseFactory20161215', () => {
 
   it('should turn sync items response into a sync response for API Version 20161215', async () => {
     const itemHash1 = {} as jest.Mocked<ItemHash>
-    expect(await createFactory().createResponse({
-      retrievedItems: [ item1 ],
-      savedItems: [ item2 ],
-      conflicts: [
-        {
-          serverItem: item1,
-          type: ConflictType.ConflictingData,
-        },
-        {
-          unsavedItem: itemHash1,
-          type: ConflictType.UuidConflict,
-        },
-      ],
-      syncToken: 'sync-test',
-      cursorToken: 'cursor-test',
-    })).toEqual({
-      retrieved_items: [ item1Projection ],
-      saved_items: [ item2Projection ],
+    expect(
+      await createFactory().createResponse({
+        retrievedItems: [item1],
+        savedItems: [item2],
+        conflicts: [
+          {
+            serverItem: item1,
+            type: ConflictType.ConflictingData,
+          },
+          {
+            unsavedItem: itemHash1,
+            type: ConflictType.UuidConflict,
+          },
+        ],
+        syncToken: 'sync-test',
+        cursorToken: 'cursor-test',
+      }),
+    ).toEqual({
+      retrieved_items: [item1Projection],
+      saved_items: [item2Projection],
       unsaved: [
         {
           item: itemHash1,
@@ -86,20 +88,22 @@ describe('SyncResponseFactory20161215', () => {
 
     const duplicateItem2 = Object.assign({}, item2)
 
-    expect(await createFactory().createResponse({
-      retrievedItems: [ duplicateItem1, duplicateItem2 ],
-      savedItems: [ item1, item2],
-      conflicts: [
-        {
-          unsavedItem: itemHash1,
-          type: ConflictType.UuidConflict,
-        },
-      ],
-      syncToken: 'sync-test',
-      cursorToken: 'cursor-test',
-    })).toEqual({
+    expect(
+      await createFactory().createResponse({
+        retrievedItems: [duplicateItem1, duplicateItem2],
+        savedItems: [item1, item2],
+        conflicts: [
+          {
+            unsavedItem: itemHash1,
+            type: ConflictType.UuidConflict,
+          },
+        ],
+        syncToken: 'sync-test',
+        cursorToken: 'cursor-test',
+      }),
+    ).toEqual({
       retrieved_items: [],
-      saved_items: [ item1Projection, item2Projection ],
+      saved_items: [item1Projection, item2Projection],
       unsaved: [
         {
           error: {

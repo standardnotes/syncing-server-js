@@ -18,7 +18,8 @@ export class ItemsController extends BaseHttpController {
     @inject(TYPES.CheckIntegrity) private checkIntegrity: CheckIntegrity,
     @inject(TYPES.GetItem) private getItem: GetItem,
     @inject(TYPES.ItemProjector) private itemProjector: ProjectorInterface<Item, ItemProjection>,
-    @inject(TYPES.SyncResponseFactoryResolver) private syncResponseFactoryResolver: SyncResponseFactoryResolverInterface,
+    @inject(TYPES.SyncResponseFactoryResolver)
+    private syncResponseFactoryResolver: SyncResponseFactoryResolverInterface,
   ) {
     super()
   }
@@ -66,7 +67,10 @@ export class ItemsController extends BaseHttpController {
   }
 
   @httpGet('/:uuid')
-  public async getSingleItem(request: Request, response: Response): Promise<results.NotFoundResult | results.JsonResult> {
+  public async getSingleItem(
+    request: Request,
+    response: Response,
+  ): Promise<results.NotFoundResult | results.JsonResult> {
     const result = await this.getItem.execute({
       userUuid: response.locals.user.uuid,
       itemUuid: request.params.uuid,

@@ -20,14 +20,15 @@ describe('ExtensionsHttpService', () => {
   let authParams: KeyParamsData
   let logger: Logger
 
-  const createService = () => new ExtensionsHttpService(
-    httpClient,
-    itemRepository,
-    contentDecoder,
-    domainEventPublisher,
-    domainEventFactory,
-    logger
-  )
+  const createService = () =>
+    new ExtensionsHttpService(
+      httpClient,
+      itemRepository,
+      contentDecoder,
+      domainEventPublisher,
+      domainEventFactory,
+      logger,
+    )
 
   beforeEach(() => {
     httpClient = {} as jest.Mocked<AxiosInstance>
@@ -69,14 +70,14 @@ describe('ExtensionsHttpService', () => {
     })
 
     expect(httpClient.request).toHaveBeenCalledWith({
-      data:  {
+      data: {
         auth_params: authParams,
         backup_filename: 'test',
         settings_id: '3-4-5',
         silent: false,
         user_uuid: '1-2-3',
       },
-      headers:  {
+      headers: {
         'Content-Type': 'application/json',
       },
       method: 'POST',
@@ -112,22 +113,22 @@ describe('ExtensionsHttpService', () => {
       extensionId: '2-3-4',
       extensionsServerUrl: 'https://extensions-server/extension1',
       forceMute: false,
-      items: [ item ],
+      items: [item],
       backupFilename: '',
       authParams,
       muteEmailsSettingUuid: '3-4-5',
     })
 
     expect(httpClient.request).toHaveBeenCalledWith({
-      data:  {
+      data: {
         auth_params: authParams,
         backup_filename: '',
-        items:  [ item ],
+        items: [item],
         settings_id: '3-4-5',
         silent: false,
         user_uuid: '1-2-3',
       },
-      headers:  {
+      headers: {
         'Content-Type': 'application/json',
       },
       method: 'POST',
@@ -148,14 +149,14 @@ describe('ExtensionsHttpService', () => {
     })
 
     expect(httpClient.request).toHaveBeenCalledWith({
-      data:  {
+      data: {
         auth_params: authParams,
         backup_filename: 'backup-file',
         settings_id: '3-4-5',
         silent: false,
         user_uuid: '1-2-3',
       },
-      headers:  {
+      headers: {
         'Content-Type': 'application/json',
       },
       method: 'POST',
@@ -176,7 +177,7 @@ describe('ExtensionsHttpService', () => {
       extensionId: '2-3-4',
       extensionsServerUrl: 'https://extensions-server/extension1',
       forceMute: false,
-      items: [ item ],
+      items: [item],
       backupFilename: 'backup-file',
       authParams,
       muteEmailsSettingUuid: '3-4-5',
@@ -196,7 +197,7 @@ describe('ExtensionsHttpService', () => {
       extensionId: '2-3-4',
       extensionsServerUrl: 'https://extensions-server/extension1',
       forceMute: false,
-      items: [ item ],
+      items: [item],
       backupFilename: 'backup-file',
       authParams,
       muteEmailsSettingUuid: '3-4-5',
@@ -218,7 +219,7 @@ describe('ExtensionsHttpService', () => {
       extensionId: '2-3-4',
       extensionsServerUrl: 'https://extensions-server/extension1',
       forceMute: false,
-      items: [ item ],
+      items: [item],
       backupFilename: 'backup-file',
       authParams,
       muteEmailsSettingUuid: '3-4-5',
@@ -240,7 +241,7 @@ describe('ExtensionsHttpService', () => {
       extensionId: '2-3-4',
       extensionsServerUrl: 'https://extensions-server/extension1',
       forceMute: false,
-      items: [ item ],
+      items: [item],
       backupFilename: 'backup-file',
       authParams,
       muteEmailsSettingUuid: '3-4-5',
@@ -262,7 +263,7 @@ describe('ExtensionsHttpService', () => {
       extensionId: '2-3-4',
       extensionsServerUrl: 'https://extensions-server/extension1',
       forceMute: true,
-      items: [ item ],
+      items: [item],
       backupFilename: 'backup-file',
       authParams,
       muteEmailsSettingUuid: '3-4-5',
@@ -272,7 +273,7 @@ describe('ExtensionsHttpService', () => {
   })
 
   it('should throw an error if the extension to post to is not found', async () => {
-    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(undefined)
+    itemRepository.findByUuidAndUserUuid = jest.fn().mockReturnValue(null)
 
     httpClient.request = jest.fn().mockImplementation(() => {
       throw new Error('Could not reach the extensions server')
@@ -285,7 +286,7 @@ describe('ExtensionsHttpService', () => {
         extensionId: '2-3-4',
         extensionsServerUrl: 'https://extensions-server/extension1',
         forceMute: false,
-        items: [ item ],
+        items: [item],
         backupFilename: 'backup-file',
         authParams,
         muteEmailsSettingUuid: '3-4-5',
@@ -312,7 +313,7 @@ describe('ExtensionsHttpService', () => {
         extensionId: '2-3-4',
         extensionsServerUrl: 'https://extensions-server/extension1',
         forceMute: false,
-        items: [ item ],
+        items: [item],
         backupFilename: 'backup-file',
         authParams,
         muteEmailsSettingUuid: '3-4-5',
@@ -336,7 +337,7 @@ describe('ExtensionsHttpService', () => {
       extensionId: '2-3-4',
       extensionsServerUrl: 'https://extensions-server/extension1',
       forceMute: false,
-      items: [ item ],
+      items: [item],
       backupFilename: 'backup-file',
       authParams,
       muteEmailsSettingUuid: '3-4-5',
@@ -358,7 +359,7 @@ describe('ExtensionsHttpService', () => {
       extensionId: '2-3-4',
       extensionsServerUrl: 'https://extensions-server/extension1',
       forceMute: false,
-      items: [ item ],
+      items: [item],
       backupFilename: 'backup-file',
       authParams,
       muteEmailsSettingUuid: '3-4-5',
@@ -380,7 +381,7 @@ describe('ExtensionsHttpService', () => {
       extensionId: '2-3-4',
       extensionsServerUrl: 'https://extensions-server/extension1',
       forceMute: false,
-      items: [ item ],
+      items: [item],
       backupFilename: 'backup-file',
       authParams,
       muteEmailsSettingUuid: '3-4-5',
@@ -404,7 +405,7 @@ describe('ExtensionsHttpService', () => {
         extensionId: '2-3-4',
         extensionsServerUrl: 'https://extensions-server/extension1',
         forceMute: false,
-        items: [ item ],
+        items: [item],
         backupFilename: 'backup-file',
         authParams,
         muteEmailsSettingUuid: '3-4-5',
@@ -430,7 +431,7 @@ describe('ExtensionsHttpService', () => {
         extensionId: '2-3-4',
         extensionsServerUrl: 'https://extensions-server/extension1',
         forceMute: false,
-        items: [ item ],
+        items: [item],
         backupFilename: 'backup-file',
         authParams,
         muteEmailsSettingUuid: '3-4-5',

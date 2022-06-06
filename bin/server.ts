@@ -18,8 +18,8 @@ import { ContainerConfigLoader } from '../src/Bootstrap/Container'
 import TYPES from '../src/Bootstrap/Types'
 import { Env } from '../src/Bootstrap/Env'
 
-const container = new ContainerConfigLoader
-void container.load().then(container => {
+const container = new ContainerConfigLoader()
+void container.load().then((container) => {
   const env: Env = new Env()
   env.load()
 
@@ -59,9 +59,7 @@ void container.load().then(container => {
     if (env.get('SENTRY_DSN', true)) {
       Sentry.init({
         dsn: env.get('SENTRY_DSN'),
-        integrations: [
-          new Sentry.Integrations.Http({ tracing: false, breadcrumbs: true }),
-        ],
+        integrations: [new Sentry.Integrations.Http({ tracing: false, breadcrumbs: true })],
         tracesSampleRate: 0,
       })
 
@@ -81,7 +79,8 @@ void container.load().then(container => {
 
       response.status(500).send({
         error: {
-          message: 'Unfortunately, we couldn\'t handle your request. Please try again or contact our support if the error persists.',
+          message:
+            "Unfortunately, we couldn't handle your request. Please try again or contact our support if the error persists.",
         },
       })
     })

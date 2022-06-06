@@ -11,16 +11,15 @@ export class SyncResponseFactoryResolver implements SyncResponseFactoryResolverI
   constructor(
     @inject(TYPES.SyncResponseFactory20161215) private syncResponseFactory20161215: SyncResponseFactory20161215,
     @inject(TYPES.SyncResponseFactory20200115) private syncResponseFactory20200115: SyncResponseFactory20200115,
-  ) {
-  }
+  ) {}
 
   resolveSyncResponseFactoryVersion(apiVersion?: string): SyncResponseFactoryInterface {
-    switch(apiVersion) {
-    case ApiVersion.v20190520:
-    case ApiVersion.v20200115:
-      return this.syncResponseFactory20200115
-    default:
-      return this.syncResponseFactory20161215
+    switch (apiVersion) {
+      case ApiVersion.v20190520:
+      case ApiVersion.v20200115:
+        return this.syncResponseFactory20200115
+      default:
+        return this.syncResponseFactory20161215
     }
   }
 }

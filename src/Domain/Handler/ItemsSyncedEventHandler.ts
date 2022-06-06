@@ -13,16 +13,15 @@ import { KeyParamsData } from '@standardnotes/responses'
 
 @injectable()
 export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
-  constructor (
+  constructor(
     @inject(TYPES.ItemRepository) private itemRepository: ItemRepositoryInterface,
     @inject(TYPES.AuthHttpService) private authHttpService: AuthHttpServiceInterface,
     @inject(TYPES.ExtensionsHttpService) private extensionsHttpService: ExtensionsHttpServiceInterface,
     @inject(TYPES.ItemBackupService) private itemBackupService: ItemBackupServiceInterface,
     @inject(TYPES.INTERNAL_DNS_REROUTE_ENABLED) private internalDNSRerouteEnabled: boolean,
     @inject(TYPES.EXTENSIONS_SERVER_URL) private extensionsServerUrl: string,
-    @inject(TYPES.Logger) private logger: Logger
-  ) {
-  }
+    @inject(TYPES.Logger) private logger: Logger,
+  ) {}
 
   async handle(event: ItemsSyncedEvent): Promise<void> {
     const items = await this.getItemsForPostingToExtension(event)
@@ -34,7 +33,7 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
         authenticated: false,
       })
     } catch (error) {
-      this.logger.warn(`Could not get user key params from auth service: ${error.message}`)
+      this.logger.warn(`Could not get user key params from auth service: ${(error as Error).message}`)
 
       return
     }
@@ -60,10 +59,7 @@ export class ItemsSyncedEventHandler implements DomainEventHandlerInterface {
 
   private getExtensionsServerUrl(event: ItemsSyncedEvent): string {
     if (this.internalDNSRerouteEnabled) {
-      return event.payload.extensionUrl.replace(
-        'https://extensions.standardnotes.org',
-        this.extensionsServerUrl
-      )
+      return event.payload.extensionUrl.replace('https://extensions.standardnotes.org', this.extensionsServerUrl)
     }
 
     return event.payload.extensionUrl

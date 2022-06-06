@@ -1,4 +1,14 @@
-import { DropboxBackupFailedEvent, DuplicateItemSyncedEvent, EmailArchiveExtensionSyncedEvent, EmailBackupAttachmentCreatedEvent, GoogleDriveBackupFailedEvent, ItemsSyncedEvent, MailBackupAttachmentTooBigEvent, OneDriveBackupFailedEvent, UserRegisteredEvent } from '@standardnotes/domain-events'
+import {
+  DropboxBackupFailedEvent,
+  DuplicateItemSyncedEvent,
+  EmailArchiveExtensionSyncedEvent,
+  EmailBackupAttachmentCreatedEvent,
+  GoogleDriveBackupFailedEvent,
+  ItemsSyncedEvent,
+  MailBackupAttachmentTooBigEvent,
+  OneDriveBackupFailedEvent,
+  UserRegisteredEvent,
+} from '@standardnotes/domain-events'
 import { TimerInterface } from '@standardnotes/time'
 import { inject, injectable } from 'inversify'
 import TYPES from '../../Bootstrap/Types'
@@ -6,10 +16,7 @@ import { DomainEventFactoryInterface } from './DomainEventFactoryInterface'
 
 @injectable()
 export class DomainEventFactory implements DomainEventFactoryInterface {
-  constructor(
-    @inject(TYPES.Timer) private timer: TimerInterface,
-  ) {
-  }
+  constructor(@inject(TYPES.Timer) private timer: TimerInterface) {}
 
   createDuplicateItemSyncedEvent(itemUuid: string, userUuid: string): DuplicateItemSyncedEvent {
     return {
@@ -80,9 +87,9 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
   }
 
   createMailBackupAttachmentTooBigEvent(dto: {
-    allowedSize: string,
-    attachmentSize: string,
-    muteEmailsSettingUuid: string,
+    allowedSize: string
+    attachmentSize: string
+    muteEmailsSettingUuid: string
     email: string
   }): MailBackupAttachmentTooBigEvent {
     return {
@@ -99,12 +106,12 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
   }
 
   createItemsSyncedEvent(dto: {
-    userUuid: string,
-    extensionUrl: string,
-    extensionId: string,
-    itemUuids: Array<string>,
-    forceMute: boolean,
-    skipFileBackup: boolean,
+    userUuid: string
+    extensionUrl: string
+    extensionId: string
+    itemUuids: Array<string>
+    forceMute: boolean
+    skipFileBackup: boolean
     source: 'account-deletion' | 'realtime-extensions-sync'
   }): ItemsSyncedEvent {
     return {
@@ -155,10 +162,10 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
   }
 
   createEmailBackupAttachmentCreatedEvent(dto: {
-    backupFileName: string,
-    backupFileIndex: number,
-    backupFilesTotal: number,
-    email: string,
+    backupFileName: string
+    backupFileIndex: number
+    backupFilesTotal: number
+    email: string
   }): EmailBackupAttachmentCreatedEvent {
     return {
       type: 'EMAIL_BACKUP_ATTACHMENT_CREATED',

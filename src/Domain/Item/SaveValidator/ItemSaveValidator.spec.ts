@@ -9,7 +9,7 @@ describe('ItemSaveValidator', () => {
   let rule: ItemSaveRuleInterface
   let itemHash: ItemHash
 
-  const createProcessor = () => new ItemSaveValidator([ rule ])
+  const createProcessor = () => new ItemSaveValidator([rule])
 
   beforeEach(() => {
     rule = {} as jest.Mocked<ItemSaveRuleInterface>
@@ -23,6 +23,7 @@ describe('ItemSaveValidator', () => {
       apiVersion: ApiVersion.v20200115,
       userUuid: '1-2-3',
       itemHash,
+      existingItem: null,
     })
 
     expect(result).toEqual({
@@ -37,6 +38,7 @@ describe('ItemSaveValidator', () => {
       apiVersion: ApiVersion.v20200115,
       userUuid: '1-2-3',
       itemHash,
+      existingItem: null,
     })
 
     expect(result).toEqual({

@@ -36,29 +36,33 @@ describe('AuthMiddleware', () => {
   })
 
   it('should authorize user from an auth JWT token if present', async () => {
-    const authToken = sign({
-      user: { uuid: '123' },
-      session: { uuid: '234' },
-      roles: [
-        {
-          uuid: '1-2-3',
-          name: RoleName.CoreUser,
-        },
-        {
-          uuid: '2-3-4',
-          name: RoleName.ProUser,
-        },
-      ],
-      analyticsId: 123,
-      permissions: [],
-    }, jwtSecret, { algorithm: 'HS256' })
+    const authToken = sign(
+      {
+        user: { uuid: '123' },
+        session: { uuid: '234' },
+        roles: [
+          {
+            uuid: '1-2-3',
+            name: RoleName.CoreUser,
+          },
+          {
+            uuid: '2-3-4',
+            name: RoleName.ProUser,
+          },
+        ],
+        analyticsId: 123,
+        permissions: [],
+      },
+      jwtSecret,
+      { algorithm: 'HS256' },
+    )
 
     request.header = jest.fn().mockReturnValue(authToken)
 
     await createMiddleware().handler(request, response, next)
 
     expect(response.locals.user).toEqual({ uuid: '123' })
-    expect(response.locals.roleNames).toEqual([ 'CORE_USER', 'PRO_USER' ])
+    expect(response.locals.roleNames).toEqual(['CORE_USER', 'PRO_USER'])
     expect(response.locals.session).toEqual({ uuid: '234' })
     expect(response.locals.readOnlyAccess).toBeFalsy()
     expect(response.locals.analyticsId).toEqual(123)
@@ -67,32 +71,36 @@ describe('AuthMiddleware', () => {
   })
 
   it('should authorize user from an auth JWT token if present with read only access', async () => {
-    const authToken = sign({
-      user: { uuid: '123' },
-      session: {
-        uuid: '234',
-        readonly_access: true,
+    const authToken = sign(
+      {
+        user: { uuid: '123' },
+        session: {
+          uuid: '234',
+          readonly_access: true,
+        },
+        roles: [
+          {
+            uuid: '1-2-3',
+            name: RoleName.CoreUser,
+          },
+          {
+            uuid: '2-3-4',
+            name: RoleName.ProUser,
+          },
+        ],
+        analyticsId: 123,
+        permissions: [],
       },
-      roles: [
-        {
-          uuid: '1-2-3',
-          name: RoleName.CoreUser,
-        },
-        {
-          uuid: '2-3-4',
-          name: RoleName.ProUser,
-        },
-      ],
-      analyticsId: 123,
-      permissions: [],
-    }, jwtSecret, { algorithm: 'HS256' })
+      jwtSecret,
+      { algorithm: 'HS256' },
+    )
 
     request.header = jest.fn().mockReturnValue(authToken)
 
     await createMiddleware().handler(request, response, next)
 
     expect(response.locals.user).toEqual({ uuid: '123' })
-    expect(response.locals.roleNames).toEqual([ 'CORE_USER', 'PRO_USER' ])
+    expect(response.locals.roleNames).toEqual(['CORE_USER', 'PRO_USER'])
     expect(response.locals.session).toEqual({ uuid: '234', readonly_access: true })
     expect(response.locals.readOnlyAccess).toBeTruthy()
     expect(response.locals.analyticsId).toEqual(123)
@@ -101,12 +109,16 @@ describe('AuthMiddleware', () => {
   })
 
   it('should not authorize user from an auth JWT token if it is invalid', async () => {
-    const authToken = sign({
-      user: { uuid: '123' },
-      session: { uuid: '234' },
-      roles: [],
-      permissions: [],
-    }, jwtSecret, { algorithm: 'HS256', notBefore: '2 days' })
+    const authToken = sign(
+      {
+        user: { uuid: '123' },
+        session: { uuid: '234' },
+        roles: [],
+        permissions: [],
+      },
+      jwtSecret,
+      { algorithm: 'HS256', notBefore: '2 days' },
+    )
 
     request.header = jest.fn().mockReturnValue(authToken)
 

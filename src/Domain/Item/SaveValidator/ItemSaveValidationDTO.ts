@@ -5,5 +5,5 @@ export type ItemSaveValidationDTO = {
   userUuid: string
   apiVersion: string
   itemHash: ItemHash
-  existingItem?: Item
+  existingItem: Item | null
 }
