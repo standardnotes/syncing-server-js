@@ -1,4 +1,4 @@
-import { ContentType } from '@standardnotes/common'
+import { ContentType, Uuid } from '@standardnotes/common'
 import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { Item } from '../Item/Item'
 
@@ -78,4 +78,12 @@ export class Revision {
     nullable: true,
   })
   declare updatedAt: Date
+
+  @Column({
+    name: 'updated_with_session',
+    type: 'varchar',
+    length: 36,
+    nullable: true,
+  })
+  declare updatedWithSession: Uuid | null
 }

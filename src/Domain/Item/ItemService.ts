@@ -1,13 +1,13 @@
 import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 import { Time, TimerInterface } from '@standardnotes/time'
-import { ContentType } from '@standardnotes/common'
+import { ContentType, Uuid } from '@standardnotes/common'
 import { inject, injectable } from 'inversify'
 import { Logger } from 'winston'
+
 import TYPES from '../../Bootstrap/Types'
 import { DomainEventFactoryInterface } from '../Event/DomainEventFactoryInterface'
 import { RevisionServiceInterface } from '../Revision/RevisionServiceInterface'
 import { GetItemsDTO } from './GetItemsDTO'
-
 import { GetItemsResult } from './GetItemsResult'
 import { Item } from './Item'
 import { ItemConflict } from './ItemConflict'
@@ -118,11 +118,15 @@ export class ItemService implements ItemServiceInterface {
       }
 
       if (existingItem) {
-        const updatedItem = await this.updateExistingItem(existingItem, itemHash)
+        const updatedItem = await this.updateExistingItem({
+          existingItem,
+          itemHash,
+          sessionUuid: dto.sessionUuid,
+        })
         savedItems.push(updatedItem)
       } else {
         try {
-          const newItem = await this.saveNewItem(dto.userUuid, itemHash)
+          const newItem = await this.saveNewItem({ userUuid: dto.userUuid, itemHash, sessionUuid: dto.sessionUuid })
           savedItems.push(newItem)
         } catch (error) {
           this.logger.error(`[${dto.userUuid}] Saving item ${itemHash.uuid} failed. Error: ${(error as Error).message}`)
@@ -183,56 +187,63 @@ export class ItemService implements ItemServiceInterface {
     ).toString('base64')
   }
 
-  private async updateExistingItem(existingItem: Item, itemHash: ItemHash): Promise<Item> {
-    existingItem.contentSize = 0
-    if (itemHash.content) {
-      existingItem.content = itemHash.content
-      existingItem.contentSize = Buffer.byteLength(itemHash.content)
+  private async updateExistingItem(dto: {
+    existingItem: Item
+    itemHash: ItemHash
+    sessionUuid: Uuid | null
+  }): Promise<Item> {
+    dto.existingItem.updatedWithSession = dto.sessionUuid
+    dto.existingItem.contentSize = 0
+    if (dto.itemHash.content) {
+      dto.existingItem.content = dto.itemHash.content
+      dto.existingItem.contentSize = Buffer.byteLength(dto.itemHash.content)
     }
-    if (itemHash.content_type) {
-      existingItem.contentType = itemHash.content_type
+    if (dto.itemHash.content_type) {
+      dto.existingItem.contentType = dto.itemHash.content_type
     }
-    if (itemHash.deleted !== undefined) {
-      existingItem.deleted = itemHash.deleted
+    if (dto.itemHash.deleted !== undefined) {
+      dto.existingItem.deleted = dto.itemHash.deleted
     }
     let wasMarkedAsDuplicate = false
-    if (itemHash.duplicate_of) {
-      wasMarkedAsDuplicate = !existingItem.duplicateOf
-      existingItem.duplicateOf = itemHash.duplicate_of
+    if (dto.itemHash.duplicate_of) {
+      wasMarkedAsDuplicate = !dto.existingItem.duplicateOf
+      dto.existingItem.duplicateOf = dto.itemHash.duplicate_of
     }
-    if (itemHash.auth_hash) {
-      existingItem.authHash = itemHash.auth_hash
+    if (dto.itemHash.auth_hash) {
+      dto.existingItem.authHash = dto.itemHash.auth_hash
     }
-    if (itemHash.enc_item_key) {
-      existingItem.encItemKey = itemHash.enc_item_key
+    if (dto.itemHash.enc_item_key) {
+      dto.existingItem.encItemKey = dto.itemHash.enc_item_key
     }
-    if (itemHash.items_key_id) {
-      existingItem.itemsKeyId = itemHash.items_key_id
+    if (dto.itemHash.items_key_id) {
+      dto.existingItem.itemsKeyId = dto.itemHash.items_key_id
     }
 
-    if (itemHash.deleted === true) {
-      existingItem.deleted = true
-      existingItem.content = null
-      ;(existingItem.contentSize = 0), (existingItem.encItemKey = null)
-      existingItem.authHash = null
-      existingItem.itemsKeyId = null
+    if (dto.itemHash.deleted === true) {
+      dto.existingItem.deleted = true
+      dto.existingItem.content = null
+      ;(dto.existingItem.contentSize = 0), (dto.existingItem.encItemKey = null)
+      dto.existingItem.authHash = null
+      dto.existingItem.itemsKeyId = null
     }
 
     const updatedAt = this.timer.getTimestampInMicroseconds()
-    const secondsFromLastUpdate = this.timer.convertMicrosecondsToSeconds(updatedAt - existingItem.updatedAtTimestamp)
+    const secondsFromLastUpdate = this.timer.convertMicrosecondsToSeconds(
+      updatedAt - dto.existingItem.updatedAtTimestamp,
+    )
 
-    if (itemHash.created_at_timestamp) {
-      existingItem.createdAtTimestamp = itemHash.created_at_timestamp
-      existingItem.createdAt = this.timer.convertMicrosecondsToDate(itemHash.created_at_timestamp)
-    } else if (itemHash.created_at) {
-      existingItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
-      existingItem.createdAt = this.timer.convertStringDateToDate(itemHash.created_at)
+    if (dto.itemHash.created_at_timestamp) {
+      dto.existingItem.createdAtTimestamp = dto.itemHash.created_at_timestamp
+      dto.existingItem.createdAt = this.timer.convertMicrosecondsToDate(dto.itemHash.created_at_timestamp)
+    } else if (dto.itemHash.created_at) {
+      dto.existingItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(dto.itemHash.created_at)
+      dto.existingItem.createdAt = this.timer.convertStringDateToDate(dto.itemHash.created_at)
     }
 
-    existingItem.updatedAtTimestamp = updatedAt
-    existingItem.updatedAt = this.timer.convertMicrosecondsToDate(updatedAt)
+    dto.existingItem.updatedAtTimestamp = updatedAt
+    dto.existingItem.updatedAt = this.timer.convertMicrosecondsToDate(updatedAt)
 
-    const savedItem = await this.itemRepository.save(existingItem)
+    const savedItem = await this.itemRepository.save(dto.existingItem)
 
     if (secondsFromLastUpdate >= this.revisionFrequency) {
       await this.revisionService.createRevision(savedItem)
@@ -247,8 +258,8 @@ export class ItemService implements ItemServiceInterface {
     return savedItem
   }
 
-  private async saveNewItem(userUuid: string, itemHash: ItemHash): Promise<Item> {
-    const newItem = this.itemFactory.create(userUuid, itemHash)
+  private async saveNewItem(dto: { userUuid: string; itemHash: ItemHash; sessionUuid: Uuid | null }): Promise<Item> {
+    const newItem = this.itemFactory.create(dto)
 
     const savedItem = await this.itemRepository.save(newItem)
 

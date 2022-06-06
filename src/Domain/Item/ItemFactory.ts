@@ -1,5 +1,7 @@
+import { Uuid } from '@standardnotes/common'
 import { TimerInterface } from '@standardnotes/time'
 import { inject, injectable } from 'inversify'
+
 import TYPES from '../../Bootstrap/Types'
 import { Item } from './Item'
 import { ItemFactoryInterface } from './ItemFactoryInterface'
@@ -9,50 +11,51 @@ import { ItemHash } from './ItemHash'
 export class ItemFactory implements ItemFactoryInterface {
   constructor(@inject(TYPES.Timer) private timer: TimerInterface) {}
 
-  createStub(userUuid: string, itemHash: ItemHash): Item {
-    const item = this.create(userUuid, itemHash)
+  createStub(dto: { userUuid: string; itemHash: ItemHash; sessionUuid: Uuid | null }): Item {
+    const item = this.create(dto)
 
-    if (itemHash.content === undefined) {
+    if (dto.itemHash.content === undefined) {
       item.content = null
     }
 
-    if (itemHash.updated_at_timestamp) {
-      item.updatedAtTimestamp = itemHash.updated_at_timestamp
-      item.updatedAt = this.timer.convertMicrosecondsToDate(itemHash.updated_at_timestamp)
-    } else if (itemHash.updated_at) {
-      item.updatedAtTimestamp = this.timer.convertStringDateToMicroseconds(itemHash.updated_at)
-      item.updatedAt = this.timer.convertStringDateToDate(itemHash.updated_at)
+    if (dto.itemHash.updated_at_timestamp) {
+      item.updatedAtTimestamp = dto.itemHash.updated_at_timestamp
+      item.updatedAt = this.timer.convertMicrosecondsToDate(dto.itemHash.updated_at_timestamp)
+    } else if (dto.itemHash.updated_at) {
+      item.updatedAtTimestamp = this.timer.convertStringDateToMicroseconds(dto.itemHash.updated_at)
+      item.updatedAt = this.timer.convertStringDateToDate(dto.itemHash.updated_at)
     }
 
     return item
   }
 
-  create(userUuid: string, itemHash: ItemHash): Item {
+  create(dto: { userUuid: string; itemHash: ItemHash; sessionUuid: Uuid | null }): Item {
     const newItem = new Item()
-    newItem.uuid = itemHash.uuid
+    newItem.uuid = dto.itemHash.uuid
+    newItem.updatedWithSession = dto.sessionUuid
     newItem.contentSize = 0
-    if (itemHash.content) {
-      newItem.content = itemHash.content
-      newItem.contentSize = Buffer.byteLength(itemHash.content)
+    if (dto.itemHash.content) {
+      newItem.content = dto.itemHash.content
+      newItem.contentSize = Buffer.byteLength(dto.itemHash.content)
     }
-    newItem.userUuid = userUuid
-    if (itemHash.content_type) {
-      newItem.contentType = itemHash.content_type
+    newItem.userUuid = dto.userUuid
+    if (dto.itemHash.content_type) {
+      newItem.contentType = dto.itemHash.content_type
     }
-    if (itemHash.enc_item_key) {
-      newItem.encItemKey = itemHash.enc_item_key
+    if (dto.itemHash.enc_item_key) {
+      newItem.encItemKey = dto.itemHash.enc_item_key
     }
-    if (itemHash.items_key_id) {
-      newItem.itemsKeyId = itemHash.items_key_id
+    if (dto.itemHash.items_key_id) {
+      newItem.itemsKeyId = dto.itemHash.items_key_id
     }
-    if (itemHash.duplicate_of) {
-      newItem.duplicateOf = itemHash.duplicate_of
+    if (dto.itemHash.duplicate_of) {
+      newItem.duplicateOf = dto.itemHash.duplicate_of
     }
-    if (itemHash.deleted !== undefined) {
-      newItem.deleted = itemHash.deleted
+    if (dto.itemHash.deleted !== undefined) {
+      newItem.deleted = dto.itemHash.deleted
     }
-    if (itemHash.auth_hash) {
-      newItem.authHash = itemHash.auth_hash
+    if (dto.itemHash.auth_hash) {
+      newItem.authHash = dto.itemHash.auth_hash
     }
 
     const now = this.timer.getTimestampInMicroseconds()
@@ -64,12 +67,12 @@ export class ItemFactory implements ItemFactoryInterface {
     newItem.createdAtTimestamp = now
     newItem.createdAt = nowDate
 
-    if (itemHash.created_at_timestamp) {
-      newItem.createdAtTimestamp = itemHash.created_at_timestamp
-      newItem.createdAt = this.timer.convertMicrosecondsToDate(itemHash.created_at_timestamp)
-    } else if (itemHash.created_at) {
-      newItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(itemHash.created_at)
-      newItem.createdAt = this.timer.convertStringDateToDate(itemHash.created_at)
+    if (dto.itemHash.created_at_timestamp) {
+      newItem.createdAtTimestamp = dto.itemHash.created_at_timestamp
+      newItem.createdAt = this.timer.convertMicrosecondsToDate(dto.itemHash.created_at_timestamp)
+    } else if (dto.itemHash.created_at) {
+      newItem.createdAtTimestamp = this.timer.convertStringDateToMicroseconds(dto.itemHash.created_at)
+      newItem.createdAt = this.timer.convertStringDateToDate(dto.itemHash.created_at)
     }
 
     return newItem

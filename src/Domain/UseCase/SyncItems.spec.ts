@@ -71,6 +71,7 @@ describe('SyncItems', () => {
         contentType: 'Note',
         apiVersion: ApiVersion.v20200115,
         analyticsId: 123,
+        sessionUuid: '2-3-4',
       }),
     ).toEqual({
       conflicts: [],
@@ -93,6 +94,7 @@ describe('SyncItems', () => {
       userUuid: '1-2-3',
       apiVersion: '20200115',
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
     expect(analyticsStore.markActivity).toHaveBeenNthCalledWith(1, ['editing-items'], 123, [
       Period.Today,
@@ -117,6 +119,7 @@ describe('SyncItems', () => {
         readOnlyAccess: false,
         contentType: 'Note',
         apiVersion: ApiVersion.v20200115,
+        sessionUuid: null,
       }),
     ).toEqual({
       conflicts: [],
@@ -139,6 +142,7 @@ describe('SyncItems', () => {
       userUuid: '1-2-3',
       apiVersion: '20200115',
       readOnlyAccess: false,
+      sessionUuid: null,
     })
     expect(analyticsStore.markActivity).not.toHaveBeenCalled()
   })
@@ -151,6 +155,7 @@ describe('SyncItems', () => {
         computeIntegrityHash: false,
         limit: 10,
         readOnlyAccess: false,
+        sessionUuid: '2-3-4',
         contentType: 'Note',
         apiVersion: ApiVersion.v20200115,
         analyticsId: 123,
@@ -192,6 +197,7 @@ describe('SyncItems', () => {
         computeIntegrityHash: false,
         syncToken: 'foo',
         readOnlyAccess: false,
+        sessionUuid: '2-3-4',
         cursorToken: 'bar',
         limit: 10,
         contentType: 'Note',

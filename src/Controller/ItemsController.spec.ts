@@ -179,6 +179,7 @@ describe('ItemsController', () => {
       syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
       userUuid: '123',
       analyticsId: 123,
+      sessionUuid: null,
     })
 
     expect(result.statusCode).toEqual(200)
@@ -210,12 +211,14 @@ describe('ItemsController', () => {
       syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
       userUuid: '123',
       analyticsId: 123,
+      sessionUuid: null,
     })
 
     expect(result.statusCode).toEqual(200)
   })
 
   it('should sync items with no incoming items in request', async () => {
+    response.locals.session = { uuid: '2-3-4' }
     delete request.body.items
 
     const httpResponse = <results.JsonResult>await createController().sync(request, response)
@@ -229,6 +232,7 @@ describe('ItemsController', () => {
       syncToken: 'MjoxNjE3MTk1MzQyLjc1ODEyMTc=',
       userUuid: '123',
       analyticsId: 123,
+      sessionUuid: '2-3-4',
     })
 
     expect(result.statusCode).toEqual(200)

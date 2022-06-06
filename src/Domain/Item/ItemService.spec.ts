@@ -430,6 +430,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
 
     expect(result).toEqual({
@@ -449,6 +450,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: true,
+      sessionUuid: null,
     })
 
     expect(result).toEqual({
@@ -475,6 +477,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
 
     expect(result).toEqual({
@@ -500,6 +503,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
 
     expect(result).toEqual({
@@ -521,6 +525,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
 
     expect(result).toEqual({
@@ -561,6 +566,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
 
     expect(result.syncToken).toEqual('MjoxNjE2MTY0NjMzLjI0MTU3MQ==')
@@ -575,6 +581,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
 
     expect(result).toEqual({
@@ -591,6 +598,7 @@ describe('ItemService', () => {
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
+          updatedWithSession: '2-3-4',
           uuid: '1-2-3',
         },
       ],
@@ -609,6 +617,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20161215,
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
 
     expect(result).toEqual({
@@ -625,6 +634,7 @@ describe('ItemService', () => {
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
+          updatedWithSession: '2-3-4',
           uuid: '1-2-3',
         },
       ],
@@ -642,6 +652,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
 
     expect(result).toEqual({
@@ -658,6 +669,7 @@ describe('ItemService', () => {
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
+          updatedWithSession: '2-3-4',
           uuid: '1-2-3',
         },
       ],
@@ -677,6 +689,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
 
     expect(result).toEqual({
@@ -689,6 +702,7 @@ describe('ItemService', () => {
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
+          updatedWithSession: '2-3-4',
           uuid: '2-3-4',
         },
       ],
@@ -704,6 +718,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
 
     expect(result).toEqual({
@@ -720,6 +735,7 @@ describe('ItemService', () => {
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
+          updatedWithSession: '2-3-4',
           uuid: '1-2-3',
         },
       ],
@@ -735,6 +751,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
 
     expect(result).toEqual({
@@ -751,6 +768,7 @@ describe('ItemService', () => {
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
+          updatedWithSession: '2-3-4',
           uuid: '1-2-3',
         },
       ],
@@ -768,6 +786,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
 
     expect(result).toEqual({
@@ -785,6 +804,7 @@ describe('ItemService', () => {
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
+          updatedWithSession: '2-3-4',
           uuid: '1-2-3',
         },
       ],
@@ -801,6 +821,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
 
     expect(result).toEqual({
@@ -819,6 +840,7 @@ describe('ItemService', () => {
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
+          updatedWithSession: '2-3-4',
           uuid: '1-2-3',
         },
       ],
@@ -835,6 +857,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
 
     expect(result).toEqual({
@@ -852,6 +875,7 @@ describe('ItemService', () => {
           userUuid: '1-2-3',
           updatedAtTimestamp: expect.any(Number),
           updatedAt: expect.any(Date),
+          updatedWithSession: '2-3-4',
           uuid: '1-2-3',
         },
       ],
@@ -872,6 +896,7 @@ describe('ItemService', () => {
       userUuid: '1-2-3',
       apiVersion: ApiVersion.v20200115,
       readOnlyAccess: false,
+      sessionUuid: '2-3-4',
     })
 
     expect(result).toEqual({
