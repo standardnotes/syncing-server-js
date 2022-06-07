@@ -26,6 +26,7 @@ describe('ItemProjector', () => {
     item.deleted = false
     item.createdAtTimestamp = 123
     item.updatedAtTimestamp = 123
+    item.updatedWithSession = '7-6-5'
   })
 
   it('should create a full projection of an item', async () => {
@@ -40,6 +41,7 @@ describe('ItemProjector', () => {
       deleted: false,
       created_at: '2021-04-15T08:00:00.123456Z',
       updated_at: '2021-04-15T08:00:00.123456Z',
+      updated_with_session: '7-6-5',
     })
   })
 
