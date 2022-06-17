@@ -42,6 +42,7 @@ export class ItemsController extends BaseHttpController {
       apiVersion: request.body.api ?? ApiVersion.v20161215,
       readOnlyAccess: response.locals.readOnlyAccess,
       analyticsId: response.locals.analyticsId,
+      sessionUuid: response.locals.session ? response.locals.session.uuid : null,
     })
 
     const syncResponse = await this.syncResponseFactoryResolver

@@ -1,4 +1,4 @@
-import { ContentType } from '@standardnotes/common'
+import { ContentType, Uuid } from '@standardnotes/common'
 import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { Revision } from '../Revision/Revision'
 
@@ -117,4 +117,12 @@ export class Item {
     (revision) => revision.item,
   )
   declare revisions: Promise<Revision[]>
+
+  @Column({
+    name: 'updated_with_session',
+    type: 'varchar',
+    length: 36,
+    nullable: true,
+  })
+  declare updatedWithSession: Uuid | null
 }

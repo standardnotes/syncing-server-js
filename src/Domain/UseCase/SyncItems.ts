@@ -29,6 +29,7 @@ export class SyncItems implements UseCaseInterface {
       userUuid: dto.userUuid,
       apiVersion: dto.apiVersion,
       readOnlyAccess: dto.readOnlyAccess,
+      sessionUuid: dto.sessionUuid,
     })
 
     let retrievedItems = this.filterOutSyncConflictsForConsecutiveSyncs(getItemsResult.items, saveItemsResult.conflicts)

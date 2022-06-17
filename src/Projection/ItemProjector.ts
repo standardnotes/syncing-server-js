@@ -32,6 +32,7 @@ export class ItemProjector implements ProjectorInterface<Item, ItemProjection> {
       created_at_timestamp: item.createdAtTimestamp,
       updated_at: this.timer.convertMicrosecondsToStringDate(item.updatedAtTimestamp),
       updated_at_timestamp: item.updatedAtTimestamp,
+      updated_with_session: item.updatedWithSession,
     }
   }
 }
