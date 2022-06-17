@@ -4,12 +4,10 @@ export class addUpdatedWithSession1654518291191 implements MigrationInterface {
   name = 'addUpdatedWithSession1654518291191'
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('ALTER TABLE `revisions` ADD `updated_with_session` varchar(36) NULL')
     await queryRunner.query('ALTER TABLE `items` ADD `updated_with_session` varchar(36) NULL')
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query('ALTER TABLE `items` DROP COLUMN `updated_with_session`')
-    await queryRunner.query('ALTER TABLE `revisions` DROP COLUMN `updated_with_session`')
   }
 }

@@ -102,7 +102,6 @@ export class RevisionService implements RevisionServiceInterface {
     revision.creationDate = now
     revision.createdAt = now
     revision.updatedAt = now
-    revision.updatedWithSession = item.updatedWithSession
 
     await this.revisionRepository.save(revision)
   }
